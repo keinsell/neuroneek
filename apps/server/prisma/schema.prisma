@@ -6,7 +6,7 @@ datasource db {
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex", "metrics", "tracing", "filteredRelationCount", "fieldReference", "multiSchema", "extendedWhereUnique", "views", "clientExtensions"]
+  previewFeatures = ["fullTextSearch", "fullTextIndex", "metrics", "tracing", "multiSchema", "views", "postgresqlExtensions", "driverAdapters"]
 }
 
 model Account {
@@ -29,19 +29,70 @@ model Subject {
   Stash       Stash[]
 }
 
+// export enum RouteOfAdministrationClassification {
+//   oral = 'oral',
+//   sublingual = 'sublingual',
+//   buccal = 'buccal',
+//   insufflated = 'insufflated',
+//   rectal = 'rectal',
+//   transdermal = 'transdermal',
+//   subcutaneous = 'subcutaneous',
+//   intramuscular = 'intramuscular',
+//   interavenous = 'interavenous',
+//   smoked = 'smoked'
+// }
+
+enum RouteOfAdministrationClassification {
+  oral
+  sublingual
+  buccal
+  insufflated
+  rectal
+  transdermal
+  subcutaneous
+  intramuscular
+  interavenous
+  smoked
+}
+
+enum PsychoactiveClass {
+  Stimulant
+  Depressant
+  Hallucinogen
+  Dissociative
+  Deliriant
+  Entactogen
+  Cannabinoid
+  Opioid
+  Inhalant
+  Other
+
+  @@map("psychoactive_class")
+}
+
+enum DosageIntensivity {
+  THRESHOLD
+  LIGHT
+  COMMON
+  STRONG
+  HEAVY
+}
+
 model Substance {
   id                       String                  @id @default(cuid())
   name                     String                  @unique
+  /// Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition.
   common_names             String[]
   brand_names              String[]
-  substitutive_name        String?
-  systematic_name          String?
+  /// Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix.
+  substitutive_name        String?                 @unique
+  systematic_name          String?                 @unique
   unii                     String?
-  cas_number               String?
+  cas_number               String?                 @unique
   inchi_key                String?
   iupac                    String?
   smiles                   String?
-  psychoactive_class       String[]
+  psychoactive_class       PsychoactiveClass[]
   chemical_class           String?
   description              String?
   routes_of_administration RouteOfAdministration[]
@@ -51,14 +102,15 @@ model Substance {
 }
 
 model RouteOfAdministration {
-  id              String     @id @default(cuid())
+  id              String                              @id @default(cuid())
   substanceName   String?
-  name            String
+  name            RouteOfAdministrationClassification
   bioavailability Float[]
-  dosage_kind     String
   dosage          Dosage[]
   phases          Phase[]
-  Substance       Substance? @relation(fields: [substanceName], references: [name])
+  Substance       Substance?                          @relation(fields: [substanceName], references: [name])
+
+  @@unique([name, substanceName])
 }
 
 model Phase {
@@ -72,11 +124,15 @@ model Phase {
 
 model Dosage {
   id                      String                 @id @default(cuid())
-  amount                  Float
+  intensivity             DosageIntensivity
+  amount_min              Float
+  amount_max              Float
   unit                    String
   perKilogram             Boolean                @default(false)
   RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
   routeOfAdministrationId String?
+
+  @@unique([intensivity, routeOfAdministrationId])
 }
 
 model Effect {
