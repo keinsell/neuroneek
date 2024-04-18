@@ -1,0 +1,4 @@
+terraform -> vps
+terraform -> sshkey: Exports ssh key to access server
+vps -> sshkey
+terraform -> ansible -> vps: Configures intial state of VPS

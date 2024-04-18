@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ds-psychonautwiki-api"
+version = "0.1.0"
+description = ""
+authors = ["Jakub Olan <keinsell@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+edgedb = "^1.9.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

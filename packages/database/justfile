@@ -1,0 +1,8 @@
+database_migration_create:
+  edgedb migration create
+
+database_migration_deploy:
+    edgedb migration apply
+
+another-recipe:
+  @echo 'This is another recipe.'

@@ -1,0 +1,4 @@
+[edgedb]
+server-version = "4.7"
+[project]
+schema-dir = "../packages/database"

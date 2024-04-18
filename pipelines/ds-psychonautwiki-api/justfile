@@ -1,0 +1,2 @@
+generate_orm:
+    poetry run edgedb-py --file --target blocking

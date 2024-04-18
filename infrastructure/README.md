@@ -1,6 +1,3 @@
-```
-pulumi stack init dev --non-interactive
-pulumi stack select dev
-pulumi up
-export DIGITALOCEAN_TOKEN=""
-```
+# Infrastructure
+
+Terraform-managed infrastructure to prepare a cheapest VPS and deploy stuff.
