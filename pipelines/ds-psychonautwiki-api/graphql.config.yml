@@ -1,0 +1,2 @@
+schema    : psychonautwiki.schema.graphql
+documents : '**/*.graphql'
