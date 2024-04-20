@@ -1,6 +1,0 @@
-export { Aggregate } from './aggregate.js'
-export { DomainEvent } from './domain-event.js'
-export { Entity } from './enity.js'
-export { DomainHandler } from './domain-handler.js'
-export { ValueObject } from './value-object.js'
-export { AggregateRoot } from './aggregate-root.js'
