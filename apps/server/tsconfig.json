@@ -1,0 +1,182 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "declaration": true,
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true,
+    "skipDefaultLibCheck": false,
+    "target": "ESNext",
+    // Generate source maps for the compiler output.
+    "sourceMap": true,
+    "inlineSources": true,
+    "inlineSourceMap": false,
+    // Compiler tracing
+    "traceResolution": false,
+    "diagnostics": true,
+    "extendedDiagnostics": true,
+    // Incremental compilation
+    "incremental": true,
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "composite": true,
+    // Emit design-type metadata for decorated declarations in source files.
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    // Directories
+    "sourceRoot": "./",
+    "mapRoot": "./",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "rootDir": "./",
+    // Emiting files
+    "noEmitOnError": false,
+    "emitDeclarationOnly": false,
+    "noEmitHelpers": false,
+    "importHelpers": true,
+    // Declaration files
+    "declarationDir": "./dist",
+    "assumeChangesOnlyAffectDirectDependencies": true,
+    //    // TODO: Migrate codebase to verbatimModuleSyntax in future
+    //    "verbatimModuleSyntax": false,
+    "emitBOM": true,
+    "declarationMap": true,
+    "generateCpuProfile": "profile.cpuprofile",
+    "noErrorTruncation": false,
+    "pretty": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "useDefineForClassFields": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictBindCallApply": true,
+    "forceConsistentCasingInFileNames": false,
+    // TODO: Also use this.
+    "strictFunctionTypes": false,
+    // TODO: This will require codebase changes however it's useful and healthy for codebase.
+    "exactOptionalPropertyTypes": false,
+    "moduleDetection": "force",
+    "downlevelIteration": true,
+    "preserveValueImports": false,
+    "preserveSymlinks": false,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "disableSourceOfProjectReferenceRedirect": false,
+    "disableSizeLimit": true,
+    "disableReferencedProjectLoad": false,
+    "disableSolutionSearching": false,
+    // TODO: Turn on.
+    "useUnknownInCatchVariables": false,
+    "importsNotUsedAsValues": "remove",
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": false,
+    // TODO: Turn on.
+    "noImplicitOverride": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    // TODO: Turn on.
+    "strictPropertyInitialization": false,
+    // TODO: Turn on.
+    //    "noEmit": false,
+        "moduleResolution": "NodeNext",
+    //    "types": [
+    //      "@types/node",
+    //      "@types/express-session"
+    //    ],
+    "typeRoots": [
+      "./src/types/**/*"
+    ],
+    "paths": {
+      "@filesystem/*": [
+        "./src/utilities/filesystem-utils/*"
+      ],
+      "@lib/security/*": [
+        "./src/common/libraries/security/*"
+      ],
+      "@storage": [
+        "./src/infrastructure/storage/*"
+      ],
+      "@infrastructure": [
+        "./src/infrastructure/*"
+      ],
+      "@libraries/*": [
+        "./src/libraries/*"
+      ]
+    },
+    "plugins": [
+      //      {
+      //        "transform": "@typescript-virtual-barrel/compiler-plugin",
+      //        "transformProgram": true,
+      //        "shouldTransformImports": false
+      //      },
+      //      {
+      //        "name": "@typescript-virtual-barrel/language-service-plugin"
+      //      },
+      // Transform paths in output .js files
+      {
+        "transform": "typescript-transform-paths"
+      },
+      // Transform paths in output .d.ts files (Include this line if you output declarations files)
+      {
+        "transform": "typescript-transform-paths",
+        "afterDeclarations": true
+      },
+      {
+        "transform": "@formatjs/ts-transformer",
+        "import": "transform",
+        "type": "config",
+        "overrideIdFn": "[sha512:contenthash:base64:6]",
+        "ast": true
+      },
+      {
+        "transform": "tsc-progress",
+        "title": "Compiling..."
+      },
+      {
+        "transform": "@nestia/core/lib/transform",
+        /**
+         * Validate request body.
+         *
+         *   - "assert": Use typia.assert() function
+         *   - "is": Use typia.is() function
+         *   - "validate": Use typia.validate() function
+         *   - "assertEquals": Use typia.assertEquals() function
+         *   - "equals": Use typia.equals() function
+         *   - "validateEquals": Use typia.validateEquals() function
+         */
+        "validate": "assert",
+        /**
+         * Validate JSON typed response body.
+         *
+         *   - "assert": Use typia.assertStringify() function
+         *   - "is": Use typia.isStringify() function
+         *   - "validate": Use typia.validateStringify() function
+         *   - "stringify": Use typia.stringify() function, but dangerous
+         *   - null: Just use JSON.stringify() function, without boosting
+         */
+        "stringify": "assert"
+      },
+      {
+        "transform": "typia/lib/transform"
+      }
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "vendor",
+    "dist",
+    "coverage",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.e2e-spec.ts",
+    "src/**/*.e2e-test.ts"
+  ],
+  "compileOnSave": true,
+  "typeAcquisition": {
+    "include": [
+      "node"
+    ],
+    "enable": true
+  }
+}

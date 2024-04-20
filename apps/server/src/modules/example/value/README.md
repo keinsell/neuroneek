@@ -1,0 +1,1 @@
+for representing simple value objects

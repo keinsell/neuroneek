@@ -1,0 +1,1 @@
+- Automatic Auditing, module should be globally connected to Nest.js and extract user information as well changes made by user on specific resources and save them all to database.

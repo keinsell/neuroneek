@@ -1,0 +1,1454 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/sso/{idp}": {
+      "post": {
+        "operationId": "initiate-sso",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "idp",
+            "required": true,
+            "in": "path",
+            "example": "github",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitiateSingleSignOn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "complete-sso",
+        "summary": "",
+        "parameters": [
+          {
+            "name": "idp",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/cbac/initiate": {
+      "post": {
+        "operationId": "request-proof-of-possession-of-private-key",
+        "summary": "Initiate certificate based authentication",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitiateCertificateBasedAuthentication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/cbac/verify": {
+      "post": {
+        "operationId": "verify-possession-of-private-key",
+        "summary": "Verify proof of possession of Private Key",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/compute": {
+      "get": {
+        "operationId": "ComputeController_compute",
+        "summary": "",
+        "description": "Compute the shit",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/compute/v2": {
+      "get": {
+        "operationId": "ComputeController_computeV2",
+        "summary": "",
+        "description": "Compute the shit2",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "operationId": "CartController_getMyCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      },
+      "put": {
+        "operationId": "CartController_updateMyCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      },
+      "delete": {
+        "operationId": "CartController_deleteMyCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      }
+    },
+    "/cart/item": {
+      "post": {
+        "operationId": "add-cart-item",
+        "summary": "Add item to cart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddItemToCart"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      }
+    },
+    "/cart/item/{cartItemId}": {
+      "delete": {
+        "operationId": "CartController_removeItemFromCart",
+        "parameters": [
+          {
+            "name": "cartItemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      },
+      "put": {
+        "operationId": "CartController_updateItemInCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "cart"
+        ]
+      }
+    },
+    "/checkout/payment-methods": {
+      "get": {
+        "operationId": "get-checkout-payment-methods",
+        "summary": "Available PaymentMethods for Checkout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutPaymentMethods"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/shipment-methods": {
+      "get": {
+        "operationId": "CheckoutController_getShipmentMethods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout": {
+      "post": {
+        "operationId": "initialize-checkout",
+        "summary": "Initialize Checkout",
+        "description": "Initialization of the checkout is pre-final process of placing order in our system, the Customer is able to declare real intention to buy and we calculate the stuff for him, at the end he gets a CheckoutSummary which describes things he's going to buy and the price he's going to pay. Checkout is immutable once it's made, the only thing Customer can do when his order is not correct is cancellation of Checkout. Process itself will result in Checkout with list of CheckoutItem, draft of an Invoice and Discount.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitializeCheckout"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutSummary"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      },
+      "get": {
+        "operationId": "CheckoutController_summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      },
+      "delete": {
+        "operationId": "cancel-checkout",
+        "summary": "Cancel Checkout",
+        "description": "Operation will cancel the current checkout process started by user, as process is immutable once it's made - the only thing Customer can do when his order is not correct is cancellation of Checkout.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/cart/{cardId}": {
+      "post": {
+        "operationId": "CheckoutController_initializeWithCart",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/checkout/finalize": {
+      "post": {
+        "operationId": "CheckoutController_finalize",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Checkout"
+        ]
+      }
+    },
+    "/account": {
+      "post": {
+        "operationId": "register",
+        "summary": "Register account",
+        "description": "",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterAccountCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account was successfully registered in system.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Provided Invalid Data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpProblem",
+                  "type": "object",
+                  "example": {
+                    "type": "com.methylphenidate.account.invalid-username",
+                    "title": "Invalid Username",
+                    "status": 400
+                  },
+                  "examples": [
+                    {
+                      "type": "com.methylphenidate.account.invalid-email",
+                      "title": "Invalid Email",
+                      "status": 400
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Account already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpProblem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "update-account",
+        "summary": "",
+        "description": "Update details of account.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/account/delete-account": {
+      "post": {
+        "operationId": "delete-account",
+        "summary": "",
+        "description": "Deletes the user's account.",
+        "tags": [
+          "account"
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/account/recovery/forgot-password": {
+      "post": {
+        "operationId": "forgot-password",
+        "summary": "Request password reset",
+        "description": "Sends a password reset email",
+        "tags": [
+          "account-recovery"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecoverAccount"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/account/recovery/reset-password": {
+      "post": {
+        "operationId": "reset-password",
+        "summary": "Reset password",
+        "description": "Resets the user's password",
+        "tags": [
+          "account-recovery"
+        ],
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/account/verification/verify-email": {
+      "post": {
+        "operationId": "verify-email",
+        "summary": "Verify Email",
+        "description": "Verifies the user’s email",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "verification_code",
+            "required": true,
+            "in": "query",
+            "example": "verification_code",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/account/verification/resend-verification-email": {
+      "post": {
+        "operationId": "resend-verification-email",
+        "summary": "Re-send verification email",
+        "description": "Resends the verification email",
+        "tags": [
+          "account"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "description": "Email of created account to which verification email should be sent",
+            "example": "Raul_Marks@gmail.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/authenticate": {
+      "post": {
+        "operationId": "authenticate",
+        "summary": "Basic Authentication",
+        "description": "Logs the user in with usage of a username and password.",
+        "tags": [
+          "authentication"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Auhenticate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The user has been successfully authenticated and session was created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The user could not be found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpProblem"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basic": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "whoami",
+        "summary": "Who am I?",
+        "description": "Returns the current user",
+        "tags": [
+          "authentication"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Account was found in system, and returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthcheck",
+        "summary": "Health check endpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product": {
+      "post": {
+        "operationId": "create-product",
+        "summary": "Create product",
+        "tags": [
+          "product"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProduct"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "get": {
+        "operationId": "list-products",
+        "summary": "List products",
+        "tags": [
+          "product"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApiProduct"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "operationId": "get-product",
+        "summary": "Get product",
+        "tags": [
+          "product"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "ProductController_updateProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "product"
+        ]
+      },
+      "delete": {
+        "operationId": "ProductController_deleteProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "product"
+        ]
+      }
+    },
+    "/cart/{id}": {
+      "get": {
+        "operationId": "get-cart",
+        "summary": "Get a Cart",
+        "description": "Retrieve a Cart's details. This includes recalculating its totals.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "CartController_updateCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "CartController_deleteCart",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/cart/{id}/checkout": {
+      "post": {
+        "operationId": "CartController_checkoutCart",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "CartController_cancelCheckoutCart",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/region/{id}": {
+      "get": {
+        "operationId": "get-region",
+        "summary": "Get a Region",
+        "description": "Retrieve a Region's details.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "info": {
+    "title": "${PROJECT}",
+    "description": "Methylophenidate is a boilerplate for Nest.js applications with batteries included.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "api",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Bearer Token",
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer <token>\""
+      }
+    },
+    "schemas": {
+      "InitiateSingleSignOn": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "github"
+            ],
+            "example": "github"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "example": "http://localhost:1337/sso/github"
+          }
+        },
+        "required": [
+          "provider",
+          "redirectUrl"
+        ]
+      },
+      "InitiateCertificateBasedAuthentication": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "Raul_Marks",
+            "examples": [
+              "Floy.Daniel",
+              "Providenci.McCullough52",
+              "Cydney_Walker39"
+            ]
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "AddItemToCart": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "example": "gpu.nvidia.rtx.4090"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "CheckoutPaymentMethods": {
+        "type": "object",
+        "properties": {
+          "paymentMethods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "stripe"
+            ]
+          }
+        },
+        "required": [
+          "paymentMethods"
+        ]
+      },
+      "CheckoutStripePaymentMethod": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "example": "cus_J3z3v2eZvKYlo2C5z3v2eZvKYlo"
+          },
+          "paymentMethodId": {
+            "type": "string",
+            "example": "pm_1J3z3v2eZvKYlo2C5z3v2eZvKYlo"
+          }
+        }
+      },
+      "CheckoutPaymentMethod": {
+        "type": "object",
+        "properties": {
+          "STRIPE": {
+            "$ref": "#/components/schemas/CheckoutStripePaymentMethod"
+          }
+        }
+      },
+      "AddCheckoutItem": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "The product ID",
+            "example": "gpu.nvidia.rtx.4090"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "InitializeCheckout": {
+        "type": "object",
+        "properties": {
+          "paymentMethod": {
+            "$ref": "#/components/schemas/CheckoutPaymentMethod"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AddCheckoutItem"
+            }
+          }
+        },
+        "required": [
+          "paymentMethod",
+          "items"
+        ]
+      },
+      "ApiProduct": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "The product ID",
+            "example": "gpu.nvidia.rtx.4090"
+          }
+        },
+        "required": [
+          "productId"
+        ]
+      },
+      "ApiCheckoutItem": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "description": "The product",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ApiProduct"
+              }
+            ]
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1
+          },
+          "subtotal": {
+            "type": "number",
+            "description": "Subtotal is the total price of all items in the cart"
+          },
+          "discount": {
+            "type": "number",
+            "example": 100
+          },
+          "tax": {
+            "type": "number",
+            "example": 230
+          },
+          "total": {
+            "type": "number",
+            "example": 900
+          }
+        },
+        "required": [
+          "product",
+          "quantity",
+          "subtotal",
+          "discount",
+          "tax",
+          "total"
+        ]
+      },
+      "CheckoutSummary": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiCheckoutItem"
+            }
+          },
+          "currency": {
+            "type": "string",
+            "example": "PLN"
+          },
+          "total": {
+            "type": "number",
+            "example": 1000
+          }
+        },
+        "required": [
+          "items",
+          "currency",
+          "total"
+        ]
+      },
+      "RegisterAccountCommand": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "The account's email address",
+            "example": "Raul_Marks@gmail.com",
+            "examples": [
+              "Raul_Marks@gmail.com",
+              "Buddy.Schulist@gmail.com",
+              "Anibal_Pouros@hotmail.com"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "SuperSecretPassword123!",
+            "examples": [
+              "LaW1KVuo69FG5Pf",
+              "9srQfkporSDhU76",
+              "74ETrfy3OQCdUzs"
+            ]
+          },
+          "username": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "Raul_Marks",
+            "examples": [
+              "Floy.Daniel",
+              "Providenci.McCullough52",
+              "Cydney_Walker39"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "username"
+        ]
+      },
+      "HttpProblem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "A URI reference that uniquely identifies the problem type only in the context of the provided API. Opposed to the specification in RFC-7807, it is neither recommended to be dereferencable and point to a human-readable documentation nor globally unique for the problem type.",
+            "example": "com.app.account.already-exists"
+          },
+          "title": {
+            "type": "string",
+            "description": "A short, human-readable summary of the problem type.",
+            "example": "Account already exists"
+          },
+          "status": {
+            "type": "number",
+            "minimum": 100,
+            "maximum": 599,
+            "enum": [
+              100,
+              101,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              300,
+              301,
+              302,
+              303,
+              304,
+              305,
+              307,
+              400,
+              401,
+              404,
+              409,
+              500
+            ],
+            "description": "No rocket science there.",
+            "example": 400
+          },
+          "detail": {
+            "type": "string",
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "example": "The account you are trying to register, already exists."
+          },
+          "instance": {
+            "type": "string",
+            "description": "A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.",
+            "example": "com.app.account.already-exists"
+          }
+        },
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance"
+        ]
+      },
+      "RecoverAccount": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "Raul_Marks",
+            "examples": [
+              "Floy.Daniel",
+              "Providenci.McCullough52",
+              "Cydney_Walker39"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "description": "Recovery Method",
+            "example": ""
+          }
+        },
+        "required": [
+          "username"
+        ]
+      },
+      "AuthenticationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of given resource."
+          },
+          "mfa": {
+            "type": "boolean",
+            "description": "Indicates if domain uses MFA. In case of true, additional steps are supposed to be made to activate access token."
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Access token.",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7fSwiaWF0IjoxNzA3NzQ1NTE5fQ.ZMuKBcLvQm_Jc4TSx1cp0tWU7TmSrpIfr_Ust_BbcEc",
+            "examples": [
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7fSwiaWF0IjoxNzA3NzQ1NTE5fQ.ZMuKBcLvQm_Jc4TSx1cp0tWU7TmSrpIfr_Ust_BbcEc",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7fSwiaWF0IjoxNzA3NzQ1NTE5fQ.ZMuKBcLvQm_Jc4TSx1cp0tWU7TmSrpIfr_Ust_BbcEc",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXlsb2FkIjp7fSwiaWF0IjoxNzA3NzQ1NTE5fQ.ZMuKBcLvQm_Jc4TSx1cp0tWU7TmSrpIfr_Ust_BbcEc"
+            ]
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh token."
+          }
+        },
+        "required": [
+          "id",
+          "mfa",
+          "accessToken",
+          "refreshToken"
+        ]
+      },
+      "CreateProduct": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "description": "The currency of the price",
+            "example": "PLN"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the product",
+            "example": "NVIDIA RTX 4090"
+          },
+          "price": {
+            "type": "number",
+            "description": "The price of the product",
+            "example": 1000000
+          }
+        },
+        "required": [
+          "currency",
+          "name",
+          "price"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The domain's unique identifier",
+            "example": "cjld2cjxh0000qzrmn831i7rn"
+          },
+          "email": {
+            "type": "string",
+            "description": "The domain's email address",
+            "example": "Raul_Marks@gmail.com",
+            "examples": [
+              "Raul_Marks@gmail.com",
+              "Buddy.Schulist@gmail.com",
+              "Anibal_Pouros@hotmail.com"
+            ]
+          },
+          "emailVerified": {
+            "type": "boolean",
+            "description": "Indicates whether the email associated with a user domain has been verified",
+            "example": false
+          },
+          "username": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "Raul_Marks",
+            "examples": [
+              "Floy.Daniel",
+              "Providenci.McCullough52",
+              "Cydney_Walker39"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "emailVerified",
+          "username"
+        ],
+        "description": "asdasd"
+      },
+      "Auhenticate": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "Raul_Marks",
+            "examples": [
+              "Floy.Daniel",
+              "Providenci.McCullough52",
+              "Cydney_Walker39"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "description": "The account's username",
+            "example": "SuperSecretPassword123!",
+            "examples": [
+              "LaW1KVuo69FG5Pf",
+              "9srQfkporSDhU76",
+              "74ETrfy3OQCdUzs"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "description": "asdasd"
+      }
+    }
+  }
+}
