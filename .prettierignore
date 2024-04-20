@@ -16,3 +16,4 @@ yarn.lock
 *.png
 *.jpg
 swagger.json
+/packages/db/generated/
