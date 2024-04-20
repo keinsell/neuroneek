@@ -46,17 +46,7 @@
     "dev": {
       "cache": false,
       "dependsOn": [
-        "^build",
-        "^db:generate",
-        "^db:push"
-      ]
-    },
-    "dev:fast": {
-      "cache": false,
-      "dependsOn": [
-        "^build",
-        "^db:generate",
-        "^db:push"
+        "^build"
       ]
     },
     "db:migrate:deploy": {
@@ -76,28 +66,8 @@
       "cache": false
     },
     "db:generate": {
-      "dependsOn": [
-        "^db:generate"
-      ],
-      "outputs": [
-        "node_modules/@prisma/client/generator-build/index.js"
-      ],
       "cache": false
-    },
-    "hephaistos": {
-      "inputs": [
-        "src/**/*.ts"
-      ],
-      "outputs": [
-        "cache/**/*.json"
-      ],
-      "dependsOn": [
-        "^build",
-        "^db:generate"
-      ],
-      "cache": true
-    },
-    "infra:up": {}
+    }
   },
   "remoteCache": {
     "signature": true
