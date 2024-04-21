@@ -28,7 +28,7 @@
     "baseUrl": "./",
     "rootDir": "./",
     // Emiting files
-    "noEmitOnError": false,
+    "noEmitOnError": true,
     "emitDeclarationOnly": false,
     "noEmitHelpers": false,
     "importHelpers": true,
@@ -49,10 +49,8 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": false,
-    // TODO: Also use this.
-    "strictFunctionTypes": false,
-    // TODO: This will require codebase changes however it's useful and healthy for codebase.
-    "exactOptionalPropertyTypes": false,
+    "strictFunctionTypes": false, // TODO: True
+    "exactOptionalPropertyTypes": false, // TODO: true
     "moduleDetection": "force",
     "downlevelIteration": true,
     "preserveValueImports": false,
@@ -63,43 +61,29 @@
     "disableSizeLimit": true,
     "disableReferencedProjectLoad": false,
     "disableSolutionSearching": false,
-    // TODO: Turn on.
-    "useUnknownInCatchVariables": false,
+    "useUnknownInCatchVariables": false, // TODO: true
     "importsNotUsedAsValues": "remove",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
-    // TODO: Turn on.
-    "noImplicitOverride": false,
+    "noImplicitOverride": false, // TODO: true
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    // TODO: Turn on.
-    "strictPropertyInitialization": false,
+    "strictPropertyInitialization": false, // TODO: true
     // TODO: Turn on.
     //    "noEmit": false,
-        "moduleResolution": "NodeNext",
+    "moduleResolution": "NodeNext",
     //    "types": [
     //      "@types/node",
     //      "@types/express-session"
     //    ],
-    "typeRoots": [
-      "./src/types/**/*"
-    ],
+    "typeRoots": ["./src/types/**/*"],
     "paths": {
-      "@filesystem/*": [
-        "./src/utilities/filesystem-utils/*"
-      ],
-      "@lib/security/*": [
-        "./src/common/libraries/security/*"
-      ],
-      "@storage": [
-        "./src/infrastructure/storage/*"
-      ],
-      "@infrastructure": [
-        "./src/infrastructure/*"
-      ],
-      "@libraries/*": [
-        "./src/libraries/*"
-      ]
+      "src/*": ["./src"],
+      "@filesystem/*": ["./src/utilities/filesystem-utils/*"],
+      "@lib/security/*": ["./src/common/libraries/security/*"],
+      "@storage": ["./src/infrastructure/storage/*"],
+      "@infrastructure": ["./src/infrastructure/*"],
+      "@libraries/*": ["./src/libraries/*"]
     },
     "plugins": [
       //      {
@@ -159,9 +143,7 @@
       }
     ]
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "exclude": [
     "node_modules",
     "vendor",
@@ -174,9 +156,7 @@
   ],
   "compileOnSave": true,
   "typeAcquisition": {
-    "include": [
-      "node"
-    ],
+    "include": ["node"],
     "enable": true
   }
 }

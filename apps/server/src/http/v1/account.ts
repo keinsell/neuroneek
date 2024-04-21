@@ -12,13 +12,12 @@ import { argon2i, argon2d, hash, verify } from 'argon2';
 import { PrismaClient, Prisma, Account } from 'db';
 import { SignJWT } from 'jose';
 import { randomUUID } from 'node:crypto';
-import { HttpProblem } from 'src/common/error/problem-details/http-problem.js';
-import { PrismaService } from 'src/common/modules/resources/prisma/services/prisma-service.js';
-import { __authConfig } from 'src/configs/global/__config.js';
-import { AccountViewModel } from 'src/modules/account/view-model/account-view-model.js';
-import { ApiModel } from 'src/utilities/docs-utils/swagger-api-model.js';
-import { ApiAccountMockup } from 'src/utilities/fixtures/api-account-mockup.js';
-import { register } from 'tsconfig-paths';
+import { HttpProblem } from '../../common/error/problem-details/http-problem.js';
+import { PrismaService } from '../../common/modules/resources/prisma/services/prisma-service.js';
+import { __authConfig } from '../../configs/global/__config.js';
+import { AccountViewModel } from '../../modules/account/view-model/account-view-model.js';
+import { ApiModel } from '../../utilities/docs-utils/swagger-api-model.js';
+import { ApiAccountMockup } from '../../utilities/fixtures/api-account-mockup.js';
 
 export const ApiPropertyAccountEmail = ApiProperty({
   name: 'email',

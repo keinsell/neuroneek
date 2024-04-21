@@ -94,258 +94,10 @@
         }
       }
     },
-    "/compute": {
-      "get": {
-        "operationId": "ComputeController_compute",
-        "summary": "",
-        "description": "Compute the shit",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/compute/v2": {
-      "get": {
-        "operationId": "ComputeController_computeV2",
-        "summary": "",
-        "description": "Compute the shit2",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/cart": {
-      "get": {
-        "operationId": "CartController_getMyCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      },
-      "put": {
-        "operationId": "CartController_updateMyCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      },
-      "delete": {
-        "operationId": "CartController_deleteMyCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      }
-    },
-    "/cart/item": {
-      "post": {
-        "operationId": "add-cart-item",
-        "summary": "Add item to cart",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddItemToCart"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      }
-    },
-    "/cart/item/{cartItemId}": {
-      "delete": {
-        "operationId": "CartController_removeItemFromCart",
-        "parameters": [
-          {
-            "name": "cartItemId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      },
-      "put": {
-        "operationId": "CartController_updateItemInCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "cart"
-        ]
-      }
-    },
-    "/checkout/payment-methods": {
-      "get": {
-        "operationId": "get-checkout-payment-methods",
-        "summary": "Available PaymentMethods for Checkout",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CheckoutPaymentMethods"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      }
-    },
-    "/checkout/shipment-methods": {
-      "get": {
-        "operationId": "CheckoutController_getShipmentMethods",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      }
-    },
-    "/checkout": {
-      "post": {
-        "operationId": "initialize-checkout",
-        "summary": "Initialize Checkout",
-        "description": "Initialization of the checkout is pre-final process of placing order in our system, the Customer is able to declare real intention to buy and we calculate the stuff for him, at the end he gets a CheckoutSummary which describes things he's going to buy and the price he's going to pay. Checkout is immutable once it's made, the only thing Customer can do when his order is not correct is cancellation of Checkout. Process itself will result in Checkout with list of CheckoutItem, draft of an Invoice and Discount.",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InitializeCheckout"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CheckoutSummary"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      },
-      "get": {
-        "operationId": "CheckoutController_summary",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      },
-      "delete": {
-        "operationId": "cancel-checkout",
-        "summary": "Cancel Checkout",
-        "description": "Operation will cancel the current checkout process started by user, as process is immutable once it's made - the only thing Customer can do when his order is not correct is cancellation of Checkout.",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      }
-    },
-    "/checkout/cart/{cardId}": {
-      "post": {
-        "operationId": "CheckoutController_initializeWithCart",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      }
-    },
-    "/checkout/finalize": {
-      "post": {
-        "operationId": "CheckoutController_finalize",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "Checkout"
-        ]
-      }
-    },
     "/account": {
       "post": {
         "operationId": "register",
         "summary": "Register account",
-        "description": "",
         "tags": [
           "account"
         ],
@@ -649,9 +401,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       },
                       "nullable": true
                     },
@@ -668,9 +418,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       },
                       "nullable": true
                     },
@@ -691,9 +439,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       }
                     }
                   }
@@ -729,9 +475,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       },
                       "nullable": true
                     },
@@ -753,9 +497,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       },
                       "nullable": true
                     },
@@ -780,9 +522,7 @@
                             "type": "string"
                           }
                         },
-                        "additionalProperties": {
-                          "type": "object"
-                        }
+                        "additionalProperties": true
                       }
                     }
                   }
@@ -792,180 +532,11 @@
           }
         }
       }
-    },
-    "/product": {
-      "post": {
-        "operationId": "create-product",
-        "summary": "Create product",
-        "tags": [
-          "product"
-        ],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateProduct"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "get": {
-        "operationId": "list-products",
-        "summary": "List products",
-        "tags": [
-          "product"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ApiProduct"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/product/{id}": {
-      "get": {
-        "operationId": "get-product",
-        "summary": "Get product",
-        "tags": [
-          "product"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "patch": {
-        "operationId": "ProductController_updateProduct",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "product"
-        ]
-      },
-      "delete": {
-        "operationId": "ProductController_deleteProduct",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "product"
-        ]
-      }
-    },
-    "/cart/{id}": {
-      "get": {
-        "operationId": "get-cart",
-        "summary": "Get a Cart",
-        "description": "Retrieve a Cart's details. This includes recalculating its totals.",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "CartController_updateCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "CartController_deleteCart",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/cart/{id}/checkout": {
-      "post": {
-        "operationId": "CartController_checkoutCart",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "CartController_cancelCheckoutCart",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/region/{id}": {
-      "get": {
-        "operationId": "get-region",
-        "summary": "Get a Region",
-        "description": "Retrieve a Region's details.",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
     }
   },
   "info": {
-    "title": "${PROJECT}",
-    "description": "Methylophenidate is a boilerplate for Nest.js applications with batteries included.",
+    "title": "methylphenidate",
+    "description": "Methylphenidate is a boilerplate for Nest.js applications with batteries included.",
     "version": "1.0",
     "contact": {}
   },
@@ -1015,183 +586,14 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Floy.Daniel",
-              "Providenci.McCullough52",
-              "Cydney_Walker39"
+              "Soledad.Graham",
+              "Amari_Batz98",
+              "Bart.Beahan68"
             ]
           }
         },
         "required": [
           "username"
-        ]
-      },
-      "AddItemToCart": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "example": "gpu.nvidia.rtx.4090"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 1
-          }
-        },
-        "required": [
-          "productId",
-          "quantity"
-        ]
-      },
-      "CheckoutPaymentMethods": {
-        "type": "object",
-        "properties": {
-          "paymentMethods": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "example": [
-              "stripe"
-            ]
-          }
-        },
-        "required": [
-          "paymentMethods"
-        ]
-      },
-      "CheckoutStripePaymentMethod": {
-        "type": "object",
-        "properties": {
-          "customerId": {
-            "type": "string",
-            "example": "cus_J3z3v2eZvKYlo2C5z3v2eZvKYlo"
-          },
-          "paymentMethodId": {
-            "type": "string",
-            "example": "pm_1J3z3v2eZvKYlo2C5z3v2eZvKYlo"
-          }
-        }
-      },
-      "CheckoutPaymentMethod": {
-        "type": "object",
-        "properties": {
-          "STRIPE": {
-            "$ref": "#/components/schemas/CheckoutStripePaymentMethod"
-          }
-        }
-      },
-      "AddCheckoutItem": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "description": "The product ID",
-            "example": "gpu.nvidia.rtx.4090"
-          },
-          "quantity": {
-            "type": "number",
-            "example": 1
-          }
-        },
-        "required": [
-          "productId",
-          "quantity"
-        ]
-      },
-      "InitializeCheckout": {
-        "type": "object",
-        "properties": {
-          "paymentMethod": {
-            "$ref": "#/components/schemas/CheckoutPaymentMethod"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AddCheckoutItem"
-            }
-          }
-        },
-        "required": [
-          "paymentMethod",
-          "items"
-        ]
-      },
-      "ApiProduct": {
-        "type": "object",
-        "properties": {
-          "productId": {
-            "type": "string",
-            "description": "The product ID",
-            "example": "gpu.nvidia.rtx.4090"
-          }
-        },
-        "required": [
-          "productId"
-        ]
-      },
-      "ApiCheckoutItem": {
-        "type": "object",
-        "properties": {
-          "product": {
-            "description": "The product",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ApiProduct"
-              }
-            ]
-          },
-          "quantity": {
-            "type": "number",
-            "example": 1
-          },
-          "subtotal": {
-            "type": "number",
-            "description": "Subtotal is the total price of all items in the cart"
-          },
-          "discount": {
-            "type": "number",
-            "example": 100
-          },
-          "tax": {
-            "type": "number",
-            "example": 230
-          },
-          "total": {
-            "type": "number",
-            "example": 900
-          }
-        },
-        "required": [
-          "product",
-          "quantity",
-          "subtotal",
-          "discount",
-          "tax",
-          "total"
-        ]
-      },
-      "CheckoutSummary": {
-        "type": "object",
-        "properties": {
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ApiCheckoutItem"
-            }
-          },
-          "currency": {
-            "type": "string",
-            "example": "PLN"
-          },
-          "total": {
-            "type": "number",
-            "example": 1000
-          }
-        },
-        "required": [
-          "items",
-          "currency",
-          "total"
         ]
       },
       "RegisterAccountCommand": {
@@ -1222,9 +624,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Floy.Daniel",
-              "Providenci.McCullough52",
-              "Cydney_Walker39"
+              "Raul_Marks",
+              "Buddy.Schulist",
+              "Anibal_Pouros"
             ]
           }
         },
@@ -1304,9 +706,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Floy.Daniel",
-              "Providenci.McCullough52",
-              "Cydney_Walker39"
+              "Soledad.Graham",
+              "Amari_Batz98",
+              "Bart.Beahan68"
             ]
           },
           "method": {
@@ -1352,31 +754,6 @@
           "refreshToken"
         ]
       },
-      "CreateProduct": {
-        "type": "object",
-        "properties": {
-          "currency": {
-            "type": "string",
-            "description": "The currency of the price",
-            "example": "PLN"
-          },
-          "name": {
-            "type": "string",
-            "description": "The name of the product",
-            "example": "NVIDIA RTX 4090"
-          },
-          "price": {
-            "type": "number",
-            "description": "The price of the product",
-            "example": 1000000
-          }
-        },
-        "required": [
-          "currency",
-          "name",
-          "price"
-        ]
-      },
       "Account": {
         "type": "object",
         "properties": {
@@ -1398,16 +775,16 @@
           "emailVerified": {
             "type": "boolean",
             "description": "Indicates whether the email associated with a user domain has been verified",
-            "example": false
+            "example": true
           },
           "username": {
             "type": "string",
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Floy.Daniel",
-              "Providenci.McCullough52",
-              "Cydney_Walker39"
+              "Soledad.Graham",
+              "Amari_Batz98",
+              "Bart.Beahan68"
             ]
           }
         },
@@ -1427,9 +804,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Floy.Daniel",
-              "Providenci.McCullough52",
-              "Cydney_Walker39"
+              "Soledad.Graham",
+              "Amari_Batz98",
+              "Bart.Beahan68"
             ]
           },
           "password": {

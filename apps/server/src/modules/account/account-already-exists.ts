@@ -23,23 +23,17 @@
  *
  */
 
+import { HttpStatus } from '../../common/http-status.js';
+import { HttpProblem } from '../../common/error/problem-details/http-problem.js';
 
-import {HttpStatus}  from 'src/common/http-status.js'
-import {HttpProblem} from '../../common/error/problem-details/http-problem.js'
-
-
-
-export class AccountAlreadyExists
-	extends HttpProblem
-{
-	constructor()
-	{
-		super({
-			      type    : 'com.methylphenidate.account.already-exists',
-			      title   : 'Account Already Exists',
-			      status  : HttpStatus.CONFLICT,
-			      message : 'The account already exists.',
-			      instance: 'com.methylphenidate.account.already-exists',
-		      })
-	}
+export class AccountAlreadyExists extends HttpProblem {
+  constructor() {
+    super({
+      type: 'com.methylphenidate.account.already-exists',
+      title: 'Account Already Exists',
+      status: HttpStatus.CONFLICT,
+      message: 'The account already exists.',
+      instance: 'com.methylphenidate.account.already-exists',
+    });
+  }
 }
