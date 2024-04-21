@@ -168,19 +168,19 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
         logger.verbose(`${'-'.repeat(54)}`);
 
-      //   if (__config.get('FEATURE').ENABLE_TUNNEL) {
-      //     const tunnel = await startTunnel({
-      //       port: openPort.port,
-      //       acceptCloudflareNotice: true,
-      //     });
-
-      //     if (tunnel) {
-      //       logger.log(
-      //         `🚇 Tunnel is enabled, you can access your application via public URL: ${await tunnel.getURL()}`,
-      //       );
-      //     }
-      //   }
-      // });
+         if (__config.get('FEATURE').ENABLE_TUNNEL) {
+           //const tunnel = await startTunnel({
+           //  port: openPort.port,
+           //  acceptCloudflareNotice: true,
+           //});
+		   //
+           //if (tunnel) {
+           //  logger.log(
+           //    `🚇 Tunnel is enabled, you can access your application via public URL: ${await tunnel.getURL()}`,
+           //  );
+           //}
+         }
+       });
 
       isApplicationListening = true;
     } catch (e) {

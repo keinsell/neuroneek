@@ -586,9 +586,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Soledad.Graham",
-              "Amari_Batz98",
-              "Bart.Beahan68"
+              "Mariano_OKeefe21",
+              "Bette.Ebert69",
+              "Buster.Beatty50"
             ]
           }
         },
@@ -706,9 +706,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Soledad.Graham",
-              "Amari_Batz98",
-              "Bart.Beahan68"
+              "Mariano_OKeefe21",
+              "Bette.Ebert69",
+              "Buster.Beatty50"
             ]
           },
           "method": {
@@ -775,16 +775,16 @@
           "emailVerified": {
             "type": "boolean",
             "description": "Indicates whether the email associated with a user domain has been verified",
-            "example": true
+            "example": false
           },
           "username": {
             "type": "string",
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Soledad.Graham",
-              "Amari_Batz98",
-              "Bart.Beahan68"
+              "Mariano_OKeefe21",
+              "Bette.Ebert69",
+              "Buster.Beatty50"
             ]
           }
         },
@@ -804,9 +804,9 @@
             "description": "The account's username",
             "example": "Raul_Marks",
             "examples": [
-              "Soledad.Graham",
-              "Amari_Batz98",
-              "Bart.Beahan68"
+              "Mariano_OKeefe21",
+              "Bette.Ebert69",
+              "Buster.Beatty50"
             ]
           },
           "password": {
