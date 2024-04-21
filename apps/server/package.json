@@ -9,13 +9,12 @@
   "scripts": {
     "build:nest": "nest build",
     "build": "pnpm run build:tsc",
-    "build:tsc": "tsc -p tsconfig.json && pnpm copy:markdown && pnpm copy:prisma && pnpm build:copy:docs",
+    "build:tsc": "tsc -p tsconfig.json && pnpm copy:markdown && pnpm copy:prisma",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "lint:fta": "npx fta-cli --config-path .fta.json src",
     "copy:markdown": "copyfiles -e \"**/node_modules/**\" -u 1 \"src/**/*.md\" dist/src",
     "copy:prisma": "copyfiles -u 1 \"vendor/prisma/**\" dist/src",
-    "build:copy:docs": "copyfiles -u 1 \"src/common/modules/documentation/swagger/public/**\" dist/src",
     "dev": "pnpm run dev:tsc",
     "dev:keploy": "sudo -E keploy record -c \"pnpm dev\"",
     "test:keploy": "sudo -E keploy test",
@@ -40,7 +39,6 @@
     "db:studio": "prisma studio",
     "postinstall": "pnpm run db:generate",
     "prepare": "ts-patch install && typia patch -s && pnpm run db:generate",
-    "compodoc": "compodoc -p tsconfig.compodoc.json --output vendor/compodoc --theme laravel",
     "sentry:sm:inject": "sentry-cli sourcemaps inject dist --org sentry",
     "sentry:sm:upload": "sentry-cli sourcemaps upload dist --org sentry --project orca"
   },
