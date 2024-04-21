@@ -1,0 +1,1 @@
+TypeScript-based API Gateway which have RW permissions on [[Database]] and have purpose to serve information for [[Web Application]] 

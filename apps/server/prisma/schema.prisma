@@ -1,0 +1,910 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../vendor/prisma"
+  // previewFeatures = ["tracing", "metrics", "fullTextSearch", "fullTextIndex", "views", "driverAdapters", "multiSchema", "postgresqlExtensions", "nativeDistinct", "relationJoins"]
+  previewFeatures = ["tracing", "metrics", "fullTextSearch", "fullTextIndex", "views", "driverAdapters", "multiSchema", "postgresqlExtensions"]
+  engineType      = "library"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URI")
+  relationMode = "foreignKeys"
+  //  TODO: Add postgis
+  extensions   = [hstore, pg_trgm, uuidOssp(map: "uuid-ossp"), pgcrypto, citext]
+  // directUrl    = env("DATABASE_URL")
+  // shadowDatabaseUrl = env("DATABASE_URL")
+}
+
+generator dbml {
+  provider            = "prisma-dbml-generator"
+  output              = "../docs/dbml"
+  outputName          = "plygrnd.dbml"
+  projectName         = "plygrnd"
+  projectDatabaseType = "PostgreSQL"
+  projectNote         = "plygrnd database"
+}
+
+model Account {
+  id                  String                @id @default(cuid())
+  // --------------------------------------------------
+  /// The user's family name.
+  family_name         String?
+  /// The user's given name.
+  given_name          String?
+  /// The user's locale.
+  locale              String?               @default("en")
+  /// URL pointing to the user's profile picture.
+  picture             String?
+  /// The user's full name
+  name                String?
+  /// The user's nickname.
+  nickname            String?
+  /// The user's phone number. Only valid for users with SMS connections.
+  phone_number        String?
+  /// Indicates whether the user has been verified their phone number.
+  phone_verified      Boolean               @default(false)
+  /// The user's username. Must be unique.
+  username            String                @unique
+  /// The user's email address. Must be unique.
+  email               String                @unique
+  /// Indicates whether the user has verified their email address.
+  email_verified      Boolean               @default(false)
+  //   email_verified Boolean @default(false)
+  /// The user's password. Only valid for users with Database connections.
+  /// (It's argon2 hashed)
+  password            String
+  /// IP address associated with the user's last login.
+  last_ip             String?
+  /// Timestamp indicating when the user last logged in.
+  last_login          DateTime?
+  // --------------------------------------------------
+  createdAt           DateTime              @default(now())
+  /// Timestamp indicating when the user's profile was last updated/modified.
+  /// Changes to last_login are considered updates, so most of the time,
+  /// updated_at will match last_login.
+  updatedAt           DateTime              @updatedAt
+  version             Int                   @default(1)
+  // --------------------------------------------------
+  Sessions            Session[]
+  User                User?
+  TokenAudit          TokenAudit[]
+  Group               Group[]
+  Role                Role[]
+  PaymentMethod       PaymentMethod[]
+  AccountMetadata     AccountMetadata[]
+  VerificationRequest VerificationRequest[]
+  FederatedIdentity   FederatedIdentity[]
+  PGPKey              PGPKey?
+
+  // @@index(fields: [id, email, username, phone_number], map: "account_idx", type: Hash)
+  @@map("iam_account")
+}
+
+model OAuthClient {
+  id                    String              @id @default(cuid())
+  // --------------------------------------------------
+  IdP                   String              @unique
+  // Sadly things cannot be ideal as they could be, GitHub is a example where
+  // implementation of .well-known was too hard in this case authority needs
+  // to be optional and add resolving endpoints manually.
+  // https://fusionauth.io/docs/lifecycle/authenticate-users/identity-providers/social/github
+  discoverEndpoints     Boolean
+  authority             String?
+  authorizationEndpoint String?
+  tokenEndpoint         String?
+  userinfoEndpoint      String?
+  issuer                String?
+  clientId              String
+  clientSecret          String
+  redirectUri           String
+  scope                 String
+  // --------------------------------------------------
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  version               Int                 @default(1)
+  FederatedIdentity     FederatedIdentity[]
+
+  @@map("iam_oauth_client")
+}
+
+model PGPKey {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  key       String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+  // --------------------------------------------------
+  Account   Account  @relation(fields: [id], references: [id], map: "account_openpgp_public_key_fkey")
+
+  @@map("iam_pgp_public_key")
+}
+
+model FederatedIdentity {
+  id          String      @id @default(cuid())
+  // --------------------------------------------------
+  accountId   String
+  IdP         String
+  /// The unique identifier for the user's identity within the external
+  /// identity provider.
+  /// This should be a string value that is provided by the IdP.
+  sub         String
+  name        String
+  picture     String?
+  expiresAt   DateTime
+  // --------------------------------------------------
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  version     Int         @default(1)
+  // --------------------------------------------------
+  Account     Account     @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  OAuthClient OAuthClient @relation(fields: [IdP], references: [IdP], onDelete: Cascade)
+
+  @@map("iam_federated_identity")
+}
+
+/// Custom fields that store info about a user that does not impact what they can or cannot access, such as work address, home address, or user preferences.
+model AccountMetadata {
+  id        String   @default(cuid())
+  // --------------------------------------------------
+  key       String
+  value     String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+  // --------------------------------------------------
+  Account   Account  @relation(fields: [id], references: [id], map: "account_metadata_fk")
+
+  @@unique([id, key])
+  @@map("iam_account_md")
+}
+
+model Group {
+  id        String    @id @default(cuid())
+  // --------------------------------------------------
+  name      String    @unique
+  // --------------------------------------------------
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(1)
+  // --------------------------------------------------
+  Members   Account[]
+
+  @@map("iam_group")
+}
+
+model Role {
+  id        String    @id @default(cuid())
+  // --------------------------------------------------
+  name      String    @unique
+  // --------------------------------------------------
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(1)
+  // --------------------------------------------------
+  Accounts  Account[]
+
+  @@map("iam_role")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  accountId String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  // --------------------------------------------------
+  Account   Account  @relation(fields: [accountId], references: [id], map: "account_session_fkey", onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("iam_session")
+}
+
+// TODO: It is temporary entity that could be hold in logs
+model TokenAudit {
+  id         String    @id @default(cuid())
+  // --------------------------------------------------
+  /// ID of the user to whom the token belongs
+  accountId  String
+  /// The ID of the token (jti claim from JWT)
+  tokenId    String
+  /// The issue time of the token (iat claim from JWT)
+  issuedAt   DateTime
+  /// The expiration time of the token (exp claim from JWT)
+  expiresAt  DateTime
+  /// Indicates if the token is revoked
+  isRevoked  Boolean
+  /// The last time the token was used
+  lastUsedAt DateTime?
+  // --------------------------------------------------
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+  // --------------------------------------------------
+  Account    Account   @relation(fields: [accountId], references: [id], map: "account_token_audit_fkey")
+}
+
+// TODO: Temporary entity that could be hold in cache
+model VerificationRequest {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  accountId String
+  email     String
+  token     String
+  issuedAt  DateTime @default(now())
+  expiresAt DateTime
+  isSolved  Boolean  @default(false)
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
+  // --------------------------------------------------
+  Account   Account  @relation(fields: [accountId], references: [id], map: "account_verification_request_fkey")
+}
+
+model User {
+  id          String         @id @default(cuid())
+  // --------------------------------------------------
+  accountId   String         @unique
+  firstName   String
+  lastName    String
+  email       String
+  phoneNumber String?
+  avatar      String?
+  about       String?
+  // --------------------------------------------------
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  version     Int            @default(1)
+  // --------------------------------------------------
+  Account     Account        @relation(fields: [accountId], references: [id])
+  Payments    Payment[]
+  Checkout    Checkout[]
+  Metadata    UserMetadata[]
+  Customer    Customer?
+
+  @@map("user")
+}
+
+model Customer {
+  id                String            @id @default(cuid())
+  // --------------------------------------------------
+  // --------------------------------------------------
+  User              User              @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Subscription      Subscription[]
+  ShippingAddresses ShippingAddress[]
+  Order             Order[]
+  Cart              Cart?
+  BillingAddress    BillingAddress[]
+
+  @@map("customer")
+}
+
+model UserMetadata {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  key       String
+  value     String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  User      User     @relation(fields: [id], references: [id], map: "user_metadata_fkey", onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("user_md")
+}
+
+/// User can have only one billing address, but can have multiple shipping addresses.
+model BillingAddress {
+  id            String         @id @default(cuid())
+  // --------------------------------------------------
+  legalName     String
+  taxIdentifier String
+  streetLine1   String
+  streetLine2   String?
+  city          String
+  state         String?
+  zipCode       String
+  country       String
+  // --------------------------------------------------
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  version       Int            @default(1)
+  // --------------------------------------------------
+  Order         Order[]
+  Subscription  Subscription[]
+  Customer      Customer       @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("user_billing_address")
+}
+
+model ShippingAddress {
+  id           String         @unique @default(cuid())
+  // --------------------------------------------------
+  userId       String
+  fullName     String
+  streetLine1  String
+  streetLine2  String?
+  city         String
+  state        String?
+  zipCode      String
+  country      String
+  // --------------------------------------------------
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  version      Int            @default(1)
+  // --------------------------------------------------
+  Order        Order[]
+  Subscription Subscription[]
+  Customer     Customer?      @relation(fields: [customerId], references: [id])
+  customerId   String?
+
+  @@id(fields: [id, version], map: "versioned_shipping_address_pk", name: "vid")
+  @@unique([id, version])
+  @@map("user_shipping_address")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  // --------------------------------------------------
+  name        String
+  parentId    String?
+  description String?
+  // --------------------------------------------------
+  children    Category[] @relation(name: "CategoryParentCategoryChild")
+  parent      Category?  @relation(fields: [parentId], references: [id], name: "CategoryParentCategoryChild")
+  Product     Product[]
+
+  // --------------------------------------------------
+  @@map("product_category")
+}
+
+model Product {
+  id               String             @id @default(cuid())
+  // --------------------------------------------------
+  name             String
+  categoryId       String?
+  price            Int
+  currency         String
+  // --------------------------------------------------
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  // --------------------------------------------------
+  ProductAttribute ProductAttribute[]
+  variants         ProductVariant[]
+  CartItem         CartItem[]
+  Category         Category?          @relation(fields: [categoryId], references: [id])
+  OrderLine        OrderLine[]
+  Swap             Swap[]
+
+  // --------------------------------------------------
+  @@map("product")
+}
+
+enum AttributeType {
+  STRING
+  NUMBER
+  INTEGER
+  UNIT
+  BOOLEAN
+  DATE
+}
+
+// TODO: In future this can be extended to Attribute and AttributeValue which
+// would allow to create custom attributes for products. ProductAttribute
+// would be a connector between Attribute, AttributeValue and Product. This
+// will allow running really comprehensive queries and filters. The one worst
+// case to be resolved is different data types adn potentially implementation of
+// MTI to keep everything type-safe.
+model ProductAttribute {
+  id           String        @id @default(cuid())
+  // --------------------------------------------------
+  /// @example "gpu.vram"
+  uid          String        @unique
+  productId    String
+  /// Example of ProductAttribute would be "CUDA Cores" or "Memory"
+  name         String
+  description  String?
+  type         AttributeType
+  // Single-table inheritance (STI)
+  // https://www.prisma.io/docs/orm/prisma-schema/data-model/table-inheritance#data-model
+  // Sadly prisma do not support union types which eventually lead to hell
+  // like this without any proper way to enforce type safety (out of the box).
+  // Eventually, we need to use a single table inheritance (STI) pattern.
+  // STI would be more efficient.
+  valueInt     Int?
+  valueBoolean Boolean?
+  valueString  String?
+  valueIntUnit String?
+  // --------------------------------------------------
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  // --------------------------------------------------
+  Product      Product       @relation(fields: [productId], references: [id])
+
+  // --------------------------------------------------
+  @@map("product_attribute")
+}
+
+model ProductOption {
+  id                 String   @id @default(cuid())
+  // --------------------------------------------------
+  productAttributeId String
+  value              String
+  // --------------------------------------------------
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // --------------------------------------------------
+  @@map("product_option")
+}
+
+model ProductVariant {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  productId String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  Product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("product_variant")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  REFUNDED
+  RETURNED
+}
+
+model Order {
+  id                     String           @id @default(cuid())
+  // --------------------------------------------------
+  customerId             String
+  shippingAddressId      String
+  shippingAddressVersion Int
+  billingAddressId       String?
+  // Indicates if placed order should start subscription
+  billingInterval        BillingInterval?
+  // If Order was placed as a part of subscription, this field will be populated
+  // with subscription ID, this is because we want to track all "sub-orders"
+  // that are part of subscription. No idea about other way.
+  subscriptionId         String?
+  status                 OrderStatus
+  subtotal               Int
+  tax                    Int
+  total                  Int
+  // --------------------------------------------------
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  processedAt            DateTime?
+  shippedAt              DateTime?
+  deliveredAt            DateTime?
+  canceledAt             DateTime?
+  refundedAt             DateTime?
+  returnedAt             DateTime?
+  // --------------------------------------------------
+  Customer               Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  ShippingAddress        ShippingAddress  @relation(fields: [shippingAddressId, shippingAddressVersion], references: [id, version])
+  BillingAddress         BillingAddress?  @relation(fields: [billingAddressId], references: [id])
+  OrderLine              OrderLine[]
+  Subscription           Subscription?    @relation(fields: [subscriptionId], references: [id])
+  Swap                   Swap[]
+
+  @@map("order")
+}
+
+model Swap {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  orderId   String
+  productId String
+  quantity  Int
+  price     Int
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  Order     Order    @relation(fields: [orderId], references: [id])
+  Product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("swap")
+}
+
+model OrderLine {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  orderId   String
+  productId String
+  quantity  Int
+  price     Int
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  Order     Order    @relation(fields: [orderId], references: [id])
+  Product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_line")
+}
+
+model Cart {
+  id            String     @id @default(cuid())
+  // --------------------------------------------------
+  /// Customer who owns the cart. His existence is optional.
+  customerId    String?    @unique
+  /// Fingerprints are used to identify a cart across multiple devices. If a
+  /// customer logs in on a different device, the cart will be restored using
+  /// the fingerprint.
+  fingerprint   String?
+  /// Promotion code applied to the cart.
+  promotionCode String?
+  /// Currency used for the cart. If not set, defaults to the currency of the customer.
+  currency      String     @default("USD")
+  /// Total quantity of items in the cart.
+  quantity      Int        @default(0)
+  /// Total before any discounts or taxes are applied.
+  subtotal      Int        @default(0)
+  /// Total tax amount applied. If no tax was applied, defaults to 0.
+  tax           Int        @default(0)
+  /// Total discount amount applied. If no discounts were applied, defaults to 0.
+  discount      Int        @default(0)
+  /// Total after discounts and taxes.
+  total         Int        @default(0)
+  // --------------------------------------------------
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  // --------------------------------------------------
+  CartItem      CartItem[]
+  User          Customer?  @relation(fields: [customerId], references: [id])
+
+  @@map("cart")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  /// The cart ID.
+  cartId    String
+  /// The product ID.
+  productId String
+  /// Total before any discounts or taxes are applied.
+  price     Int
+  /// Currency used for the cart item. If not set, defaults to the currency of the cart.
+  currency  String
+  /// Total quantity of items in the cart.
+  quantity  Int
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  Cart      Cart     @relation(fields: [cartId], references: [id])
+  Product   Product  @relation(fields: [productId], references: [id])
+
+  // Disallow duplicate rows with same product as quantity exists
+  @@unique([cartId, productId])
+  @@map("cart_item")
+}
+
+enum PaymentProcessor {
+  STRIPE @map("stripe")
+  PAYPAL @map("paypal")
+  MANUAL @map("manual")
+}
+
+enum PaymentStatus {
+  PENDING
+  FAILED
+  PAID
+  ACTION_REQUIRED
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  // --------------------------------------------------
+  payerId         String
+  currency        String
+  amount          Int
+  paymentMethodId String
+  // --------------------------------------------------
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  // --------------------------------------------------
+  Payer           User          @relation(fields: [payerId], references: [id])
+  PaymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  checkoutId      String?
+
+  // --------------------------------------------------
+  @@map("payment")
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  REFUNDED
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  // --------------------------------------------------
+  customerId  String
+  status      InvoiceStatus
+  // --------------------------------------------------
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  // --------------------------------------------------
+  InvoiceLine InvoiceLine[]
+  Checkout    Checkout[]
+
+  // --------------------------------------------------
+  @@map("invoice")
+}
+
+model InvoiceLine {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  invoiceId String
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // --------------------------------------------------
+  Invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+
+  // --------------------------------------------------
+  @@map("invoice_line")
+}
+
+model PaymentMethod {
+  id           String               @id @default(cuid())
+  // --------------------------------------------------
+  accountId    String
+  processor    PaymentProcessor
+  // --------------------------------------------------
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  // --------------------------------------------------
+  Account      Account              @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Stripe       StripePaymentMethod?
+  Payment      Payment[]
+  Subscription Subscription[]
+
+  // --------------------------------------------------
+  @@map("payment_method")
+}
+
+model StripePaymentMethod {
+  id                    String        @id @default(cuid())
+  // --------------------------------------------------
+  stripeCustomerId      String
+  stripePaymentMethodId String
+  // --------------------------------------------------
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  // --------------------------------------------------
+  PaymentMethod         PaymentMethod @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("stripe_payment_method")
+}
+
+model Checkout {
+  id             String         @id @default(cuid())
+  // --------------------------------------------------
+  userId         String
+  paymentId      String         @unique
+  invoiceId      String
+  subscriptionId String?
+  orderId        String?
+  /// Currency used for the cart. If not set, defaults to the currency of the customer.
+  currency       String         @default("USD")
+  /// Total quantity of items in the cart.
+  quantity       Int            @default(0)
+  /// Total before any discounts or taxes are applied.
+  subtotal       Int            @default(0)
+  /// Total tax amount applied. If no tax was applied, defaults to 0.
+  tax            Int            @default(0)
+  /// Total discount amount applied. If no discounts were applied, defaults to 0.
+  discount       Int            @default(0)
+  /// Total after discounts and taxes.
+  total          Int            @default(0)
+  // --------------------------------------------------
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  // --------------------------------------------------
+  User           User           @relation(fields: [userId], references: [id])
+  Invoice        Invoice        @relation(fields: [invoiceId], references: [id])
+  CheckoutItem   CheckoutItem[]
+
+  // --------------------------------------------------
+  @@map("checkout")
+}
+
+model CheckoutItem {
+  id         String   @id @default(cuid())
+  // --------------------------------------------------
+  checkoutId String
+  /// Total discount amount applied. If no discounts were applied, defaults to 0.
+  discount   Int      @default(0)
+  /// Total before any discounts or taxes are applied.
+  subtotal   Int
+  /// Total tax amount applied. If no tax was applied, defaults to 0.
+  tax        Int      @default(0)
+  /// Total after discounts and taxes.
+  total      Int
+  // --------------------------------------------------
+  Checkout   Checkout @relation(fields: [checkoutId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // --------------------------------------------------
+  @@map("checkout_item")
+}
+
+model Blob {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  checksum  String
+  type      String
+  size      Int
+  filename  String   @unique
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --------------------------------------------------
+  @@map("blob")
+}
+
+/// Coupon contains information about a percent-off or amount-off discount
+/// you might want to apply to a customer. Coupons may be applied to
+/// subscriptions, invoices, checkout sessions, quotes, and more. Coupons do not
+/// work with conventional one-off charges or payment intents.
+model Coupon {
+  id                       String           @id @default(cuid())
+  // --------------------------------------------------
+  amountOff                Int?
+  percentOff               Int?
+  duration                 Int?
+  durationInMonths         Int?
+  maxRedemptions           Int?
+  minimumAmount            Int?
+  minimumAmountCurrency    String?
+  firstTimeTransactionOnly Boolean?
+  timesRedeemed            BigInt
+  // --------------------------------------------------
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+  metadata                 CouponMetadata[]
+
+  // --------------------------------------------------
+  @@map("coupon")
+}
+
+/// Set of key-value pairs that you can attach to an object.
+/// This can be useful for storing additional information about the object in a
+/// structured format.
+model CouponMetadata {
+  id     String @id @default(cuid())
+  // --------------------------------------------------
+  key    String
+  value  String
+  // --------------------------------------------------
+  Coupon Coupon @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // --------------------------------------------------
+  @@map("coupon_md")
+}
+
+/// A Promotion Code represents a customer-redeemable code for a coupon. It
+/// can be used to create multiple codes for a single coupon.
+
+model PromotionCode {
+  id     String  @id @default(cuid())
+  // --------------------------------------------------
+  code   String
+  active Boolean
+
+  // --------------------------------------------------
+  @@map("promotion_code")
+}
+
+model Region {
+  id      String @id @default(cuid())
+  // --------------------------------------------------
+  name    String
+  country String
+
+  // --------------------------------------------------
+  @@map("region")
+}
+
+enum BillingInterval {
+  DAILY
+  EVERY_OTHER_DAY
+  EVERY_THIRD_DAY
+  EVERY_FOURTH_DAY
+  EVERY_WEEKDAY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUALLY
+  ANNUALLY
+
+  @@map("billing_interval")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  PAST_TRIALING
+
+  @@map("subscription_status")
+}
+
+model SubscriptionSchedule {
+  id        String   @id @default(cuid())
+  // --------------------------------------------------
+  startDate DateTime
+  endDate   DateTime
+  // --------------------------------------------------
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // --------------------------------------------------
+  // --------------------------------------------------
+  @@map("subscription_schedule")
+}
+
+model Plan {
+  id String @id @default(cuid())
+  // --------------------------------------------------
+}
+
+model PlanItem {
+  id String @id @default(cuid())
+  // --------------------------------------------------
+}
+
+model Subscription {
+  id                String             @id @default(cuid())
+  // --------------------------------------------------
+  customerId        String
+  billingInterval   BillingInterval
+  billingFrequency  Int
+  paymentMethodId   String
+  nextBillingDate   DateTime
+  status            SubscriptionStatus
+  billingAddressId  String?
+  shippingAddressId String?
+  startedAt         DateTime
+  endedAt           DateTime?
+  // --------------------------------------------------
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  // --------------------------------------------------
+  Customer          Customer           @relation(fields: [customerId], references: [id])
+  PaymentMethod     PaymentMethod      @relation(fields: [paymentMethodId], references: [id])
+  BillingAddress    BillingAddress?    @relation(fields: [billingAddressId], references: [id])
+  ShippingAddress   ShippingAddress?   @relation(fields: [shippingAddressId], references: [id])
+  Order             Order[]
+
+  // --------------------------------------------------
+  @@map("subscription")
+}
+
+model Discount {
+  id String @id @default(cuid())
+  // --------------------------------------------------
+}

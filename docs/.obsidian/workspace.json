@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "decisions/01-Technology-Stack.md",
+                "file": "architecture/containers/API Gateway.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "decisions/01-Technology-Stack.md",
+                "file": "architecture/containers/API Gateway.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "decisions/01-Technology-Stack.md",
+                "file": "architecture/containers/API Gateway.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "decisions/01-Technology-Stack.md"
+                "file": "architecture/containers/API Gateway.md"
               }
             }
           }
@@ -148,16 +148,31 @@
   },
   "active": "a9dde362ef4c5a13",
   "lastOpenFiles": [
-    "decisions/02-ORM.md",
-    "decisions/01-Technology-Stack.md",
+    "architecture/containers/Web Application.md",
+    "architecture/containers/API Gateway.md",
+    "architecture/containers/Database.md",
+    "domain/stories/1-dosage-tracking.md",
+    "domain/stories/2-dosage-reminders.md",
+    "domain/stories/6-substance-information.md",
+    "domain/stories/5-mood-tracking.md",
+    "domain/stories/4-possesion-tracking.md",
+    "domain/stories/3-stack-planning.md",
+    "domain/personas/60-max.md",
+    "domain/personas/40-mark.md",
+    "domain/personas/30-lisa.md",
+    "domain/personas/10-john.md",
+    "domain/personas/50-emily.md",
+    "domain/personas/20-sarah.md",
     "domain/aggregates/01-substance.md",
     "domain/aggregates/02-route-of-administration.md",
-    "domain/stories/6-substance-information.md",
-    "decisions",
-    "domain/stories/3-stack-planning.md",
-    "domain/stories/4-possesion-tracking.md",
-    "domain/stories/2-dosage-reminders.md",
-    "domain/stories/1-dosage-tracking.md",
-    "domain/personas/emily.md"
+    "domain/aggregates/05-possesion.md",
+    "domain/aggregates/07-stack.md",
+    "domain/aggregates/04-ingestion.md",
+    "domain/aggregates/03-subject.md",
+    "architecture/decisions/02-API-Framework.md",
+    "architecture/containers",
+    "architecture/decisions/01-Technology-Stack.md",
+    "decisions/02-ORM.md",
+    "architecture/decisions"
   ]
 }

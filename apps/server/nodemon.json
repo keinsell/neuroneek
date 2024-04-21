@@ -1,0 +1,17 @@
+{
+  "quiet": true,
+  "delay": 1000,
+  "signal": "SIGQUIT",
+  "watch": [
+    "src",
+    ".env",
+    "dist/.env",
+    "node_modules"
+  ],
+  "exitcrash": false,
+  "ext": ".ts,.js",
+  "ignore": [
+    "src/externals/compodoc"
+  ],
+  "exec": "clear && pnpm build:tsc && node --experimental --abort_on_contradictory_flags --harmony --js_staging --use-strict --maglev-assert --future --maglev-break-on-entry --always-sparkplug  --concurrent-sparkplug --sparkplug-needs-short-builtins --shared-string-table --stress-turbo-late-spilling --stress-inline --turbo-instruction-scheduling --turbo-fast-api-calls --predictable_gc_schedule dist/src/main.js"
+}

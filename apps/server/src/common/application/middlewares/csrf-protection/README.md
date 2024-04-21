@@ -1,0 +1,3 @@
+- https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html
+- https://github.com/pillarjs/understanding-csrf
+- https://github.com/tinyhttp/malibu

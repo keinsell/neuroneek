@@ -1,0 +1,29 @@
+### Register Account
+
+POST http://{{HOST}}:{{PORT}}/account
+Content-Type: application/json
+
+{
+"email": "{{USER_EMAIL}}",
+"username": "{{USER_NICKNAME}}",
+"password": "{{USER_PASSWORD}}"
+}
+
+> {%
+
+client.test("Response content-type is json", function () {
+const type = response.contentType.mimeType;
+client.assert(type === "application/json", `Expected 'application/json' but received '${type}'`);
+});
+
+%}
+
+### Authenticate
+
+POST http://{{HOST}}:{{PORT}}/authenticate
+Content-Type: application/json
+
+{
+"username": "{{USER_EMAIL}}",
+"password": "{{USER_PASSWORD}}"
+}

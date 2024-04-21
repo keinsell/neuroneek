@@ -1,0 +1,716 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Project "plygrnd" {
+  database_type: 'PostgreSQL'
+  Note: 'plygrnd database'
+}
+
+Table iam_account {
+  id String [pk]
+  family_name String [note: 'The user\'s family name.']
+  given_name String [note: 'The user\'s given name.']
+  locale String [default: 'en', note: 'The user\'s locale.']
+  picture String [note: 'URL pointing to the user\'s profile picture.']
+  name String [note: 'The user\'s full name']
+  nickname String [note: 'The user\'s nickname.']
+  phone_number String [note: 'The user\'s phone number. Only valid for users with SMS connections.']
+  phone_verified Boolean [not null, default: false, note: 'Indicates whether the user has been verified their phone number.']
+  username String [unique, not null, note: 'The user\'s username. Must be unique.']
+  email String [unique, not null, note: 'The user\'s email address. Must be unique.']
+  email_verified Boolean [not null, default: false, note: 'Indicates whether the user has verified their email address.']
+  password String [not null, note: 'The user\'s password. Only valid for users with Database connections.
+(It\'s argon2 hashed)']
+  last_ip String [note: 'IP address associated with the user\'s last login.']
+  last_login DateTime [note: 'Timestamp indicating when the user last logged in.']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null, note: 'Timestamp indicating when the user\'s profile was last updated/modified.
+Changes to last_login are considered updates, so most of the time,
+updated_at will match last_login.']
+  version Int [not null, default: 1]
+  Sessions iam_session [not null]
+  User user
+  TokenAudit TokenAudit [not null]
+  Group iam_group [not null]
+  Role iam_role [not null]
+  PaymentMethod payment_method [not null]
+  AccountMetadata iam_account_md [not null]
+  VerificationRequest VerificationRequest [not null]
+  FederatedIdentity iam_federated_identity [not null]
+  PGPKey iam_pgp_public_key
+}
+
+Table iam_oauth_client {
+  id String [pk]
+  IdP String [unique, not null]
+  discoverEndpoints Boolean [not null]
+  authority String
+  authorizationEndpoint String
+  tokenEndpoint String
+  userinfoEndpoint String
+  issuer String
+  clientId String [not null]
+  clientSecret String [not null]
+  redirectUri String [not null]
+  scope String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  FederatedIdentity iam_federated_identity [not null]
+}
+
+Table iam_pgp_public_key {
+  id String [pk]
+  key String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+}
+
+Table iam_federated_identity {
+  id String [pk]
+  accountId String [not null]
+  IdP String [not null]
+  sub String [not null, note: 'The unique identifier for the user\'s identity within the external
+identity provider.
+This should be a string value that is provided by the IdP.']
+  name String [not null]
+  picture String
+  expiresAt DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+  OAuthClient iam_oauth_client [not null]
+}
+
+Table iam_account_md {
+  id String [not null]
+  key String [not null]
+  value String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+
+  indexes {
+    (id, key) [unique]
+  }
+
+  Note: 'Custom fields that store info about a user that does not impact what they can or cannot access, such as work address, home address, or user preferences.'
+}
+
+Table iam_group {
+  id String [pk]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Members iam_account [not null]
+}
+
+Table iam_role {
+  id String [pk]
+  name String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Accounts iam_account [not null]
+}
+
+Table iam_session {
+  id String [pk]
+  accountId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  Account iam_account [not null]
+}
+
+Table TokenAudit {
+  id String [pk]
+  accountId String [not null, note: 'ID of the user to whom the token belongs']
+  tokenId String [not null, note: 'The ID of the token (jti claim from JWT)']
+  issuedAt DateTime [not null, note: 'The issue time of the token (iat claim from JWT)']
+  expiresAt DateTime [not null, note: 'The expiration time of the token (exp claim from JWT)']
+  isRevoked Boolean [not null, note: 'Indicates if the token is revoked']
+  lastUsedAt DateTime [note: 'The last time the token was used']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+}
+
+Table VerificationRequest {
+  id String [pk]
+  accountId String [not null]
+  email String [not null]
+  token String [not null]
+  issuedAt DateTime [default: `now()`, not null]
+  expiresAt DateTime [not null]
+  isSolved Boolean [not null, default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+}
+
+Table user {
+  id String [pk]
+  accountId String [unique, not null]
+  firstName String [not null]
+  lastName String [not null]
+  email String [not null]
+  phoneNumber String
+  avatar String
+  about String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Account iam_account [not null]
+  Payments payment [not null]
+  Checkout checkout [not null]
+  Metadata user_md [not null]
+  Customer customer
+}
+
+Table customer {
+  id String [pk]
+  User user [not null]
+  Subscription subscription [not null]
+  ShippingAddresses user_shipping_address [not null]
+  Order order [not null]
+  Cart cart
+  BillingAddress user_billing_address [not null]
+}
+
+Table user_md {
+  id String [pk]
+  key String [not null]
+  value String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  User user [not null]
+}
+
+Table user_billing_address {
+  id String [pk]
+  legalName String [not null]
+  taxIdentifier String [not null]
+  streetLine1 String [not null]
+  streetLine2 String
+  city String [not null]
+  state String
+  zipCode String [not null]
+  country String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Order order [not null]
+  Subscription subscription [not null]
+  Customer customer [not null]
+
+  Note: 'User can have only one billing address, but can have multiple shipping addresses.'
+}
+
+Table user_shipping_address {
+  id String [unique, not null]
+  userId String [not null]
+  fullName String [not null]
+  streetLine1 String [not null]
+  streetLine2 String
+  city String [not null]
+  state String
+  zipCode String [not null]
+  country String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  version Int [not null, default: 1]
+  Order order [not null]
+  Subscription subscription [not null]
+  Customer customer
+  customerId String
+
+  indexes {
+    (id, version) [pk]
+    (id, version) [unique]
+  }
+}
+
+Table product_category {
+  id String [pk]
+  name String [not null]
+  parentId String
+  description String
+  children product_category [not null]
+  parent product_category
+  Product product [not null]
+}
+
+Table product {
+  id String [pk]
+  name String [not null]
+  categoryId String
+  price Int [not null]
+  currency String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  ProductAttribute product_attribute [not null]
+  variants product_variant [not null]
+  CartItem cart_item [not null]
+  Category product_category
+  OrderLine order_line [not null]
+  Swap swap [not null]
+}
+
+Table product_attribute {
+  id String [pk]
+  uid String [unique, not null, note: '@example "gpu.vram"']
+  productId String [not null]
+  name String [not null, note: 'Example of ProductAttribute would be "CUDA Cores" or "Memory"']
+  description String
+  type AttributeType [not null]
+  valueInt Int
+  valueBoolean Boolean
+  valueString String
+  valueIntUnit String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Product product [not null]
+}
+
+Table product_option {
+  id String [pk]
+  productAttributeId String [not null]
+  value String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table product_variant {
+  id String [pk]
+  productId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Product product [not null]
+}
+
+Table order {
+  id String [pk]
+  customerId String [not null]
+  shippingAddressId String [not null]
+  shippingAddressVersion Int [not null]
+  billingAddressId String
+  billingInterval BillingInterval
+  subscriptionId String
+  status OrderStatus [not null]
+  subtotal Int [not null]
+  tax Int [not null]
+  total Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  processedAt DateTime
+  shippedAt DateTime
+  deliveredAt DateTime
+  canceledAt DateTime
+  refundedAt DateTime
+  returnedAt DateTime
+  Customer customer [not null]
+  ShippingAddress user_shipping_address [not null]
+  BillingAddress user_billing_address
+  OrderLine order_line [not null]
+  Subscription subscription
+  Swap swap [not null]
+}
+
+Table swap {
+  id String [pk]
+  orderId String [not null]
+  productId String [not null]
+  quantity Int [not null]
+  price Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Order order [not null]
+  Product product [not null]
+}
+
+Table order_line {
+  id String [pk]
+  orderId String [not null]
+  productId String [not null]
+  quantity Int [not null]
+  price Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Order order [not null]
+  Product product [not null]
+}
+
+Table cart {
+  id String [pk]
+  customerId String [unique, note: 'Customer who owns the cart. His existence is optional.']
+  fingerprint String [note: 'Fingerprints are used to identify a cart across multiple devices. If a
+customer logs in on a different device, the cart will be restored using
+the fingerprint.']
+  promotionCode String [note: 'Promotion code applied to the cart.']
+  currency String [not null, default: 'USD', note: 'Currency used for the cart. If not set, defaults to the currency of the customer.']
+  quantity Int [not null, default: 0, note: 'Total quantity of items in the cart.']
+  subtotal Int [not null, default: 0, note: 'Total before any discounts or taxes are applied.']
+  tax Int [not null, default: 0, note: 'Total tax amount applied. If no tax was applied, defaults to 0.']
+  discount Int [not null, default: 0, note: 'Total discount amount applied. If no discounts were applied, defaults to 0.']
+  total Int [not null, default: 0, note: 'Total after discounts and taxes.']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  CartItem cart_item [not null]
+  User customer
+}
+
+Table cart_item {
+  id String [pk]
+  cartId String [not null, note: 'The cart ID.']
+  productId String [not null, note: 'The product ID.']
+  price Int [not null, note: 'Total before any discounts or taxes are applied.']
+  currency String [not null, note: 'Currency used for the cart item. If not set, defaults to the currency of the cart.']
+  quantity Int [not null, note: 'Total quantity of items in the cart.']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Cart cart [not null]
+  Product product [not null]
+
+  indexes {
+    (cartId, productId) [unique]
+  }
+}
+
+Table payment {
+  id String [pk]
+  payerId String [not null]
+  currency String [not null]
+  amount Int [not null]
+  paymentMethodId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Payer user [not null]
+  PaymentMethod payment_method [not null]
+  checkoutId String
+}
+
+Table invoice {
+  id String [pk]
+  customerId String [not null]
+  status InvoiceStatus [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  InvoiceLine invoice_line [not null]
+  Checkout checkout [not null]
+}
+
+Table invoice_line {
+  id String [pk]
+  invoiceId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Invoice invoice [not null]
+}
+
+Table payment_method {
+  id String [pk]
+  accountId String [not null]
+  processor PaymentProcessor [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Account iam_account [not null]
+  Stripe stripe_payment_method
+  Payment payment [not null]
+  Subscription subscription [not null]
+}
+
+Table stripe_payment_method {
+  id String [pk]
+  stripeCustomerId String [not null]
+  stripePaymentMethodId String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  PaymentMethod payment_method [not null]
+}
+
+Table checkout {
+  id String [pk]
+  userId String [not null]
+  paymentId String [unique, not null]
+  invoiceId String [not null]
+  subscriptionId String
+  orderId String
+  currency String [not null, default: 'USD', note: 'Currency used for the cart. If not set, defaults to the currency of the customer.']
+  quantity Int [not null, default: 0, note: 'Total quantity of items in the cart.']
+  subtotal Int [not null, default: 0, note: 'Total before any discounts or taxes are applied.']
+  tax Int [not null, default: 0, note: 'Total tax amount applied. If no tax was applied, defaults to 0.']
+  discount Int [not null, default: 0, note: 'Total discount amount applied. If no discounts were applied, defaults to 0.']
+  total Int [not null, default: 0, note: 'Total after discounts and taxes.']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  User user [not null]
+  Invoice invoice [not null]
+  CheckoutItem checkout_item [not null]
+}
+
+Table checkout_item {
+  id String [pk]
+  checkoutId String [not null]
+  discount Int [not null, default: 0, note: 'Total discount amount applied. If no discounts were applied, defaults to 0.']
+  subtotal Int [not null, note: 'Total before any discounts or taxes are applied.']
+  tax Int [not null, default: 0, note: 'Total tax amount applied. If no tax was applied, defaults to 0.']
+  total Int [not null, note: 'Total after discounts and taxes.']
+  Checkout checkout [not null]
+}
+
+Table blob {
+  id String [pk]
+  checksum String [not null]
+  type String [not null]
+  size Int [not null]
+  filename String [unique, not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table coupon {
+  id String [pk]
+  amountOff Int
+  percentOff Int
+  duration Int
+  durationInMonths Int
+  maxRedemptions Int
+  minimumAmount Int
+  minimumAmountCurrency String
+  firstTimeTransactionOnly Boolean
+  timesRedeemed BigInt [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  metadata coupon_md [not null]
+
+  Note: 'Coupon contains information about a percent-off or amount-off discount
+you might want to apply to a customer. Coupons may be applied to
+subscriptions, invoices, checkout sessions, quotes, and more. Coupons do not
+work with conventional one-off charges or payment intents.'
+}
+
+Table coupon_md {
+  id String [pk]
+  key String [not null]
+  value String [not null]
+  Coupon coupon [not null]
+
+  Note: 'Set of key-value pairs that you can attach to an object.
+This can be useful for storing additional information about the object in a
+structured format.'
+}
+
+Table promotion_code {
+  id String [pk]
+  code String [not null]
+  active Boolean [not null]
+}
+
+Table region {
+  id String [pk]
+  name String [not null]
+  country String [not null]
+}
+
+Table subscription_schedule {
+  id String [pk]
+  startDate DateTime [not null]
+  endDate DateTime [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Plan {
+  id String [pk]
+}
+
+Table PlanItem {
+  id String [pk]
+}
+
+Table subscription {
+  id String [pk]
+  customerId String [not null]
+  billingInterval BillingInterval [not null]
+  billingFrequency Int [not null]
+  paymentMethodId String [not null]
+  nextBillingDate DateTime [not null]
+  status SubscriptionStatus [not null]
+  billingAddressId String
+  shippingAddressId String
+  startedAt DateTime [not null]
+  endedAt DateTime
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  Customer customer [not null]
+  PaymentMethod payment_method [not null]
+  BillingAddress user_billing_address
+  ShippingAddress user_shipping_address
+  Order order [not null]
+}
+
+Table Discount {
+  id String [pk]
+}
+
+Table AccountToGroup {
+  groupId String [ref: > iam_group.id]
+  membersId String [ref: > iam_account.id]
+}
+
+Table AccountToRole {
+  roleId String [ref: > iam_role.id]
+  accountsId String [ref: > iam_account.id]
+}
+
+Enum AttributeType {
+  STRING
+  NUMBER
+  INTEGER
+  UNIT
+  BOOLEAN
+  DATE
+}
+
+Enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELED
+  REFUNDED
+  RETURNED
+}
+
+Enum PaymentProcessor {
+  STRIPE
+  PAYPAL
+  MANUAL
+}
+
+Enum PaymentStatus {
+  PENDING
+  FAILED
+  PAID
+  ACTION_REQUIRED
+}
+
+Enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  VOID
+  REFUNDED
+}
+
+Enum BillingInterval {
+  DAILY
+  EVERY_OTHER_DAY
+  EVERY_THIRD_DAY
+  EVERY_FOURTH_DAY
+  EVERY_WEEKDAY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  SEMIANNUALLY
+  ANNUALLY
+}
+
+Enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  UNPAID
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  PAST_TRIALING
+}
+
+Ref: iam_pgp_public_key.id - iam_account.id
+
+Ref: iam_federated_identity.accountId > iam_account.id [delete: Cascade]
+
+Ref: iam_federated_identity.IdP > iam_oauth_client.IdP [delete: Cascade]
+
+Ref: iam_account_md.id > iam_account.id
+
+Ref: iam_session.accountId > iam_account.id [delete: Cascade]
+
+Ref: TokenAudit.accountId > iam_account.id
+
+Ref: VerificationRequest.accountId > iam_account.id
+
+Ref: user.accountId - iam_account.id
+
+Ref: customer.id - user.id [delete: Cascade]
+
+Ref: user_md.id > user.id [delete: Cascade]
+
+Ref: user_billing_address.id > customer.id [delete: Cascade]
+
+Ref: user_shipping_address.customerId > customer.id
+
+Ref: product_category.parentId > product_category.id
+
+Ref: product.categoryId > product_category.id
+
+Ref: product_attribute.productId > product.id
+
+Ref: product_variant.productId > product.id
+
+Ref: order.customerId > customer.id [delete: Cascade]
+
+Ref: order.(shippingAddressId, shippingAddressVersion) > user_shipping_address.(id, version)
+
+Ref: order.billingAddressId > user_billing_address.id
+
+Ref: order.subscriptionId > subscription.id
+
+Ref: swap.orderId > order.id
+
+Ref: swap.productId > product.id
+
+Ref: order_line.orderId > order.id
+
+Ref: order_line.productId > product.id
+
+Ref: cart.customerId - customer.id
+
+Ref: cart_item.cartId > cart.id
+
+Ref: cart_item.productId > product.id
+
+Ref: payment.payerId > user.id
+
+Ref: payment.paymentMethodId > payment_method.id
+
+Ref: invoice_line.invoiceId > invoice.id
+
+Ref: payment_method.accountId > iam_account.id [delete: Cascade]
+
+Ref: stripe_payment_method.id - payment_method.id [delete: Cascade]
+
+Ref: checkout.userId > user.id
+
+Ref: checkout.invoiceId > invoice.id
+
+Ref: checkout_item.checkoutId > checkout.id [delete: Cascade]
+
+Ref: coupon_md.id > coupon.id [delete: Cascade]
+
+Ref: subscription.customerId > customer.id
+
+Ref: subscription.paymentMethodId > payment_method.id
+
+Ref: subscription.billingAddressId > user_billing_address.id
+
+Ref: subscription.shippingAddressId > user_shipping_address.id
