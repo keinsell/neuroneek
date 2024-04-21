@@ -56,8 +56,8 @@ variable "github_owner" {
 variable "infisical_host" {
   default = "https://app.infisical.com"
 }
-variable "infisical_client_id" {}
-variable "infisical_client_secret" {}
+# variable "infisical_client_id" {}
+# variable "infisical_client_secret" {}
 
 provider "vercel" {
   api_token = var.vercel_api_token
@@ -69,17 +69,17 @@ provider "github" {
   owner = var.github_owner
 }
 
-provider "infisical" {
-  host          = var.infisical_host
-  client_id     = var.infisical_client_id
-  client_secret = var.infisical_client_secret
-}
+# provider "infisical" {
+#   host          = var.infisical_host
+#   client_id     = var.infisical_client_id
+#   client_secret = var.infisical_client_secret
+# }
 
 # For the importing resources useful tool is
 # go install github.com/paololazzari/fuzzy-terraform-import@latest
 # fuzzy-terraform-import
 
-# terraform import github_repository.this keinsell
+# terraform import github_repository.this neuronek
 resource "github_repository" "this" {
   name                        = "neuronek"
   description                 = "🧬 Intelligent dosage tracker application with purpose to monitor supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
@@ -89,8 +89,9 @@ resource "github_repository" "this" {
   allow_auto_merge            = true
   has_downloads               = true
   has_issues                  = true
-  has_projects                = true
-  has_wiki                    = true
+  has_discussions = true
+  has_projects                = false
+  has_wiki                    = false
   homepage_url                = "https://neuronek.xyz"
   is_template                 = false
   merge_commit_message        = "PR_BODY"
@@ -101,13 +102,12 @@ resource "github_repository" "this" {
 }
 
 # terraform import vercel_project.neuronek-web prj_XdZqT52RvtlXl9ynuyQerkiIrcZ7
-
 resource "vercel_project" "neuronek-web" {
   name      = "neuronek-web"
   framework = "nextjs"
   git_repository = {
     production_branch = "trunk"
-    repo              = var.github_owner + "/" + github_repository.this.name
+    repo              = "${var.github_owner}/${github_repository.this.name}"
     type              = "github"
   }
   root_directory             = "apps/web"
