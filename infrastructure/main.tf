@@ -38,6 +38,11 @@ variable "vercel_api_token" {
   type        = string
 }
 
+variable "vercel_team" {
+  # TODO: Maybe migrate to separate team dedicated for app?
+  default = "0x4b696973656c6c"
+}
+
 
 variable "github_token" {
   description = "https://github.com/settings/tokens"
@@ -48,15 +53,26 @@ variable "github_owner" {
   default = "keinsell"
 }
 
+variable "infisical_host" {
+  default = "https://app.infisical.com"
+}
+variable "infisical_client_id" {}
+variable "infisical_client_secret" {}
+
 provider "vercel" {
   api_token = var.vercel_api_token
-  team      = "0x4b696973656c6c"
+  team      = var.vercel_team
 }
-
 
 provider "github" {
   token = var.github_token
   owner = var.github_owner
+}
+
+provider "infisical" {
+  host          = var.infisical_host
+  client_id     = var.infisical_client_id
+  client_secret = var.infisical_client_secret
 }
 
 # For the importing resources useful tool is
@@ -67,7 +83,7 @@ provider "github" {
 resource "github_repository" "this" {
   name                        = "neuronek"
   description                 = "🧬 Intelligent dosage tracker application with purpose to monitor supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
-  visibility = "public"
+  visibility                  = "public"
   delete_branch_on_merge      = true
   allow_update_branch         = true
   allow_auto_merge            = true
@@ -91,7 +107,7 @@ resource "vercel_project" "neuronek-web" {
   framework = "nextjs"
   git_repository = {
     production_branch = "trunk"
-    repo              = "keinsell/neuronek"
+    repo              = var.github_owner + "/" + github_repository.this.name
     type              = "github"
   }
   root_directory             = "apps/web"
@@ -100,4 +116,7 @@ resource "vercel_project" "neuronek-web" {
   vercel_authentication = {
     deployment_type = "none"
   }
+  depends_on = [
+    github_repository.this
+  ]
 }
