@@ -53,12 +53,6 @@ variable "github_owner" {
   default = "keinsell"
 }
 
-variable "infisical_host" {
-  default = "https://app.infisical.com"
-}
-# variable "infisical_client_id" {}
-# variable "infisical_client_secret" {}
-
 provider "vercel" {
   api_token = var.vercel_api_token
   team      = var.vercel_team
@@ -69,11 +63,6 @@ provider "github" {
   owner = var.github_owner
 }
 
-# provider "infisical" {
-#   host          = var.infisical_host
-#   client_id     = var.infisical_client_id
-#   client_secret = var.infisical_client_secret
-# }
 
 # For the importing resources useful tool is
 # go install github.com/paololazzari/fuzzy-terraform-import@latest
