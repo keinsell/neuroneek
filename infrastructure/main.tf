@@ -90,6 +90,32 @@ resource "github_repository" "this" {
   vulnerability_alerts        = true
 }
 
+
+resource "github_repository_environment" "development" {
+  environment         = "development"
+  repository          = github_repository.this.name
+  deployment_branch_policy {
+    protected_branches     = true
+    custom_branch_policies = false
+  }
+}
+
+resource "github_repository_environment" "production" {
+  environment         = "production"
+  repository          = github_repository.this.name
+  deployment_branch_policy {
+    protected_branches     = true
+    custom_branch_policies = false
+  }
+}
+
+# pharmacology neuroscience nootropics supplements psychedelics psychedelic psychonautwiki harm-reduction caffeine-tracker erowid substance-use-disorder substance-use tripsit psychedelic-research substance-use-and-prevention
+resource "github_repository_topics" "this" {
+  repository    = github_repository.this.name
+  topics        = ["psychonautwiki", "erowid", "tripsit", "caffeine-tracker"]
+}
+
+
 # terraform import vercel_project.neuronek-web prj_XdZqT52RvtlXl9ynuyQerkiIrcZ7
 resource "vercel_project" "neuronek-web" {
   name      = "neuronek-web"
