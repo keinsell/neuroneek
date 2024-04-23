@@ -30945,6 +30945,132 @@
         ]
       },
       {
+        "name": "Benzodiazepines",
+        "commonNames": null,
+        "url": "https://psychonautwiki.org/wiki/Benzodiazepines",
+        "class": null,
+        "tolerance": {
+          "full": "within a couple of days of continuous use",
+          "half": null,
+          "zero": "7-14 days"
+        },
+        "roas": [],
+        "addictionPotential": "extremely physically and psychologically addictive",
+        "toxicity": [
+          "low toxicity",
+          "potentially lethality increases significantly when mixed with depressants like alcohol or opioids"
+        ],
+        "crossTolerances": null,
+        "uncertainInteractions": [
+          {
+            "name": "Stimulants"
+          }
+        ],
+        "unsafeInteractions": null,
+        "dangerousInteractions": [
+          {
+            "name": "Depressant"
+          },
+          {
+            "name": "Dissociatives"
+          }
+        ],
+        "effects": [
+          {
+            "name": "Emotion suppression",
+            "url": "https://psychonautwiki.org/wiki/Emotion_suppression"
+          },
+          {
+            "name": "Dizziness",
+            "url": "https://psychonautwiki.org/wiki/Dizziness"
+          },
+          {
+            "name": "Physical euphoria",
+            "url": "https://psychonautwiki.org/wiki/Physical_euphoria"
+          },
+          {
+            "name": "Dream potentiation",
+            "url": "https://psychonautwiki.org/wiki/Dream_potentiation"
+          },
+          {
+            "name": "Delusion",
+            "url": "https://psychonautwiki.org/wiki/Delusion"
+          },
+          {
+            "name": "Cognitive euphoria",
+            "url": "https://psychonautwiki.org/wiki/Cognitive_euphoria"
+          },
+          {
+            "name": "Anxiety",
+            "url": "https://psychonautwiki.org/wiki/Anxiety"
+          },
+          {
+            "name": "Irritability",
+            "url": "https://psychonautwiki.org/wiki/Irritability"
+          },
+          {
+            "name": "Thought deceleration",
+            "url": "https://psychonautwiki.org/wiki/Thought_deceleration"
+          },
+          {
+            "name": "Thought disorganization",
+            "url": "https://psychonautwiki.org/wiki/Thought_disorganization"
+          },
+          {
+            "name": "Memory suppression",
+            "url": "https://psychonautwiki.org/wiki/Memory_suppression"
+          },
+          {
+            "name": "Disinhibition",
+            "url": "https://psychonautwiki.org/wiki/Disinhibition"
+          },
+          {
+            "name": "Dream suppression",
+            "url": "https://psychonautwiki.org/wiki/Dream_suppression"
+          },
+          {
+            "name": "Sedation",
+            "url": "https://psychonautwiki.org/wiki/Sedation"
+          },
+          {
+            "name": "Motor control loss",
+            "url": "https://psychonautwiki.org/wiki/Motor_control_loss"
+          },
+          {
+            "name": "Respiratory depression",
+            "url": "https://psychonautwiki.org/wiki/Respiratory_depression"
+          },
+          {
+            "name": "Muscle relaxation",
+            "url": "https://psychonautwiki.org/wiki/Muscle_relaxation"
+          },
+          {
+            "name": "Anxiety suppression",
+            "url": "https://psychonautwiki.org/wiki/Anxiety_suppression"
+          },
+          {
+            "name": "Compulsive redosing",
+            "url": "https://psychonautwiki.org/wiki/Compulsive_redosing"
+          },
+          {
+            "name": "Amnesia",
+            "url": "https://psychonautwiki.org/wiki/Amnesia"
+          },
+          {
+            "name": "Sleepiness",
+            "url": "https://psychonautwiki.org/wiki/Sleepiness"
+          },
+          {
+            "name": "Seizure suppression",
+            "url": "https://psychonautwiki.org/wiki/Seizure_suppression"
+          },
+          {
+            "name": "Analysis depression",
+            "url": "https://psychonautwiki.org/wiki/Analysis_depression"
+          }
+        ]
+      },
+      {
         "name": "Benzydamine",
         "commonNames": [
           "Benzydamine",
@@ -44155,6 +44281,243 @@
           {
             "name": "Language depression",
             "url": "https://psychonautwiki.org/wiki/Language_depression"
+          },
+          {
+            "name": "Increased introspection",
+            "url": "https://psychonautwiki.org/wiki/Increased_introspection"
+          }
+        ]
+      },
+      {
+        "name": "Efavirenz",
+        "commonNames": [
+          "Efavirenz",
+          "Sustiva"
+        ],
+        "url": "https://psychonautwiki.org/wiki/Efavirenz",
+        "class": {
+          "chemical": [
+            "Benzoxazine"
+          ],
+          "psychoactive": [
+            "Psychedelic"
+          ]
+        },
+        "tolerance": null,
+        "roas": [
+          {
+            "name": "smoked",
+            "dose": {
+              "units": "mg",
+              "threshold": null,
+              "light": null,
+              "common": {
+                "min": 600,
+                "max": 1800
+              },
+              "strong": null,
+              "heavy": null
+            },
+            "duration": {
+              "onset": {
+                "min": 1,
+                "max": 5,
+                "units": "minutes"
+              },
+              "comeup": null,
+              "peak": {
+                "min": 1,
+                "max": 2,
+                "units": "hours"
+              },
+              "offset": null,
+              "total": null,
+              "afterglow": {
+                "min": 6,
+                "max": 12,
+                "units": "hours"
+              }
+            },
+            "bioavailability": null
+          }
+        ],
+        "addictionPotential": "not known to be habit-forming",
+        "toxicity": [
+          "low toxicity",
+          "may cause liver toxicity at high doses or after chronic use"
+        ],
+        "crossTolerances": null,
+        "uncertainInteractions": null,
+        "unsafeInteractions": null,
+        "dangerousInteractions": [
+          {
+            "name": "SNRIs"
+          },
+          {
+            "name": "MAOI"
+          },
+          {
+            "name": "Serotonin"
+          },
+          {
+            "name": "Selective serotonin reuptake inhibitor"
+          },
+          {
+            "name": "5-Hydroxytryptophan"
+          }
+        ],
+        "effects": [
+          {
+            "name": "Auditory hallucination",
+            "url": "https://psychonautwiki.org/wiki/Auditory_hallucination"
+          },
+          {
+            "name": "Auditory distortion",
+            "url": "https://psychonautwiki.org/wiki/Auditory_distortion"
+          },
+          {
+            "name": "Geometry",
+            "url": "https://psychonautwiki.org/wiki/Geometry"
+          },
+          {
+            "name": "Pattern recognition enhancement",
+            "url": "https://psychonautwiki.org/wiki/Pattern_recognition_enhancement"
+          },
+          {
+            "name": "Tracers",
+            "url": "https://psychonautwiki.org/wiki/Tracers"
+          },
+          {
+            "name": "Recursion",
+            "url": "https://psychonautwiki.org/wiki/Recursion"
+          },
+          {
+            "name": "Symmetrical texture repetition",
+            "url": "https://psychonautwiki.org/wiki/Symmetrical_texture_repetition"
+          },
+          {
+            "name": "Scenery slicing",
+            "url": "https://psychonautwiki.org/wiki/Scenery_slicing"
+          },
+          {
+            "name": "Nausea",
+            "url": "https://psychonautwiki.org/wiki/Nausea"
+          },
+          {
+            "name": "Headache",
+            "url": "https://psychonautwiki.org/wiki/Headache"
+          },
+          {
+            "name": "Difficulty urinating",
+            "url": "https://psychonautwiki.org/wiki/Difficulty_urinating"
+          },
+          {
+            "name": "Dizziness",
+            "url": "https://psychonautwiki.org/wiki/Dizziness"
+          },
+          {
+            "name": "Spontaneous bodily sensations",
+            "url": "https://psychonautwiki.org/wiki/Spontaneous_bodily_sensations"
+          },
+          {
+            "name": "Physical euphoria",
+            "url": "https://psychonautwiki.org/wiki/Physical_euphoria"
+          },
+          {
+            "name": "Dream potentiation",
+            "url": "https://psychonautwiki.org/wiki/Dream_potentiation"
+          },
+          {
+            "name": "Transformations",
+            "url": "https://psychonautwiki.org/wiki/Transformations"
+          },
+          {
+            "name": "External hallucination",
+            "url": "https://psychonautwiki.org/wiki/External_hallucination"
+          },
+          {
+            "name": "Internal hallucination",
+            "url": "https://psychonautwiki.org/wiki/Internal_hallucination"
+          },
+          {
+            "name": "Autonomous entity",
+            "url": "https://psychonautwiki.org/wiki/Autonomous_entity"
+          },
+          {
+            "name": "Settings, sceneries, and landscapes",
+            "url": "https://psychonautwiki.org/wiki/Settings,_sceneries,_and_landscapes"
+          },
+          {
+            "name": "Scenarios and plots",
+            "url": "https://psychonautwiki.org/wiki/Scenarios_and_plots"
+          },
+          {
+            "name": "Unity and interconnectedness",
+            "url": "https://psychonautwiki.org/wiki/Unity_and_interconnectedness"
+          },
+          {
+            "name": "Anxiety",
+            "url": "https://psychonautwiki.org/wiki/Anxiety"
+          },
+          {
+            "name": "Disinhibition",
+            "url": "https://psychonautwiki.org/wiki/Disinhibition"
+          },
+          {
+            "name": "Stimulation",
+            "url": "https://psychonautwiki.org/wiki/Stimulation"
+          },
+          {
+            "name": "Sedation",
+            "url": "https://psychonautwiki.org/wiki/Sedation"
+          },
+          {
+            "name": "Appetite suppression",
+            "url": "https://psychonautwiki.org/wiki/Appetite_suppression"
+          },
+          {
+            "name": "Drifting",
+            "url": "https://psychonautwiki.org/wiki/Drifting"
+          },
+          {
+            "name": "Color enhancement",
+            "url": "https://psychonautwiki.org/wiki/Color_enhancement"
+          },
+          {
+            "name": "Visual acuity enhancement",
+            "url": "https://psychonautwiki.org/wiki/Visual_acuity_enhancement"
+          },
+          {
+            "name": "Anxiety suppression",
+            "url": "https://psychonautwiki.org/wiki/Anxiety_suppression"
+          },
+          {
+            "name": "After images",
+            "url": "https://psychonautwiki.org/wiki/After_images"
+          },
+          {
+            "name": "Confusion",
+            "url": "https://psychonautwiki.org/wiki/Confusion"
+          },
+          {
+            "name": "Color shifting",
+            "url": "https://psychonautwiki.org/wiki/Color_shifting"
+          },
+          {
+            "name": "Psychosis",
+            "url": "https://psychonautwiki.org/wiki/Psychosis"
+          },
+          {
+            "name": "Perspective hallucination",
+            "url": "https://psychonautwiki.org/wiki/Perspective_hallucination"
+          },
+          {
+            "name": "Auditory acuity enhancement",
+            "url": "https://psychonautwiki.org/wiki/Auditory_acuity_enhancement"
+          },
+          {
+            "name": "Color replacement",
+            "url": "https://psychonautwiki.org/wiki/Color_replacement"
           },
           {
             "name": "Increased introspection",
@@ -58203,6 +58566,130 @@
           {
             "name": "Analysis depression",
             "url": "https://psychonautwiki.org/wiki/Analysis_depression"
+          }
+        ]
+      },
+      {
+        "name": "Meclofenoxate",
+        "commonNames": null,
+        "url": "https://psychonautwiki.org/wiki/Meclofenoxate",
+        "class": {
+          "chemical": [
+            "Cholinergic"
+          ],
+          "psychoactive": [
+            "Nootropic"
+          ]
+        },
+        "tolerance": null,
+        "roas": [
+          {
+            "name": "oral",
+            "dose": {
+              "units": "mg",
+              "threshold": null,
+              "light": {
+                "min": 50,
+                "max": 200
+              },
+              "common": {
+                "min": 400,
+                "max": 800
+              },
+              "strong": {
+                "min": 800,
+                "max": 1000
+              },
+              "heavy": 600
+            },
+            "duration": null,
+            "bioavailability": null
+          }
+        ],
+        "addictionPotential": null,
+        "toxicity": [
+          "extremely low toxicity"
+        ],
+        "crossTolerances": null,
+        "uncertainInteractions": null,
+        "unsafeInteractions": null,
+        "dangerousInteractions": null,
+        "effects": [
+          {
+            "name": "Motivation enhancement",
+            "url": "https://psychonautwiki.org/wiki/Motivation_enhancement"
+          },
+          {
+            "name": "Memory enhancement",
+            "url": "https://psychonautwiki.org/wiki/Memory_enhancement"
+          },
+          {
+            "name": "Nausea",
+            "url": "https://psychonautwiki.org/wiki/Nausea"
+          },
+          {
+            "name": "Headache",
+            "url": "https://psychonautwiki.org/wiki/Headache"
+          },
+          {
+            "name": "Dizziness",
+            "url": "https://psychonautwiki.org/wiki/Dizziness"
+          },
+          {
+            "name": "Dream potentiation",
+            "url": "https://psychonautwiki.org/wiki/Dream_potentiation"
+          },
+          {
+            "name": "Mindfulness",
+            "url": "https://psychonautwiki.org/wiki/Mindfulness"
+          },
+          {
+            "name": "Depression",
+            "url": "https://psychonautwiki.org/wiki/Depression"
+          },
+          {
+            "name": "Bodily control enhancement",
+            "url": "https://psychonautwiki.org/wiki/Bodily_control_enhancement"
+          },
+          {
+            "name": "Stimulation",
+            "url": "https://psychonautwiki.org/wiki/Stimulation"
+          },
+          {
+            "name": "Wakefulness",
+            "url": "https://psychonautwiki.org/wiki/Wakefulness"
+          },
+          {
+            "name": "Visual acuity enhancement",
+            "url": "https://psychonautwiki.org/wiki/Visual_acuity_enhancement"
+          },
+          {
+            "name": "Anxiety suppression",
+            "url": "https://psychonautwiki.org/wiki/Anxiety_suppression"
+          },
+          {
+            "name": "Teeth grinding",
+            "url": "https://psychonautwiki.org/wiki/Teeth_grinding"
+          },
+          {
+            "name": "Muscle tension",
+            "url": "https://psychonautwiki.org/wiki/Muscle_tension"
+          },
+          {
+            "name": "Body odor alteration",
+            "url": "https://psychonautwiki.org/wiki/Body_odor_alteration"
+          },
+          {
+            "name": "Focus intensification",
+            "url": "https://psychonautwiki.org/wiki/Focus_intensification"
+          },
+          {
+            "name": "Olfactory intensification",
+            "url": "https://psychonautwiki.org/wiki/Olfactory_intensification"
+          },
+          {
+            "name": "Stamina intensification",
+            "url": "https://psychonautwiki.org/wiki/Stamina_intensification"
           }
         ]
       },
@@ -76900,6 +77387,21 @@
             "name": "25x-NBOMe"
           }
         ],
+        "unsafeInteractions": null,
+        "dangerousInteractions": null,
+        "effects": []
+      },
+      {
+        "name": "THCP",
+        "commonNames": null,
+        "url": "https://psychonautwiki.org/wiki/THCP",
+        "class": null,
+        "tolerance": null,
+        "roas": [],
+        "addictionPotential": null,
+        "toxicity": null,
+        "crossTolerances": null,
+        "uncertainInteractions": null,
         "unsafeInteractions": null,
         "dangerousInteractions": null,
         "effects": []

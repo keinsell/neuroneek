@@ -6,6 +6,7 @@ datasource db {
 
 generator client {
   provider             = "prisma-client-py"
+  interface            = "sync"
   recursive_type_depth = 5
 }
 
@@ -46,8 +47,8 @@ model Substance {
   id                       String                  @id @default(cuid())
   name                     String                  @unique
   /// Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition.
-  common_names             String
-  brand_names              String // Should be array
+  common_names             String?
+  brand_names              String? // Should be array
   /// Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix.
   substitutive_name        String?                 @unique
   systematic_name          String?                 @unique
@@ -79,7 +80,7 @@ model RouteOfAdministration {
 
 model Phase {
   id                      String                 @id @default(cuid())
-  from                    Int?
+  start                   Int?                   @map("from")
   to                      Int?
   RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
   routeOfAdministrationId String?
