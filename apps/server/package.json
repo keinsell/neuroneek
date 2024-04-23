@@ -37,8 +37,7 @@
     "db:reset": "prisma db push --force-reset --accept-data-loss",
     "db:pull": "prisma db pull",
     "db:studio": "prisma studio",
-    "postinstall": "pnpm run db:generate",
-    "prepare": "ts-patch install && typia patch -s && pnpm run db:generate",
+    "prepare": "ts-patch install && typia patch -s",
     "sentry:sm:inject": "sentry-cli sourcemaps inject dist --org sentry",
     "sentry:sm:upload": "sentry-cli sourcemaps upload dist --org sentry --project orca"
   },
