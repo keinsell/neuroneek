@@ -1,1 +1,0 @@
-for defining interfaces to be implemented by classes

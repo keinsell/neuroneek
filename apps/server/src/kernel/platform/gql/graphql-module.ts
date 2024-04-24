@@ -23,71 +23,65 @@
  *
  */
 
-
-import {ApolloServerPluginInlineTrace}          from "@apollo/server/plugin/inlineTrace"
-import {ApolloServerPluginSubscriptionCallback} from "@apollo/server/plugin/subscriptionCallback"
 import {ApolloServerPluginCacheControl}         from "@apollo/server/plugin/cacheControl"
-import {ApolloServerPluginUsageReporting}       from "@apollo/server/plugin/usageReporting"
+import {ApolloServerPluginInlineTrace}          from "@apollo/server/plugin/inlineTrace"
 import {
 	ApolloServerPluginLandingPageLocalDefault, ApolloServerPluginLandingPageProductionDefault,
 }                                               from '@apollo/server/plugin/landingPage/default'
+import {ApolloServerPluginSubscriptionCallback} from "@apollo/server/plugin/subscriptionCallback"
 import {
-	ApolloDriver,
-	type ApolloDriverConfig,
+	ApolloDriver, type ApolloDriverConfig,
 }                                               from '@nestjs/apollo'
 import {
-	Module,
-	OnModuleDestroy,
-	OnModuleInit,
+	Module, OnModuleDestroy, OnModuleInit,
 }                                               from '@nestjs/common'
-import {GraphQLModule}                             from '@nestjs/graphql'
-import {join}                                      from 'node:path'
-import process                                     from 'node:process'
-import {isDevelopment}                             from '../../../configs/helper/is-development.js'
-import {StaticFeatureFlags}                        from '../../../configs/static-feature-flags.js'
-import {FooResolver}                               from '../../../http/graphql/hello-world-resolver.js'
+import {GraphQLModule}                          from '@nestjs/graphql'
+import {join}                                   from 'node:path'
+import process                                  from 'node:process'
+import {isDevelopment}                          from '../../../configs/helper/is-development.js'
+import {StaticFeatureFlags}                     from '../../../configs/static-feature-flags.js'
+import {FooResolver}                            from '../../../routes/graphql/hello-world-resolver.js'
 
-const landingPageGraphQLPlayground = isDevelopment() ? ApolloServerPluginLandingPageLocalDefault() : ApolloServerPluginLandingPageProductionDefault({})
+
+
+const landingPageGraphQLPlayground = isDevelopment() ?
+	ApolloServerPluginLandingPageLocalDefault() :
+	ApolloServerPluginLandingPageProductionDefault({})
+
 
 @Module({
-	        imports  : [
-		        GraphQLModule.forRoot<ApolloDriverConfig>({
-			                                                  driver                           : ApolloDriver,
-			                                                  autoSchemaFile                   : join(process.cwd(), 'schema.gql'),
-			                                                  playground                       : false,
-											status400ForVariableCoercionErrors: true,
-					inheritResolversFromInterfaces	: true,
-			                                                  plugins                          : [
-																  landingPageGraphQLPlayground as any,
-				                                                  ApolloServerPluginCacheControl(),
-																  //ApolloServerPluginUsageReporting({}),
-																  ApolloServerPluginInlineTrace(),
-																  ApolloServerPluginSubscriptionCallback(),
-			                                                  ],
-			                                                  allowBatchedHttpRequests         : true,
-			                                                  introspection                    : true,
-			                                                  transformAutoSchemaFile          : true,
-			                                                  autoTransformHttpErrors          : true,
-			                                                  sortSchema                       : true,
-			                                                  installSubscriptionHandlers      : true,
-			                                                  cache                            : 'bounded',
-			                                                  persistedQueries                 : {},
-			                                                  stopOnTerminationSignals         : true,
-			                                                  includeStacktraceInErrorResponses: isDevelopment(),
-		                                                  }),
-	        ],
-	        providers: [FooResolver],
-        })
-export class GraphqlModule
-	implements OnModuleInit,
-	           OnModuleDestroy
-{
-	public onModuleDestroy(): any
-	{
+	imports:   [
+		GraphQLModule.forRoot<ApolloDriverConfig>({
+			driver:                             ApolloDriver,
+			autoSchemaFile:                     join(process.cwd(), 'schema.gql'),
+			playground:                         false,
+			status400ForVariableCoercionErrors: true,
+			inheritResolversFromInterfaces:     true,
+			plugins:                            [
+				landingPageGraphQLPlayground as any, ApolloServerPluginCacheControl(),
+				//ApolloServerPluginUsageReporting({}),
+				ApolloServerPluginInlineTrace(), ApolloServerPluginSubscriptionCallback(),
+			],
+			allowBatchedHttpRequests:           true,
+			introspection:                      true,
+			transformAutoSchemaFile:            true,
+			autoTransformHttpErrors:            true,
+			sortSchema:                         true,
+			installSubscriptionHandlers:        true,
+			cache:                              'bounded',
+			persistedQueries:                   {},
+			stopOnTerminationSignals:           true,
+			includeStacktraceInErrorResponses:  isDevelopment(),
+		}),
+	],
+	providers: [FooResolver],
+})
+export class GraphqlModule implements OnModuleInit, OnModuleDestroy {
+	public onModuleDestroy(): any {
 	}
 
-	public onModuleInit(): any
-	{
+
+	public onModuleInit(): any {
 		StaticFeatureFlags.isGraphQLRunning = true
 	}
 }

@@ -6,15 +6,12 @@
 // and automatically parse them into objects,
 // then validate them and notify the administrator of the application if things are fine or something gone wrong.
 
-
-
-import {CombinedLogger} from '../logger/logger.js'
+import {CombinedLogger} from "../../../core/modules/logger/logger.js"
 
 
 
 /** Interface dedicated for adding OAuth 2.0 clients to application be used in SSO for example */
-export interface OAuthClientConfig
-{
+export interface OAuthClientConfig {
 	/** @example "github"
 	 * @link [GitHub Developer Apps](https://github.com/settings/applications/new)
 	 */
@@ -44,20 +41,16 @@ export interface OAuthClientConfig
 }
 
 
-
-export function discoverSSOClients(): OAuthClientConfig[]
-{
+export function discoverSSOClients(): OAuthClientConfig[] {
 	const ENV    = process.env
 	const clients: {
 		[idp: string]: OAuthClientConfig
 	}            = {}
 	const logger = new CombinedLogger()
 
-	for (const [key, value] of Object.entries(ENV))
-	{
+	for (const [key, value] of Object.entries(ENV)) {
 		// OAUTH_CLIENT_{IDP}_{VARIABLE}
-		if (key.startsWith('OAUTH_CLIENT_') && typeof value === 'string')
-		{
+		if (key.startsWith('OAUTH_CLIENT_') && typeof value === 'string') {
 			// Get a IDP name
 			const parts = key.split('_')
 			const idp   = parts[2].toLowerCase()
@@ -65,13 +58,12 @@ export function discoverSSOClients(): OAuthClientConfig[]
 
 			if (!(
 				idp in clients
-			))
-			{
+			)) {
 				clients[idp] = {
-					IdP              : idp,
+					IdP:               idp,
 					discoverEndpoints: false,
-					scope            : 'openid email profile',
-					redirectUri      : `http://localhost:1337/sso/${idp}`,
+					scope:             'openid email profile',
+					redirectUri:       `http://localhost:1337/sso/${idp}`,
 				} as any
 			}
 
@@ -80,40 +72,39 @@ export function discoverSSOClients(): OAuthClientConfig[]
 			// Parse additional fields
 			const setting = parts.slice(3).join('_')
 
-			if (setting === 'CLIENT_ID')
-			{
+			if (setting === 'CLIENT_ID') {
 				logger.debug(`${key}=${value}`)
 				config.clientId = value
-			}
-			else if (setting === 'SECRET')
-			{
-				logger.debug(`${key}=${value}`)
-				config.clientSecret = value
-			}
-			else if (setting === 'AUTHORITY')
-			{
-				logger.debug(`${key}=${value}`)
-				config.authority = value
-			}
-			else if (setting === 'USERINFO_ENDPOINT')
-			{
-				logger.debug(`${key}=${value}`)
-				config.userinfoEndpoint = value
-			}
-			else if (setting === 'TOKEN_ENDPOINT')
-			{
-				logger.debug(`${key}=${value}`)
-				config.tokenEndpoint = value
-			}
-			else if (setting === 'AUTH_ENDPOINT')
-			{
-				logger.debug(`${key}=${value}`)
-				config.authorizationEndpoint = value
-			}
-			else if (setting === 'ISSUER')
-			{
-				logger.debug(`${key}=${value}`)
-				config.issuer = value
+			} else {
+				if (setting === 'SECRET') {
+					logger.debug(`${key}=${value}`)
+					config.clientSecret = value
+				} else {
+					if (setting === 'AUTHORITY') {
+						logger.debug(`${key}=${value}`)
+						config.authority = value
+					} else {
+						if (setting === 'USERINFO_ENDPOINT') {
+							logger.debug(`${key}=${value}`)
+							config.userinfoEndpoint = value
+						} else {
+							if (setting === 'TOKEN_ENDPOINT') {
+								logger.debug(`${key}=${value}`)
+								config.tokenEndpoint = value
+							} else {
+								if (setting === 'AUTH_ENDPOINT') {
+									logger.debug(`${key}=${value}`)
+									config.authorizationEndpoint = value
+								} else {
+									if (setting === 'ISSUER') {
+										logger.debug(`${key}=${value}`)
+										config.issuer = value
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -122,8 +113,8 @@ export function discoverSSOClients(): OAuthClientConfig[]
 	return Object.values(clients).filter(validateSSOClient)
 }
 
-function validateSSOClient(client: OAuthClientConfig): boolean
-{
+
+function validateSSOClient(client: OAuthClientConfig): boolean {
 	const logger               = new CombinedLogger()
 	let missingParts: string[] = []
 
