@@ -1,35 +1,30 @@
-import {NestFactory}       from '@nestjs/core'
-import {
-	ExpressAdapter,
-	NestExpressApplication,
-}                          from '@nestjs/platform-express'
-import express, {Express}  from 'express'
-import helmet              from 'helmet'
-import {isDevelopment}     from '../../configs/helper/is-development.js'
-import {Container}         from '../../container.js'
-import {LoggerNestjsProxy} from '../modules/logger/nestjs-logger-proxy.js'
+import {NestFactory}                            from '@nestjs/core'
+import {ExpressAdapter, NestExpressApplication} from '@nestjs/platform-express'
+import express, {Express}                       from 'express'
+import helmet                                   from 'helmet'
+import {isDevelopment}                          from '../../configs/helper/is-development.js'
+import {Container}                              from '../../container.js'
+import {LoggerNestjsProxy}                      from "../../core/modules/logger/nestjs-logger-proxy.js"
 
 
 
-export interface IBootstrap
-{
+export interface IBootstrap {
 	(): Promise<NestExpressApplication>
 }
 
 
-export async function createExpressApplication(): Promise<NestExpressApplication>
-{
+export async function createExpressApplication(): Promise<NestExpressApplication> {
 	const expressHttpServer: Express = express()
 
 	const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(Container, new ExpressAdapter(expressHttpServer), {
 		autoFlushLogs: true, //cors:          true,
 		//bodyParser:    true,
 		//rawBody:       true,
-		preview     : false,
-		bufferLogs  : true,
+		preview:      false,
+		bufferLogs:   true,
 		abortOnError: isDevelopment(),
-		snapshot    : isDevelopment(),
-		logger      : new LoggerNestjsProxy(),
+		snapshot:     isDevelopment(),
+		logger:       new LoggerNestjsProxy(),
 	})
 
 	app.useBodyParser('json')

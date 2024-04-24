@@ -1,1 +1,0 @@
-for sending email messages
