@@ -26,7 +26,7 @@ model Subject {
   height      Int?
   account_id  String?     @unique
   account     Account?    @relation(fields: [account_id], references: [id])
-  Ingestion   Ingestion[]
+  IngestionStore   Ingestion[]
   Stash       Stash[]
 }
 
@@ -61,7 +61,7 @@ model Substance {
   chemical_class           String?
   description              String?
   routes_of_administration RouteOfAdministration[]
-  Ingestion                Ingestion[]
+  IngestionStore                Ingestion[]
   Stash                    Stash[]
   SubstanceInteraction     SubstanceInteraction[]
 }
@@ -120,7 +120,7 @@ model Effect {
   Phase          Phase[]
 }
 
-model Ingestion {
+model IngestionStore {
   id                    String     @id @default(cuid())
   substanceName         String?
   routeOfAdministration String?

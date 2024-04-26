@@ -2,7 +2,7 @@ application: "Dosage Tracking Application" {
   Subject
   Account: Subject's Account
   Substance: "Substance Information"
-  Ingestion: "Ingestion storage"
+  IngestionStore: "IngestionStore storage"
   Experince: "Public storage of experiences"
 }
 
@@ -11,5 +11,5 @@ extenrals: "External Systems" {
 }
 
 application.Subject -> application.Ingestion: "User ingests substance"
-application.Ingestion -> application.Experince: "Ingestion produces experience"
+application.Ingestion -> application.Experince: "IngestionStore produces experience"
 application.Substance -> extenrals.drugProvider: "Aggregates substance information"
