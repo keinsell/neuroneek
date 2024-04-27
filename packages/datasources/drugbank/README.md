@@ -1,3 +1,7 @@
-# Drugbank Dataset
+# Drugbank
 
-- Datasets will be uploaded to repository in free time.
+Dataset is available to be downloaded from `ipfs`.
+
+```
+QmPhHtdcv6dhmgVy41nHDtoGfr74GYskBrVgcWXCFfhMDu
+```
