@@ -8,8 +8,6 @@ type IngestionStore = {
   removeIngestion: (id: string) => void;
   updateIngestion: (id: string, update: Partial<Ingestion>) => void;
 };
-
-<<<<<<< ours
 export const useIngestionStore = createStore<IngestionStore>((set) => ({
   ingestions: [],
   addIngestion: (ingestion) =>
