@@ -15,7 +15,7 @@ import { ChevronDownIcon, PillIcon } from 'lucide-react';
 import { SUBSTANCES_MOCKUP } from '@/types/substance';
 import { useEffect, useState } from 'react';
 
-export default function createLogIngestionForm() {
+export default function CreateIngestionPage() {
   const [substance, setSubstance] = useState('');
   const [dosage, setDosage] = useState('');
   const [roa, setRoa] = useState('');
