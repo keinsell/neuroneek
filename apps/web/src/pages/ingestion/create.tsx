@@ -12,9 +12,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import { addIngestion, AddIngestionCommand } from '@/lib/actions/add-ingestion'
-import { roaSeed } from '@/lib/store/roas-store'
-import { SUBSTANCES_MOCKUP } from '@/types/substance'
+import { AddIngestionCommand } from '@/lib/actions/add-ingestion'
+import { RouteOfAdministrationClassification } from '@/types/route-of-administration'
+import { listSubstances } from '@/types/substance'
 import { getValue, setValue, SubmitHandler, useForm } from '@modular-forms/react'
 import { ChevronDownIcon, PillIcon } from 'lucide-react'
 
@@ -22,7 +22,6 @@ type CreateIngestionForm = AddIngestionCommand
 
 export default function CreateIngestionPage() {
 	const [addIngestionForm, { Form, Field }] = useForm<CreateIngestionForm>()
-	// const [addIngestionForm, { Form, Field }] = useForm<CreateIngestionForm>({ validate: valiForm(AddIngestionCommand) })
 	const { toast } = useToast()
 
 	const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = (values, event) => {
@@ -41,7 +40,6 @@ export default function CreateIngestionPage() {
 				</div>
 			)
 		})
-		addIngestion(values)
 	}
 
 	return (
@@ -62,7 +60,7 @@ export default function CreateIngestionPage() {
 												<Button className='w-full flex items-center justify-between' variant='outline'>
 													<span>
 														{getValue(addIngestionForm, 'substanceId')
-															? SUBSTANCES_MOCKUP.find(
+															? listSubstances.find(
 																	substance => `${substance.id}` === getValue(addIngestionForm, 'substanceId')
 															  )?.name
 															: 'Search for a substance'}
@@ -76,7 +74,7 @@ export default function CreateIngestionPage() {
 													<Input className='w-full' placeholder='Select a substance...' />
 												</div>
 												<DropdownMenuSeparator />
-												{SUBSTANCES_MOCKUP.map(substance => (
+												{listSubstances.map(substance => (
 													<DropdownMenuItem
 														key={substance.id}
 														itemID={`${substance.id}`}
@@ -108,35 +106,65 @@ export default function CreateIngestionPage() {
 						</div>
 					</div>
 					<div className='grid grid-cols-2 gap-4'>
-						{/* Route of Administration FormElement*/}
 						<div>
-							<Label htmlFor='roa'>Route of Administration</Label>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button className='w-full flex items-center justify-between' variant='outline'>
-										<span>Select a route</span>
-										<ChevronDownIcon className='h-4 w-4' />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent className='w-full'>
-									{roaSeed.map(roa => (
-										<DropdownMenuItem key={roa.id} itemID={roa.id}>
-											{roa.name}
-										</DropdownMenuItem>
-									))}
-								</DropdownMenuContent>
-							</DropdownMenu>
+							<Field name='routeOfAdministration' type='string'>
+								{(field, props) => (
+									<>
+										<Label htmlFor='roa'>Route of Administration</Label>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button className='w-full flex items-center justify-between' variant='outline'>
+													<span>{getValue(addIngestionForm, 'routeOfAdministration') ?? 'Select a route'}</span>
+													<ChevronDownIcon className='h-4 w-4' />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent className='w-full'>
+												{Object.values(RouteOfAdministrationClassification).map(roa => (
+													<DropdownMenuItem
+														key={roa}
+														itemID={roa}
+														onClick={() => setValue(addIngestionForm, 'routeOfAdministration', roa)}>
+														{roa}
+													</DropdownMenuItem>
+												))}
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</>
+								)}
+							</Field>
 						</div>
 						<div>
-							<Label htmlFor='date'>Date Administered</Label>
-							<Input id='date' type='date' />
+							<Field name='ingestedAt' type='Date'>
+								{(field, props) => (
+									<>
+										<Label htmlFor='date'>Date Administered</Label>
+										<Input {...props} id='date' type='date' />
+									</>
+								)}
+							</Field>
 						</div>
 					</div>
 					<div className='grid grid-cols-2 gap-4'>
-						<div>
-							<Label htmlFor='time'>Time Administered</Label>
-							<Input id='time' type='time' />
-						</div>
+						<Field name='ingestedAt' type='Date'>
+							{(field, props) => (
+								<>
+									<Label htmlFor='time'>Time Administered</Label>
+									<Input
+										id='time'
+										type='time'
+										// On change get ingestAt value
+										// (or set it to current time) and set hour and minute of the day to this date.
+										// Then set the value to the form.
+										onChange={e => {
+											const date = new Date(getValue(addIngestionForm, 'ingestedAt') ?? new Date())
+											const hour = date.getHours()
+											const minute = date.getMinutes()
+											setValue(addIngestionForm, 'ingestedAt', new Date(date.setHours(hour, minute)))
+										}}
+									/>
+								</>
+							)}
+						</Field>
 						<div>
 							<Label htmlFor='notes'>Notes</Label>
 							<Textarea id='notes' placeholder='Enter any additional notes' />
