@@ -1,7 +1,9 @@
-import AppLayout from '@/components/layouts/app-layout';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import '../app/globals.css';
+import AppLayout from '@/components/layouts/app-layout';
+
 
 export default function IngestionPage() {
   const ingestions = [{
@@ -24,7 +26,7 @@ export default function IngestionPage() {
     <AppLayout>
       <div className="flex items-center">
         <h1 className="font-semibold text-lg md:text-2xl">Ingestion History</h1>
-        <Link href={'/log'}>
+        <Link href={'/ingestion/create'}>
           <Button className="ml-auto" size="sm">
             Log Ingestion
           </Button>

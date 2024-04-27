@@ -1,12 +1,6 @@
-import create from 'zustand';
+import { createStore } from 'zustand';
+import { Ingestion } from '@/types/ingestion';
 
-export interface Ingestion {
-  id: string;
-  name: string;
-  description: string;
-  ingestionType: string;
-  ingestionDate: string;
-}
 
 type IngestionStore = {
   ingestions: Ingestion[];
@@ -15,7 +9,8 @@ type IngestionStore = {
   updateIngestion: (id: string, update: Partial<Ingestion>) => void;
 };
 
-export const useIngestionStore = create<IngestionStore>((set) => ({
+<<<<<<< ours
+export const useIngestionStore = createStore<IngestionStore>((set) => ({
   ingestions: [],
   addIngestion: (ingestion) =>
     set((state) => ({ ingestions: [...state.ingestions, ingestion] })),
