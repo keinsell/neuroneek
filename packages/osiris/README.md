@@ -17,7 +17,7 @@ You should avoid installing this package by now, so documentation is omited by t
 Here is an example of how package should be used and what's purpose of such package:
 
 ```ts
-import { Subject, Ingestion, Substance } from "@neuronek/osiris"
+import { Subject, IngestionStore, Substance } from "@neuronek/osiris"
 
 // Data can be mapped from outer infrastructure,
 // in case of server this would be based on profile
@@ -37,7 +37,7 @@ const caffeine = new Substance({
 // Creation of ingestion, the library will
 // parse the input and create neccessary datamodels
 // for the provided input.
-const ingestion = Ingestion.ingest({
+const ingestion = IngestionStore.ingest({
 			subject: subject,
             substance: caffeine,
             description: "Cup of coffee",
