@@ -13,56 +13,28 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/components/layouts/app-layout';
 import { ChevronDownIcon, PillIcon } from 'lucide-react';
 import { SUBSTANCES_MOCKUP } from '@/types/substance';
-import { useEffect, useState } from 'react';
+import { getValue, setValue, SubmitHandler, useForm } from '@modular-forms/react';
+import { addIngestion, AddIngestionCommand } from '@/lib/actions/add-ingestion';
+import { useToast } from '@/components/ui/use-toast';
+
+type CreateIngestionForm = AddIngestionCommand
 
 export default function CreateIngestionPage() {
-  const [substance, setSubstance] = useState('');
-  const [dosage, setDosage] = useState('');
-  const [roa, setRoa] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [notes, setNotes] = useState('');
+  const [addIngestionForm, { Form, Field }] = useForm<CreateIngestionForm>();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    // Load existing data from localStorage
-    const savedData = localStorage.getItem('logEntries');
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      setSubstance(parsedData.substance || '');
-      setDosage(parsedData.dosage || '');
-      // ... similarly load other fields from parsedData
-    }
-  }, []);
 
-  const handleSubmit = (event) => {
+  const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = (values, event) => {
     event.preventDefault();
+    addIngestion(values);
 
-    // Prepare the log entry data
-    const logEntry = {
-      substance,
-      dosage,
-      roa,
-      date,
-      time,
-      notes,
-    };
 
-    console.log(logEntry);
-
-    // Store in localStorage
-    const existingEntries = localStorage.getItem('logEntries') || '[]'; // Array if entries exist
-    const updatedEntries = JSON.stringify([...JSON.parse(existingEntries), logEntry]);
-    localStorage.setItem('logEntries', updatedEntries);
-
-    // Optionally clear the form fields
-    setSubstance('');
-    setDosage('');
-    setRoa('');
-    setDate('');
-    setTime('');
-    setNotes('');
+    toast({
+      title: 'Ingestion logged successfully',
+      description: 'The ingestion has been logged successfully.',
+      type: 'foreground',
+    });
   };
-
 
   return (
     <AppLayout>
@@ -70,35 +42,40 @@ export default function CreateIngestionPage() {
         <h1 className="font-semibold text-lg md:text-2xl">Log Ingestion</h1>
       </div>
       <div className="border shadow-sm rounded-lg p-6">
-        <form className="grid gap-6" onSubmit={handleSubmit}>
+        <Form className="grid gap-6" onSubmit={ingestionSubmitHandler}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="substance">Substance</Label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="w-full flex items-center justify-between" variant="outline">
-                    <span>{
-                      SUBSTANCES_MOCKUP.find((sub) => `${sub.id}` === substance)?.name || 'Select a substance'
-                    }</span>
-                    <ChevronDownIcon className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-full max-h-[300px] overflow-auto">
-                  <div className="px-4 py-2">
-                    <Input className="w-full" placeholder="Search substances..." />
-                  </div>
-                  <DropdownMenuSeparator />
-                  {SUBSTANCES_MOCKUP.map((substance) => (
-                    <DropdownMenuItem key={substance.id} itemID={`${substance.id}`}
-                                      onClick={() => setSubstance(`${substance.id}`)}>{substance.name}</DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Field name="substanceId" type="string">
+                {(field, props) => <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="w-full flex items-center justify-between" variant="outline">
+                      <span> {
+                        getValue(addIngestionForm, 'substanceId') ? (SUBSTANCES_MOCKUP.find((substance) => `${substance.id}` === getValue(addIngestionForm, 'substanceId')))?.name : 'Search for a substance'
+                      }</span>
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-full max-h-[300px] overflow-auto">
+                    <div className="px-4 py-2">
+                      <Input className="w-full" placeholder="Select a substance..." />
+                    </div>
+                    <DropdownMenuSeparator />
+                    {SUBSTANCES_MOCKUP.map((substance) => (
+                      <DropdownMenuItem key={substance.id} itemID={`${substance.id}`}
+                                        onClick={() => setValue(addIngestionForm, 'substanceId', `${substance.id}`)}>{substance.name}</DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>}
+              </Field>
             </div>
-            <div>
-              <Label htmlFor="dosage">Dosage</Label>
-              <Input id="dosage" placeholder="Enter dosage" type="number" />
-            </div>
+            <Field name="dosage.amount" type="number">
+              {(field, props) => <>
+                <Label htmlFor="dosage">Dosage</Label>
+                <Input id="dosage" placeholder="Enter dosage" type="number"
+                       onChange={(e) => setValue(addIngestionForm, 'dosage.amount', parseInt(e.target.value))} />
+              </>}
+            </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
             {/* Route of Administration FormElement*/}
@@ -142,7 +119,7 @@ export default function CreateIngestionPage() {
               Log Ingestion
             </Button>
           </div>
-        </form>
+        </Form>
       </div>
     </AppLayout>
   );
