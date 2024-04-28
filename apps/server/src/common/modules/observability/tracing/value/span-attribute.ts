@@ -24,7 +24,7 @@
  */
 
 import type { SimplifyDeep } from 'type-fest/source/merge-deep.js'
-import type { IPV4 }         from '../../../../../kernel/standard/ipv4.js'
+import type {IPV4}           from "../../../../../../dist/src/kernel/standard/ipv4.js"
 
 
 

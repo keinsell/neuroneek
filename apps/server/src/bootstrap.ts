@@ -11,16 +11,14 @@ import ms                                       from 'ms';
 import process                                  from 'node:process';
 import requestIp                                from 'request-ip';
 import {HttpExceptionFilter}                    from './common/filters/exception-filter/http-exception-filter.js';
-import {HttpStatus}                             from './common/http-status.js';
-import {buildCompodocDocumentation}             from './common/modules/documentation/compodoc/compodoc.js';
-import {buildSwaggerDocumentation}              from './common/modules/documentation/swagger/swagger.js';
-import {executePrismaRelatedProcesses}          from './common/modules/resources/prisma/utils/execute-prisma-related-processes.js';
+import {HttpStatus}                    from './common/http-status.js';
+import {buildSwaggerDocumentation}     from './core/modules/documentation/swagger/swagger.js';
 import {__appConfig, __config}                  from './configs/global/__config.js';
 import {isDevelopment}                          from './configs/helper/is-development.js';
 import {StaticFeatureFlags}                     from './configs/static-feature-flags.js';
 import {Container}                              from './container.js';
 import {LoggerNestjsProxy}                      from "./core/modules/logger/nestjs-logger-proxy.js"
-import {FingerprintMiddleware}                  from './kernel/platform/http/middleware/fingerprint.js';
+import {FingerprintMiddleware}                  from './core/middleware/fingerprint.js';
 import {ExpressRequest, ExpressResponse}        from './types/express-response.js';
 import {portAllocator}                          from './utilities/network-utils/port-allocator.js';
 
@@ -54,8 +52,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	// Implement logger used for bootstrapping and notifying about application state
 	const logger = new Logger('Bootstrap');
 
-	await executePrismaRelatedProcesses();
-
 	app.use(helmet({contentSecurityPolicy: false}));
 	// Build swagger documentation
 	const apiSpec = await buildSwaggerDocumentation(app);
@@ -69,8 +65,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 		layout:      'modern',
 		theme:       'kepler',
 	}));
-
-	buildCompodocDocumentation();
 
 	// The error handler must be before any other error middleware and after all controllers
 	app.useGlobalFilters(new HttpExceptionFilter(app.get(HttpAdapterHost)));
@@ -124,7 +118,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 				logger.log(`🚀 Application started on ${applicationUrl} in ${NODE_ENV} mode`);
 
 				logger.verbose(`${'-'.repeat(54)}`);
-				logger.verbose(`📄 Compodoc endpoint: ${applicationUrl + '/docs'}`);
 				logger.verbose(`📄 OpenAPI 3.0 Documentation: ${applicationUrl + '/reference'}`);
 				if (StaticFeatureFlags.isGraphQLRunning) {
 					logger.verbose(`🧩 GraphQL is running on: ${applicationUrl + '/graphql'}`);

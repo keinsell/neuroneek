@@ -51,7 +51,6 @@ export default function CreateIngestionPage() {
 			routeOfAdministration: values.routeOfAdministration,
 			dosage_amount: values.dosage.amount as any,
 			dosage_unit: values.dosage.unit,
-			date: new Date() as any,
 			ingestedAt: new Date()
 		})
 	}

@@ -4,8 +4,8 @@ import {hash, verify}                       from 'argon2';
 import {Account, Prisma}                   from 'db';
 import {SignJWT}                            from 'jose';
 import {randomUUID}                         from 'node:crypto';
-import {PrismaService}                      from '../../common/modules/resources/prisma/services/prisma-service.js';
 import {__authConfig}                       from '../../configs/global/__config.js';
+import  {PrismaService}                 from "../../core/modules/database/prisma/services/prisma-service.js"
 import {ApiModel}                           from '../../utilities/docs-utils/swagger-api-model.js';
 import {ApiAccountMockup}                   from '../../utilities/fixtures/api-account-mockup.js';
 

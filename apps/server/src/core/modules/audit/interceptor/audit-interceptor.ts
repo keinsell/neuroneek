@@ -26,8 +26,7 @@
 import {CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor} from '@nestjs/common'
 import {Reflector}                                                          from '@nestjs/core'
 import {Observable}                                                         from 'rxjs'
-import {PrismaService}                                                      from "../../../../common/modules/resources/prisma/services/prisma-service.js"
-
+import type {PrismaService}                                                 from "../../database/prisma/services/prisma-service.js"
 
 
 @Injectable()

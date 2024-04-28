@@ -1,6 +1,6 @@
 import { Module }           from '@nestjs/common'
 import { TerminusModule }   from '@nestjs/terminus'
-import { DatabaseModule }   from '../../database/database.module.js'
+import { DatabaseModule }   from '../../../../core/modules/database/database.module.js'
 import { HealthController } from './health-controller.js'
 
 

@@ -24,9 +24,11 @@
  */
 
 import {randomUUID}                        from 'node:crypto'
-import {EmailMessage}                      from "../../../kernel/modules/mailer/entity/email-message.js"
-import {EmailContent, isEmailContent}      from "../../../kernel/modules/mailer/value-object/email-content.js"
-import {EmailRecipient}                    from "../../../kernel/modules/mailer/value-object/email-recipient.js"
+import type {EmailMessage}   from "../../../../dist/src/kernel/modules/mailer/entity/email-message.js"
+import {
+	type EmailContent, isEmailContent,
+}                            from "../../../../dist/src/kernel/modules/mailer/value-object/email-content.js"
+import type {EmailRecipient} from "../../../../dist/src/kernel/modules/mailer/value-object/email-recipient.js"
 import {EntityBase, type EntityFoundation} from '../../libraries/domain/entity/entity-base.js'
 import {NotificationQueued}                from '../event/notification-queued.js'
 import {NotificationChannel}               from '../value-object/notification-channel.js'

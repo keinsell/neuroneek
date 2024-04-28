@@ -25,7 +25,7 @@
 
 import {ForbiddenException, NotFoundException} from '@nestjs/common'
 import {Result}                                 from 'neverthrow'
-import {AccessToken, RefreshToken}              from "../../../../kernel/modules/identity/jwt.js"
+import {AccessToken, RefreshToken}              from "../../../modules/identity/jwt.js"
 
 
 
