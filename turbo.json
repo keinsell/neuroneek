@@ -37,6 +37,13 @@
       ],
       "cache": true
     },
+    "@neuronek/server#build": {
+      "dependsOn": [
+        "^build",
+        "@neuronek/server#db:generate"
+      ],
+      "cache": false
+    },
     "start": {
       "dependsOn": [
         "^build"

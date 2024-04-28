@@ -14,23 +14,23 @@ export class SubstanceResponse {
 	@ApiProperty({
 		description: 'The ID of the substance',
 		example:     'clvdzrfzj0000f2ftr6cm3fjr',
-	}) id: string
+	}) public id: string
 	@ApiProperty({
 		description: 'The name of the substance',
 		example:     '1,3-dimethylbutylamine',
-	}) name: string
+	}) public name: string
 	@ApiProperty({
 		description: 'Common names of the substance',
 		example:     ['1,3-dimethylbutylamine', '1,4-Butanediol', '1P-ETH-LAD'],
-	}) common_names: string[]
+	}) public common_names: string[]
 	@ApiProperty({
 		description: "Psychoactive Classes to which substance belong",
 		example:     ['Stimulants', 'Depressant', 'Psychedelic'],
-	}) psychoactive_classes: string[]
+	}) public psychoactive_classes: string[]
 	@ApiProperty({
 		description: "Chemical Classes to which substance belong",
 		example:     ['Amine', 'Alkanediol,Diol', 'Lysergamides'],
-	}) chemical_classes: string[]
+	}) public chemical_classes: string[]
 
 
 	static fromSubstance(substance: Substance): SubstanceResponse {

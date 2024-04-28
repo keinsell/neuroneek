@@ -1,5 +1,5 @@
 {
-  "name": "plygrndracoon",
+  "name": "@neuronek/server",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -11,7 +11,7 @@
     "build": "pnpm run build:tsc",
     "build:tsc": "tsc -p tsconfig.json && pnpm copy:markdown && pnpm copy:prisma",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "nest start",
+    "start": "node dist/src/main.js",
     "lint:fta": "npx fta-cli --config-path .fta.json src",
     "copy:markdown": "copyfiles -e \"**/node_modules/**\" -u 1 \"src/**/*.md\" dist/src",
     "copy:prisma": "copyfiles -u 1 \"vendor/prisma/**\" dist/src",

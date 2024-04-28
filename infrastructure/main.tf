@@ -43,6 +43,10 @@ variable "vercel_team" {
   default = "0x4b696973656c6c"
 }
 
+# variable "railway_token" {
+#   type = string
+# }
+
 
 variable "github_token" {
   description = "https://github.com/settings/tokens"
@@ -63,6 +67,10 @@ provider "github" {
   owner = var.github_owner
 }
 
+# provider "railway" {
+#   token = var.railway_token
+# }
+
 
 # For the importing resources useful tool is
 # go install github.com/paololazzari/fuzzy-terraform-import@latest
@@ -78,10 +86,10 @@ resource "github_repository" "this" {
   allow_auto_merge            = true
   has_downloads               = true
   has_issues                  = true
-  has_discussions = true
+  has_discussions             = true
   has_projects                = false
   has_wiki                    = false
-  homepage_url                = "https://neuronek.xyz"
+  homepage_url                = "https://neuronek.up.railway.app/reference"
   is_template                 = false
   merge_commit_message        = "PR_BODY"
   merge_commit_title          = "PR_TITLE"
@@ -92,8 +100,8 @@ resource "github_repository" "this" {
 
 
 resource "github_repository_environment" "development" {
-  environment         = "development"
-  repository          = github_repository.this.name
+  environment = "development"
+  repository  = github_repository.this.name
   deployment_branch_policy {
     protected_branches     = true
     custom_branch_policies = false
@@ -101,8 +109,8 @@ resource "github_repository_environment" "development" {
 }
 
 resource "github_repository_environment" "production" {
-  environment         = "production"
-  repository          = github_repository.this.name
+  environment = "production"
+  repository  = github_repository.this.name
   deployment_branch_policy {
     protected_branches     = true
     custom_branch_policies = false
@@ -111,8 +119,8 @@ resource "github_repository_environment" "production" {
 
 # pharmacology neuroscience nootropics supplements psychedelics psychedelic psychonautwiki harm-reduction caffeine-tracker erowid substance-use-disorder substance-use tripsit psychedelic-research substance-use-and-prevention
 resource "github_repository_topics" "this" {
-  repository    = github_repository.this.name
-  topics        = ["psychonautwiki", "erowid", "tripsit", "caffeine-tracker"]
+  repository = github_repository.this.name
+  topics     = ["psychonautwiki", "erowid", "tripsit", "caffeine-tracker"]
 }
 
 
@@ -135,3 +143,7 @@ resource "vercel_project" "neuronek-web" {
     github_repository.this
   ]
 }
+
+# resource "railway_project" "this" {
+#   name = "neuronek"
+# }

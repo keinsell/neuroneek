@@ -23,8 +23,7 @@
  *
  */
 
-import type { SimplifyDeep } from 'type-fest/source/merge-deep.js'
-import type {IPV4}           from "../../../../../../dist/src/kernel/standard/ipv4.js"
+import type {SimplifyDeep} from 'type-fest/source/merge-deep.js'
 
 
 
@@ -39,8 +38,8 @@ import type {IPV4}           from "../../../../../../dist/src/kernel/standard/ip
  * @see [OpenTelemtry's Trace Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/general/trace/)
  */
 export type SpanAttribute = SimplifyDeep<{
-  server : {
-	 address : IPV4
-	 port : number
-  }
+	server: {
+		address: string
+		port: number
+	}
 }>
