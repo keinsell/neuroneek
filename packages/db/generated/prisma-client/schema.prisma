@@ -4,7 +4,12 @@ datasource db {
   relationMode = "foreignKeys"
 }
 
-generator client {
+// generator client_python {
+//   provider             = "prisma-client-py"
+//   recursive_type_depth = 5
+// }
+
+generator client_javascript {
   provider = "prisma-client-js"
   output   = "../generated/prisma-client"
 }
@@ -25,7 +30,7 @@ model Subject {
   height      Int?
   account_id  String?     @unique
   account     Account?    @relation(fields: [account_id], references: [id])
-  Ingestion   Ingestion[]
+  Ingestions  Ingestion[]
   Stash       Stash[]
 }
 

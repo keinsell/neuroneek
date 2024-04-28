@@ -4,9 +4,14 @@ datasource db {
   relationMode = "foreignKeys"
 }
 
-generator client {
-  provider             = "prisma-client-py"
-  recursive_type_depth = 5
+// generator client_python {
+//   provider             = "prisma-client-py"
+//   recursive_type_depth = 5
+// }
+
+generator client_javascript {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma-client"
 }
 
 model Account {
@@ -25,7 +30,7 @@ model Subject {
   height      Int?
   account_id  String?     @unique
   account     Account?    @relation(fields: [account_id], references: [id])
-  IngestionStore   Ingestion[]
+  Ingestions  Ingestion[]
   Stash       Stash[]
 }
 
@@ -60,7 +65,7 @@ model Substance {
   chemical_class           String?
   description              String?
   routes_of_administration RouteOfAdministration[]
-  IngestionStore                Ingestion[]
+  Ingestion                Ingestion[]
   Stash                    Stash[]
   SubstanceInteraction     SubstanceInteraction[]
 }
@@ -119,7 +124,7 @@ model Effect {
   Phase          Phase[]
 }
 
-model IngestionStore {
+model Ingestion {
   id                    String     @id @default(cuid())
   substanceName         String?
   routeOfAdministration String?

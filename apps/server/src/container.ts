@@ -1,17 +1,14 @@
-import {CacheInterceptor}                                                                  from '@nestjs/cache-manager';
 import {Logger, MiddlewareConsumer, Module, OnModuleDestroy, OnModuleInit, RequestMethod} from '@nestjs/common';
-import {APP_INTERCEPTOR}                                                                   from '@nestjs/core';
-import Sentry                 from '@sentry/node';
-import {DocumentationModule}  from './core/modules/documentation/documentation-module.js';
-import {DeveloperToolsModule} from './common/modules/environment/dev-tools/developer-tools.module.js';
-import {HealthModule}                                                                      from './common/modules/observability/healthcheck/health-module.js';
-import {CacheManagerModule}                                                                from './common/modules/storage/cache-manager/cache-manager-module.js';
-import {SharedModule}                             from './common/shared-module.js';
-import {CertificateBasedAuthenticationController} from './core/modules/identity/cbac.js';
-import {SingleSignOnController}                   from './core/modules/identity/sso/sso.js';
-import {GraphqlModule}                            from './core/modules/graphql/graphql-module.js';
-import {FingerprintMiddleware} from './core/middleware/fingerprint.js';
-import {AccountController}     from './routes/v1/account.js';
+import Sentry                                                                             from '@sentry/node';
+import {DeveloperToolsModule}                                                             from './common/modules/environment/dev-tools/developer-tools.module.js';
+import {HealthModule}                                                                     from './common/modules/observability/healthcheck/health-module.js';
+import {SharedModule}                                                                     from './common/shared-module.js';
+import {FingerprintMiddleware}                                                            from './core/middleware/fingerprint.js';
+import {DocumentationModule}                                                              from './core/modules/documentation/documentation-module.js';
+import {GraphqlModule}                                                                    from './core/modules/graphql/graphql-module.js';
+import {CertificateBasedAuthenticationController}                                         from './core/modules/identity/cbac.js';
+import {AccountController}                                                                from './routes/v1/account.js';
+import {SubstanceController}                                                              from "./routes/v1/substance.js"
 
 
 
@@ -20,10 +17,9 @@ import {AccountController}     from './routes/v1/account.js';
 		GraphqlModule, SharedModule, DocumentationModule, HealthModule, DeveloperToolsModule,
 	],
 	controllers: [
-		SingleSignOnController, CertificateBasedAuthenticationController, AccountController,
+		CertificateBasedAuthenticationController, AccountController, SubstanceController,
 	],
-	providers:   [
-	],
+	providers:   [],
 })
 export class Container implements OnModuleInit, OnModuleDestroy {
 	configure(consumer: MiddlewareConsumer) {

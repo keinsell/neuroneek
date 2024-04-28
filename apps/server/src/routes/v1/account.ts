@@ -1,11 +1,11 @@
 import {Body, Controller, Post}             from '@nestjs/common';
 import {ApiBody, ApiOperation, ApiProperty} from '@nestjs/swagger';
 import {hash, verify}                       from 'argon2';
-import {Account, Prisma}                   from 'db';
+import {Account, Prisma}                    from 'db';
 import {SignJWT}                            from 'jose';
 import {randomUUID}                         from 'node:crypto';
 import {__authConfig}                       from '../../configs/global/__config.js';
-import  {PrismaService}                 from "../../core/modules/database/prisma/services/prisma-service.js"
+import {PrismaService}                      from "../../core/modules/database/prisma/services/prisma-service.js"
 import {ApiModel}                           from '../../utilities/docs-utils/swagger-api-model.js';
 import {ApiAccountMockup}                   from '../../utilities/fixtures/api-account-mockup.js';
 
@@ -129,7 +129,6 @@ export class AccountController {
 			account = await this.accountRepository.create({
 				data: {
 					username: registerAccount.username,
-					email:    'keinsell@protonmail.com',
 					password: passwordHash,
 				},
 			});

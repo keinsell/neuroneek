@@ -1,65 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/sso/{idp}": {
-      "post": {
-        "operationId": "initiate-sso",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "idp",
-            "required": true,
-            "in": "path",
-            "example": "github",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InitiateSingleSignOn"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      },
-      "get": {
-        "operationId": "complete-sso",
-        "summary": "",
-        "parameters": [
-          {
-            "name": "idp",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "code",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/account": {
       "post": {
         "operationId": "register",
@@ -80,6 +21,29 @@
         },
         "responses": {
           "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/substance/{id}": {
+      "get": {
+        "operationId": "SubstanceController_getSubstanceById",
+        "summary": "Get substance by id",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/substance": {
+      "get": {
+        "operationId": "SubstanceController_getAllSubstances",
+        "parameters": [],
+        "responses": {
+          "200": {
             "description": ""
           }
         }
@@ -276,26 +240,6 @@
       }
     },
     "schemas": {
-      "InitiateSingleSignOn": {
-        "type": "object",
-        "properties": {
-          "provider": {
-            "type": "string",
-            "enum": [
-              "github"
-            ],
-            "example": "github"
-          },
-          "redirectUrl": {
-            "type": "string",
-            "example": "http://localhost:1337/sso/github"
-          }
-        },
-        "required": [
-          "provider",
-          "redirectUrl"
-        ]
-      },
       "RegisterAccountCommand": {
         "type": "object",
         "properties": {

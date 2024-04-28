@@ -49,8 +49,10 @@
     "noImplicitAny": true,
     "strictBindCallApply": true,
     "forceConsistentCasingInFileNames": false,
-    "strictFunctionTypes": false, // TODO: True
-    "exactOptionalPropertyTypes": false, // TODO: true
+    "strictFunctionTypes": false,
+    // TODO: True
+    "exactOptionalPropertyTypes": false,
+    // TODO: true
     "moduleDetection": "force",
     "downlevelIteration": true,
     "preserveValueImports": false,
@@ -61,29 +63,40 @@
     "disableSizeLimit": true,
     "disableReferencedProjectLoad": false,
     "disableSolutionSearching": false,
-    "useUnknownInCatchVariables": false, // TODO: true
+    "useUnknownInCatchVariables": false,
+    // TODO: true
     "importsNotUsedAsValues": "remove",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
-    "noImplicitOverride": false, // TODO: true
+    "noImplicitOverride": false,
+    // TODO: true
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "strictPropertyInitialization": false, // TODO: true
-    // TODO: Turn on.
-    //    "noEmit": false,
+    "strictPropertyInitialization": false,
+    // TODO: true
     "moduleResolution": "NodeNext",
-    //    "types": [
-    //      "@types/node",
-    //      "@types/express-session"
-    //    ],
-    "typeRoots": ["./src/types/**/*"],
+    "typeRoots": [
+      "./src/types/**/*"
+    ],
     "paths": {
-      "src/*": ["./src"],
-      "@filesystem/*": ["./src/utilities/filesystem-utils/*"],
-      "@lib/security/*": ["./src/common/libraries/security/*"],
-      "@storage": ["./src/infrastructure/storage/*"],
-      "@infrastructure": ["./src/infrastructure/*"],
-      "@libraries/*": ["./src/libraries/*"]
+      "src/*": [
+        "./src"
+      ],
+      "@filesystem/*": [
+        "./src/utilities/filesystem-utils/*"
+      ],
+      "@lib/security/*": [
+        "./src/common/libraries/security/*"
+      ],
+      "@storage": [
+        "./src/infrastructure/storage/*"
+      ],
+      "@infrastructure": [
+        "./src/infrastructure/*"
+      ],
+      "@libraries/*": [
+        "./src/libraries/*"
+      ]
     },
     "plugins": [
       //      {
@@ -143,7 +156,9 @@
       }
     ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "vendor",
@@ -156,7 +171,9 @@
   ],
   "compileOnSave": true,
   "typeAcquisition": {
-    "include": ["node"],
+    "include": [
+      "node"
+    ],
     "enable": true
   }
 }
