@@ -12,16 +12,20 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import { AddIngestionCommand } from '@/lib/actions/add-ingestion'
+import { useStore } from '@/stores/use-store'
+import type { IngestionId } from '@/types/ingestion'
+import { AddIngestionCommand } from '@/types/ingestion/add-ingestion'
 import { RouteOfAdministrationClassification } from '@/types/route-of-administration'
-import { listSubstances } from '@/types/substance'
+import { listSubstances, type SubstanceId } from '@/types/substance'
 import { getValue, setValue, SubmitHandler, useForm } from '@modular-forms/react'
 import { ChevronDownIcon, PillIcon } from 'lucide-react'
+import { nanoid } from 'nanoid'
 
 type CreateIngestionForm = AddIngestionCommand
 
 export default function CreateIngestionPage() {
 	const [addIngestionForm, { Form, Field }] = useForm<CreateIngestionForm>()
+	const store = useStore()
 	const { toast } = useToast()
 
 	const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = (values, event) => {
@@ -39,6 +43,16 @@ export default function CreateIngestionPage() {
 					</pre>
 				</div>
 			)
+		})
+
+		store.addIngestion({
+			id: nanoid() as IngestionId,
+			substanceId: values.substanceId as SubstanceId,
+			routeOfAdministration: values.routeOfAdministration,
+			dosage_amount: values.dosage.amount as any,
+			dosage_unit: values.dosage.unit,
+			date: new Date() as any,
+			ingestedAt: new Date()
 		})
 	}
 
