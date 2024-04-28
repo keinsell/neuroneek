@@ -43,3 +43,5 @@ program in decoupled way to allow easy testing and development, and have fun whi
 ```bash
 $ pnpm install
 ```
+
+https://github.com/brocoders/nestjs-boilerplate

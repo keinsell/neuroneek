@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
+    "module": "nodenext",
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
@@ -54,7 +54,6 @@
     // TODO: True
     "exactOptionalPropertyTypes": false,
     // TODO: true
-    "moduleDetection": "force",
     "downlevelIteration": true,
     "preserveValueImports": false,
     "preserveSymlinks": false,
@@ -75,7 +74,7 @@
     "resolveJsonModule": true,
     "strictPropertyInitialization": false,
     // TODO: true
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "nodenext",
     "typeRoots": [
       "./src/types/**/*"
     ],
