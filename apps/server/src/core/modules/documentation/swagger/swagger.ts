@@ -4,9 +4,9 @@ import fs                                              from 'node:fs'
 import path                                            from 'path'
 import prettier                                        from 'prettier'
 import tildify                                         from 'tildify'
-import {fileURLToPath}    from 'url'
-import {__config}         from '../../../../configs/global/__config.js'
-import {getMetadataStore} from '../../../../utilities/docs-utils/swagger-api-model.js'
+import {fileURLToPath}                                 from 'url'
+import {__config}                                      from '../../../../configs/global/__config.js'
+import {getMetadataStore}                              from '../../../../utilities/docs-utils/swagger-api-model.js'
 
 
 
@@ -95,7 +95,6 @@ export async function buildSwaggerDocumentation(app: INestApplication): Promise<
 	.setTitle(__config.get('SERVICE_NAME'))
 	.setDescription(__config.get('SERVICE_DESCRIPTION'))
 	.setVersion('1.0')
-	.addTag('api')
 	.addBearerAuth({
 		name:         'Bearer Token',
 		type:         'http',

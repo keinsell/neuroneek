@@ -11,14 +11,14 @@ import ms                                       from 'ms';
 import process                                  from 'node:process';
 import requestIp                                from 'request-ip';
 import {HttpExceptionFilter}                    from './common/filters/exception-filter/http-exception-filter.js';
-import {HttpStatus}                    from './common/http-status.js';
-import {buildSwaggerDocumentation}     from './core/modules/documentation/swagger/swagger.js';
+import {HttpStatus}                             from './common/http-status.js';
 import {__appConfig, __config}                  from './configs/global/__config.js';
 import {isDevelopment}                          from './configs/helper/is-development.js';
 import {StaticFeatureFlags}                     from './configs/static-feature-flags.js';
 import {Container}                              from './container.js';
-import {LoggerNestjsProxy}                      from "./core/modules/logger/nestjs-logger-proxy.js"
 import {FingerprintMiddleware}                  from './core/middleware/fingerprint.js';
+import {buildSwaggerDocumentation}              from './core/modules/documentation/swagger/swagger.js';
+import {LoggerNestjsProxy}                      from "./core/modules/logger/nestjs-logger-proxy.js"
 import {ExpressRequest, ExpressResponse}        from './types/express-response.js';
 import {portAllocator}                          from './utilities/network-utils/port-allocator.js';
 
@@ -63,7 +63,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 		showSidebar: true,
 		isEditable:  false,
 		layout:      'modern',
-		theme:       'kepler',
+		theme:       'default',
 	}));
 
 	// The error handler must be before any other error middleware and after all controllers

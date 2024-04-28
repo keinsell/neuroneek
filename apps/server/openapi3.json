@@ -33,7 +33,14 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstanceResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -44,7 +51,17 @@
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubstanceResponse"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -217,17 +234,12 @@
     }
   },
   "info": {
-    "title": "methylphenidate",
-    "description": "Methylphenidate is a boilerplate for Nest.js applications with batteries included.",
+    "title": "neuronek-api",
+    "description": "Neuronek is a service that provides a RESTful API for providing substance information.",
     "version": "1.0",
     "contact": {}
   },
-  "tags": [
-    {
-      "name": "api",
-      "description": ""
-    }
-  ],
+  "tags": [],
   "servers": [],
   "components": {
     "securitySchemes": {
@@ -278,6 +290,64 @@
           "email",
           "password",
           "username"
+        ]
+      },
+      "SubstanceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the substance",
+            "example": "clvdzrfzj0000f2ftr6cm3fjr"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the substance",
+            "example": "1,3-dimethylbutylamine"
+          },
+          "common_names": {
+            "description": "Common names of the substance",
+            "example": [
+              "1,3-dimethylbutylamine",
+              "1,4-Butanediol",
+              "1P-ETH-LAD"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "psychoactive_classes": {
+            "description": "Psychoactive Classes to which substance belong",
+            "example": [
+              "Stimulants",
+              "Depressant",
+              "Psychedelic"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chemical_classes": {
+            "description": "Chemical Classes to which substance belong",
+            "example": [
+              "Amine",
+              "Alkanediol,Diol",
+              "Lysergamides"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "common_names",
+          "psychoactive_classes",
+          "chemical_classes"
         ]
       }
     }
