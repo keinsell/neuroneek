@@ -5,6 +5,7 @@ import path                                            from 'path'
 import prettier                                        from 'prettier'
 import tildify                                         from 'tildify'
 import {fileURLToPath}                                 from 'url'
+import {PrismaModel}                                   from "../../../../_gen/index.js"
 import {__config}                                      from '../../../../configs/global/__config.js'
 import {getMetadataStore}                              from '../../../../utilities/docs-utils/swagger-api-model.js'
 
@@ -106,17 +107,7 @@ export async function buildSwaggerDocumentation(app: INestApplication): Promise<
 
 	logger.verbose(`Swagger documentation base built for ${__config.get('SERVICE_NAME')} service.`)
 
-	const document = SwaggerModule.createDocument(app, swaggerConfig,
-
-		new DocumentBuilder()
-		// https://stackoverflow.com/questions/59376717/global-headers-for-all-controllers-nestjs-swagger
-		// .addGlobalParameters( { in          : 'header', required    :
-		// true, name        : 'x-request-id', description : 'A unique
-		// identifier assigned to the request. Clients can include this
-		// header' + ' to trace and correlate requests across different
-		// services and systems.', schema      : {type : 'string'},
-		// deprecated  : true, example : nanoid( 128 ), } )
-		.build() as any)
+	const document = SwaggerModule.createDocument(app, swaggerConfig, {extraModels: [...PrismaModel.extraModels]})
 
 	logger.verbose(`Swagger documentation document built for ${__config.get('SERVICE_NAME')} service.`)
 

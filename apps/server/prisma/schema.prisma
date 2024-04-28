@@ -9,6 +9,14 @@ generator client_javascript {
   output   = "../vendor/prisma"
 }
 
+generator prismaClassGenerator {
+  provider               = "prisma-class-generator"
+  output                 = "../src/_gen"
+  dryRun                 = true
+  separateRelationFields = true
+  clientImportPath       = "db"
+}
+
 model Account {
   id       String    @id @default(cuid())
   username String    @unique

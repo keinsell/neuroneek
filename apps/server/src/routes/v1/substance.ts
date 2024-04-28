@@ -6,6 +6,7 @@ import {ApiOperation, ApiProperty, ApiResponse}     from "@nestjs/swagger"
 import {Substance}                                  from "db"
 import {PrismaService}                              from "../../core/modules/database/prisma/services/prisma-service.js"
 import {ApiModel}                                   from "../../utilities/docs-utils/swagger-api-model.js"
+import {RouteOfAdministrationModel}                 from "./route-of-administration.js"
 
 
 
@@ -32,14 +33,21 @@ export class SubstanceResponse {
 		example:     ['Amine', 'Alkanediol,Diol', 'Lysergamides'],
 	}) public chemical_classes: string[]
 
+	@ApiProperty({
+		description: "Routes of administration that are known for the substance.",
+		type:        [RouteOfAdministrationModel],
+		nullable:    true,
+	}) public routes_of_administration: RouteOfAdministrationModel[] | null
+
 
 	static fromSubstance(substance: Substance): SubstanceResponse {
 		return {
-			id:                   substance.id,
-			name:                 substance.name,
-			common_names:         substance?.common_names?.split(',') ?? [],
-			psychoactive_classes: substance.psychoactive_class.split(','),
-			chemical_classes:     substance?.chemical_class?.split(',') ?? [],
+			id:                       substance.id,
+			name:                     substance.name,
+			common_names:             substance?.common_names?.split(',') ?? [],
+			psychoactive_classes:     substance.psychoactive_class.split(','),
+			chemical_classes:         substance?.chemical_class?.split(',') ?? [],
+			routes_of_administration: null,
 		}
 	}
 }

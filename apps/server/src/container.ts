@@ -8,6 +8,7 @@ import {DocumentationModule}                                                    
 import {GraphqlModule}                                                                    from './core/modules/graphql/graphql-module.js';
 import {CertificateBasedAuthenticationController}                                         from './core/modules/identity/cbac.js';
 import {AccountController}                                                                from './routes/v1/account.js';
+import {RouteOfAdministrationController}                                                  from "./routes/v1/route-of-administration.js"
 import {SubstanceController}                                                              from "./routes/v1/substance.js"
 
 
@@ -18,6 +19,7 @@ import {SubstanceController}                                                    
 	],
 	controllers: [
 		CertificateBasedAuthenticationController, AccountController, SubstanceController,
+		RouteOfAdministrationController,
 	],
 	providers:   [],
 })

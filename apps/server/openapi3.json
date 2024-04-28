@@ -66,6 +66,85 @@
         }
       }
     },
+    "/route-of-administration/{id}": {
+      "get": {
+        "operationId": "get-route-of-administration-by-id",
+        "summary": "Get Route of Administration by ID",
+        "description": "Returns a Route of Administration by its ID.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Route of Administration found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteOfAdministrationModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/route-of-administration": {
+      "get": {
+        "operationId": "list-routes-of-administration",
+        "summary": "List Routes of Administration",
+        "description": "Returns all Route of Administrations.",
+        "parameters": [
+          {
+            "name": "include",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Route of Administrations found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RouteOfAdministrationModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "healthcheck",
@@ -292,6 +371,19 @@
           "username"
         ]
       },
+      "RouteOfAdministrationModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the route of administration",
+            "example": "clvdzrfzj0000f2ftr6cm3fjr"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "SubstanceResponse": {
         "type": "object",
         "properties": {
@@ -340,6 +432,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "routes_of_administration": {
+            "description": "Routes of administration that are known for the substance.",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteOfAdministrationModel"
+            }
           }
         },
         "required": [
@@ -347,8 +447,507 @@
           "name",
           "common_names",
           "psychoactive_classes",
-          "chemical_classes"
+          "chemical_classes",
+          "routes_of_administration"
         ]
+      },
+      "Subject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "account_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AccountRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Subject"
+            }
+          }
+        },
+        "required": [
+          "Subject"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "password"
+        ]
+      },
+      "Ingestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "routeOfAdministration": {
+            "type": "string"
+          },
+          "dosage_unit": {
+            "type": "string"
+          },
+          "dosage_amount": {
+            "type": "number"
+          },
+          "isEstimatedDosage": {
+            "type": "boolean"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "stashId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Stash": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string"
+          },
+          "substance_id": {
+            "type": "string"
+          },
+          "addedDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiration": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "price": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "owner_id",
+          "substance_id"
+        ]
+      },
+      "SubjectRelations": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "Ingestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          },
+          "Stash": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Stash"
+            }
+          }
+        },
+        "required": [
+          "Ingestions",
+          "Stash"
+        ]
+      },
+      "RouteOfAdministration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bioavailability": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "bioavailability"
+        ]
+      },
+      "SubstanceInteraction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "SubstanceRelations": {
+        "type": "object",
+        "properties": {
+          "routes_of_administration": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteOfAdministration"
+            }
+          },
+          "Ingestion": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          },
+          "Stash": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Stash"
+            }
+          },
+          "SubstanceInteraction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstanceInteraction"
+            }
+          }
+        },
+        "required": [
+          "routes_of_administration",
+          "Ingestion",
+          "Stash",
+          "SubstanceInteraction"
+        ]
+      },
+      "Dosage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "intensivity": {
+            "type": "string"
+          },
+          "amount_min": {
+            "type": "number"
+          },
+          "amount_max": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "perKilogram": {
+            "type": "boolean"
+          },
+          "routeOfAdministrationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "intensivity",
+          "amount_min",
+          "amount_max",
+          "unit",
+          "perKilogram"
+        ]
+      },
+      "Phase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          },
+          "routeOfAdministrationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Substance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "common_names": {
+            "type": "string"
+          },
+          "brand_names": {
+            "type": "string"
+          },
+          "substitutive_name": {
+            "type": "string"
+          },
+          "systematic_name": {
+            "type": "string"
+          },
+          "unii": {
+            "type": "string"
+          },
+          "cas_number": {
+            "type": "string"
+          },
+          "inchi_key": {
+            "type": "string"
+          },
+          "iupac": {
+            "type": "string"
+          },
+          "smiles": {
+            "type": "string"
+          },
+          "psychoactive_class": {
+            "type": "string"
+          },
+          "chemical_class": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "psychoactive_class"
+        ]
+      },
+      "RouteOfAdministrationRelations": {
+        "type": "object",
+        "properties": {
+          "dosage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dosage"
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phase"
+            }
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          }
+        },
+        "required": [
+          "dosage",
+          "phases"
+        ]
+      },
+      "Effect": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "string"
+          },
+          "see_also": {
+            "type": "string"
+          },
+          "effectindex": {
+            "type": "string"
+          },
+          "psychonautwiki": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "tags",
+          "description",
+          "parameters",
+          "see_also"
+        ]
+      },
+      "PhaseRelations": {
+        "type": "object",
+        "properties": {
+          "RouteOfAdministration": {
+            "$ref": "#/components/schemas/RouteOfAdministration"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Effect"
+            }
+          }
+        },
+        "required": [
+          "effects"
+        ]
+      },
+      "DosageRelations": {
+        "type": "object",
+        "properties": {
+          "RouteOfAdministration": {
+            "$ref": "#/components/schemas/RouteOfAdministration"
+          }
+        }
+      },
+      "EffectRelations": {
+        "type": "object",
+        "properties": {
+          "Phase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phase"
+            }
+          }
+        },
+        "required": [
+          "Phase"
+        ]
+      },
+      "IngestionRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          },
+          "Stash": {
+            "$ref": "#/components/schemas/Stash"
+          }
+        }
+      },
+      "StashRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          },
+          "ingestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          }
+        },
+        "required": [
+          "Substance",
+          "ingestions"
+        ]
+      },
+      "SubstanceInteractionRelations": {
+        "type": "object",
+        "properties": {
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          }
+        }
       }
     }
   }
