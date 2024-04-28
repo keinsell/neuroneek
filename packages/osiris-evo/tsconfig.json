@@ -21,6 +21,7 @@
     "preserveWatchOutput": false,
     "skipLibCheck": false,
     "strict": true,
+    "inlineSourceMap": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": false,

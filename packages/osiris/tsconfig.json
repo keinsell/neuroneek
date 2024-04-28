@@ -20,6 +20,7 @@
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
+    "inlineSourceMap": true,
     "strict": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
