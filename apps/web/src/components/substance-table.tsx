@@ -1,13 +1,16 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { type Substance } from '@/types/substance'
-import React from 'react'
+import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { type Substance } from '@/types/substance';
+import React from 'react';
 
 interface SubstanceTableProperties {
 	substances: Substance[]
 	isLoading: boolean
 }
 
+// TODO: Refer to shadcn documentation and make implementation type-safe - additionally
+// data coming to table may be validated as it's after request to get substances is made.
+// 
 export default function SubstanceTable({ substances, isLoading }: SubstanceTableProperties) {
 	return (
 		<Table>
@@ -18,7 +21,7 @@ export default function SubstanceTable({ substances, isLoading }: SubstanceTable
 			</TableHeader>
 			<TableBody>
 				{isLoading
-					? Array(10)
+					? Array(20)
 							.fill(0)
 							.map((_, index) => (
 								<TableRow key={index}>

@@ -1,9 +1,10 @@
-import AppLayout from '@/components/layouts/app-layout'
-import SubstanceTable from '@/components/substance-table'
-import { useToast } from '@/components/ui/use-toast'
-import ms from 'ms'
-import React, { useEffect, useState } from 'react'
-import useSWR from 'swr'
+import AppLayout from '@/components/layouts/app-layout';
+import SubstanceTable from '@/components/substance-table';
+import { useToast } from '@/components/ui/use-toast';
+import ms from 'ms';
+import React, { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { array, object, parse, string } from 'valibot';
 
 export default function SubstancesPage() {
 	const fetcher = (url: string) => fetch(url).then(res => res.json())
@@ -16,6 +17,14 @@ export default function SubstancesPage() {
 		chemical_classes: string[]
 	}
 
+  const listSubstancesValidationSchema = array(object({
+    id: string(),
+    name: string(),
+    common_names: array(string()),
+    psychoactive_classes: array(string()),
+    chemical_classes: array(string())
+  }))
+
 	const { toast } = useToast()
 
 	const {
@@ -24,7 +33,18 @@ export default function SubstancesPage() {
 		error,
 		isValidating,
 		mutate
-	} = useSWR<ISubstanceResponse[]>('https://neuronek.up.railway.app/substance', fetcher)
+	} = useSWR<ISubstanceResponse[]>('https://neuronek.up.railway.app/substance', fetcher, {revalidateOnFocus: false})
+
+
+  const validateSubstances = (data: unknown) => {
+    try {
+      parse(listSubstancesValidationSchema, data)
+      return true;
+    } catch (err) {
+      console.error("Validation error:", err);
+      return false;
+    }
+  };
 
 	const [fetchStartTime, setFetchStartTime] = useState<number | null>(null)
 
@@ -37,7 +57,7 @@ export default function SubstancesPage() {
 			const fetchTime = Date.now() - fetchStartTime
 			toast({
 				title: 'Fetch completed',
-				description: `Fetched ${substances?.length} substances in ${fetchTime}ms`,
+				description: `Fetched ${substances?.length} substances in ${ms(fetchTime, {long: true})}`,
 				duration: ms('1s')
 			})
 			setFetchStartTime(null)
@@ -59,17 +79,29 @@ export default function SubstancesPage() {
 				duration: ms('1s')
 			})
 		}
-	}, [error, isLoading, toast])
 
-	if (error) {
-		toast({
-			title: 'Experienced error fetching substances',
-			description: error.message,
-			duration: ms('1s')
-		})
+    if (!isLoading && !error && substances) {
+      if (!validateSubstances(substances)) {
+        toast({ // Display a suitable error message
+          title: 'Data Validation Error',
+          description: 'Received data does not match expected format.',
+          duration: ms('2s') // Increase duration for visibility
+        });
+      }
+    }
 
-		return <div>failed to load</div>
-	}
+
+	}, [error, isLoading, substances, toast, validateSubstances])
+
+  if (error) {
+    toast({
+      title: 'Experienced error fetching substances',
+      description: error.message,
+      duration: ms('1s')
+    })
+
+    return <div>failed to load</div>
+  }
 
 	return (
 		<AppLayout>

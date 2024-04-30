@@ -3,9 +3,9 @@
  * @see https://v0.dev/t/gtPeylTj4qr
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
-import { Button } from '@/components/ui/button'
-import { BellIcon, BoxIcon, BrainIcon, HistoryIcon, LayersIcon, LayoutDashboardIcon, PillIcon } from 'lucide-react'
-import Link from 'next/link'
+import { Button } from '@/components/ui/button';
+import { BellIcon, BoxIcon, BrainIcon, HistoryIcon, LayersIcon, LayoutDashboardIcon, PillIcon } from 'lucide-react';
+import Link from 'next/link';
 
 export function Sidebar() {
 	return (
@@ -29,6 +29,13 @@ export function Sidebar() {
 							<LayoutDashboardIcon className='h-4 w-4' />
 							Dashboard
 						</Link>
+            <Link
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+              href="#"
+            >
+              <BellIcon className="h-4 w-4" />
+              Reminders
+            </Link>
 						<Link
 							className='flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50'
 							href='/ingestions'>
