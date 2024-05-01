@@ -31,5 +31,6 @@ import {NodeEnvironment} from '../values/node-environment.js'
 export function isTest()
   {
 	  config()
-	 return process.env[ 'NODE_ENV' ] === NodeEnvironment.TESTING
+	 //@ts-ignore
+	  return process.env.NODE_ENV === NodeEnvironment.TESTING
   }

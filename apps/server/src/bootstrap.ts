@@ -8,6 +8,7 @@ import express, {Express}                       from 'express';
 import helmet                                   from 'helmet';
 import ms                                       from 'ms';
 import process                                  from 'node:process';
+import path                                     from "path"
 import requestIp                                from 'request-ip';
 import {HttpExceptionFilter}                    from './common/filters/exception-filter/http-exception-filter.js';
 import {__appConfig, __config}                  from './configs/global/__config.js';
@@ -19,6 +20,7 @@ import {buildSwaggerDocumentation}              from './core/modules/documentati
 import {CombinedLogger}                         from "./core/modules/logger/logger"
 import {LoggerNestjsProxy}                      from "./core/modules/logger/nestjs-logger-proxy.js"
 import {portAllocator}                          from './utilities/network-utils/port-allocator.js';
+import next from 'next';
 
 
 
@@ -54,7 +56,13 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	app.use(cookieParser());
 	app.use(new FingerprintMiddleware().use);
 
+	const webApplication = next({ dev: isDevelopment(), dir: path.join(__dirname, '..', "node_modules", "@neuronek", "web", ".out")	});
+	const webApplicationHandler = webApplication.getRequestHandler();
 
+	await webApplication.prepare()
+
+	// Serve static files from @neuronek/web package
+	app.use('*', webApplicationHandler);
 
 	app.use(helmet({contentSecurityPolicy: false}));
 	// Build swagger documentation
