@@ -1,7 +1,7 @@
 import {Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit, Optional} from '@nestjs/common'
-import Sentry                                                                from '@sentry/node'
-import {Prisma, PrismaClient}                                                from 'db'
-import delay                                                                 from 'delay'
+import Sentry                         from '@sentry/node'
+import {Prisma, PrismaClient} from '../prisma'
+import delay                          from 'delay'
 import ms                                                                    from 'ms'
 import {ApplicationState}                                                    from "../../../../../common/state.js"
 import {isProduction}                                                        from '../../../../../configs/helper/is-production.js'

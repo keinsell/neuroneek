@@ -99,6 +99,9 @@
       {
         "transform": "typia/lib/transform"
       }
+    ],
+    "types": [
+      "@types/jest"
     ]
   },
   "include": [
@@ -107,14 +110,14 @@
   "exclude": [
     "src/_gen/**/*.ts",
     "node_modules",
-    "tests/**/__*.ts",
+//    "tests/**/__*.ts",
     "vendor",
     "dist/**/*",
     "coverage",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*.e2e-spec.ts",
-    "src/**/*.e2e-test.ts"
+//    "src/**/*.spec.ts",
+//    "src/**/*.test.ts",
+//    "src/**/*.e2e-spec.ts",
+//    "src/**/*.e2e-test.ts"
   ],
   "compileOnSave": true,
   "typeAcquisition": {
