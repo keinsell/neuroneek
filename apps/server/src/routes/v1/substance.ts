@@ -70,6 +70,15 @@ export class SubstanceResponse {
 	}
 }
 
+export class SubstanceNotFound extends NotFoundException {
+
+
+	static get because() {
+		return {
+			notFoundInDatabase: () => new SubstanceNotFound("Substance not found"),
+		}
+	}
+}
 
 @Controller('substance')
 export class SubstanceController {
@@ -98,7 +107,7 @@ export class SubstanceController {
 		this.logger.debug(`Found substance: ${JSON.stringify(substance)}`)
 
 		if (!substance) {
-			throw new NotFoundException("Substance not found")
+			throw  SubstanceNotFound.because.notFoundInDatabase()
 		}
 
 		// Return substance
