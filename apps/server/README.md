@@ -1,47 +1,36 @@
-# `server`
+<h1 align="center"><code>neuronek/server</code></h1>
+<p align="center">The main thing for handling backend-related thingies and serving information to the public.</p>
+<br>
+<h2 align="center">Getting Started</h2>
 
-## Goal
+> [!CAUTION]  
+> You should not try to use code for now,
+instead it's recommended to use [Hosted Instance on Railway](https://neuronek.up.railway.app/reference)
 
-Overload server which as big amount of features as it is possible to resue as much code as it's possible in future,
-program in decoupled way to allow easy testing and development, and have fun while doing it.
+### Pre-requirements
 
-## Features
+- [Node.js](https://nodejs.org/en/download/)
+- [pnpm](https://pnpm.io/installation)
 
-- **🍭 Eye Candies**, who would like to look at a boring wall of text all the time, since start of application it gives
-  you
-  nice and friendly developer feel, as all of us - keeping candies for ourselves so these features are disabled
-  for "serious" deployments.
-- **"Where is the fucking documentation?"**, no fucking more fellas, there you have static documentation dedicated for
-  Angular-like projects (`compodoc`), static generation of `GraphQL` documentation, `Swagger` documentation for REST
-  API, and `eventsdoc` for event-driven applications. I would like to document websockets with `asyncapi` but sorry
-  ecosystem isn't ready for that yet. I mean... You still can completly do not give a fuck about documentation and will
-  hear such thing but I think you can say you tried at least lol
-
-- [ ] Circuit Breaker
-- [ ] Service Discovery
-- [ ] Error Handling
-- [ ] Exception Handling
-- [ ] RxJS
-- [ ] API Response Time
-- [ ] Serialization
-- [ ] Deserialization
-- [ ] Prometheus Metrics
-- [ ] Logging
-- [ ] Concurrency Control
-- [ ] Externalized Configuration
-- [ ] Deployment Profiles
-- [ ] OpenTracing
-- [ ] XSS
-- [ ] CORS
-- [ ] CSRF
-- [ ] OAuth 2.0
-- [ ] GraphQL
-- [ ] Rest
-
-## Installation
+### Installation
 
 ```bash
 $ pnpm install
 ```
+
+## Running the app
+
+```bash
+```
+
+
+## Development
+
+### `package.json` scripts
+
+| First Header | Second Header                                                                     |
+|--------------|-----------------------------------------------------------------------------------|
+| `dev`        | Will run application in development mode.                                         |
+| `test`        | Will run suite of tests related to application (Unit, Functional and Integration) |
 
 https://github.com/brocoders/nestjs-boilerplate

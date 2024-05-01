@@ -9,7 +9,7 @@ import {SubstanceController, SubstanceResponse} from "../routes/v1/substance"
 
 
 
-describe("SubstanceController", () => {
+describe(SubstanceController.name, () => {
 	let substanceController: SubstanceController;
 	let prismaClient: PrismaClient;
 
@@ -45,24 +45,28 @@ describe("SubstanceController", () => {
 		substanceController = module.get<SubstanceController>(SubstanceController);
 	});
 
-	/**
-	 * This test will test mocked implementation of prisma, and ensure data that we get from
-	 * ORM or any other storage implementation is properly returned to user.
-	 */
-	it("get-single-substance should return substance", async () => {
-		const substance = await substanceController.getSubstanceById("f5503696-b65b-4b27-85c5-7394fa2b0f5f")
+	describe("getSubstanceById", () => {
+		/**
+		 * This test will test mocked implementation of prisma, and ensure data that we get from
+		 * ORM or any other storage implementation is properly returned to user.
+		 */
+		it(`should return substance`, async () => {
+			const substance = await substanceController.getSubstanceById("f5503696-b65b-4b27-85c5-7394fa2b0f5f")
 
-		expect(substance).toStrictEqual({
-			"chemical_classes":         [],
-			"common_names":             [],
-			"id":                       "f5503696-b65b-4b27-85c5-7394fa2b0f5f",
-			"name":                     "Caffeine",
-			"psychoactive_classes":     [
-				"stimulant",
-			],
-			"routes_of_administration": null,
-		} as SubstanceResponse)
+			expect(substance).toStrictEqual({
+				"chemical_classes":         [],
+				"common_names":             [],
+				"id":                       "f5503696-b65b-4b27-85c5-7394fa2b0f5f",
+				"name":                     "Caffeine",
+				"psychoactive_classes":     [
+					"stimulant",
+				],
+				"routes_of_administration": null,
+			} as SubstanceResponse)
+		})
 	})
+
+
 
 	it("get-singe-substance should throw when no substance found", async () => {
 		const substance = await substanceController.getSubstanceById("f5503696-b65b-4b27-85c5-7394fa2b0f5f")

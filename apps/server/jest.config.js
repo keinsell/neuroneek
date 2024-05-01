@@ -3,11 +3,21 @@
 //     '^~/(.+)$': '<rootDir>/src/$1',
 // };
 //
-
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
     displayName: 'server',
     // Unit-tests should most likely do not be put
     testEnvironment: "allure-jest/node",
+    coverageDirectory: "./dist/reports/coverage",
+    testEnvironmentOptions: {
+        resultsDir: "./dist/reports/allure",
+        links: [
+            { name: "issue", urlTemplate: "https://issues.example.com/%s" },
+            { name: "tms", urlTemplate: "https://tms.example.com/%s" },
+        ],
+    },
     transform: {
         "\\.[jt]sx?$": ["ts-jest", {useESM: true}],
     },
@@ -28,5 +38,6 @@ module.exports = {
     // moduleNameMapper: MODULE_NAME_MAPPING,
 
     setupFilesAfterEnv: ["<rootDir>/test/setup/prisma.ts"],
+    reporters: ["default", "jest-progress-bar-reporter"],
 };
 
