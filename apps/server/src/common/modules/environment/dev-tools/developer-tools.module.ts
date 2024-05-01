@@ -1,20 +1,11 @@
-import { Module }         from '@nestjs/common'
-import { DevtoolsModule } from '@nestjs/devtools-integration'
-
-import { isDevelopment } from '../../../../configs/helper/is-development.js'
-import { portAllocator } from '../../../../utilities/network-utils/port-allocator.js'
+import {Module} from '@nestjs/common'
 
 
 
 @Module( {
-			  imports     : [
-				 DevtoolsModule.register( {
-													 http : isDevelopment(),
-													 port : await portAllocator().then( (port) => port.port ),
-												  } ),
-			  ],
+			  imports     : [],
 			  providers   : [],
 			  controllers : [],
-			  exports     : [ DevtoolsModule ],
+			  exports     : [  ],
 			} )
 export class DeveloperToolsModule {}

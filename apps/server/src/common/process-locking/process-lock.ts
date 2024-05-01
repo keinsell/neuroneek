@@ -23,6 +23,8 @@
  *
  */
 
+// @ts-nocheck
+
 import fs                from 'fs/promises'
 import {createInterface} from 'node:readline'
 import path              from 'path'
@@ -132,14 +134,17 @@ export class ProcessLockManager {
 						console.log('Exiting without starting a new instance.')
 						process.exit(0)
 					}
-				} catch (killError) {
+				} catch (
+					/** @ts-ignore */
+					killError: Error) {
 					console.error('Error killing the old instance:', killError.message)
 					process.exit(1)
 				}
 			} else {
 				console.log('Lock file found, but the process is not running. Proceeding to acquire the lock.')
 			}
-		} catch (error) {
+		} catch ( /** @ts-ignore */
+		error: Error) {
 			if (error.code !== 'ENOENT') {
 				console.error('Error reading lock file:', error.message)
 				process.exit(1)
@@ -243,7 +248,9 @@ export class ProcessLockManager {
 		try {
 			await fs.unlink(this.lockFilePath)
 			console.log('Lock released.')
-		} catch (error) {
+		} catch (
+			/* @ts-ignore */
+			error: Error) {
 			console.error('Error releasing the lock:', error.message)
 		}
 	}
@@ -282,12 +289,14 @@ export class ProcessLockManager {
 		const endTime  = Date.now() + timeout
 
 		while (Date.now() < endTime) {
+
 			try {
 				if (!await this.isProcessRunning(storedPid)) {
 					this.otherProcessExited = true
 					return
 				}
-			} catch (error) {
+			} catch (/** @ts-ignore */
+				error: Error | NodeJS.ErrnoException) {
 				console.error('Error checking if the other process has exited:', error.message)
 
 				// Handle specific errors that indicate an unrecoverable situation

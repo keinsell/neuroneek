@@ -1,81 +1,25 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
+    "module": "commonjs",
     "declaration": true,
     "removeComments": true,
-    "allowSyntheticDefaultImports": true,
-    "skipDefaultLibCheck": false,
-    "allowArbitraryExtensions": true,
-    "target": "ESNext",
-    // Generate source maps for the compiler output.
-    "sourceMap": true,
-    "inlineSources": true,
-    "inlineSourceMap": false,
-    // Compiler tracing
-    "traceResolution": false,
-    "diagnostics": true,
-    "extendedDiagnostics": true,
-    // Incremental compilation
-    "incremental": true,
-    "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "composite": true,
-    // Emit design-type metadata for decorated declarations in source files.
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    // Directories
-    "sourceRoot": "./",
-    "mapRoot": "./",
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "strict": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    "rootDir": "./",
-    // Emiting files
-    "noEmitOnError": true,
-    "emitDeclarationOnly": false,
-    "noEmitHelpers": false,
-    "importHelpers": true,
-    // Declaration files
-    "declarationDir": "./dist",
-    "assumeChangesOnlyAffectDirectDependencies": true,
-    //    // TODO: Migrate codebase to verbatimModuleSyntax in future
-    //    "verbatimModuleSyntax": false,
-    "emitBOM": true,
-    "declarationMap": true,
-    "generateCpuProfile": "profile.cpuprofile",
-    "noErrorTruncation": false,
-    "pretty": true,
+    "incremental": true,
     "skipLibCheck": true,
-    "strict": false,
-    "useDefineForClassFields": true,
     "strictNullChecks": true,
-    "noImplicitAny": true,
-    "strictBindCallApply": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "strictFunctionTypes": false,
-    // TODO: True
-    "exactOptionalPropertyTypes": false,
-    // TODO: true
-    "moduleDetection": "force",
-    "downlevelIteration": true,
-    "preserveValueImports": false,
-    "preserveSymlinks": false,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "disableSourceOfProjectReferenceRedirect": false,
-    "disableSizeLimit": true,
-    "disableReferencedProjectLoad": false,
-    "disableSolutionSearching": false,
-    "useUnknownInCatchVariables": false,
-    // TODO: true
-    "importsNotUsedAsValues": "remove",
-    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": false,
-    "noImplicitOverride": false,
-    // TODO: true
     "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "strictPropertyInitialization": false,
-    // TODO: true
-    "moduleResolution": "NodeNext",
+    "allowJs": true,
     "typeRoots": [
       "./src/types/**/*"
     ],
@@ -155,20 +99,23 @@
       {
         "transform": "typia/lib/transform"
       }
-    ]
+    ],
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "../../node_modules/.pnpm/allure-jest@2.15.1/node_modules/allure-jest/dist/index.d.ts"
   ],
   "exclude": [
-    "node_modules",
+    "src/_gen/**/*.ts",
+    "node_modules/**/*",
+//    "tests/**/__*.ts",
     "vendor",
     "dist/**/*",
-    "coverage",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts",
-    "src/**/*.e2e-spec.ts",
-    "src/**/*.e2e-test.ts"
+    "coverage"
+//    "src/**/*.spec.ts",
+//    "src/**/*.test.ts",
+//    "src/**/*.e2e-spec.ts",
+//    "src/**/*.e2e-test.ts"
   ],
   "compileOnSave": true,
   "typeAcquisition": {

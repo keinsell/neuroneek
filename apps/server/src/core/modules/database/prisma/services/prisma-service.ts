@@ -1,10 +1,8 @@
 import {Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit, Optional} from '@nestjs/common'
-import Sentry                                                                from '@sentry/node'
-import {getActiveSpan}                                                       from '@sentry/opentelemetry'
-import {Prisma, PrismaClient}                                                from 'db'
-import delay                                                                 from 'delay'
+import Sentry                         from '@sentry/node'
+import {Prisma, PrismaClient} from '../prisma'
+import delay                          from 'delay'
 import ms                                                                    from 'ms'
-import {__sentryClient}                                                      from "../../../../../common/modules/resources/sentry-v2/global/get-sentry.js"
 import {ApplicationState}                                                    from "../../../../../common/state.js"
 import {isProduction}                                                        from '../../../../../configs/helper/is-production.js'
 import {PRISMA_SERVICE_OPTIONS}                                              from '../constants/PRISMA_SERVICE_OPTIONS.js'
@@ -33,15 +31,6 @@ export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, 'que
 
 		if (this.prismaServiceOptions.middlewares) {
 			this.prismaServiceOptions.middlewares.forEach((middleware) => this.$use(middleware))
-		}
-
-		// Integrate with Sentry
-		if (__sentryClient) {
-			this.logger.verbose(`Sentry is enabled, Prisma will send events to Sentry.`)
-
-			new Sentry.Integrations.Prisma({
-				client: this,
-			}).setupOnce()
 		}
 	}
 
@@ -84,8 +73,6 @@ export class PrismaService extends PrismaClient<Prisma.PrismaClientOptions, 'que
 			} catch (error) {
 				this.logger.error(`Server failed to connect to database, retrying in ${ms(connectionRetryDelay)}...`)
 				this.logger.error(`${JSON.stringify(error)}`)
-				getActiveSpan()
-				?.recordException(error)
 
 				await delay(connectionRetryDelay)
 				connectionRetryDelay = connectionRetryDelay * 2

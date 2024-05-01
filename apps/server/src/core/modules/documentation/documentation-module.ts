@@ -1,11 +1,5 @@
-import {Module}         from '@nestjs/common'
-import path             from 'path'
-import {fileURLToPath}  from 'url'
+import {Module} from '@nestjs/common'
 
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
 
 
 @Module({

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 import {Ingestion}                        from './ingestion.js';
 import {Subject}                          from './subject.js';

@@ -1,31 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/account": {
-      "post": {
-        "operationId": "register",
-        "summary": "Register account",
-        "tags": [
-          "account"
-        ],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterAccountCommand"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
     "/substance/{id}": {
       "get": {
         "operationId": "SubstanceController_getSubstanceById",
@@ -331,46 +306,6 @@
       }
     },
     "schemas": {
-      "RegisterAccountCommand": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "The account's email address",
-            "example": "Raul_Marks@gmail.com",
-            "examples": [
-              "Raul_Marks@gmail.com",
-              "Buddy.Schulist@gmail.com",
-              "Anibal_Pouros@hotmail.com"
-            ]
-          },
-          "password": {
-            "type": "string",
-            "description": "The account's username",
-            "example": "SuperSecretPassword123!",
-            "examples": [
-              "LaW1KVuo69FG5Pf",
-              "9srQfkporSDhU76",
-              "74ETrfy3OQCdUzs"
-            ]
-          },
-          "username": {
-            "type": "string",
-            "description": "The account's username",
-            "example": "Raul_Marks",
-            "examples": [
-              "Raul_Marks",
-              "Buddy.Schulist",
-              "Anibal_Pouros"
-            ]
-          }
-        },
-        "required": [
-          "email",
-          "password",
-          "username"
-        ]
-      },
       "RouteOfAdministrationModel": {
         "type": "object",
         "properties": {

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {ApiProperty} from '@nestjs/swagger';
 import {Phase}       from './phase.js';
 

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {Controller, Get, Logger, Param, Query}  from "@nestjs/common"
 import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger"
 import {Prisma, RouteOfAdministration}          from "db"

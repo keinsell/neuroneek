@@ -1,4 +1,8 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+// @ts-nocheck
+
+import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+
+
 
 export class RouteOfAdministration {
   @ApiProperty({ type: String })

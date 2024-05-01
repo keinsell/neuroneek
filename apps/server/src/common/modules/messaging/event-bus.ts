@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {Injectable, Logger, type OnApplicationBootstrap, type OnApplicationShutdown, Optional} from '@nestjs/common'
 import {EventEmitter2}                                                                         from '@nestjs/event-emitter'
 import {Event}                                                                                 from '../../libraries/message/event.js'

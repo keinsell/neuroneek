@@ -1,0 +1,21 @@
+#-------------------------------------------------------------------------------#
+#               Qodana analysis is configured by qodana.yaml file               #
+#             https://www.jetbrains.com/help/qodana/qodana-yaml.html            #
+#-------------------------------------------------------------------------------#
+version                : "1.0"
+profile                :
+  name : qodana.recommended
+linter                 : jetbrains/qodana-js:latest
+analyzeDevDependencies : true
+fixesStrategy          : cleanup
+runPromoInspections    : true
+failureConditions      :
+  testCoverageThresholds :
+    fresh : 5
+  severityThresholds     :
+    critical : 150
+    moderate : 75
+    low      : 50
+modulesToAnalyze:
+                - name: "server"
+                  path: "apps/server"
