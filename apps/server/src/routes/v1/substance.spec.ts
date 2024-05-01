@@ -21,6 +21,7 @@ describe("SubstanceController", () => {
 			brand_names:        null,
 			substitutive_name:  null,
 			systematic_name:    null,
+
 			unii:               null,
 			cas_number:         null,
 			inchi_key:          null,

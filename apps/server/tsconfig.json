@@ -18,7 +18,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "allowJs": true,
     "typeRoots": [
       "./src/types/**/*"
@@ -100,12 +100,6 @@
         "transform": "typia/lib/transform"
       }
     ],
-    "types": [
-      "@types/jest",
-      "@jest/globals",
-      "jest",
-      "node"
-    ]
   },
   "include": [
     "./src/**/*",
@@ -113,7 +107,7 @@
   ],
   "exclude": [
     "src/_gen/**/*.ts",
-    "node_modules",
+    "node_modules/**/*",
 //    "tests/**/__*.ts",
     "vendor",
     "dist/**/*",
