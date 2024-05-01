@@ -107,6 +107,7 @@
   "exclude": [
     "src/_gen/**/*.ts",
     "node_modules",
+    "tests/**/__*.ts",
     "vendor",
     "dist/**/*",
     "coverage",

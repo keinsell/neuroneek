@@ -25,5 +25,7 @@ module.exports = {
     // Automatically clear mock calls and instances between every test
     clearMocks: true,
     // moduleNameMapper: MODULE_NAME_MAPPING,
+
+    setupFilesAfterEnv: ["<rootDir>/test/setup/prisma.ts"],
 };
 
