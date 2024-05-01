@@ -4,7 +4,6 @@ import fs                                              from 'node:fs'
 import path                                            from 'path'
 import prettier                                        from 'prettier'
 import tildify                                         from 'tildify'
-import {fileURLToPath}                                 from 'url'
 import {PrismaModel}                                   from "../../../../_gen/index.js"
 import {__config}                                      from '../../../../configs/global/__config.js'
 import {getMetadataStore}                              from '../../../../utilities/docs-utils/swagger-api-model.js'
@@ -123,9 +122,6 @@ export async function buildSwaggerDocumentation(app: INestApplication): Promise<
 	//		content: document,
 	//	},
 	//}))
-
-	const __filename = fileURLToPath(import.meta.url);
-	const __dirname  = path.dirname(__filename);
 
 	const absoluteDir                = path.resolve(__dirname);
 	const documentationDirectoryPath = path.join(absoluteDir, 'public', 'api');

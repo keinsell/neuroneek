@@ -23,12 +23,12 @@
  *
  */
 
+// @ts-nocheck 
+
 import {ApiProperty} from '@nestjs/swagger'
 import {ApiModel}    from '../../../utilities/docs-utils/swagger-api-model.js'
 import {HttpStatus}  from '../../http-status.js'
 import {Exception}   from '../../libraries/error-registry/error.js'
-
-
 
 // I see multiple people just do this like this: pl.stepapp.account.already-exists
 // Does not really matter, the thing that matters it's a unique id for the error on

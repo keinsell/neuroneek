@@ -24,7 +24,7 @@
  */
 
 import {Module}                from '@nestjs/common'
-import Sentry                  from '@sentry/node'
+import * as  Sentry            from '@sentry/node'
 import {__sentryClient}        from './global/get-sentry.js'
 import {SentryService}         from './sentry-service.js'
 import {SENTRY_MODULE_OPTIONS} from './SENTRY_MODULE_OPTIONS.js'

@@ -1,4 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
+// @ts-nocheck
+
+import {ApiProperty} from '@nestjs/swagger';
+
+
 
 export class Account {
   @ApiProperty({ type: String })

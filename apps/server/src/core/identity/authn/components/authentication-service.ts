@@ -22,38 +22,3 @@
  * SOFTWARE.
  *
  */
-
-import {ForbiddenException, NotFoundException} from '@nestjs/common'
-import {Result}                                 from 'neverthrow'
-import {AccessToken, RefreshToken}              from "../../../modules/identity/jwt.js"
-
-
-
-export abstract class AuthenticationService {
-	/**
-	 * Authenticates a user with their username and password.
-	 *
-	 * @param {string} username - The username of the user.
-	 * @param {string} password - The password of the user.
-	 * @param {Object} [metadata] - Additional metadata for the
-	 *     authentication.
-	 * @param {string} [metadata.userAgent] - The user agent of the client.
-	 * @param {string} [metadata.ipAddress] - The IP address of the client.
-	 * @returns {Promise<Result<{accountId: string, accessToken: string,
-	 *     refreshToken: string}, any>>} - The result of the
-	 *     authentication. If successful, it contains the domain ID, access
-	 *     token, and refresh token. If unsuccessful, it contains the
-	 *     error.
-	 */
-	public abstract authenticate(username: string, password: string): Promise<Result<{
-		accessToken: AccessToken, refreshToken: RefreshToken, accountId: string
-	}, NotFoundException | ForbiddenException>>;
-
-
-	public abstract logout(): Promise<void>;
-
-
-	public abstract refreshToken(refreshToken: RefreshToken): Promise<{
-		refreshToken: RefreshToken, accessToken: AccessToken
-	}>;
-}

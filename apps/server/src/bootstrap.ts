@@ -1,31 +1,35 @@
-import {HttpException, Logger, ValidationPipe}  from '@nestjs/common';
+import {ValidationPipe}                         from '@nestjs/common';
 import {HttpAdapterHost, NestFactory}           from '@nestjs/core';
 import {ExpressAdapter, NestExpressApplication} from '@nestjs/platform-express';
 import {apiReference}                           from '@scalar/nestjs-api-reference';
-import Sentry                                   from '@sentry/node';
 import cookieParser                             from 'cookie-parser';
 import delay                                    from 'delay';
-import express, {Express, NextFunction}         from 'express';
+import express, {Express}                       from 'express';
 import helmet                                   from 'helmet';
 import ms                                       from 'ms';
 import process                                  from 'node:process';
 import requestIp                                from 'request-ip';
 import {HttpExceptionFilter}                    from './common/filters/exception-filter/http-exception-filter.js';
-import {HttpStatus}                             from './common/http-status.js';
 import {__appConfig, __config}                  from './configs/global/__config.js';
 import {isDevelopment}                          from './configs/helper/is-development.js';
 import {StaticFeatureFlags}                     from './configs/static-feature-flags.js';
 import {Container}                              from './container.js';
 import {FingerprintMiddleware}                  from './core/middleware/fingerprint.js';
 import {buildSwaggerDocumentation}              from './core/modules/documentation/swagger/swagger.js';
+import {CombinedLogger}                         from "./core/modules/logger/logger"
 import {LoggerNestjsProxy}                      from "./core/modules/logger/nestjs-logger-proxy.js"
-import {ExpressRequest, ExpressResponse}        from './types/express-response.js';
 import {portAllocator}                          from './utilities/network-utils/port-allocator.js';
 
 
 
 export async function bootstrap(): Promise<NestExpressApplication> {
+	const logger = new CombinedLogger()
+
+	logger.debug(("Bootstrapping application..."));
+
 	const __expressApp: Express = express();
+
+	logger.debug(("Express application created"));
 
 	// Bootstrap application
 	const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(Container, new ExpressAdapter(__expressApp), {
@@ -40,7 +44,8 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 		logger:        new LoggerNestjsProxy(),
 	});
 
-	const {httpAdapter} = app.get(HttpAdapterHost);
+	logger.debug('Got httpAdapter');
+
 
 	app.useGlobalPipes(new ValidationPipe());
 	app.useBodyParser('json');
@@ -49,8 +54,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	app.use(cookieParser());
 	app.use(new FingerprintMiddleware().use);
 
-	// Implement logger used for bootstrapping and notifying about application state
-	const logger = new Logger('Bootstrap');
+
 
 	app.use(helmet({contentSecurityPolicy: false}));
 	// Build swagger documentation
@@ -69,24 +73,6 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	// The error handler must be before any other error middleware and after all controllers
 	app.useGlobalFilters(new HttpExceptionFilter(app.get(HttpAdapterHost)));
 
-	app.use(Sentry.Handlers.errorHandler({
-		// No better idea how to filter out non-important errors rn
-		shouldHandleError: function (error: Error | HttpException): boolean {
-			if (error instanceof HttpException) {
-				return error.getStatus() >= HttpStatus.INTERNAL_SERVER_ERROR;
-			}
-			return true;
-		},
-	}));
-
-	// Optional fallthrough error handler
-	app.use(function onError(_err: Error, _req: ExpressRequest, res: ExpressResponse, _next: NextFunction) {
-		res.statusCode = 500;
-		res.end((
-			res as any
-		).sentry + '\n');
-	});
-
 	// Enable graceful shutdown hooks
 	app.enableShutdownHooks();
 
@@ -98,7 +84,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	if (openPort.wasReplaced) {
 		logger.warn(`Application performed port availability check and ::${PORT} is not available, found a new shiny ::${openPort.port} instead. If you believe this is a mistake, please check your environment variables and processes that are running on your machine.`);
 	} else {
-		logger.log(`Port availability check succeeded and requested ::${PORT} is available`);
+		logger.debug(`Port availability check succeeded and requested ::${PORT} is available`);
 	}
 
 	let isApplicationListening = false;
@@ -114,21 +100,21 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 	while (!isApplicationListening) {
 		try {
 			await app.listen(openPort.port, async () => {
-				logger.verbose(`${'-'.repeat(54)}`);
-				logger.log(`🚀 Application started on ${applicationUrl} in ${NODE_ENV} mode`);
+				logger.debug(`${'-'.repeat(54)}`);
+				logger.debug(`🚀 Application started on ${applicationUrl} in ${NODE_ENV} mode`);
 
-				logger.verbose(`${'-'.repeat(54)}`);
-				logger.verbose(`📄 OpenAPI 3.0 Documentation: ${applicationUrl + '/reference'}`);
+				logger.debug(`${'-'.repeat(54)}`);
+				logger.debug(`📄 OpenAPI 3.0 Documentation: ${applicationUrl + '/reference'}`);
 				if (StaticFeatureFlags.isGraphQLRunning) {
-					logger.verbose(`🧩 GraphQL is running on: ${applicationUrl + '/graphql'}`);
+					logger.debug(`🧩 GraphQL is running on: ${applicationUrl + '/graphql'}`);
 				}
-				logger.verbose(`🩺 Healthcheck endpoint: ${applicationUrl + __config.get('APPLICATION').HEALTHCHECK_ENDPOINT}`);
+				logger.debug(`🩺 Healthcheck endpoint: ${applicationUrl + __config.get('APPLICATION').HEALTHCHECK_ENDPOINT}`);
 
 				if (isDevelopment() && StaticFeatureFlags.shouldRunPrismaStudio) {
-					logger.verbose(`🧩 Prisma Admin is running on: http://localhost:${__appConfig.PRISMA_ADMIN_PORT}`);
+					logger.debug(`🧩 Prisma Admin is running on: http://localhost:${__appConfig.PRISMA_ADMIN_PORT}`);
 				}
 
-				logger.verbose(`${'-'.repeat(54)}`);
+				logger.debug(`${'-'.repeat(54)}`);
 			});
 
 			isApplicationListening = true;

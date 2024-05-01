@@ -39,6 +39,24 @@ export class SubstanceResponse {
 		nullable:    true,
 	}) public routes_of_administration: RouteOfAdministrationModel[] | null
 
+	constructor(
+		properties: {
+			id: string,
+			name: string,
+			common_names: string[],
+			psychoactive_classes: string[],
+			chemical_classes: string[],
+			routes_of_administration: RouteOfAdministrationModel[] | null,
+		}
+	) {
+		this.id = properties.id
+		this.name = properties.name
+		this.common_names = properties.common_names
+		this.psychoactive_classes = properties.psychoactive_classes
+		this.chemical_classes = properties.chemical_classes
+		this.routes_of_administration = properties.routes_of_administration
+	}
+
 
 	static fromSubstance(substance: Substance): SubstanceResponse {
 		return {

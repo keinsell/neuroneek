@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import {ApiProperty}           from '@nestjs/swagger';
 import {Ingestion}             from './ingestion.js';
 import {RouteOfAdministration} from './route_of_administration.js';

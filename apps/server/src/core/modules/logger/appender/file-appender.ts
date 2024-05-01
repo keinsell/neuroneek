@@ -1,3 +1,5 @@
+// @ts-nocheck 
+
 import {pino}                   from "pino";
 import {LogAppender}            from "../log-appender.js"
 import {LogLevel, LogLevelCode} from "../log-level.js"

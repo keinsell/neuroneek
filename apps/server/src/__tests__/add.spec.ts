@@ -1,5 +1,5 @@
-import {test, expect} from '@jest/globals'
-import {add}          from "../add"
+import {expect, test} from '@jest/globals'
+import {add}          from "../add.js"
 
 
 

@@ -23,13 +23,13 @@
  *
  */
 
-import {config}            from 'dotenv'
-import process             from 'node:process'
-import { NodeEnvironment } from '../values/node-environment.js'
+import {config}          from 'dotenv'
+import {NodeEnvironment} from '../values/node-environment.js'
 
 
 
 export function isTest()
-  {config()
+  {
+	  config()
 	 return process.env[ 'NODE_ENV' ] === NodeEnvironment.TESTING
   }

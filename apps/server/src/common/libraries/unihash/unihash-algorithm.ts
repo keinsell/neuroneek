@@ -1,5 +1,4 @@
 import {Logger}                         from '@nestjs/common'
-import {OpentelemetryTracer}            from '../../modules/observability/tracing/opentelemetry/provider/tracer/opentelemetry-tracer.js'
 import {KeyDerivationFunction}          from './key-derivation-functions/key-derivation-function.js'
 import {PhcString, SerializedPhcString} from './types/phc-string.js'
 import {Salt}                           from './types/salt.js'
@@ -7,7 +6,6 @@ import {Salt}                           from './types/salt.js'
 
 
 export class UnihashAlgorithm {
-	private readonly tracer: OpentelemetryTracer = new OpentelemetryTracer()
 	private readonly logger: Logger
 
 
@@ -17,21 +15,17 @@ export class UnihashAlgorithm {
 
 
 	async hash(plain: string, salt?: Salt): Promise<SerializedPhcString> {
-		const span = this.tracer.startSpan(`unihash.${this.kdf.name}.hash`)
 		this.preHash(plain)
 		const phcString = await this.kdf.deriveKey(plain, salt as any)
 		this.postHash(plain, phcString.serialize())
-		span.end()
 		return phcString.serialize()
 	}
 
 
 	async verify(hash: string, plain: string): Promise<boolean> {
-		const span = this.tracer.startSpan(`${this.kdf.name}::verify`)
 		this.preVerify(hash, plain)
 		const result = await this.kdf.verify(PhcString.deserialize(hash as unknown as SerializedPhcString), plain)
 		this.postVerify(hash, plain, result)
-		span.end()
 		return result
 	}
 

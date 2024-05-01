@@ -1,6 +1,8 @@
-import { EventEmitter }    from 'events'
-import { DataDestination } from './data-destination.js'
-import { DataSource }      from './data-source.js'
+// @ts-nocheck
+
+import {EventEmitter}    from 'events'
+import {DataDestination} from './data-destination.js'
+import {DataSource}      from './data-source.js'
 
 
 
