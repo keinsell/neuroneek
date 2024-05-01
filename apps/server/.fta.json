@@ -11,11 +11,12 @@
     "public"
   ],
   "exclude_filenames": [
-    "*.test.{ts,tsx}"
+    "*.test.{ts,tsx}",
+    "*.spec.{ts,tsx}"
   ],
   "extensions": [
     ".ts"
   ],
   "include_comments": false,
-  "exclude_under": 15
+  "exclude_under": 30
 }

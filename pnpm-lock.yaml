@@ -799,6 +799,9 @@ importers:
       tsx:
         specifier: ^4.7.3
         version: 4.7.3
+      type-coverage:
+        specifier: ^2.28.2
+        version: 2.28.2(typescript@5.4.2)
       typescript:
         specifier: 5.4.2
         version: 5.4.2
@@ -29918,6 +29921,16 @@ packages:
       typescript: 4.9.3
     dev: false
 
+  /tsutils@3.21.0(typescript@5.4.2):
+    resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
+    engines: {node: '>= 6'}
+    peerDependencies:
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+    dependencies:
+      tslib: 1.14.1
+      typescript: 5.4.2
+    dev: true
+
   /tsutils@3.21.0(typescript@5.4.5):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
     engines: {node: '>= 6'}
@@ -30054,6 +30067,29 @@ packages:
     engines: {node: '>= 0.8.0'}
     dependencies:
       prelude-ls: 1.2.1
+
+  /type-coverage-core@2.28.1(typescript@5.4.2):
+    resolution: {integrity: sha512-NniLJtLiDg0+dhrf/9ACGwi3OAhIfvd20f1CB0yxIUBMECwmJp7e7me3lM8djkrDBJtqSY+uXA6PRs+yv3HTnA==}
+    peerDependencies:
+      typescript: 2 || 3 || 4 || 5
+    dependencies:
+      fast-glob: 3.3.2
+      minimatch: 9.0.4
+      normalize-path: 3.0.0
+      tslib: 2.6.2
+      tsutils: 3.21.0(typescript@5.4.2)
+      typescript: 5.4.2
+    dev: true
+
+  /type-coverage@2.28.2(typescript@5.4.2):
+    resolution: {integrity: sha512-mTANnzAeuH7ldrg0fzPnhh+aCCSVAO7V7hlBoVg4XxuUtQyD3ogir/R7Z6Q7W0H1JREtDIY4I91SGHAgEPi6Bw==}
+    hasBin: true
+    dependencies:
+      minimist: 1.2.8
+      type-coverage-core: 2.28.1(typescript@5.4.2)
+    transitivePeerDependencies:
+      - typescript
+    dev: true
 
   /type-detect@4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}

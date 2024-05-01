@@ -24,4 +24,3 @@
  */
 
 export * from './authentication-strategy-type.js';
-export * from './authentication-strategy.js';

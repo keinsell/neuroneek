@@ -1,7 +1,6 @@
 import {Injectable}                 from "@nestjs/common"
 import {AuthGuard, IAuthGuard}      from "@nestjs/passport"
-import {AuthenticationStrategyType} from "../authentication-strategy/authentication-strategy-type.js"
-
+import { AuthenticationStrategyType } from "../authentication-strategy"
 
 
 @Injectable()

@@ -11,6 +11,7 @@ module.exports = {
     // Unit-tests should most likely do not be put
     testEnvironment: "allure-jest/node",
     coverageDirectory: "./dist/reports/coverage",
+    collectCoverage: true,
     testEnvironmentOptions: {
         resultsDir: "./dist/reports/allure",
         links: [
