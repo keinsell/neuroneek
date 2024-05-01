@@ -6,6 +6,8 @@
 
 module.exports = {
     displayName: 'server',
+    // Unit-tests should most likely do not be put
+    testEnvironment: "allure-jest/node",
     transform: {
         "\\.[jt]sx?$": ["ts-jest", {useESM: true}],
     },
@@ -17,7 +19,6 @@ module.exports = {
     roots: ['<rootDir>'],
     testMatch: ['<rootDir>/**/*.test.ts', '<rootDir>/**/*.test.js', '<rootDir>/**/*.spec.js', '<rootDir>/**/*.spec.ts'],
     // https://regex101.com/r/jTaxYS/1
-    testEnvironment: 'node',
     // globalSetup: '<rootDir>/test/integration/global-setup.js',
     // globalTeardown: '<rootDir>/test/integration/global-teardown.js',
     // setupFilesAfterEnv: ['<rootDir>/test/integration/setup.js'],

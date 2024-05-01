@@ -101,11 +101,15 @@
       }
     ],
     "types": [
-      "@types/jest"
+      "@types/jest",
+      "@jest/globals",
+      "jest",
+      "node"
     ]
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "../../node_modules/.pnpm/allure-jest@2.15.1/node_modules/allure-jest/dist/index.d.ts"
   ],
   "exclude": [
     "src/_gen/**/*.ts",
@@ -113,7 +117,7 @@
 //    "tests/**/__*.ts",
     "vendor",
     "dist/**/*",
-    "coverage",
+    "coverage"
 //    "src/**/*.spec.ts",
 //    "src/**/*.test.ts",
 //    "src/**/*.e2e-spec.ts",
