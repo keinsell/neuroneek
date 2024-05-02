@@ -30,11 +30,6 @@ export class AuthController {
 			},
 		});
 
-		const payload = {
-			username: user.username,
-			sub:      user.id,
-		};
-
 		return {
 			id:       user.id,
 			username: user.username,

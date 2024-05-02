@@ -1,9 +1,9 @@
-import {beforeEach, describe, expect, it, test, jest} from '@jest/globals'
+import {beforeEach, describe, expect, it, jest, test}              from '@jest/globals'
 import {Test, TestingModule}                                       from "@nestjs/testing"
+import createPrismaMock                                            from "prisma-mock"
+import {createPrismaMockContext}                                   from "../../../test/setup/prisma-context"
 import {Prisma, Substance}                                         from '../../../vendor/prisma'
-import createPrismaMock          from "prisma-mock"
-import {createPrismaMockContext} from "../../../test/setup/prisma-context"
-import {PrismaClient}            from '../../core/modules/database/prisma/prisma'
+import {PrismaClient}                                              from '../../core/modules/database/prisma/prisma'
 import {PrismaService}                                             from "../../core/modules/database/prisma/services/prisma-service"
 import {SubstanceController, SubstanceNotFound, SubstanceResponse} from "./substance"
 
@@ -65,26 +65,25 @@ describe(SubstanceController.name, () => {
 			} as SubstanceResponse)
 		})
 
-    it(`should throw NotFoundException when no substance found`, async () => {
-      const testId = 'non-existing-id';
-      try {
-        await substanceController.getSubstanceById(testId);
-      } catch (
-		  // @ts-ignore
-		  error: Error) {
-        console.log(`Test id used: ${testId}`);
-        console.log(`Caught error: ${error}`);
-        expect(error).toBeInstanceOf(SubstanceNotFound);
-        expect(error.message).toBe('Substance not found');
-      }
-    });
+		it(`should throw NotFoundException when no substance found`, async () => {
+			const testId = 'non-existing-id';
+			try {
+				await substanceController.getSubstanceById(testId);
+			} catch (// @ts-ignore
+				error: Error) {
+				console.log(`Test id used: ${testId}`);
+				console.log(`Caught error: ${error}`);
+				expect(error).toBeInstanceOf(SubstanceNotFound);
+				expect(error.message).toBe('Substance not found');
+			}
+		});
 
 		it(`should have debug logging`, async () => {
-      const loggerSpy = jest.spyOn(substanceController['logger'], 'debug');
-      await substanceController.getSubstanceById('f5503696-b65b-4b27-85c5-7394fa2b0f5f');
+			const loggerSpy = jest.spyOn(substanceController['logger'], 'debug');
+			await substanceController.getSubstanceById('f5503696-b65b-4b27-85c5-7394fa2b0f5f');
 			expect(loggerSpy).toHaveBeenNthCalledWith(1, expect.stringContaining('f5503696-b65b-4b27-85c5-7394fa2b0f5f'));
 			expect(loggerSpy).toHaveBeenNthCalledWith(2, expect.stringContaining('Found substance'));
-    });
+		});
 	})
 
 	describe("listSubstances", () => {
@@ -121,7 +120,5 @@ describe(SubstanceController.name, () => {
 		});
 
 	})
-
-
 
 })

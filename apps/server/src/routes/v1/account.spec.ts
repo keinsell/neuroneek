@@ -59,18 +59,15 @@ describe('AccountController', () => {
 		});
 
 		it('should hash password with argon2', async () => {
-			const user         = {
+			const user = {
 				username: 'test',
 				password: 'password',
 			};
-			const hashPassword = await hash(user.password);
 
-			jest.spyOn(argon2, 'hash').mockResolvedValueOnce(hashPassword);
+			const createdAccount = await accountController.register(user);
 
-			await accountController.register(user);
-
-			expect(argon2.hash).toHaveBeenCalledWith(user.password);
-			await expect(argon2.verify(hashPassword, user.password)).resolves.toBeTruthy();
+			// Verify that the returned password is a valid hash of the original password
+			await expect(argon2.verify(createdAccount.password, user.password)).resolves.toBeTruthy();
 		});
 
 		it('should save account', async () => {
@@ -106,6 +103,22 @@ describe('AccountController', () => {
 			};
 
 			await expect(accountController.register(user)).rejects.toThrowError(AccountUsernameTaken);
+		});
+
+		/**
+		 * This test ensures that a log is created when an account is registered. It is crucial to have logs in place
+		 * to be able to debug and trace issues in production; in this case, we should output minimal information
+		 * to know when a new account was registered.
+		 */
+		it(`should have log`, async () => {
+			const loggerSpy = jest.spyOn(accountController['logger'], 'log');
+
+			const createdAccount = await accountController.register({
+				username: 'test',
+				password: 'password',
+			});
+
+			expect(loggerSpy).toHaveBeenNthCalledWith(1, expect.stringContaining(createdAccount.id));
 		});
 	})
 
