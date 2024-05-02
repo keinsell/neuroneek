@@ -1,0 +1,34 @@
+{
+  "$schema"  : "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json" ,
+  "packages" : [
+    "nodejs@22" ,
+    "python@3.10" ,
+    "nodePackages.yalc@latest" ,
+    "nodePackages.pm2@latest" ,
+    "nodePackages.pnpm@latest" ,
+    "nodePackages.nodemon@latest" ,
+    "nodePackages.typescript@latest" ,
+    "nodePackages.prisma@latest" ,
+    "turbo@latest" ,
+    "act@latest" ,
+    "docker@latest" ,
+    "nodePackages.prettier" ,
+    "nodePackages.eslint@latest" ,
+    "bun@latest" ,
+    "starship@latest" ,
+    "zsh@latest"
+  ] ,
+  "env"      : {
+    "DEVBOX_COREPACK_ENABLED" : "true"
+  } ,
+  "shell"    : {
+    "init_hook" : [
+      "pnpm install"
+    ] ,
+    "scripts"   : {
+      "test" : [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}
