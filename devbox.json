@@ -1,22 +1,28 @@
 {
-  "$schema"  : "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json" ,
-  "packages" : [
-    "nodejs@22" ,
-    "python@3.10" ,
-    "nodePackages.yalc@latest" ,
-    "nodePackages.pm2@latest" ,
-    "act@latest" ,
-    "docker@latest"
-  ] ,
-  "env"      : {
-    "DEVBOX_COREPACK_ENABLED" : "true"
-  } ,
-  "shell"    : {
-    "init_hook" : [
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/main/.schema/devbox.schema.json",
+  "packages": [
+    "nodejs@22",
+    "python@3.10",
+    "nodePackages.yalc@latest",
+    "nodePackages.pm2@latest",
+    "nodePackages.pnpm@latest",
+    "nodePackages.nodemon@latest",
+    "nodePackages.typescript@latest",
+    "turbo@latest",
+    "act@latest",
+    "docker@latest",
+    "nodePackages.prettier",
+    "nodePackages.eslint@latest"
+  ],
+  "env": {
+    "DEVBOX_COREPACK_ENABLED": "true"
+  },
+  "shell": {
+    "init_hook": [
       "echo 'Welcome to devbox!' > /dev/null"
-    ] ,
-    "scripts"   : {
-      "test" : [
+    ],
+    "scripts": {
+      "test": [
         "echo \"Error: no test specified\" && exit 1"
       ]
     }
