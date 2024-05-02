@@ -8,19 +8,22 @@
     "nodePackages.pnpm@latest" ,
     "nodePackages.nodemon@latest" ,
     "nodePackages.typescript@latest" ,
+    "nodePackages.prisma@latest" ,
     "turbo@latest" ,
     "act@latest" ,
     "docker@latest" ,
     "nodePackages.prettier" ,
     "nodePackages.eslint@latest" ,
-    "bun@latest"
+    "bun@latest" ,
+    "starship@latest" ,
+    "zsh@latest"
   ] ,
   "env"      : {
     "DEVBOX_COREPACK_ENABLED" : "true"
   } ,
   "shell"    : {
     "init_hook" : [
-      "echo 'Welcome to devbox!' > /dev/null"
+      "pnpm install"
     ] ,
     "scripts"   : {
       "test" : [
