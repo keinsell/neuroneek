@@ -1,0 +1,319 @@
+{
+  "lockfile_version": "1",
+  "packages": {
+    "act@latest": {
+      "last_modified": "2024-04-19T17:36:04-04:00",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#act",
+      "source": "devbox-search",
+      "version": "0.2.61",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/0vv50cajcl1vsadkz0rwhzzdzcphfym9-act-0.2.61",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/0vv50cajcl1vsadkz0rwhzzdzcphfym9-act-0.2.61"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/cix9yxzisv5vpiz16lq42jm06gksr1lj-act-0.2.61",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/cix9yxzisv5vpiz16lq42jm06gksr1lj-act-0.2.61"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/zsbb15dvpzp9cim1hc1xng201rm9l65r-act-0.2.61",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/zsbb15dvpzp9cim1hc1xng201rm9l65r-act-0.2.61"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5iz6aqqdyr8drz64ic8vx86kr0hir0vk-act-0.2.61",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5iz6aqqdyr8drz64ic8vx86kr0hir0vk-act-0.2.61"
+        }
+      }
+    },
+    "docker@latest": {
+      "last_modified": "2024-04-26T22:17:36-04:00",
+      "resolved": "github:NixOS/nixpkgs/698fd43e541a6b8685ed408aaf7a63561018f9f8#docker",
+      "source": "devbox-search",
+      "version": "24.0.5",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rq15kjwa4gjq9h8scbchxi9nyvrg44ab-docker-24.0.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/rq15kjwa4gjq9h8scbchxi9nyvrg44ab-docker-24.0.5"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ikxn41lp9cs7hwbd395f4yvpv5cqlpg6-docker-24.0.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ikxn41lp9cs7hwbd395f4yvpv5cqlpg6-docker-24.0.5"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ww9ncrcjwl2zvpfvz88z01yhasv3598k-docker-24.0.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ww9ncrcjwl2zvpfvz88z01yhasv3598k-docker-24.0.5"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/l28bkngsdil03fnbb6sl0hal1zs7qh3q-docker-24.0.5",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/l28bkngsdil03fnbb6sl0hal1zs7qh3q-docker-24.0.5"
+        }
+      }
+    },
+    "nodePackages.pm2@latest": {
+      "last_modified": "2024-01-27T09:55:31-05:00",
+      "resolved": "github:NixOS/nixpkgs/160b762eda6d139ac10ae081f8f78d640dd523eb#nodePackages.pm2",
+      "source": "devbox-search",
+      "version": "5.3.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/k2nnhpa83gf080srmp7yc7a7gcyry7nw-pm2-5.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/k2nnhpa83gf080srmp7yc7a7gcyry7nw-pm2-5.3.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/g7dvadagzs8wann4g2902i7njvi1sdsc-pm2-5.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/g7dvadagzs8wann4g2902i7njvi1sdsc-pm2-5.3.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/kqmilzxsa3ldbiyzjb57yiy3djf0hba8-pm2-5.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/kqmilzxsa3ldbiyzjb57yiy3djf0hba8-pm2-5.3.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/skzizp5p3l8dhkypyj6fhzpzwypb2781-pm2-5.3.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/skzizp5p3l8dhkypyj6fhzpzwypb2781-pm2-5.3.0"
+        }
+      }
+    },
+    "nodePackages.yalc@latest": {
+      "last_modified": "2024-04-19T17:36:04-04:00",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#nodePackages.yalc",
+      "source": "devbox-search",
+      "version": "1.0.0-pre.53",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/5pw58l2cyl9ai2n77n1cn7032xhlk0nv-yalc-1.0.0-pre.53",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/5pw58l2cyl9ai2n77n1cn7032xhlk0nv-yalc-1.0.0-pre.53"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/8qx92gnpd5jwyg7d3yln88anjram7vd0-yalc-1.0.0-pre.53",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/8qx92gnpd5jwyg7d3yln88anjram7vd0-yalc-1.0.0-pre.53"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/pfbqxrlg15q1z3573sjdi9slnny3h1sx-yalc-1.0.0-pre.53",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/pfbqxrlg15q1z3573sjdi9slnny3h1sx-yalc-1.0.0-pre.53"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ywdz9syrdn6d3z34wwikxv3y9nn961l6-yalc-1.0.0-pre.53",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ywdz9syrdn6d3z34wwikxv3y9nn961l6-yalc-1.0.0-pre.53"
+        }
+      }
+    },
+    "nodejs@22": {
+      "last_modified": "2024-04-25T03:38:28-04:00",
+      "plugin_version": "0.0.2",
+      "resolved": "github:NixOS/nixpkgs/b0d52b31f7f4d80f8bf38f0253652125579c35ff#nodejs_22",
+      "source": "devbox-search",
+      "version": "22.0.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/972dscdvkqhr81j2w1c74vlx2y4kfyzh-nodejs-22.0.0",
+              "default": true
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/z5fns5qrp1s53kys1v0bxfz2lk407773-nodejs-22.0.0-libv8"
+            }
+          ],
+          "store_path": "/nix/store/972dscdvkqhr81j2w1c74vlx2y4kfyzh-nodejs-22.0.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/6336bf8rx068rls9hw5q88bncc1baqgb-nodejs-22.0.0",
+              "default": true
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/ngvfmgm9bip87amcc522yb671a2zkpwd-nodejs-22.0.0-libv8"
+            }
+          ],
+          "store_path": "/nix/store/6336bf8rx068rls9hw5q88bncc1baqgb-nodejs-22.0.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/3776rlwv2q8fvgh6lhi44v0gxck1hkqx-nodejs-22.0.0",
+              "default": true
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/3vhll9yxmcabk6lv6yz14ixixpim5j4a-nodejs-22.0.0-libv8"
+            }
+          ],
+          "store_path": "/nix/store/3776rlwv2q8fvgh6lhi44v0gxck1hkqx-nodejs-22.0.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/nx76dx71yjni4bajdn9pshxqs38lkj29-nodejs-22.0.0",
+              "default": true
+            },
+            {
+              "name": "libv8",
+              "path": "/nix/store/xakj3aq9bzxyvanpy6yfqg1ghmjjnkri-nodejs-22.0.0-libv8"
+            }
+          ],
+          "store_path": "/nix/store/nx76dx71yjni4bajdn9pshxqs38lkj29-nodejs-22.0.0"
+        }
+      }
+    },
+    "python@3.10": {
+      "last_modified": "2024-04-19T17:36:04-04:00",
+      "plugin_version": "0.0.3",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#python310",
+      "source": "devbox-search",
+      "version": "3.10.14",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/l7w62hvrq2700xadjd5k4yj12dfzd7n1-python3-3.10.14",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/l7w62hvrq2700xadjd5k4yj12dfzd7n1-python3-3.10.14"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/v1y56cfk92x9v4qx16fv3xj5nxaw2nqf-python3-3.10.14",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/r21p36p4a79h9pdlw4l6npcmwa9zzijx-python3-3.10.14-debug"
+            }
+          ],
+          "store_path": "/nix/store/v1y56cfk92x9v4qx16fv3xj5nxaw2nqf-python3-3.10.14"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/l9cm37a1167b6nzricmxp91gzx1gkfgb-python3-3.10.14",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/l9cm37a1167b6nzricmxp91gzx1gkfgb-python3-3.10.14"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/h5wq40vfyw8j3afab592x9hpxc2shl3n-python3-3.10.14",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/cwpg3smni36pkx9iws0zqkv10hagn4r2-python3-3.10.14-debug"
+            }
+          ],
+          "store_path": "/nix/store/h5wq40vfyw8j3afab592x9hpxc2shl3n-python3-3.10.14"
+        }
+      }
+    }
+  }
+}
