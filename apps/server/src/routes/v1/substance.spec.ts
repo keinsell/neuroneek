@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, jest, test}              from '@jest/globals'
+import {beforeEach, describe, expect, it, jest}                    from '@jest/globals'
 import {Test, TestingModule}                                       from "@nestjs/testing"
 import createPrismaMock                                            from "prisma-mock"
 import {createPrismaMockContext}                                   from "../../../test/setup/prisma-context"
@@ -87,6 +87,14 @@ describe(SubstanceController.name, () => {
 	})
 
 	describe("listSubstances", () => {
+		/**
+		 * This test ensures that the mocked implementation of prisma retrieves and correctly returns data
+		 * from the ORM or other storage implementations.
+		 * Specifically, it calls the getAllSubstances method from the substanceController
+		 * and checks that the returned data matches the expected outcome (i.e., there is one substance and its details are as expected).
+		 * This test is here to ensure that the getAllSubstances method, which is responsible for retrieving
+		 * all substances, performs as expected.
+		 */
 		it("should list one substance", async () => {
 			const substances = await substanceController.getAllSubstances()
 			expect(substances).toHaveLength(1)
@@ -97,28 +105,6 @@ describe(SubstanceController.name, () => {
 			expect(substances[0].routes_of_administration).toBeNull()
 			expect(substances[0].common_names).toEqual([])
 		})
-
-		/**
-		 * This test ensures that the mocked implementation of prisma retrieves and correctly returns data
-		 * from the ORM or other storage implementations.
-		 * Specifically, it calls the getAllSubstances method from the substanceController
-		 * and checks that the returned data matches the expected outcome (i.e., there is one substance and its details are as expected).
-		 * This test is here to ensure that the getAllSubstances method, which is responsible for retrieving
-		 * all substances, performs as expected.
-		 */
-		test('should return one result', async () => {
-			allure.layer("controller")
-			allure.issue("Listing Substances", "https://linear.app/keinsell/issue/NEU-18/🧪-automated-testing")
-			const substances = await substanceController.getAllSubstances()
-			expect(substances).toHaveLength(1)
-			expect(substances[0].id).toBe("f5503696-b65b-4b27-85c5-7394fa2b0f5f")
-			expect(substances[0].name).toBe("Caffeine")
-			expect(substances[0].psychoactive_classes).toEqual(["stimulant"])
-			expect(substances[0].chemical_classes).toEqual([])
-			expect(substances[0].routes_of_administration).toBeNull()
-			expect(substances[0].common_names).toEqual([])
-		});
-
 	})
 
 })

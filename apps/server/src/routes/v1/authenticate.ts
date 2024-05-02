@@ -1,58 +1,108 @@
 import {
-	BadRequestException, Body, Controller, HttpCode, HttpStatus, NotFoundException, Post, Req, UseGuards,
-}                      from '@nestjs/common';
-import {JwtService}    from '@nestjs/jwt';
-import {AuthGuard}     from '@nestjs/passport';
-import {Request}       from 'express';
-import * as upash      from 'upash';
-import {Account}       from "../../_gen/account"
+    BadRequestException,
+    Body,
+    Controller,
+    HttpCode,
+    HttpStatus,
+    NotFoundException,
+    Post,
+    UnauthorizedException
+} from '@nestjs/common';
+import {JwtService} from '@nestjs/jwt';
+import {ApiOperation, ApiProperty} from "@nestjs/swagger"
+import {verify} from "argon2";
 import {PrismaService} from "../../core/modules/database/prisma/services/prisma-service"
 
+export class IncorrectCredentials
+    extends UnauthorizedException
+    {
+        constructor()
+            {
+                super('Incorrect credentials');
+            }
+    }
 
+export class AccountNotFound
+    extends NotFoundException
+    {
+        constructor()
+            {
+                super('Account not found');
+            }
+    }
+
+export class PasswordAuthenticaton
+    {
+        @ApiProperty({example: "elon_musk"}) username!: string;
+        @ApiProperty({example: "ISendCarsToSpace"}) password!: string;
+    }
 
 @Controller('auth')
-export class AuthController {
-	constructor(private readonly prismaService: PrismaService, private readonly jwtService: JwtService) {}
+export class AuthController
+    {
+        constructor(private readonly prismaService: PrismaService, private readonly jwtService: JwtService) {}
 
 
-	@Post('register') @HttpCode(HttpStatus.OK)
-	async register(@Body() body: { username: string, password: string }): Promise<Account> {
-		if (body!.password || body!.username) {
-			throw new BadRequestException('Username and password are required');
-		}
+        @ApiOperation({
+                          summary    : 'Authenticate using basic authentication',
+                          description: `Operation will authenticate user using basic authentication and return JWT token.`,
+                      }) @Post('password') @HttpCode(HttpStatus.OK)
+        async basicAuthentication(@Body() passwordAuthentication: PasswordAuthenticaton)
+            {
+                // Validate incoming data
+                if (!passwordAuthentication?.password || !passwordAuthentication?.username)
+                    {
+                        throw new BadRequestException('Username and password are required');
+                    }
 
-		// Hash the password and store the user into the database
-		const hashPassword = await upash.use('argon2').hash(body.password);
-		const user         = await this.prismaService.account.create({
-			data: {
-				username: body.username,
-				password: hashPassword,
-			},
-		});
+                const user = await this.prismaService.account.findUnique({
+                                                                             where: {
+                                                                                 username: passwordAuthentication.username,
+                                                                             },
+                                                                         })
 
-		return {
-			id:       user.id,
-			username: user.username,
-			password: user.password,
-		}
-	}
+                if (!user)
+                    {
+                        throw new AccountNotFound();
+                    }
 
+                // Validate password using argon2
 
-	@Post('basic') @HttpCode(HttpStatus.OK) @UseGuards(AuthGuard('basic'))
-	async basic(@Req() req: Request) {
-		const user: { username: string, password: string } = req.user as any;
+                const isPasswordValid = await verify(user.password, passwordAuthentication.password)
 
-		if (!user) {
-			throw new NotFoundException();
-		}
+                if (!isPasswordValid)
+                    {
+                        throw new IncorrectCredentials();
+                    }
 
-		const payload = {
-			username: user,
-			sub:      user.username,
-		};
+                // Create JWT token
 
-		const accessToken = this.jwtService.sign(payload);
+                const payload = {
+                    username: user.username,
+                    sub     : user.id,
+                };
 
-		return {accessToken};
-	}
-}
+                const accessToken = this.jwtService.sign(payload);
+
+                return {accessToken};
+            }
+
+        // Define "whoami" endpoint
+        @ApiOperation({
+                          summary    : 'Get current user',
+                          description: `Operation will return information about the current user.`,
+                      }) @Post('whoami') @HttpCode(HttpStatus.OK)
+        async whoami(@Body() token: { accessToken: string })
+            {
+                // Validate incoming data
+                if (!token?.accessToken)
+                    {
+                        throw new BadRequestException('Token is required');
+                    }
+
+                // Verify token
+                const payload = this.jwtService.verify(token.accessToken);
+
+                return {username: payload.username};
+            }
+    }
