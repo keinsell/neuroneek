@@ -1,12 +1,14 @@
 // @ts-nocheck
 
 import {Logger, MiddlewareConsumer, Module, OnModuleDestroy, OnModuleInit, RequestMethod} from '@nestjs/common';
+import {JwtModule}                                                                        from "@nestjs/jwt"
 import {DeveloperToolsModule}                                                             from './common/modules/environment/dev-tools/developer-tools.module.js';
 import {HealthModule}                                                                     from './common/modules/observability/healthcheck/health-module.js';
 import {SharedModule}                                                                     from './common/shared-module.js';
 import {FingerprintMiddleware}                                                            from './core/middleware/fingerprint.js';
 import {DocumentationModule}                                                              from './core/modules/documentation/documentation-module.js';
 import {GraphqlModule}                                                                    from './core/modules/graphql/graphql-module.js';
+import {AccountController}                                                                from "./routes/v1/account"
 import {RouteOfAdministrationController}                                                  from "./routes/v1/route-of-administration.js"
 import {SubstanceController}                                                              from "./routes/v1/substance.js"
 
@@ -14,11 +16,10 @@ import {SubstanceController}                                                    
 
 @Module({
 	imports:     [
-		GraphqlModule, SharedModule, DocumentationModule, HealthModule, DeveloperToolsModule,
+		GraphqlModule, SharedModule, DocumentationModule, HealthModule, DeveloperToolsModule, JwtModule,
 	],
 	controllers: [
-		  SubstanceController,
-		RouteOfAdministrationController,
+		SubstanceController, RouteOfAdministrationController, AccountController,
 	],
 	providers:   [],
 })

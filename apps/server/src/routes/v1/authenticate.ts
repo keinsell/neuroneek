@@ -1,50 +1,63 @@
-import {PrismaAdapter}                        from "@lucia-auth/adapter-prisma"
-import {Controller, Injectable, Logger, Post} from '@nestjs/common'
-import {Lucia}                                from "lucia";
-import {isProduction}                         from "../configs/helper/is-production"
-import {PrismaService}                        from "../core/modules/database/prisma/services/prisma-service"
+import {
+	BadRequestException, Body, Controller, HttpCode, HttpStatus, NotFoundException, Post, Req, UseGuards,
+}                      from '@nestjs/common';
+import {JwtService}    from '@nestjs/jwt';
+import {AuthGuard}     from '@nestjs/passport';
+import {Request}       from 'express';
+import * as upash      from 'upash';
+import {Account}       from "../../_gen/account"
+import {PrismaService} from "../../core/modules/database/prisma/services/prisma-service"
 
 
 
-@Injectable()
-export class LuciaPrismaAdapter {
-	public adapter: PrismaAdapter<any>
+@Controller('auth')
+export class AuthController {
+	constructor(private readonly prismaService: PrismaService, private readonly jwtService: JwtService) {}
 
 
-	constructor(private readonly prismaService: PrismaService) {
-		this.adapter = new PrismaAdapter(prismaService.session, prismaService.account)
-	}
-}
+	@Post('register') @HttpCode(HttpStatus.OK)
+	async register(@Body() body: { username: string, password: string }): Promise<Account> {
+		if (body!.password || body!.username) {
+			throw new BadRequestException('Username and password are required');
+		}
 
-
-@Injectable()
-export class LuciaService extends Lucia {
-	constructor(private readonly _adapter: LuciaPrismaAdapter) {
-		super(_adapter.adapter, {
-			sessionCookie: {
-				attributes: {
-					secure: isProduction(),
-				},
+		// Hash the password and store the user into the database
+		const hashPassword = await upash.use('argon2').hash(body.password);
+		const user         = await this.prismaService.account.create({
+			data: {
+				username: body.username,
+				password: hashPassword,
 			},
-		})
+		});
+
+		const payload = {
+			username: user.username,
+			sub:      user.id,
+		};
+
+		return {
+			id:       user.id,
+			username: user.username,
+			password: user.password,
+		}
 	}
-}
 
 
-declare module "lucia" {
-	interface Register {
-		Lucia: typeof LuciaService;
-	}
-}
+	@Post('basic') @HttpCode(HttpStatus.OK) @UseGuards(AuthGuard('basic'))
+	async basic(@Req() req: Request) {
+		const user: { username: string, password: string } = req.user as any;
 
+		if (!user) {
+			throw new NotFoundException();
+		}
 
-@Controller('authenticate')
-export class Authenticate {
-	private logger: Logger = new Logger('authentication::controller')
+		const payload = {
+			username: user,
+			sub:      user.username,
+		};
 
+		const accessToken = this.jwtService.sign(payload);
 
-	@Post("basic")
-	async basic() {
-		this.logger.debug("Basic authentication")
+		return {accessToken};
 	}
 }

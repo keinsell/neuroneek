@@ -120,6 +120,29 @@
         }
       }
     },
+    "/account/register": {
+      "post": {
+        "operationId": "AccountController_register",
+        "summary": "Register a new account",
+        "description": "Operation will register a new account in application allowing user to interact with his namespace.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccount"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "healthcheck",
@@ -384,6 +407,23 @@
           "psychoactive_classes",
           "chemical_classes",
           "routes_of_administration"
+        ]
+      },
+      "CreateAccount": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "elon_musk"
+          },
+          "password": {
+            "type": "string",
+            "example": "ISendCarsIntoFuckingSpace"
+          }
+        },
+        "required": [
+          "username",
+          "password"
         ]
       },
       "Subject": {
