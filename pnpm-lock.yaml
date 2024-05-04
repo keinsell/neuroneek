@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -185,6 +185,9 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: ^1.24.0
         version: 1.24.0
+      '@orama/orama':
+        specifier: ^2.0.17
+        version: 2.0.17
       '@prisma/client':
         specifier: 5.13.0
         version: 5.13.0(prisma@5.13.0)
@@ -473,7 +476,7 @@ importers:
         version: 10.3.2(@swc/core@1.3.27)(esbuild@0.20.2)
       '@nestjs/schematics':
         specifier: ^10.1.1
-        version: 10.1.1(chokidar@3.6.0)(typescript@5.3.3)
+        version: 10.1.1(typescript@5.4.2)
       '@nestjs/testing':
         specifier: ^10.3.8
         version: 10.3.8(@nestjs/common@10.3.8)(@nestjs/core@10.3.8)(@nestjs/microservices@10.3.8)(@nestjs/platform-express@10.3.8)
@@ -1015,7 +1018,7 @@ importers:
         version: 2.0.20
       ts-node:
         specifier: ^10.8.2
-        version: 10.9.1(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.4)
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.7.4)
       typescript:
         specifier: ^4.7.4
         version: 4.7.4
@@ -3686,7 +3689,7 @@ packages:
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
       resolve-from: 5.0.0
-      ts-node: 10.9.2(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
       typescript: 4.9.5
     transitivePeerDependencies:
       - '@swc/core'
@@ -7438,6 +7441,21 @@ packages:
       - chokidar
     dev: true
 
+  /@nestjs/schematics@10.1.1(typescript@5.4.2):
+    resolution: {integrity: sha512-o4lfCnEeIkfJhGBbLZxTuVWcGuqDCFwg5OrvpgRUBM7vI/vONvKKiB5riVNpO+JqXoH0I42NNeDb0m4V5RREig==}
+    peerDependencies:
+      typescript: '>=4.8.2'
+    dependencies:
+      '@angular-devkit/core': 17.1.2(chokidar@3.6.0)
+      '@angular-devkit/schematics': 17.1.2(chokidar@3.6.0)
+      comment-json: 4.2.3
+      jsonc-parser: 3.2.1
+      pluralize: 8.0.0
+      typescript: 5.4.2
+    transitivePeerDependencies:
+      - chokidar
+    dev: true
+
   /@nestjs/serve-static@4.0.2(@fastify/static@7.0.3)(@nestjs/common@10.3.8)(@nestjs/core@10.3.8)(express@5.0.0-beta.1)(fastify@4.26.2):
     resolution: {integrity: sha512-cT0vdWN5ar7jDI2NKbhf4LcwJzU4vS5sVpMkVrHuyLcltbrz6JdGi1TfIMMatP2pNiq5Ie/uUdPSFDVaZX/URQ==}
     peerDependencies:
@@ -9032,6 +9050,11 @@ packages:
     dependencies:
       '@opentelemetry/api': 1.8.0
       '@opentelemetry/core': 1.24.0(@opentelemetry/api@1.8.0)
+    dev: false
+
+  /@orama/orama@2.0.17:
+    resolution: {integrity: sha512-RU0oGnV/ieaiLnMhCsVZcJTOT0bo5ne0KndEK7xMHsvA2RDAt8za2XFW57JaMWgBXLDKNX+Q5CHKje72PS6uzw==}
+    engines: {node: '>= 16.0.0'}
     dev: false
 
   /@peculiar/asn1-schema@2.3.6:
@@ -10939,6 +10962,7 @@ packages:
 
   /@swc/wasm@1.3.27:
     resolution: {integrity: sha512-bSFeKxGU2zY/xC3K7Y4sjdtHMgbv6gM2Z01PTMGoC8b2PVubPKeW+BYmprZFSf2eCOsNLZaVzVufdVTQB/ORfg==}
+    dev: true
 
   /@szmarczak/http-timer@4.0.6:
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
@@ -11585,6 +11609,7 @@ packages:
 
   /@types/node@18.16.0:
     resolution: {integrity: sha512-BsAaKhB+7X+H4GnSjGhJG9Qi8Tw+inU9nJDwmD5CgOmBLEI6ArdhikpLX7DjbjDRDTbqZzU2LSQNZg8WGPiSZQ==}
+    dev: true
 
   /@types/node@18.19.31:
     resolution: {integrity: sha512-ArgCD39YpyyrtFKIqMDvjz79jto5fcI/SVUs2HwB+f0dAzq68yqOdyaSivLiLugSziTpNXLQrVb7RZFmdZzbhA==}
@@ -15489,7 +15514,7 @@ packages:
     dependencies:
       '@types/node': 20.12.7
       cosmiconfig: 8.1.3
-      ts-node: 10.9.2(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
       typescript: 4.9.5
     dev: true
 
@@ -17561,7 +17586,7 @@ packages:
       babel-eslint: 10.1.0(eslint@6.8.0)
       eslint: 6.8.0
       eslint-plugin-babel: 5.3.1(eslint@6.8.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@5.59.7)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      eslint-plugin-import: 2.29.1(eslint@6.8.0)
     transitivePeerDependencies:
       - '@typescript-eslint/parser'
       - eslint-import-resolver-typescript
@@ -17749,6 +17774,34 @@ packages:
       - supports-color
     dev: true
 
+  /eslint-module-utils@2.8.1(eslint-import-resolver-node@0.3.9)(eslint@6.8.0):
+    resolution: {integrity: sha512-rXDXR3h7cs7dy9RNpUlQf80nX31XWJEyGq1tRMo+6GsO5VmTe4UTwtmonAD4ZkAsrfMVDA2wlGJ3790Ys+D49Q==}
+    engines: {node: '>=4'}
+    peerDependencies:
+      '@typescript-eslint/parser': '*'
+      eslint: '*'
+      eslint-import-resolver-node: '*'
+      eslint-import-resolver-typescript: '*'
+      eslint-import-resolver-webpack: '*'
+    peerDependenciesMeta:
+      '@typescript-eslint/parser':
+        optional: true
+      eslint:
+        optional: true
+      eslint-import-resolver-node:
+        optional: true
+      eslint-import-resolver-typescript:
+        optional: true
+      eslint-import-resolver-webpack:
+        optional: true
+    dependencies:
+      debug: 3.2.7(supports-color@5.5.0)
+      eslint: 6.8.0
+      eslint-import-resolver-node: 0.3.9
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /eslint-plugin-babel@5.3.1(eslint@6.8.0):
     resolution: {integrity: sha512-VsQEr6NH3dj664+EyxJwO4FCYm/00JhYb3Sk3ft8o+fpKuIfQ9TaW6uVUfvwMXHcf/lsnRIoyFPsLMyiWCSL/g==}
     engines: {node: '>=4'}
@@ -17830,6 +17883,40 @@ packages:
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
       eslint-module-utils: 2.8.1(@typescript-eslint/parser@5.59.7)(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.1)(eslint@8.57.0)
+      hasown: 2.0.2
+      is-core-module: 2.13.1
+      is-glob: 4.0.3
+      minimatch: 3.1.2
+      object.fromentries: 2.0.8
+      object.groupby: 1.0.3
+      object.values: 1.2.0
+      semver: 6.3.1
+      tsconfig-paths: 3.15.0
+    transitivePeerDependencies:
+      - eslint-import-resolver-typescript
+      - eslint-import-resolver-webpack
+      - supports-color
+    dev: true
+
+  /eslint-plugin-import@2.29.1(eslint@6.8.0):
+    resolution: {integrity: sha512-BbPC0cuExzhiMo4Ff1BTVwHpjjv28C5R+btTOGaCRC7UEz801up0JadwkeSk5Ued6TG34uaczuVuH6qyy5YUxw==}
+    engines: {node: '>=4'}
+    peerDependencies:
+      '@typescript-eslint/parser': '*'
+      eslint: ^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8
+    peerDependenciesMeta:
+      '@typescript-eslint/parser':
+        optional: true
+    dependencies:
+      array-includes: 3.1.8
+      array.prototype.findlastindex: 1.2.5
+      array.prototype.flat: 1.3.2
+      array.prototype.flatmap: 1.3.2
+      debug: 3.2.7(supports-color@5.5.0)
+      doctrine: 2.1.0
+      eslint: 6.8.0
+      eslint-import-resolver-node: 0.3.9
+      eslint-module-utils: 2.8.1(eslint-import-resolver-node@0.3.9)(eslint@6.8.0)
       hasown: 2.0.2
       is-core-module: 2.13.1
       is-glob: 4.0.3
@@ -25760,7 +25847,7 @@ packages:
         optional: true
     dependencies:
       lilconfig: 2.1.0
-      ts-node: 10.9.2(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
       yaml: 1.10.2
     dev: true
 
@@ -25778,7 +25865,7 @@ packages:
     dependencies:
       lilconfig: 3.1.1
       postcss: 8.4.38
-      ts-node: 10.9.2(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.5)
+      ts-node: 10.9.2(@types/node@20.12.7)(typescript@4.9.5)
       yaml: 2.4.1
 
   /postcss-nested@6.0.1(postcss@8.4.38):
@@ -29290,6 +29377,37 @@ packages:
       yn: 3.1.1
     dev: true
 
+  /ts-node@10.9.1(@types/node@18.16.0)(typescript@4.7.4):
+    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
+    hasBin: true
+    peerDependencies:
+      '@swc/core': '>=1.2.50'
+      '@swc/wasm': '>=1.2.50'
+      '@types/node': '*'
+      typescript: '>=2.7'
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      '@swc/wasm':
+        optional: true
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.9
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 18.16.0
+      acorn: 8.8.2
+      acorn-walk: 8.2.0
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 4.7.4
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
+    dev: true
+
   /ts-node@10.9.2(@swc/core@1.3.27)(@swc/wasm@1.3.27)(@types/node@18.16.0)(typescript@4.9.5):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
@@ -29321,6 +29439,7 @@ packages:
       typescript: 4.9.5
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+    dev: true
 
   /ts-node@10.9.2(@swc/core@1.3.27)(@types/node@20.12.7)(typescript@5.4.2):
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
@@ -29350,6 +29469,36 @@ packages:
       diff: 4.0.2
       make-error: 1.3.6
       typescript: 5.4.2
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
+
+  /ts-node@10.9.2(@types/node@20.12.7)(typescript@4.9.5):
+    resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
+    hasBin: true
+    peerDependencies:
+      '@swc/core': '>=1.2.50'
+      '@swc/wasm': '>=1.2.50'
+      '@types/node': '*'
+      typescript: '>=2.7'
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      '@swc/wasm':
+        optional: true
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.11
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 20.12.7
+      acorn: 8.11.3
+      acorn-walk: 8.3.2
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 4.9.5
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
 

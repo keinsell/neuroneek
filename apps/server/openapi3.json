@@ -191,6 +191,36 @@
         }
       }
     },
+    "/search/substance": {
+      "get": {
+        "operationId": "search-substances",
+        "summary": "Search substances",
+        "description": "Search substances by name or common name",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "example": "Caffeine",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstanceResults"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "healthcheck",
@@ -508,6 +538,94 @@
           "id",
           "username",
           "password"
+        ]
+      },
+      "TimeMeasurement": {
+        "type": "object",
+        "properties": {
+          "raw": {
+            "type": "number",
+            "example": 517147
+          },
+          "formatted": {
+            "type": "string",
+            "example": "517μs"
+          }
+        },
+        "required": [
+          "raw",
+          "formatted"
+        ]
+      },
+      "SubstanceDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "clvdzrgn6003ef2ftau8csdb0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Caffeine"
+          },
+          "commonNames": {
+            "example": [
+              "Caffeine"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "commonNames"
+        ]
+      },
+      "SubstanceHits": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "clvdzrgn6003ef2ftau8csdb0"
+          },
+          "score": {
+            "type": "number",
+            "example": 14.31518620955737
+          },
+          "document": {
+            "$ref": "#/components/schemas/SubstanceDocument"
+          }
+        },
+        "required": [
+          "id",
+          "score",
+          "document"
+        ]
+      },
+      "SubstanceResults": {
+        "type": "object",
+        "properties": {
+          "elapsed": {
+            "$ref": "#/components/schemas/TimeMeasurement"
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstanceHits"
+            }
+          },
+          "count": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "elapsed",
+          "hits",
+          "count"
         ]
       },
       "Subject": {
