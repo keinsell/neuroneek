@@ -751,6 +751,54 @@
         }
       }
     },
+    "vlang@latest": {
+      "last_modified": "2024-04-19T17:36:04-04:00",
+      "resolved": "github:NixOS/nixpkgs/92d295f588631b0db2da509f381b4fb1e74173c5#vlang",
+      "source": "devbox-search",
+      "version": "0.4.4",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/j0xjsy4apvr2lvr7cn1mbva38x167r2n-vlang-0.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/j0xjsy4apvr2lvr7cn1mbva38x167r2n-vlang-0.4.4"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/rwgblgi07j0b2fhrkqddpzdw56npx235-vlang-0.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/rwgblgi07j0b2fhrkqddpzdw56npx235-vlang-0.4.4"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/f210ps8447b2six5bi96cqkdm2ax6s7r-vlang-0.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/f210ps8447b2six5bi96cqkdm2ax6s7r-vlang-0.4.4"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/i3j9v28636p8q8qrkrlvmh0m5lhbiqpv-vlang-0.4.4",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/i3j9v28636p8q8qrkrlvmh0m5lhbiqpv-vlang-0.4.4"
+        }
+      }
+    },
     "zsh@latest": {
       "last_modified": "2024-04-28T10:22:29-04:00",
       "resolved": "github:NixOS/nixpkgs/cf8cc1201be8bc71b7cbbbdaf349b22f4f99c7ae#zsh",

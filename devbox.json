@@ -17,7 +17,8 @@
     "bun@latest",
     "starship@latest",
     "zsh@latest",
-    "k6@latest"
+    "k6@latest",
+    "vlang@latest"
   ],
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
