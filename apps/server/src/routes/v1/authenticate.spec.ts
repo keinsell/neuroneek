@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {JwtService} from '@nestjs/jwt';
 import {Test, TestingModule} from '@nestjs/testing';
-import {hash} from "argon2"
+import argon2, {hash} from "argon2"
 import {Prisma, PrismaClient} from 'db';
 import createPrismaMock from "prisma-mock"
 import {createPrismaMockContext} from "../../../test/setup/prisma-context"
@@ -50,10 +50,14 @@ describe(AuthController.name, () =>
     {
         it('should throw exception when account not found', () =>
         {
+            const credentials = {username: 'nonexistent', password: 'password'};
+            expect(authController.basicAuthentication(credentials)).rejects.toThrowError('Account not found');
         });
 
         it('should throw exception when incorrect password', () =>
         {
+            const credentials = {username: 'ihavethisacc', password: 'wrongonethistime'};
+            expect(authController.basicAuthentication(credentials)).rejects.toThrowError('Incorrect credentials');
         });
 
         it('should generate jwt token for user', async () =>
@@ -68,11 +72,22 @@ describe(AuthController.name, () =>
         {
             const credentials = {username: 'ihavethisacc', password: 'wrongonethistime'};
 
-            expect(authController.basicAuthentication(credentials)).rejects.toThrowError('Incorrect credentials');
+            await expect(authController.basicAuthentication(credentials)).rejects.toThrowError('Incorrect credentials');
         })
 
 
-        it('should verify password hash', () => {});
+        it('should verify password hash', async () =>
+        {
+            // Arrange
+            const verifySpy   = jest.spyOn(argon2, 'verify');
+            const credentials = {username: 'ihavethisacc', password: 'lmao_insecure_password'};
+
+            // Act
+            await authController.basicAuthentication(credentials);
+
+            // Assert
+            expect(verifySpy).toHaveBeenCalledWith(expect.any(String), credentials.password);
+        });
 
         /**
          * This test ensures that a log is created when an account is registered. It is crucial to have logs in place
@@ -84,11 +99,11 @@ describe(AuthController.name, () =>
             const loggerSpy = jest.spyOn(authController['logger'], 'log');
 
             const createdAccount = await authController.basicAuthentication({
-                                                                                username: 'test',
-                                                                                password: 'password',
+                                                                                username: 'ihavethisacc',
+                                                                                password: 'lmao_insecure_password',
                                                                             } as any);
 
-            expect(loggerSpy).toHaveBeenNthCalledWith(1, expect.stringContaining(createdAccount.accessToken));
+            expect(loggerSpy).toHaveBeenNthCalledWith(1, expect.stringContaining("existing-id"));
         });
     })
 
@@ -100,10 +115,8 @@ describe(AuthController.name, () =>
 
         it('should return user information', async () =>
         {
-            const token  = {accessToken: 'testToken'};
-            const result = await authController.whoami(token);
-
-            expect(result).toEqual({username: 'ihavethisacc', id: 'existing-id'});
+            const result = await authController.whoami({username: 'ihavethisacc'});
+            expect(result.username).toEqual("ihavethisacc");
         })
     })
 

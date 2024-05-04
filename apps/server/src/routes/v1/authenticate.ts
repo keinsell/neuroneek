@@ -4,14 +4,36 @@ import {
     Controller,
     HttpCode,
     HttpStatus,
+    Logger,
     NotFoundException,
     Post,
-    UnauthorizedException
+    UnauthorizedException,
+    UseGuards
 } from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
-import {ApiOperation, ApiProperty} from "@nestjs/swagger"
+import {ApiOkResponse, ApiOperation, ApiProperty} from "@nestjs/swagger"
 import {verify} from "argon2";
+import {Account} from "../../_gen/account";
+import {JwtAuthorizationGuard} from "../../core/identity/authn/components/guards/jwt-authorization-guard";
+import {GetUser} from "../../core/identity/authn/jwt-authentication-strategy";
 import {PrismaService} from "../../core/modules/database/prisma/services/prisma-service"
+
+export class AccountAuthenticated
+    {
+        accountId: string;
+        accessToken: string;
+
+        constructor(accountId: string, accessToken: string)
+            {
+                this.accountId   = accountId;
+                this.accessToken = accessToken;
+            }
+
+        get description()
+            {
+                return `Account ${this.accountId} authenticated successfully.`
+            }
+    }
 
 export class IncorrectCredentials
     extends UnauthorizedException
@@ -34,12 +56,14 @@ export class AccountNotFound
 export class PasswordAuthenticaton
     {
         @ApiProperty({example: "elon_musk"}) username!: string;
-        @ApiProperty({example: "ISendCarsToSpace"}) password!: string;
+        @ApiProperty({example: "ISendCarsIntoFuckingSpace"}) password!: string;
     }
 
 @Controller('auth')
 export class AuthController
     {
+        private readonly logger = new Logger(AuthController.name);
+
         constructor(private readonly prismaService: PrismaService, private readonly jwtService: JwtService) {}
 
 
@@ -84,6 +108,11 @@ export class AuthController
 
                 const accessToken = this.jwtService.sign(payload);
 
+                const event = new AccountAuthenticated(user.id, accessToken);
+
+                this.logger.log(event.description);
+
+
                 return {accessToken};
             }
 
@@ -91,18 +120,27 @@ export class AuthController
         @ApiOperation({
                           summary    : 'Get current user',
                           description: `Operation will return information about the current user.`,
-                      }) @Post('whoami') @HttpCode(HttpStatus.OK)
-        async whoami(@Body() token: { accessToken: string })
+                          security   : [{
+                              bearerAuth: []
+                          }],
+                          operationId: 'whoami',
+                      })
+        @ApiOkResponse({type: Account})
+        @Post('whoami') @HttpCode(HttpStatus.OK) @UseGuards(JwtAuthorizationGuard)
+        async whoami(@GetUser() user: { username: string }): Promise<Account>
             {
-                // Validate incoming data
-                if (!token?.accessToken)
+                // Find user from database
+                const account = await this.prismaService.account.findUnique({
+                                                                                where: {
+                                                                                    username: user.username,
+                                                                                },
+                                                                            });
+
+                if (!account)
                     {
-                        throw new BadRequestException('Token is required');
+                        throw new AccountNotFound();
                     }
 
-                // Verify token
-                const payload = this.jwtService.verify(token.accessToken);
-
-                return {username: payload.username};
+                return account;
             }
     }

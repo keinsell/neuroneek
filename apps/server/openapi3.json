@@ -143,6 +143,54 @@
         }
       }
     },
+    "/auth/password": {
+      "post": {
+        "operationId": "AuthController_basicAuthentication",
+        "summary": "Authenticate using basic authentication",
+        "description": "Operation will authenticate user using basic authentication and return JWT token.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordAuthenticaton"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/auth/whoami": {
+      "post": {
+        "operationId": "whoami",
+        "summary": "Get current user",
+        "description": "Operation will return information about the current user.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "operationId": "healthcheck",
@@ -426,6 +474,42 @@
           "password"
         ]
       },
+      "PasswordAuthenticaton": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "elon_musk"
+          },
+          "password": {
+            "type": "string",
+            "example": "ISendCarsIntoFuckingSpace"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "password"
+        ]
+      },
       "Subject": {
         "type": "object",
         "properties": {
@@ -468,25 +552,6 @@
         },
         "required": [
           "Subject"
-        ]
-      },
-      "Account": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "username",
-          "password"
         ]
       },
       "Ingestion": {
