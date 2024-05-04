@@ -7,7 +7,7 @@
   "deploy": {
     "startCommand": "npx turbo start --filter=@neuronek/server",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 60,
+    "healthcheckTimeout": 120,
     "numReplicas": 1,
     "sleepApplication": true,
     "restartPolicyType": "ON_FAILURE",
