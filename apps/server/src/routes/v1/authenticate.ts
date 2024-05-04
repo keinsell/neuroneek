@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
 import {ApiOkResponse, ApiOperation, ApiProperty} from "@nestjs/swagger"
-import {verify} from "argon2";
+import {verify} from "@node-rs/argon2";
 import {Account} from "../../_gen/account";
 import {JwtAuthorizationGuard} from "../../core/identity/authn/components/guards/jwt-authorization-guard";
 import {GetUser} from "../../core/identity/authn/jwt-authentication-strategy";

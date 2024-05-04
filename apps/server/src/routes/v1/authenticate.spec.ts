@@ -1,7 +1,7 @@
 import {beforeEach, describe, expect, it, jest} from '@jest/globals'
 import {JwtService} from '@nestjs/jwt';
 import {Test, TestingModule} from '@nestjs/testing';
-import argon2, {hash} from "argon2"
+import argon2, {hash} from "@node-rs/argon2"
 import {Prisma, PrismaClient} from 'db';
 import createPrismaMock from "prisma-mock"
 import {createPrismaMockContext} from "../../../test/setup/prisma-context"

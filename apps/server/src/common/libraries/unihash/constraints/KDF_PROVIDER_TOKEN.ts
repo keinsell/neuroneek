@@ -1,1 +1,0 @@
-export const KDF_PROVIDER_TOKEN = 'KDF_PROVIDER_TOKEN'
