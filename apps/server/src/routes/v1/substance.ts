@@ -8,50 +8,6 @@ import {PrismaService} from "../../core/modules/database/prisma/services/prisma-
 import {ApiModel} from "../../utilities/docs-utils/swagger-api-model.js"
 import {RouteOfAdministrationModel} from "./route-of-administration.js"
 
-export class ElapsedDto
-    {
-        @ApiProperty({example: 517147})
-        raw!: number;
-
-        @ApiProperty({example: '517μs'})
-        formatted!: string;
-    }
-
-export class DocumentDto
-    {
-        @ApiProperty({example: 'clvdzrgn6003ef2ftau8csdb0'})
-        id!: string;
-
-        @ApiProperty({example: 'Caffeine'})
-        name!: string;
-
-        @ApiProperty({example: ['Caffeine']})
-        commonNames!: string[];
-    }
-
-export class HitsDto
-    {
-        @ApiProperty({example: 'clvdzrgn6003ef2ftau8csdb0'})
-        id!: string;
-
-        @ApiProperty({example: 14.31518620955737})
-        score!: number;
-
-        @ApiProperty({type: DocumentDto})
-        document!: DocumentDto;
-    }
-
-export class SearchResultsDto
-    {
-        @ApiProperty({type: ElapsedDto})
-        elapsed!: ElapsedDto;
-
-        @ApiProperty({type: [HitsDto]})
-        hits!: HitsDto[];
-
-        @ApiProperty({example: 1})
-        count!: number;
-    }
 
 @ApiModel({name: "Substance"})
 export class SubstanceResponse
