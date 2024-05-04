@@ -1,6 +1,6 @@
 import {BadRequestException, Body, Controller, HttpCode, HttpStatus, Logger, Post} from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
-import {ApiOperation, ApiProperty} from "@nestjs/swagger"
+import {ApiOperation, ApiProperty, ApiTags} from "@nestjs/swagger"
 import {hash} from "@node-rs/argon2"
 import {nanoid} from "nanoid"
 import {Account} from "../../_gen/account"
@@ -40,13 +40,13 @@ export class AccountRegistered
     }
 
 
-export class CreateAccount
+export class RegisterAccount
     {
-        @ApiProperty({example: "elon_musk"}) username!: string;
-        @ApiProperty({example: "ISendCarsIntoFuckingSpace"}) password!: string;
+        @ApiProperty({example: "elon_musk", description: "The user's unique username"}) username!: string;
+        @ApiProperty({example: "ISendCarsIntoFuckingSpace", description: "The user's password"}) password!: string;
     }
 
-
+@ApiTags("Account Management")
 @Controller('account')
 export class AccountController
     {
@@ -57,10 +57,10 @@ export class AccountController
 
 
         @ApiOperation({
-                          summary    : 'Register a new account',
+                          summary    : 'Register account',
                           description: `Operation will register a new account in application allowing user to interact with his namespace.`,
                       }) @Post('register') @HttpCode(HttpStatus.OK)
-        async register(@Body() body: CreateAccount): Promise<Account>
+        async register(@Body() body: RegisterAccount): Promise<Account>
             {
                 if (!body?.password || !body?.username)
                     {

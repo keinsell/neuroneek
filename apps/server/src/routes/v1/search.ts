@@ -9,7 +9,7 @@ import {
     OnApplicationBootstrap,
     Query
 } from "@nestjs/common"
-import {ApiOperation, ApiProperty, ApiQuery, ApiResponse} from "@nestjs/swagger"
+import {ApiOperation, ApiProperty, ApiQuery, ApiResponse, ApiTags} from "@nestjs/swagger"
 import {create, insert, Orama, search, TypedDocument} from '@orama/orama'
 import {Substance} from "db"
 import {PrismaService} from "../../core/modules/database/prisma/services/prisma-service.js"
@@ -76,14 +76,21 @@ export class SearchController
         @Get("/substance")
         @ApiOperation({
                           summary    : 'Search substances',
-                          description: 'Search substances by name or common name',
+                          description: 'Search substances is optimized method for searching for a desired substance in the database, it uses a full-text search algorithm to find the most relevant substances based on the query - the index is built on `name` and `common_names` of the substance.',
                           operationId: 'search-substances',
                       })
         @ApiResponse({
                          status: 200,
                          type  : SubstanceResults,
                      })
-        @ApiQuery({name: 'query', type: String, required: true, example: "Caffeine"})
+        @ApiTags("Substance Warehouse")
+        @ApiQuery({
+                      name       : 'query',
+                      type       : String,
+                      required   : true,
+                      example    : "Caffeine",
+                      description: "Query for name of the substance (case-insensitive)."
+                  })
         async search(@Query('query') query: string): Promise<SubstanceResults>
             {
                 if (!this.substanceSearchDatabase)

@@ -2,7 +2,7 @@
 
 import {TypedParam} from "@nestia/core"
 import {Controller, Get, Logger, NotFoundException} from "@nestjs/common"
-import {ApiOperation, ApiProperty, ApiResponse} from "@nestjs/swagger"
+import {ApiOperation, ApiParam, ApiProperty, ApiResponse, ApiTags} from "@nestjs/swagger"
 import {Substance} from "db"
 import {PrismaService} from "../../core/modules/database/prisma/services/prisma-service.js"
 import {ApiModel} from "../../utilities/docs-utils/swagger-api-model.js"
@@ -87,6 +87,7 @@ export class SubstanceNotFound
     }
 
 
+@ApiTags("Substance Warehouse")
 @Controller('substance')
 export class SubstanceController
     {
@@ -98,8 +99,19 @@ export class SubstanceController
         @ApiResponse({
                          status: 200,
                          type  : SubstanceResponse,
-                     }) @Get("/:id") @ApiOperation({summary: "Get substance by id"})
-        async getSubstanceById(@TypedParam('id') id: string): Promise<SubstanceResponse>
+                     }) @Get("/:substanceId") @ApiOperation(
+            {
+                summary    : "Get Substance By ID",
+                description: `Get substance by ID or throw 404 if not found.`,
+                operationId: "get-substance-by-id"
+            })
+        @ApiParam({
+                      name       : 'substanceId',
+                      description: 'The ID of the substance',
+                      required   : true,
+                      example    : 'clvdzrfzj0000f2ftr6cm3fjr',
+                  })
+        async getSubstanceById(@TypedParam('substanceId') id: string): Promise<SubstanceResponse>
             {
                 this.logger.debug(`Fetching substance by id: ${id}`)
                 // Validate input param to be a string
@@ -125,6 +137,11 @@ export class SubstanceController
             }
 
 
+        @ApiOperation({
+                          summary    : "Get All Substances",
+                          description: "Get all substances from the database.",
+                          operationId: "get-all-substances",
+                      })
         @ApiResponse({
                          status: 200,
                          type  : [SubstanceResponse],

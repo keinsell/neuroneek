@@ -1,11 +1,21 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/substance/{id}": {
+    "/substance/{substanceId}": {
       "get": {
-        "operationId": "SubstanceController_getSubstanceById",
-        "summary": "Get substance by id",
-        "parameters": [],
+        "operationId": "get-substance-by-id",
+        "summary": "Get Substance By ID",
+        "description": "Get substance by ID or throw 404 if not found.",
+        "parameters": [
+          {
+            "name": "substanceId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the substance",
+            "example": "clvdzrfzj0000f2ftr6cm3fjr",
+            "schema": {}
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -17,12 +27,17 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Substance Warehouse"
+        ]
       }
     },
     "/substance": {
       "get": {
-        "operationId": "SubstanceController_getAllSubstances",
+        "operationId": "get-all-substances",
+        "summary": "Get All Substances",
+        "description": "Get all substances from the database.",
         "parameters": [],
         "responses": {
           "200": {
@@ -38,7 +53,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Substance Warehouse"
+        ]
       }
     },
     "/route-of-administration/{id}": {
@@ -123,7 +141,7 @@
     "/account/register": {
       "post": {
         "operationId": "AccountController_register",
-        "summary": "Register a new account",
+        "summary": "Register account",
         "description": "Operation will register a new account in application allowing user to interact with his namespace.",
         "parameters": [],
         "requestBody": {
@@ -131,7 +149,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateAccount"
+                "$ref": "#/components/schemas/RegisterAccount"
               }
             }
           }
@@ -140,7 +158,10 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Account Management"
+        ]
       }
     },
     "/auth/password": {
@@ -195,13 +216,14 @@
       "get": {
         "operationId": "search-substances",
         "summary": "Search substances",
-        "description": "Search substances by name or common name",
+        "description": "Search substances is optimized method for searching for a desired substance in the database, it uses a full-text search algorithm to find the most relevant substances based on the query - the index is built on `name` and `common_names` of the substance.",
         "parameters": [
           {
             "name": "query",
             "required": true,
             "in": "query",
             "example": "Caffeine",
+            "description": "Query for name of the substance (case-insensitive).",
             "schema": {
               "type": "string"
             }
@@ -218,7 +240,48 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Substance Warehouse"
+        ]
+      }
+    },
+    "/ingestion": {
+      "post": {
+        "operationId": "create-ingestion",
+        "summary": "Create ingestion",
+        "description": "Create ingestion for a subject.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIngestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
       }
     },
     "/health": {
@@ -389,13 +452,51 @@
     }
   },
   "info": {
-    "title": "neuronek-api",
-    "description": "Neuronek is a service that provides a RESTful API for providing substance information.",
-    "version": "1.0",
-    "contact": {}
+    "title": "🧬 Neuronek",
+    "description": "Neuronek is open, community-driven database of psychoactive substances, their interactions and effects with the goal of providing accurate and relevant information to users. And also to provide tools for tracking and managing personal substance usage.\n\n\nPlease note API will be rate limited to 10 req/s and 100 req/hour due to low resources available for this service. With the growth of the service we will be able to provide more resources for the API but for now we have to limit the usage - special thanks to the [Railway](https://railway.app?referralCode=hvVUux) for providing us with free resources to host this service.",
+    "version": "0.0.1-dev",
+    "contact": {
+      "name": "Jakub Olan",
+      "url": "https://github.com/keinsell",
+      "email": "keinsell@protonmail.com"
+    }
   },
-  "tags": [],
-  "servers": [],
+  "tags": [
+    {
+      "name": "Substance Warehouse",
+      "description": "Substance Warehouse is community-led database of dosages, effects and interactions, currently it is a read-only database of substances from [PsychonautWiki](https://psychonautwiki.org) however in near future data from other resources will be integrated with ability to do changes on data that is available in API."
+    },
+    {
+      "name": "Account Management",
+      "description": "Application have set of features that allow users to isolate their data from general data - in order to use user-spaced features of application one is supposed to create account and use authentication.",
+      "externalDocs": {
+        "description": "asdsasad",
+        "url": ""
+      }
+    },
+    {
+      "name": "Authentication",
+      "description": ""
+    },
+    {
+      "name": "Ingestion Journal",
+      "description": "Ingestion Journal collects information about historical user ingestion's in order to provide user with insights about his habits and patterns."
+    },
+    {
+      "name": "Search Engine",
+      "description": "Search Engine allows user to search substances by name, effects, interactions and other properties. We prepared vectorized full-text search algorithm to provide most relevant results for user query. And in the future we are planning to prepare multiple indexes that will allow for graph-based queries to find the right data you need in record time."
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:1337",
+      "description": "Local API"
+    },
+    {
+      "url": "https://api.neuronek.xyz",
+      "description": "Production API"
+    }
+  ],
   "components": {
     "securitySchemes": {
       "bearer": {
@@ -487,16 +588,18 @@
           "routes_of_administration"
         ]
       },
-      "CreateAccount": {
+      "RegisterAccount": {
         "type": "object",
         "properties": {
           "username": {
             "type": "string",
-            "example": "elon_musk"
+            "example": "elon_musk",
+            "description": "The user's unique username"
           },
           "password": {
             "type": "string",
-            "example": "ISendCarsIntoFuckingSpace"
+            "example": "ISendCarsIntoFuckingSpace",
+            "description": "The user's password"
           }
         },
         "required": [
@@ -628,6 +731,79 @@
           "count"
         ]
       },
+      "CreateIngestion": {
+        "type": "object",
+        "properties": {
+          "substanceId": {
+            "type": "string",
+            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information."
+          },
+          "ingestionDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of ingestion.",
+            "example": "2024-05-04T18:34:01.253Z"
+          },
+          "routeOfAdministration": {
+            "type": "string",
+            "description": "Route of administration for the substance.",
+            "enum": [
+              "oral",
+              "sublingual",
+              "buccal",
+              "insufflated",
+              "rectal",
+              "transdermal",
+              "subcutaneous",
+              "intramuscular",
+              "interavenous",
+              "smoked"
+            ],
+            "example": "oral"
+          }
+        },
+        "required": [
+          "substanceId",
+          "ingestionDate",
+          "routeOfAdministration"
+        ]
+      },
+      "Ingestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "routeOfAdministration": {
+            "type": "string"
+          },
+          "dosage_unit": {
+            "type": "string"
+          },
+          "dosage_amount": {
+            "type": "number"
+          },
+          "isEstimatedDosage": {
+            "type": "boolean"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "stashId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
       "Subject": {
         "type": "object",
         "properties": {
@@ -670,42 +846,6 @@
         },
         "required": [
           "Subject"
-        ]
-      },
-      "Ingestion": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "substanceName": {
-            "type": "string"
-          },
-          "routeOfAdministration": {
-            "type": "string"
-          },
-          "dosage_unit": {
-            "type": "string"
-          },
-          "dosage_amount": {
-            "type": "number"
-          },
-          "isEstimatedDosage": {
-            "type": "boolean"
-          },
-          "date": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "subject_id": {
-            "type": "string"
-          },
-          "stashId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id"
         ]
       },
       "Stash": {

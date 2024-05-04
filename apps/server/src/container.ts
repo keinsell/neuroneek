@@ -12,6 +12,7 @@ import {DocumentationModule} from './core/modules/documentation/documentation-mo
 import {GraphqlModule} from './core/modules/graphql/graphql-module.js';
 import {AccountController} from "./routes/v1/account"
 import {AuthController} from "./routes/v1/authenticate";
+import {IngestionController} from "./routes/v1/ingestion";
 import {RouteOfAdministrationController} from "./routes/v1/route-of-administration.js"
 import {SearchController} from "./routes/v1/search";
 import {SubstanceController} from "./routes/v1/substance.js"
@@ -26,7 +27,7 @@ import {SubstanceController} from "./routes/v1/substance.js"
                     }), PassportModule
             ],
             controllers: [
-                SubstanceController, RouteOfAdministrationController, AccountController, AuthController, SearchController
+                SubstanceController, RouteOfAdministrationController, AccountController, AuthController, SearchController, IngestionController
             ],
             providers  : [JwtStrategy],
         })
