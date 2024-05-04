@@ -85,6 +85,7 @@
     "@opentelemetry/sdk-trace-base": "^1.24.0",
     "@opentelemetry/sdk-trace-node": "^1.24.0",
     "@opentelemetry/semantic-conventions": "^1.24.0",
+    "@orama/orama": "^2.0.17",
     "@prisma/client": "5.13.0",
     "@prisma/engines": "^5.13.0",
     "@prisma/fetch-engine": "5.13.0",
