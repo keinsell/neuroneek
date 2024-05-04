@@ -249,7 +249,7 @@
     "/ingestion": {
       "post": {
         "operationId": "create-ingestion",
-        "summary": "Create ingestion",
+        "summary": "[WIP] Create ingestion",
         "description": "Create ingestion for a subject.",
         "parameters": [],
         "requestBody": {
@@ -736,7 +736,8 @@
         "properties": {
           "substanceId": {
             "type": "string",
-            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information."
+            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information.",
+            "example": "clvdzrg000003f2ftwlzzelog"
           },
           "ingestionDate": {
             "format": "date-time",
@@ -760,12 +761,37 @@
               "smoked"
             ],
             "example": "oral"
+          },
+          "dosageAmont": {
+            "type": "number",
+            "description": "Dosage amount.",
+            "example": 10
+          },
+          "dosageUnit": {
+            "type": "string",
+            "description": "Unit of the dosage amount.",
+            "example": "mg"
+          },
+          "dosageEstimated": {
+            "type": "boolean",
+            "description": "If the dosage is estimated.",
+            "default": false,
+            "example": false
+          },
+          "dosageEstimationStandardDeviation": {
+            "type": "number",
+            "description": "If the dosage is estimated, this is the standard deviation of the estimation. This is amount of unit choosen in dosageUnit.",
+            "example": 0.5
           }
         },
         "required": [
           "substanceId",
           "ingestionDate",
-          "routeOfAdministration"
+          "routeOfAdministration",
+          "dosageAmont",
+          "dosageUnit",
+          "dosageEstimated",
+          "dosageEstimationStandardDeviation"
         ]
       },
       "Ingestion": {
