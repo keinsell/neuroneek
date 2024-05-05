@@ -164,10 +164,31 @@
         ]
       }
     },
+    "/account/delete": {
+      "post": {
+        "operationId": "AccountController_deleteAccount",
+        "summary": "Delete account",
+        "description": "Operation will delete account from the system. This operation is irreversible.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Account Management"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/auth/password": {
       "post": {
         "operationId": "AuthController_basicAuthentication",
-        "summary": "Authenticate using basic authentication",
+        "summary": "Password Authentication",
         "description": "Operation will authenticate user using basic authentication and return JWT token.",
         "parameters": [],
         "requestBody": {
@@ -184,19 +205,17 @@
           "200": {
             "description": ""
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ]
       }
     },
     "/auth/whoami": {
       "post": {
         "operationId": "whoami",
-        "summary": "Get current user",
+        "summary": "Whoami",
         "description": "Operation will return information about the current user.",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -209,7 +228,15 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
       }
     },
     "/search/substance": {
@@ -291,6 +318,16 @@
         "summary": "🚧 Create subject",
         "description": "Creates a new subject for currently authenticated account. We recommend using only one subject profile for now as using multiple ones can lead to unexpected bugs.",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubject"
+              }
+            }
+          }
+        },
         "responses": {
           "201": {
             "description": ""
@@ -298,6 +335,11 @@
         },
         "tags": [
           "Subject Profile"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
         ]
       },
       "get": {
@@ -892,6 +934,27 @@
         "required": [
           "id"
         ]
+      },
+      "CreateSubject": {
+        "type": "object",
+        "properties": {
+          "givenName": {
+            "type": "string",
+            "description": "Given name of the subject",
+            "example": "Albert"
+          },
+          "familyName": {
+            "type": "string",
+            "description": "Family name of the subject",
+            "example": "Einstein"
+          },
+          "birthDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Birth date of the subject",
+            "example": "1879-03-14T00:00:00.000Z"
+          }
+        }
       },
       "Subject": {
         "type": "object",
