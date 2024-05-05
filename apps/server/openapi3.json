@@ -242,6 +242,7 @@
           }
         },
         "tags": [
+          "Search Engine",
           "Substance Warehouse"
         ]
       }
@@ -249,7 +250,7 @@
     "/ingestion": {
       "post": {
         "operationId": "create-ingestion",
-        "summary": "[WIP] Create ingestion",
+        "summary": "🚧 Create ingestion",
         "description": "Create ingestion for a subject.",
         "parameters": [],
         "requestBody": {
@@ -281,6 +282,64 @@
           {
             "bearer": []
           }
+        ]
+      }
+    },
+    "/subject": {
+      "post": {
+        "operationId": "create-subject",
+        "summary": "🚧 Create subject",
+        "description": "Creates a new subject for currently authenticated account. We recommend using only one subject profile for now as using multiple ones can lead to unexpected bugs.",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      },
+      "get": {
+        "operationId": "get-subject",
+        "summary": "🚧 Get subject",
+        "description": "Retrieves the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      },
+      "put": {
+        "operationId": "update-subject",
+        "summary": "🚧 Update subject",
+        "description": "Updates the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      },
+      "delete": {
+        "operationId": "delete-subject",
+        "summary": "🚧 Delete subject",
+        "description": "Deletes the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
         ]
       }
     },
@@ -473,6 +532,10 @@
         "description": "asdsasad",
         "url": ""
       }
+    },
+    {
+      "name": "Subject Profile",
+      "description": "Subject Profiles are fictional characters owned by Account to which we assign ingestion information or other related data"
     },
     {
       "name": "Authentication",

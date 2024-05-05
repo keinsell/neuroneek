@@ -71,7 +71,7 @@ export class IngestionController {
 
   @ApiBearerAuth()
   @ApiOperation({
-    summary: '[WIP] Create ingestion',
+    summary: '🚧 Create ingestion',
     description: 'Create ingestion for a subject.',
     operationId: 'create-ingestion',
   })
