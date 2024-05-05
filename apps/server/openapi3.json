@@ -568,6 +568,10 @@
       "description": "Substance Warehouse is community-led database of dosages, effects and interactions, currently it is a read-only database of substances from [PsychonautWiki](https://psychonautwiki.org) however in near future data from other resources will be integrated with ability to do changes on data that is available in API."
     },
     {
+      "name": "Search Engine",
+      "description": "Search Engine allows user to search substances by name, effects, interactions and other properties. We prepared vectorized full-text search algorithm to provide most relevant results for user query. And in the future we are planning to prepare multiple indexes that will allow for graph-based queries to find the right data you need in record time."
+    },
+    {
       "name": "Account Management",
       "description": "Application have set of features that allow users to isolate their data from general data - in order to use user-spaced features of application one is supposed to create account and use authentication.",
       "externalDocs": {
@@ -586,22 +590,9 @@
     {
       "name": "Ingestion Journal",
       "description": "Ingestion Journal collects information about historical user ingestion's in order to provide user with insights about his habits and patterns."
-    },
-    {
-      "name": "Search Engine",
-      "description": "Search Engine allows user to search substances by name, effects, interactions and other properties. We prepared vectorized full-text search algorithm to provide most relevant results for user query. And in the future we are planning to prepare multiple indexes that will allow for graph-based queries to find the right data you need in record time."
     }
   ],
-  "servers": [
-    {
-      "url": "http://localhost:1337",
-      "description": "Local API"
-    },
-    {
-      "url": "https://api.neuronek.xyz",
-      "description": "Production API"
-    }
-  ],
+  "servers": [],
   "components": {
     "securitySchemes": {
       "bearer": {
