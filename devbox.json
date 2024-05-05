@@ -18,7 +18,8 @@
     "starship@latest",
     "zsh@latest",
     "k6@latest",
-    "vlang@latest"
+    "vlang@latest",
+    "nixpacks@latest"
   ],
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
@@ -28,8 +29,8 @@
       "pnpm install"
     ],
     "scripts": {
-      "test": [
-        "echo \"Error: no test specified\" && exit 1"
+      "build:nixpack": [
+        "nixpacks build ./"
       ]
     }
   }

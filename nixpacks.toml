@@ -1,0 +1,15 @@
+providers = ["node"]
+
+[phases.setup]
+# nixPkgs = ["...", "ffmpeg"] # Install the ffmpeg package from Nix
+# nixLibs = [
+#     "...",
+#     "gcc-unwrapped",
+# ] # Install the gcc-unwrapped package from Nix and add it to the LD_LIBRARY_PATH
+# aptPkgs = ["...", "wget"] # Install the wget package with apt-get
+
+[phases.build]
+cmds = ["npx turbo build --filter=@neuronek/server"]
+
+[start]
+cmd = "npx turbo start --filter=@neuronek/server"
