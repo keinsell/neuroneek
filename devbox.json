@@ -19,7 +19,8 @@
     "zsh@latest",
     "k6@latest",
     "vlang@latest",
-    "nixpacks@latest"
+    "nixpacks@latest",
+    "gleam@latest"
   ],
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
