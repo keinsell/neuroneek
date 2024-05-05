@@ -71,7 +71,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RouteOfAdministrationModel"
+                  "$ref": "#/components/schemas/RouteOfAdministration"
                 }
               }
             }
@@ -129,7 +129,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/RouteOfAdministrationModel"
+                    "$ref": "#/components/schemas/RouteOfAdministration"
                   }
                 }
               }
@@ -604,17 +604,26 @@
       }
     },
     "schemas": {
-      "RouteOfAdministrationModel": {
+      "RouteOfAdministration": {
         "type": "object",
         "properties": {
           "id": {
-            "type": "string",
-            "description": "The ID of the route of administration",
-            "example": "clvdzrfzj0000f2ftr6cm3fjr"
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bioavailability": {
+            "type": "number"
           }
         },
         "required": [
-          "id"
+          "id",
+          "name",
+          "bioavailability"
         ]
       },
       "SubstanceResponse": {
@@ -671,7 +680,7 @@
             "nullable": true,
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/RouteOfAdministrationModel"
+              "$ref": "#/components/schemas/RouteOfAdministration"
             }
           }
         },
@@ -1055,28 +1064,6 @@
         "required": [
           "Ingestions",
           "Stash"
-        ]
-      },
-      "RouteOfAdministration": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "substanceName": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "bioavailability": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "bioavailability"
         ]
       },
       "SubstanceInteraction": {
