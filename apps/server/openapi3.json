@@ -310,6 +310,32 @@
             "bearer": []
           }
         ]
+      },
+      "get": {
+        "operationId": "list-ingestions",
+        "summary": "🚧 List ingestions",
+        "description": "List ingestions for a subject.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ingestions listed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
       }
     },
     "/subject": {
@@ -887,6 +913,11 @@
             "type": "number",
             "description": "If the dosage is estimated, this is the standard deviation of the estimation. This is amount of unit choosen in dosageUnit.",
             "example": 0.5
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Identifier of the subject that ingested the substance.",
+            "example": "clvdzrg000003f2ftwlzzelog"
           }
         },
         "required": [
@@ -896,7 +927,8 @@
           "dosageAmont",
           "dosageUnit",
           "dosageEstimated",
-          "dosageEstimationStandardDeviation"
+          "dosageEstimationStandardDeviation",
+          "subjectId"
         ]
       },
       "Ingestion": {
@@ -1179,7 +1211,8 @@
             "type": "string"
           },
           "common_names": {
-            "type": "string"
+            "type": "string",
+            "description": "Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition."
           },
           "brand_names": {
             "type": "string"

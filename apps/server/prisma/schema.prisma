@@ -31,7 +31,7 @@ model Subject {
   dateOfBirth DateTime?
   weight      Int?
   height      Int?
-  account_id  String?     @unique
+  account_id  String?
   account     Account?    @relation(fields: [account_id], references: [id])
   Ingestions  Ingestion[]
   Stash       Stash[]
@@ -135,8 +135,8 @@ model Ingestion {
   dosage_amount         Int?
   isEstimatedDosage     Boolean?   @default(false)
   date                  DateTime?
-  subject_id            String?
-  Subject               Subject?   @relation(fields: [subject_id], references: [id])
+  subject_id            String
+  Subject               Subject    @relation(fields: [subject_id], references: [id])
   Substance             Substance? @relation(fields: [substanceName], references: [name])
   Stash                 Stash?     @relation(fields: [stashId], references: [id])
   stashId               String?

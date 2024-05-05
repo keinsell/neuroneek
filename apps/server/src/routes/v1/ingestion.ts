@@ -1,6 +1,6 @@
 // Main controller for building ingestion routes.
 
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -12,7 +12,9 @@ import { RouteOfAdministrationClassification } from '@neuronek/osiris';
 import { Ingestion } from '../../_gen/ingestion';
 import { PrismaService } from '../../core/modules/database/prisma/services/prisma-service';
 import { SubstanceNotFound } from './substance';
-import { Prisma } from '@neuronek/db/generated/prisma-client';
+import { Account, Prisma } from '@neuronek/db/generated/prisma-client';
+import { GetUser } from '../../core/identity/authn/jwt-authentication-strategy';
+import { JwtAuthorizationGuard } from '../../core/identity/authn/components/guards/jwt-authorization-guard';
 
 export class CreateIngestion {
   @ApiProperty({
@@ -62,6 +64,13 @@ export class CreateIngestion {
   })
   /** If the dosage is estimated, this is the standard deviation of the estimation. */
   dosageEstimationStandardDeviation?: number;
+
+  @ApiProperty({
+    description: 'Identifier of the subject that ingested the substance.',
+    example: 'clvdzrg000003f2ftwlzzelog',
+    required: true,
+  })
+  subjectId!: string;
 }
 
 @ApiTags('Ingestion Journal')
@@ -104,12 +113,39 @@ export class IngestionController {
           id: substance.id,
         },
       },
+      Subject: {
+        connect: {
+          id: createIngestion.subjectId,
+        }
+      }
     };
 
     const ingestion = await this.prismaService.ingestion.create({
-      data: createIngestionEntry,
+      data: createIngestionEntry as any,
     });
 
     return ingestion as any;
+  }
+
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthorizationGuard)
+  @ApiOperation({
+    summary: '🚧 List ingestions',
+    description: 'List ingestions for a subject.',
+    operationId: 'list-ingestions',
+  })
+  @ApiOkResponse({
+    type: Ingestion,
+    description: 'Ingestions listed.',
+  })
+  @Get()
+  async listIngestions(
+    @GetUser() user: Account,
+  ): Promise<Ingestion[]> {
+    // 1. Find the substance by ID
+    const ingestions = await this.prismaService.ingestion.findMany({ where: { Subject: { account_id: user.id } } });
+
+    return ingestions as any;
   }
 }

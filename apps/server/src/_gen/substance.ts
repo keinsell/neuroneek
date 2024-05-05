@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 
 
@@ -11,7 +11,7 @@ export class Substance {
   @ApiProperty({ type: String })
   name: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({ type: String, description: "Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition." })
   common_names?: string;
 
   @ApiPropertyOptional({ type: String })

@@ -145,7 +145,7 @@ class GetPsychonautwiki(FlowSpec):
                                  dangerousInteractions {
                                      name
                                  }
-    
+
                                  effects {
                                      name
                                      url
