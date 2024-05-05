@@ -1,99 +1,100 @@
 {
-  "$schema"     : "https://turborepo.org/schema.json" ,
-  "pipeline"    : {
-	"format"                 : { } ,
-	"lint"                   : {
-	  "outputs" : [ ]
-	} ,
-	"test"                   : {
-	  "inputs"    : [
-		"src/**/*.test.ts"
-	  ] ,
-	  "dependsOn" : [
-		"^build" ,
-		"^db:generate"
-	  ] ,
-	  "cache"     : false
-	} ,
-	"prebuild"               : {
-	  "outputs" : [
-		"dist/**" ,
-		".next/**" ,
-		"public/dist/**" ,
-		"node_modules/@prisma/client"
-	  ] ,
-	  "cache"   : true
-	} ,
-	"build"                  : {
-	  "dependsOn" : [
-		"^prebuild" ,
-		"^build" ,
-		"^db:generate"
-	  ] ,
-	  "outputs"   : [
-		"dist/**" ,
-		".next/**" ,
-		"public/dist/**"
-	  ] ,
-	  "cache"     : true
-	} ,
-	"@neuronek/server#build" : {
-	  "dependsOn" : [
-		"^build" ,
-		"@neuronek/server#db:generate"
-	  ] ,
-	  "cache"     : false
-	} ,
-	"@neuronek/server#start" : {
-	  "dependsOn" : [
-		"^build" ,
-		"@neuronek/server#db:migrate:deploy"
-	  ] ,
-	  "cache"     : false
-	} ,
-	"start"                  : {
-	  "dependsOn" : [
-		"^build"
-	  ] ,
-	  "cache"     : false
-	} ,
-	"dev"                    : {
-	  "cache"     : false ,
-	  "dependsOn" : [
-		"^build"
-	  ]
-	} ,
-	"db:migrate:deploy"      : {
-	  "outputs" : [ ] ,
-	  "cache"   : false
-	} ,
-	"db:push"                : {
-	  "outputs" : [ ] ,
-	  "cache"   : false
-	} ,
-	"db:seed"                : {
-	  "outputs" : [ ] ,
-	  "cache"   : false
-	} ,
-	"db:studio"              : {
-	  "outputs" : [ ] ,
-	  "cache"   : false
-	} ,
-	"db:generate"            : {
-	  "cache" : false
-	} ,
-	"data:build"             : {
-	  "dependsOn" : [
-		"^build"
-	  ] ,
-	  "outputs"   : [
-		".cache" ,
-		".metaflow" ,
-		"prisma/dev.db"
-	  ]
-	}
-  } ,
-  "remoteCache" : {
-	"signature" : true
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "format": {},
+    "lint": {
+      "outputs": []
+    },
+    "test": {
+      "inputs": [
+        "src/**/*.test.ts"
+      ],
+      "dependsOn": [
+        "^build",
+        "^db:generate"
+      ],
+      "cache": false
+    },
+    "prebuild": {
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "public/dist/**",
+        "node_modules/@prisma/client"
+      ],
+      "cache": true
+    },
+    "build": {
+      "dependsOn": [
+        "^prebuild",
+        "^build",
+        "^db:generate"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "public/dist/**"
+      ],
+      "cache": true
+    },
+    "@neuronek/server#build": {
+      "dependsOn": [
+        "^build",
+        "@neuronek/server#db:generate"
+      ],
+      "cache": false
+    },
+    "@neuronek/server#start": {
+      "dependsOn": [
+        "@neuronek/server#build",
+        "^build",
+        "@neuronek/server#db:migrate:deploy"
+      ],
+      "cache": false
+    },
+    "start": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "db:migrate:deploy": {
+      "outputs": [],
+      "cache": false
+    },
+    "db:push": {
+      "outputs": [],
+      "cache": false
+    },
+    "db:seed": {
+      "outputs": [],
+      "cache": false
+    },
+    "db:studio": {
+      "outputs": [],
+      "cache": false
+    },
+    "db:generate": {
+      "cache": false
+    },
+    "data:build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".cache",
+        ".metaflow",
+        "prisma/dev.db"
+      ]
+    }
+  },
+  "remoteCache": {
+    "signature": true
   }
 }
