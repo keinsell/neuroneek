@@ -16,6 +16,8 @@ substances in a safe and healthy way, regardless of their personal goals or usag
 dosing recommendations, insights into usage patterns, a comprehensive database of substances, and a community of users
 who are also interested in promoting responsible usage of these substances.
 
+**8 May 2024**: Special thanks for current >10 ⭐ stargazzers, that mean a lot.
+
 <h2 align="center">Getting started</h2>
 
 <br>
