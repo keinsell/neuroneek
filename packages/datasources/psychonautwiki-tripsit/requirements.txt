@@ -3,7 +3,7 @@ argparse==1.4.0
 async-timeout==3.0.1
 attrs==21.2.0
 beautifulsoup4==4.9.3
-black==21.9b0
+black==24.3.0
 bs4==0.0.1
 certifi==2023.7.22
 chardet==4.0.0
