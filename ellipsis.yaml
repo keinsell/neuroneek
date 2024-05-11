@@ -6,6 +6,11 @@ workspace_type: "internal_ec2"
 
 pr_review:
   confidence_threshold: 0.7
+  auto_review_enabled: true
+  auto_review_draft: true
+  auto_summarize_pr: true
+  pr_address_comments: 
+    delivery: "new_commit"
   rules:
     - "Code should be DRY (Dont Repeat Yourself)"
     - "There should no secrets or credentials in the code"
