@@ -9,4 +9,8 @@ build:
   commands:
     - command: "echo 'hello world'"
       description: "This is an example command, replace it with your own."
-
+    - name: "lint_all"
+      description: "Lints the code in fix mode, which will fix some errors, format some files, and throw and error when there are violations."
+    - name: "build"
+      description: "Runs build"
+      command: "npx turbo build"
