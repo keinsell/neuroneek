@@ -10,6 +10,7 @@ _tlbs_database_diff:
 
 _tlbs_database_diff:
     tlbs diff
+    tlbs diff
 
 _tlbs_database_lint:
     tlbs diff
