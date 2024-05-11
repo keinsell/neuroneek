@@ -59,6 +59,10 @@
     pkgs.oxlint
     pkgs.ezno
     pkgs.eslint_d
+    pkgs.go-task
+    pkgs.just
+    pkgs.nixpacks
+    pkgs.tbls
  ];
 
   # https://devenv.sh/scripts/

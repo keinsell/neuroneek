@@ -3,11 +3,7 @@
     "vscode": {
       "extensions": [
         "mkhl.direnv",
-        "prisma.prisma",
-        "oxc.oxc-vscode",
-        "biomejs.biome-nightly",
-        "SDFLabs.sdf-analyzer",
-        "alberto-varela.unsafe-typescript"
+        "prisma.prisma"
       ]
     }
   },
