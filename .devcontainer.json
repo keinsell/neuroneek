@@ -1,0 +1,17 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mkhl.direnv",
+        "prisma.prisma",
+        "oxc.oxc-vscode",
+        "biomejs.biome-nightly",
+        "SDFLabs.sdf-analyzer",
+        "alberto-varela.unsafe-typescript"
+      ]
+    }
+  },
+  "image": "ghcr.io/cachix/devenv:latest",
+  "overrideCommand": false,
+  "updateContentCommand": "devenv test"
+}
