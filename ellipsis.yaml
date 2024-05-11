@@ -4,6 +4,12 @@ version: 1.3
 
 workspace_type: "internal_ec2"
 
+pr_review:
+  confidence_threshold: 0.7
+  rules:
+    - "Code should be DRY (Dont Repeat Yourself)"
+    - "There should no secrets or credentials in the code"
+
 build:
   file: "ellipsis.Dockerfile"
   commands:
