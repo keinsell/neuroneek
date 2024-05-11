@@ -131,3 +131,10 @@ dist
 out
 cache.db.json
 .idea
+/docs/.obsidian/plugins/smart-connections/data.json
+/docs/.makemd/
+/docs/.assets/icons/tabler-icons/
+/docs/.assets/icons/coolicons/
+docs/.obsidian/workspace.json
+/docs/.smart-connections/
+/docs/Chat/

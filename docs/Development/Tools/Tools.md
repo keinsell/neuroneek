@@ -1,0 +1,5 @@
+- All product-related tasks are managed with usage of [[Linear]] in iterative way, which means we close/reopen tasks once they "get on the table" again.
+- Documentation is managed with [[Obsidian]]/[[Logseq]] with plans to later publish these docs  with [[Starlight]] or [[Gitbook]].
+- Communication in project should be public and accessible for everyone (with all of the hate forward Discord Communities which hide knowledge in deep web and then people cannot google problems and shit). 
+- [[D2]] for diagramming and designing system architecture.
+- [[devenv]] with [[direnv]] for maintaining same development environment for all team members.

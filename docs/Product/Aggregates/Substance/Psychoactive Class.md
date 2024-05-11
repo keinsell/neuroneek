@@ -1,0 +1,3 @@
+The psychoactive class that the substance belongs to (e.g. stimulant, depressant, hallucinogen, etc.). This field could be a reference to a separate `PsychoactiveClass` value object.
+
+- There is finite number of Psychoactive Classes, they may be as well hard-coded or defined in database as "editable" however I do not think we need all of the information about them for now, just a small enum should do the trick.
