@@ -1,0 +1,1 @@
+The chemical class that the substance belongs to (e.g. benzodiazepine, tryptamine, etc.)

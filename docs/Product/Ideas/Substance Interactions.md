@@ -1,0 +1,1 @@
+Database or API integration to warn about potential negative combos.

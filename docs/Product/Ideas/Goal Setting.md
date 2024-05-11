@@ -1,0 +1,1 @@
+Users define what they want to achieve (reduce anxiety, improve focus), app tailors insights.

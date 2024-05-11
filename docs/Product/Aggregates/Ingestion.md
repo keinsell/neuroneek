@@ -1,0 +1,3 @@
+- Ingestion is a single log of what, when, where, how and why we're taken.
+- Defines the route of which [[Subject]] administrated [[Substance]]
+- Defines the context related to ingestion (can be place, setting, friends and other for detailed analysis)

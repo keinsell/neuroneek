@@ -1,0 +1,1 @@
+Event that indicates specific [[Identity]] have provided correct username and password and by such case `JwtToken` was created as output, such event most likely should contain information about [[Identity]] and generated JWT.

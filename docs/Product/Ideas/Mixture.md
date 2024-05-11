@@ -1,0 +1,1 @@
+Mixture is a potential name for a multiple [[Intrigent]] that comes into Mixture, and when [[Subject]] is defining [[Ingestion]] he can choose if it's a single [[Substance]]/[[Intrigent]] or [[Mixture]]. As [[Ingestion]] is just a single log.
