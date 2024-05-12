@@ -130,7 +130,7 @@ dist
 
 out
 cache.db.json
-.idea
+
 /docs/.obsidian/plugins/smart-connections/data.json
 /docs/.makemd/
 /docs/.assets/icons/tabler-icons/
@@ -138,3 +138,12 @@ cache.db.json
 docs/.obsidian/workspace.json
 /docs/.smart-connections/
 /docs/Chat/
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml

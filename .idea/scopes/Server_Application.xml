@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="Server Application" pattern="file[neuronek]:apps/server//*" />
+</component>
