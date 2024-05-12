@@ -311,6 +311,42 @@
           }
         ]
       },
+      "patch": {
+        "operationId": "update-ingestion",
+        "summary": "🚧 Update ingestion",
+        "description": "Update ingestion for a subject.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIngestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
       "get": {
         "operationId": "list-ingestions",
         "summary": "🚧 List ingestions",
@@ -966,6 +1002,65 @@
         "required": [
           "id"
         ]
+      },
+      "UpdateIngestion": {
+        "type": "object",
+        "properties": {
+          "substanceId": {
+            "type": "string",
+            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          },
+          "ingestionDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of ingestion.",
+            "example": "2024-05-04T18:34:01.253Z"
+          },
+          "routeOfAdministration": {
+            "type": "string",
+            "description": "Route of administration for the substance.",
+            "enum": [
+              "oral",
+              "sublingual",
+              "buccal",
+              "insufflated",
+              "rectal",
+              "transdermal",
+              "subcutaneous",
+              "intramuscular",
+              "interavenous",
+              "smoked"
+            ],
+            "example": "oral"
+          },
+          "dosageAmont": {
+            "type": "number",
+            "description": "Dosage amount.",
+            "example": 10
+          },
+          "dosageUnit": {
+            "type": "string",
+            "description": "Unit of the dosage amount.",
+            "example": "mg"
+          },
+          "dosageEstimated": {
+            "type": "boolean",
+            "description": "If the dosage is estimated.",
+            "default": false,
+            "example": false
+          },
+          "dosageEstimationStandardDeviation": {
+            "type": "number",
+            "description": "If the dosage is estimated, this is the standard deviation of the estimation. This is amount of unit choosen in dosageUnit.",
+            "example": 0.5
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Identifier of the subject that ingested the substance.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          }
+        }
       },
       "CreateSubject": {
         "type": "object",

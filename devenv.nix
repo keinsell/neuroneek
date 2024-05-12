@@ -83,6 +83,7 @@
     ${lib.generators.toKeyValue {} (lib.mapAttrs (name: value: value.description) config.scripts)}
     EOF
     echo
+    just
   '';
 
   # https://devenv.sh/tests/
