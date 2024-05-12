@@ -66,6 +66,9 @@
     },
     "db:migrate:deploy": {
       "outputs": [],
+      "dependsOn": [
+        "^build"
+      ],
       "cache": false
     },
     "db:push": {

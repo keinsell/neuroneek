@@ -67,13 +67,9 @@
     };
   };
 
-  scripts.silly-example.exec = ''curl "https://httpbin.org/get?$1" | jq .args'';
-  scripts.silly-example.description = "curls httpbin with provided arg";
-
-  scripts.serious-example.exec = ''${pkgs.cowsay}/bin/cowsay "$*"'';
-  scripts.serious-example.description = ''echoes args in a very serious manner'';
-
   enterShell = ''
+    echo Setting up a database...
+    pnpm run db:migrate:deploy
     clear
     nitch
     echo
@@ -83,7 +79,6 @@
     ${lib.generators.toKeyValue {} (lib.mapAttrs (name: value: value.description) config.scripts)}
     EOF
     echo
-    just
   '';
 
   # https://devenv.sh/tests/

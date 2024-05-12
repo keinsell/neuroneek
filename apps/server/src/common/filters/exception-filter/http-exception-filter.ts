@@ -33,7 +33,6 @@ import {
 }                          from '@nestjs/common'
 import {HttpArgumentsHost} from '@nestjs/common/interfaces'
 import {HttpAdapterHost}                      from '@nestjs/core'
-import {GqlArgumentsHost, GqlExceptionFilter} from "@nestjs/graphql"
 import {Request}                              from 'express'
 import {
 	getCode,
