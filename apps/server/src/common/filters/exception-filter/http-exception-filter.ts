@@ -125,13 +125,3 @@ export class HttpExceptionFilter
 			      })
 	}
 }
-
-
-@Catch()
-export class GraphQLErrorFilter implements GqlExceptionFilter {
-	catch(exception: unknown, host: ArgumentsHost) {
-		const gqlHost = GqlArgumentsHost.create(host);
-		// handle the exception here
-		return exception;
-	}
-}
