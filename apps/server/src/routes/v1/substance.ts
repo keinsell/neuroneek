@@ -65,7 +65,7 @@ export class SubstanceResponse {
       common_names: substance?.common_names?.split(',') ?? [],
       psychoactive_classes: substance.psychoactive_class.split(','),
       chemical_classes: substance?.chemical_class?.split(',') ?? [],
-      routes_of_administration: substance.routes_of_administration as any,
+      routes_of_administration: substance.routes_of_administration as never,
     }
   }
 }

@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-import { Controller, Get, Logger, Param, Query } from "@nestjs/common"
-import { ApiOperation, ApiProperty, ApiResponse } from "@nestjs/swagger"
-import { Prisma } from "db"
+import { Controller, Get, Logger, Param, Query }         from "@nestjs/common"
+import {ApiOperation, ApiProperty, ApiResponse, ApiTags} from "@nestjs/swagger"
+import { Prisma }                                        from "db"
 import { HttpProblem } from "../../common/error/problem-details/http-problem.js"
 import { HttpStatus } from "../../common/http-status.js"
 import { PrismaService } from "../../core/modules/database/prisma/services/prisma-service.js"
@@ -24,7 +24,7 @@ export class RouteOfAdministrationNotFound
   }
 }
 
-
+@ApiTags("Route of Administration")
 @Controller("route-of-administration")
 export class RouteOfAdministrationController {
   private logger = new Logger("controller:route-of-administration")
@@ -43,15 +43,12 @@ export class RouteOfAdministrationController {
     description: "Route of Administration found",
     type: RouteOfAdministration,
   })
-  async getRouteOfAdministrationById(@Param("id") idParameter: unknown,
+  async getRouteOfAdministrationById(@Param("id") idParameter: unknown, //eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents,@typescript-eslint/no-unused-vars
     @Query("include") includeParameter: unknown | ("dosage" | "phase")[]): Promise<RouteOfAdministration> {
     // Validate input param to be a string
     if (typeof idParameter !== "string") {
       throw new Error("Invalid input")
     }
-
-    // If include parameter is not provided, default to not including dosage and phase
-    const include = includeParameter ?? []
 
     this.logger.debug(`Fetching route of administration by ID: ${idParameter}`)
 
@@ -82,12 +79,12 @@ export class RouteOfAdministrationController {
     type: [RouteOfAdministration],
   })
   async getAllRouteOfAdministrations(@Query("include") includeParameter: ("dosage" | "phase")[],
-    @Query("limit") limitParameter: number,
-    @Query("offset") offsetParameter: number,
-    @Query("sort") sortParameter: string,
+    @Query("limit") limitParameter: number | null,
+    @Query("offset") offsetParameter: number | null,
+    @Query("sort") sortParameter: string | null,
     @Query("where") whereParameter: {
       substance?: { name?: string }
-    }): Promise<RouteOfAdministration[]> {
+    } | null): Promise<RouteOfAdministration[]> {
 
     this.logger.debug(`Fetching all route of administrations`)
 

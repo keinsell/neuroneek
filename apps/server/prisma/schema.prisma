@@ -31,24 +31,12 @@ model Subject {
   dateOfBirth DateTime?
   weight      Int?
   height      Int?
+  /// Subjects not always must be connected to account, they are fictional characters that may be imported from Erowid.
   account_id  String?
   account     Account?    @relation(fields: [account_id], references: [id])
   Ingestions  Ingestion[]
   Stash       Stash[]
 }
-
-// export enum RouteOfAdministrationClassification {
-//   oral = 'oral',
-//   sublingual = 'sublingual',
-//   buccal = 'buccal',
-//   insufflated = 'insufflated',
-//   rectal = 'rectal',
-//   transdermal = 'transdermal',
-//   subcutaneous = 'subcutaneous',
-//   intramuscular = 'intramuscular',
-//   interavenous = 'interavenous',
-//   smoked = 'smoked'
-// }
 
 model Substance {
   id                       String                  @id @default(cuid())

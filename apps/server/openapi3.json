@@ -76,7 +76,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Route of Administration"
+        ]
       }
     },
     "/route-of-administration": {
@@ -95,30 +98,6 @@
                 "type": "string"
               }
             }
-          },
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "offset",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "sort",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -135,7 +114,10 @@
               }
             }
           }
-        }
+        },
+        "tags": [
+          "Route of Administration"
+        ]
       }
     },
     "/account/register": {

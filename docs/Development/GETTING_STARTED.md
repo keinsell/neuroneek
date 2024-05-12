@@ -32,6 +32,9 @@ nix-env -iA devenv -f https://github.com/NixOS/nixpkgs/tarball/nixpkgs-unstable
 
 We've integrated [devenv]() with Docker Devcontainer which means you can use `.devcontainer.json` in the repository root to get your own development environment.
 
+Once you will log inside devcontainer it's necessary to use `devenv shell` command to have all of the project tooling.
+
+
 ## "Works on my machine" (Not Recommended)
 
 Install everything used in project and develop on this layer. It's important to notice we'll not be responsible for any issues what you will experience with our own environment.
