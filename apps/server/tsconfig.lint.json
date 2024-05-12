@@ -8,6 +8,7 @@
     "test"
   ],
   "exclude": [
-    "wallaby.conf.js"
+    "wallaby.conf.js",
+    "node_modules"
   ]
 }
