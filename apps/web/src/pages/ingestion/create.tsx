@@ -15,11 +15,14 @@ import { useToast } from '@/components/ui/use-toast';
 import { useStore } from '@/stores/use-store';
 import type { IngestionId } from '@/types/ingestion';
 import { AddIngestionCommand } from '@/types/ingestion/add-ingestion';
-import { RouteOfAdministrationClassification } from '@/types/route-of-administration';
+import { RouteOfAdministrationClassification } from '@neuronek/osiris';
 import { listSubstances, type SubstanceId } from '@/types/substance';
 import { getValue, setValue, SubmitHandler, useForm } from '@modular-forms/react';
 import { ChevronDownIcon, PillIcon } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import useSWR, { mutate } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import { API_URL } from '@/lib/config'
 
 type CreateIngestionForm = AddIngestionCommand
 
@@ -27,36 +30,83 @@ export default function CreateIngestionPage() {
   const [addIngestionForm, { Form, Field }] = useForm<CreateIngestionForm>();
   const store = useStore();
   const { toast } = useToast();
+	const fetcher = (url: string) => fetch(url).then(res => res.json())
 
-  const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = (values, event) => {
+	type IIngestionCreatedResponse = {
+		id: string
+	}
+
+	const { trigger, isMutating } = useSWRMutation(
+		`${API_URL}/ingestion`,
+		async (url: string, { arg }: { arg: CreateIngestionForm }): Promise<IIngestionCreatedResponse> => {
+			const response = await fetch(url, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(arg)
+			});
+
+			if (!response.ok) {
+				console.error(response.error)
+				throw new Error('POST request failed');
+			}
+
+			return response.json();
+		}
+	);
+
+  const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = async (values, event) => {
     event.preventDefault();
-    toast({
-      title: '🎉 Ingestion Logged',
-      description: (
-        <div className="flex flex-col gap-2">
-          <div>
-            <p className="text-gray-500">You have successfully logged an ingestion.</p>
-            <p className="text-gray-500">You can view the ingestion below.</p>
-          </div>
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+
+		// mutate(substances => [...substances, newIngestion]);
+
+		try {
+			const newIngestion = await trigger(values);
+			console.log(newIngestion)
+			toast({
+				title: '🎉 Ingestion Logged',
+				description: (
+					<div className="flex flex-col gap-2">
+						<div>
+							<p className="text-gray-500">You have successfully logged an ingestion.</p>
+							<p className="text-gray-500">You can view the ingestion below.</p>
+						</div>
+						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
 						<code className="text-white">{JSON.stringify(values, null, 2)}</code>
 					</pre>
-        </div>
-      ),
-    });
+					</div>
+				),
+			});
+		} catch (error) {
 
-    store.addIngestion({
-      id: nanoid() as IngestionId,
-      substanceId: values.substanceId as SubstanceId,
-      routeOfAdministration: values.routeOfAdministration,
-      dosage_amount: values.dosage.amount as any,
-      dosage_unit: values.dosage.unit,
-    });
-  };
+			toast({ title: "⚠️ Ingestion could not be logged!", description: (
+					<div className="flex flex-col gap-2">
+						<div>
+							<p className="text-gray-500">Ingestion could not be logged due to error from server.</p>
+							<p className="text-gray-500">You can view the details below.</p>
+						</div>
+						<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+						<code className="text-white">{JSON.stringify(error, null, 2)}</code>
+					</pre>
+					</div>
+				)
+			});
+			console.error('POST error:', error)
+		}
 
-  return (
-    <AppLayout>
-      <div className="flex items-center">
+		store.addIngestion({
+			id: nanoid() as IngestionId,
+			substanceId: values.substanceId as SubstanceId,
+			routeOfAdministration: values.routeOfAdministration,
+			dosage_amount: values.dosage.amount as any,
+			dosage_unit: values.dosage.unit
+		})
+	};
+
+	return (
+		<AppLayout>
+			<div className="flex items-center">
         <h1 className="font-semibold text-lg md:text-2xl">Log Ingestion</h1>
       </div>
       <div className="border shadow-sm rounded-lg p-6">
