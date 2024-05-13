@@ -23,6 +23,7 @@ import { nanoid } from 'nanoid';
 import useSWR, { mutate } from 'swr'
 import useSWRMutation from 'swr/mutation'
 import { API_URL } from '@/lib/config'
+import { SubstanceCombobox } from '@/components/substance-combobox'
 
 type CreateIngestionForm = AddIngestionCommand
 
@@ -52,7 +53,7 @@ export default function CreateIngestionPage() {
 			}
 
 			return response.json();
-		}
+		}, fetcher
 	);
 
   const ingestionSubmitHandler: SubmitHandler<CreateIngestionForm> = async (values, event) => {
@@ -108,6 +109,7 @@ export default function CreateIngestionPage() {
         <h1 className="font-semibold text-lg md:text-2xl">Log Ingestion</h1>
       </div>
       <div className="border shadow-sm rounded-lg p-6">
+				<SubstanceCombobox></SubstanceCombobox>
         <Form className="grid gap-6" onSubmit={ingestionSubmitHandler}>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -115,6 +117,7 @@ export default function CreateIngestionPage() {
                 {(field, props) => (
                   <>
                     <Label htmlFor="substance">Substance</Label>
+
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button className="w-full flex items-center justify-between" variant="outline">
