@@ -95,7 +95,8 @@
 
   # https://devenv.sh/languages/
    languages.nix.enable = true;
-    languages = {
+
+   languages = {
     typescript = {
       enable = true;
     };

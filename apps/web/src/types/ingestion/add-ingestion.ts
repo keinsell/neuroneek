@@ -1,7 +1,7 @@
 // This aciton will save the ingestion to local state, then local storage and
 // in a free time request will be sent to the server to save the ingestion.
 
-import { RouteOfAdministrationClassification } from '@/types/route-of-administration'
+import { RouteOfAdministrationClassification } from '@neuronek/osiris'
 import { date, enum_, number, object, Output, string } from 'valibot'
 
 export const AddIngestionCommand = object({

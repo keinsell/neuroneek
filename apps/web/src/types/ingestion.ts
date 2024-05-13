@@ -1,4 +1,4 @@
-import { RouteOfAdministrationClassification } from '@/types/route-of-administration'
+import { RouteOfAdministrationClassification } from '@neuronek/osiris'
 import type { SubstanceId } from '@/types/substance'
 import { nanoid } from 'nanoid'
 import type { Opaque } from 'type-fest'
