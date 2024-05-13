@@ -22,24 +22,23 @@ who are also interested in promoting responsible usage of these substances.
 
 <br>
 
+> [!CAUTION]  
+> You should not try to use project at all, front-end is bleeding in terms of functionality and API can be considered read-only with Psychonautwiki substances available - see [Hosted Instance on Railway](https://neuronek.up.railway.app/reference)
+
 ```bash
-$ cp example.env .env
-$ yarn
-$ docker-compose -f local.docker-compose.yml up -d
-$ yarn db:push
-$ yarn hephaistos # Tempoerary solution for setting up database.
+# To be announced 
 ```
 
 <h2 align="center">Development</h2>
 
-Starting a development in recommended way requires you to have [`nix`](),
-[`direnv`]() and [`devbox`]() installed on your machine,
-configuration in repository will automatically spin up all dependencies and set up environment for you.
+Starting a development in recommended way requires you to have [`nix`](https://nixos.org/),
+[`direnv`](https://direnv.net/) and [`devenv`](https://devenv.sh/) installed on your machine,
+configuration in repository will automatically spin up all dependencies and set up environment for you ([refer to devenv documentation for setup guide](https://devenv.sh/getting-started/))
 
 ```bash
 direnv allow
-devbox shell
-pnpm i
+cp example.env .env
+devenv shell
 pnpm dev
 ```
 
