@@ -37,7 +37,7 @@ export default function CreateIngestionPage() {
 	}
 
 	const { trigger, isMutating } = useSWRMutation(
-		`${API_URL}/ingestion`,
+		`${API_URL}ingestion`,
 		async (url: string, { arg }: { arg: CreateIngestionForm }): Promise<IIngestionCreatedResponse> => {
 			const response = await fetch(url, {
 				method: 'POST',
@@ -48,7 +48,6 @@ export default function CreateIngestionPage() {
 			});
 
 			if (!response.ok) {
-				console.error(response.error)
 				throw new Error('POST request failed');
 			}
 
@@ -79,7 +78,6 @@ export default function CreateIngestionPage() {
 				),
 			});
 		} catch (error) {
-
 			toast({ title: "⚠️ Ingestion could not be logged!", description: (
 					<div className="flex flex-col gap-2">
 						<div>

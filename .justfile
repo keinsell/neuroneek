@@ -18,3 +18,8 @@ _tlbs_database_diff:
 
 _tlbs_database_lint:
     tlbs diff
+
+# Creates a symlink file to .env contained at root of repository, somehow I find this method
+# useful for managing environment in monorepos.
+_create_applicaiton_symlink_to_environmet_file application:
+    ln -s ../../.env apps/{{application}}/.env
