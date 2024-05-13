@@ -14,7 +14,7 @@ export default function IngestionPage() {
 			<div className='flex items-center'>
 				<h1 className='font-semibold text-lg md:text-2xl'>Ingestion History</h1>
 				<Link href={'/ingestion/create'}>
-					<Button className='ml-auto' size='sm'>
+					<Button className='ml-auto sm'>
 						Log Ingestion
 					</Button>
 				</Link>
