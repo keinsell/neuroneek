@@ -17,7 +17,7 @@ package main
 type Neuronek struct{}
 
 // Build a monorepository with pnpm
-func (m *Neuronek) Build(source *Directory) *Container {
-	node := dag.Node().WithPackageManager("pnpm").Container()
+func (m *Neuronek) Build() *Container {
+	node := dag.Node().Container()
 	return node
 }
