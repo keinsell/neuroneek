@@ -23,10 +23,34 @@ type Neuronek struct{}
 
 // Build a monorepository with pnpm
 func (m *Neuronek) Build() *Container {
-	return dag.Node().WithPnpm().Container()
-	//   const node = client.container().from("node:16-slim").withExec(["node", "-v"])
-	//
-	//  const version = await node.stdout()
+	const pnpmCachePath = "/tmp/cache/pnpm"
+	const turboCachePath = "/tmp/cache/turbo"
+
+	pnpmCache := dag.CacheVolume(pnpmCachePath)
+
+	project := dag.Git("https://github.com/keinsell/neuronek").Branch("trunk").Tree()
+
+	return dag.Node().
+		WithPnpm(NodeWithPnpmOpts{
+			Cache: pnpmCache,
+		}).
+		Install([]string{"turbo", "pnpm@8.6.0"}).
+		WithSource(project).
+		Container().
+		// Configure Node Environment
+		WithEnvVariable("COREPACK_ENABLE", "true").
+		WithEnvVariable("PNPM_HOME", pnpmCachePath).
+		WithEnvVariable("PATH", "$PNPM_HOME:$PATH").
+		WithDefaultTerminalCmd([]string{"corepack", "enable"}).
+		WithMountedCache(pnpmCachePath, pnpmCache).
+		// Copy manifest files and install them
+		WithDirectory("/runtime", project).
+		WithWorkdir("/runtime").
+		WithDefaultTerminalCmd([]string{"pnpm", "install", "--frozen-lockfile"}).
+		// Mount directory
+		//WithDirectory("/runtime", project).
+		//WithWorkdir("/runtime").
+		WithExec([]string{"turbo", "build"})
 }
 
 func (m *Neuronek) Version() Void {

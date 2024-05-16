@@ -1,64 +1,62 @@
-name : CI
+name: CI
 
-on   :
-  push         :
-    branches : [ trunk ]
-  pull_request :
-    branches : [ trunk ]
+on:
+  push:
+    branches: [ trunk ]
+  pull_request:
+    branches: [ trunk ]
 
-env  :
-  GIT_LFS_CACHE_DIR : '${{ github.workspace }}/git-lfs-cache'
+env:
+  GIT_LFS_CACHE_DIR: '${{ github.workspace }}/git-lfs-cache'
 
-jobs :
-  build-and-test :
-    runs-on : ubuntu-latest
-    env     :
-      TURBO_TOKEN       : ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM        : ${{ secrets.TURBO_TEAM }}
-      TURBO_REMOTE_ONLY : true
-    steps   :
-      -
-        uses : actions/checkout@v3
-      -
-        uses : pnpm/action-setup@v3
-        with :
-          version : 8
-      -
-        name : Setup Node.js environment
-        uses : actions/setup-node@v3
-        with :
-          node-version : latest
-          cache        : pnpm
-      
-      -
-        uses : pnpm/action-setup@v3
-        name : Install pnpm
-        with :
-          run_install : false
-      
-      -
-        name  : Get pnpm store directory
-        shell : bash
-        run   : |
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_REMOTE_ONLY: true
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+          cache: pnpm
+
+      - uses: pnpm/action-setup@v3
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
           echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
-      -
-        uses : actions/cache@v4
-        name : Setup pnpm cache
-        with :
-          path         : ${{ env.STORE_PATH }}
-          key          : "${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}"
-          restore-keys : |
+
+      - uses: actions/cache@v4
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: "${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}"
+          restore-keys: |
             ${{ runner.os }}-pnpm-store-
-      
-      -
-        name : Install dependencies
-        run  : pnpm install --frozen-lockfile --prefer-offline --reporter=ndjson
-      
-      -
-        name : Install pnpm
-        run  : npm i -g turbo
-      
-      -
-        name : Build
-        run  : pnpm run build
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline --reporter=ndjson
+
+      - name: Install pnpm
+        run: npm i -g turbo
+
+      - name: Hello
+        uses: dagger/dagger-for-github@v5
+        with:
+          verb: call
+          module: ./
+          args: build
+
+      - name: Build
+        run: pnpm run build
