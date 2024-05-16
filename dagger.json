@@ -1,0 +1,12 @@
+{
+  "name": "neuronek",
+  "sdk": "go",
+  "dependencies": [
+    {
+      "name": "node",
+      "source": "github.com/dagger/dagger/sdk/typescript/dev/node@9e59bae142f64975b7c9ad851e6bd4901d43513a"
+    }
+  ],
+  "source": "dagger",
+  "engineVersion": "v0.11.1"
+}
