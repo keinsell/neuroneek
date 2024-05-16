@@ -4,7 +4,7 @@
   "dependencies": [
     {
       "name": "node",
-      "source": "github.com/dagger/dagger/sdk/typescript/dev/node@9e59bae142f64975b7c9ad851e6bd4901d43513a"
+      "source": "github.com/Dudesons/daggerverse/node@41e1f414c163b6676acd03c184d37e3ec8a64b2b"
     }
   ],
   "source": "dagger",

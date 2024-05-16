@@ -35,17 +35,16 @@ func (m *Neuronek) GrepDir(ctx context.Context, directoryArg *Directory, pattern
 		Stdout(ctx)
 }
 
-func (m *Neuronek) Build(source *Directory) *Directory {
-	return dag.Node(NodeOpts{Ctr: m.buildBaseImage(source)}).
-		Commands().
-		Build().
-		Directory("./dist")
+func (m *Neuronek) Build(source *Directory) *Container {
+	node := dag.Node()
+	node = m.setupPnpm(node)
+	return node.Container()
 }
 
 func (m *Neuronek) buildBaseImage(source *Directory) *Container {
-	return dag.Node(NodeOpts{Version: "21"}).
-		WithPnpm().
-		WithSource(source).
-		Install(nil).
-		Container()
+	return dag.Node().WithPackageManager("pnpm").Container()
+}
+
+func (m *Neuronek) setupPnpm(node *Node) *Node {
+	return node.WithPackageManager("pnpm")
 }
