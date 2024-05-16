@@ -1,0 +1,42 @@
+source_stage: {
+  desc: "Source Stage"
+
+  get_application_source -> get_infrastructure_source -> get_static_assets -> get_dependency_manifests -> get_configuration -> get_database_source -> get_test_source
+}
+
+build_stage: {
+  build_application
+  unit_test
+  code_quality
+  secret_detection
+  sast
+  package_artifacts
+  sca
+  sbom
+}
+
+test_beta_stage: {
+  lunch_environment
+  database_deploy
+  deploy_software
+  integration_test
+  acceptance_test
+}
+
+test_gamma_stage: {
+  lunch_environment
+  database_deploy
+  deploy_software
+  setup_monitoring
+  syntethic_tests
+  performance_tests
+  resillence_tests
+  dast
+}
+
+production_stage: {
+  manual_approval
+  database_deploy
+  progressive_deployment
+  synthetic_tests
+}

@@ -14,10 +14,38 @@
 
 package main
 
+import (
+	"context"
+	"dagger.io/dagger"
+)
+
 type Neuronek struct{}
 
 // Build a monorepository with pnpm
 func (m *Neuronek) Build() *Container {
-	node := dag.Node().Container()
-	return node
+	return dag.Node().WithPnpm().Container()
+	//   const node = client.container().from("node:16-slim").withExec(["node", "-v"])
+	//
+	//  const version = await node.stdout()
+}
+
+func (m *Neuronek) Version() Void {
+	ctx := context.Background()
+
+	client, err := dagger.Connect(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer client.Close()
+
+	node := client.Container().From("node:latest").WithExec([]string{"node", "-v"})
+	_, err = node.Stdout(ctx)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return Void(1)
 }
