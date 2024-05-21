@@ -48,10 +48,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline --reporter=ndjson
 
-      - name: Install pnpm
+      - name: Install turbo
         run: npm i -g turbo
 
-      - name: Hello
+      - name: Execute Dagger Build
         uses: dagger/dagger-for-github@v5
         with:
           verb: call
