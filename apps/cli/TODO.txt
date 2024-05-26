@@ -1,0 +1,8 @@
+neuronek substance create <name>
+neuronek substance delete <name>
+neuronek substance list
+
+neuronek ingest
+neuronek ingestion create <substance> <amount>
+neuronek ingestion list
+neuronek ingestion delete <id>
