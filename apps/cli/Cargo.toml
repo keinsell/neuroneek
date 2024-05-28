@@ -7,15 +7,14 @@ edition = "2024"
 readme = "README.md"
 rust-version = "1.71.0"
 
-[dev-dependencies.migration]
-path = "migration"
-
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
 chrono-english = "0.1.7"
 clap = { version = "4.5.4", features = ["derive"] }
 futures = "0.3.28"
+log = "0.4.21"
 sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time"] }
+sea-orm-migration = "^0.12.0"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
 structopt = { version = "0.3.26" }

@@ -1,15 +1,21 @@
 mod db;
 mod ingestion;
+mod migrator;
+mod substance;
+mod entities;
 
-use crate::db::initialize_database;
 use crate::ingestion::{delete_ingestion, list_ingestions, load_ingestions, save_ingestions};
 use chrono::Utc;
 use chrono_english::{parse_date_string, Dialect};
+use sea_orm::{ConnectionTrait, Database, SqlxSqliteConnector, DbBackend, DbErr, Statement};
+use sea_orm_migration::{connection, IntoSchemaManagerConnection, MigratorTrait, SchemaManager};
 use ingestion::Ingestion;
 use serde::{Deserialize, Serialize};
 use structopt::StructOpt;
 use tabled::Tabled;
 use xdg::BaseDirectories;
+use crate::migrator::Migrator;
+use crate::substance::list_substances;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -79,13 +85,20 @@ async fn main() {
     let cli = CommandLineInterface::from_args();
     let xdg_dirs = BaseDirectories::with_prefix("neuronek").unwrap();
     let data_file = xdg_dirs.place_data_file("journal.json").unwrap();
-    initialize_database();
 
-    // TODO: Add programmatic way to database that should automatically discover
-    // version of database used by user and the one that is installed on the system.
-    // This way we can have a single binary that can be used on different systems
-    // and we can have a single database that can be used on different versions of
-    // database.
+    // TODO: For the old users of CLI we need to migrate JSON file to SQLite database
+
+  let db =  match  db::setup_database().await {
+        Ok(db) => db,
+        Err(error) => panic!("Error connecting to database: {}", error),
+    };
+
+    match Migrator::up(db.into_schema_manager_connection(), None).await {
+        Ok(_) => println!("Migrations applied"),
+        Err(error) => panic!("Error applying migrations: {}", error),
+    };
+
+    // List all ingestion's from database
 
     println!("Loading data from {:#?}", data_file.as_path());
     let ingestion = load_ingestions(data_file.as_path());
@@ -125,9 +138,7 @@ async fn main() {
             }
         },
         Commands::Substance(substance) => match substance {
-            SubstanceCommands::ListSubstances {} => {
-                println!("Not implemented yet!")
-            }
+            SubstanceCommands::ListSubstances {} => list_substances(&db).await,
             SubstanceCommands::CreateSubstance {} => {
                 println!("Not implemented yet!")
             }

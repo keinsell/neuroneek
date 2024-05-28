@@ -1,11 +1,10 @@
-use chrono::Utc;
-use sea_orm::Database;
-use serde::{Deserialize, Serialize};
-use serde_json::de::from_reader;
-use serde_json::ser::to_writer_pretty;
 use std::fs::{File, OpenOptions};
 use std::io::BufReader;
 use std::path::Path;
+use chrono::Utc;
+use serde::{Deserialize, Serialize};
+use serde_json::de::from_reader;
+use serde_json::ser::to_writer_pretty;
 use tabled::{Table, Tabled};
 
 pub fn delete_ingestion(ingestion_id: i32, data_file: &Path) {
