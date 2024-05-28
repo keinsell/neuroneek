@@ -1,7 +1,6 @@
 use std::path::Path;
 use xdg::BaseDirectories;
 
-
 /// Function will initialize database in the default location
 /// relative to user's home directory and XDG_DATA_HOME.
 /// Initialization of database will result in SQLite database
