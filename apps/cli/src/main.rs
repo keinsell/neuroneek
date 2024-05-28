@@ -1,21 +1,21 @@
 mod db;
 mod ingestion;
-mod migrator;
-mod substance;
-mod entities;
 
-use crate::ingestion::{delete_ingestion, list_ingestions, load_ingestions, save_ingestions};
+mod entities;
+mod substance;
+
+use crate::ingestion::{
+    db_create_ingestion, delete_ingestion, list_ingestions, load_ingestions, save_ingestions,
+};
+use crate::substance::list_substances;
 use chrono::Utc;
 use chrono_english::{parse_date_string, Dialect};
-use sea_orm::{ConnectionTrait, Database, SqlxSqliteConnector, DbBackend, DbErr, Statement};
-use sea_orm_migration::{connection, IntoSchemaManagerConnection, MigratorTrait, SchemaManager};
-use ingestion::Ingestion;
-use serde::{Deserialize, Serialize};
+use ingestion::IngestionStructure;
+use migrator::Migrator;
+use sea_orm::TryIntoModel;
+use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
-use tabled::Tabled;
 use xdg::BaseDirectories;
-use crate::migrator::Migrator;
-use crate::substance::list_substances;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -34,17 +34,19 @@ enum Commands {
         about = "Get information about substances.",
         alias = "s"
     )]
-    Substance(SubstanceCommands),
+    Substance(SubstanceCommand),
     #[structopt(
         name = "ingestion",
         about = "Manipulate, view and delete ingestions.",
         alias = "i"
     )]
-    Ingestion(IngestionCommands),
+    Ingestion(IngestionCommand),
+    #[structopt(name = "data", about = "Manipulate data files")]
+    Data(DataManagementCommand),
 }
 
 #[derive(StructOpt, Debug)]
-enum SubstanceCommands {
+enum SubstanceCommand {
     #[structopt(name = "list")]
     ListSubstances {},
     #[structopt(name = "create")]
@@ -56,19 +58,22 @@ enum SubstanceCommands {
 }
 
 #[derive(StructOpt, Debug)]
-enum IngestionCommands {
+struct CreateIngestionCommand {
+    #[structopt(short, long)]
+    pub substance_name: String,
+    #[structopt(short, long)]
+    pub dosage: String,
+    #[structopt(short = "t", long = "time", default_value = "now")]
+    pub ingested_at: String,
+}
+
+#[derive(StructOpt, Debug)]
+enum IngestionCommand {
     #[structopt(
         name = "create",
         about = "Create new ingestion by providing substance name and dosage in string."
     )]
-    CreateIngestion {
-        #[structopt(short, long)]
-        substance_name: String,
-        #[structopt(short, long)]
-        dosage: String,
-        #[structopt(short = "t", long = "time", default_value = "now")]
-        ingested_at: String,
-    },
+    CreateIngestionCommand(CreateIngestionCommand),
     #[structopt(name = "delete")]
     IngestionDelete {
         #[structopt(short, long)]
@@ -76,8 +81,12 @@ enum IngestionCommands {
     },
     #[structopt(name = "list", about = "List all ingestion's in table")]
     IngestionList {},
-    #[structopt(name = "dump", about = "Print out all known data to cli")]
-    Dump {},
+}
+
+#[derive(StructOpt, Debug)]
+enum DataManagementCommand {
+    #[structopt(name = "path", about = "Returns the path to the data file")]
+    Path {},
 }
 
 #[tokio::main]
@@ -88,66 +97,84 @@ async fn main() {
 
     // TODO: For the old users of CLI we need to migrate JSON file to SQLite database
 
-  let db =  match  db::setup_database().await {
+    let db = match db::setup_database().await {
         Ok(db) => db,
         Err(error) => panic!("Error connecting to database: {}", error),
     };
 
-    match Migrator::up(db.into_schema_manager_connection(), None).await {
+    // match Migrator::up(db.into_schema_manager_connection(), None).await {
+    //     Ok(_) => println!("Migrations applied"),
+    //     Err(error) => panic!("Error applying migrations: {}", error),
+    // };
+
+    match Migrator::fresh(db.into_schema_manager_connection()).await {
         Ok(_) => println!("Migrations applied"),
         Err(error) => panic!("Error applying migrations: {}", error),
     };
 
     // List all ingestion's from database
-
     println!("Loading data from {:#?}", data_file.as_path());
     let ingestion = load_ingestions(data_file.as_path());
     println!("{:#?}", ingestion);
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
-            IngestionCommands::CreateIngestion {
+            IngestionCommand::CreateIngestionCommand(CreateIngestionCommand {
                 substance_name,
                 ingested_at,
                 dosage,
-            } => {
+            }) => {
                 println!("Loading ingestions from {:#?}", data_file.as_path());
                 let mut ingestions = load_ingestions(data_file.as_path());
 
                 let parsed_time = parse_date_string(&ingested_at, Utc::now(), Dialect::Us)
                     .unwrap_or_else(|_| Utc::now());
 
-                let new_ingestion = Ingestion {
+                let new_ingestion = IngestionStructure {
                     id: ingestions.len() as i32 + 1,
                     substance_name,
                     ingested_at: parsed_time,
-                    dosage: dosage,
+                    dosage,
                 };
 
-                ingestions.push(new_ingestion);
+                let created_ingestion = match db_create_ingestion(&db, new_ingestion)
+                    .await
+                    .try_into_model()
+                {
+                    Ok(ingestion) => ingestion,
+                    Err(error) => panic!("Error creating ingestion: {}", error),
+                };
+
+                ingestions.push(IngestionStructure {
+                    id: created_ingestion.id,
+                    substance_name: created_ingestion.substance_name,
+                    ingested_at: parsed_time,
+                    dosage: created_ingestion.dosage,
+                });
+
                 save_ingestions(data_file.as_path(), &ingestions);
 
                 println!("Ingestion created with ID: {}", ingestions.len());
             }
-            IngestionCommands::IngestionDelete { ingestion_id } => {
+            IngestionCommand::IngestionDelete { ingestion_id } => {
                 delete_ingestion(ingestion_id, data_file.as_path())
             }
-            IngestionCommands::IngestionList { .. } => list_ingestions(data_file.as_path()),
-            IngestionCommands::Dump {} => {
+            IngestionCommand::IngestionList { .. } => list_ingestions(data_file.as_path()),
+        },
+        Commands::Substance(substance) => match substance {
+            SubstanceCommand::ListSubstances {} => list_substances(&db).await,
+            SubstanceCommand::CreateSubstance {} => {
+                println!("Not implemented yet!")
+            }
+            SubstanceCommand::DeleteSubstance {} => {
+                println!("Not implemented yet!")
+            }
+            SubstanceCommand::DumpSubstance {} => {
                 println!("Not implemented yet!")
             }
         },
-        Commands::Substance(substance) => match substance {
-            SubstanceCommands::ListSubstances {} => list_substances(&db).await,
-            SubstanceCommands::CreateSubstance {} => {
-                println!("Not implemented yet!")
-            }
-            SubstanceCommands::DeleteSubstance {} => {
-                println!("Not implemented yet!")
-            }
-            SubstanceCommands::DumpSubstance {} => {
-                println!("Not implemented yet!")
-            }
+        Commands::Data(data) => match data {
+            DataManagementCommand::Path {} => println!("Data path: {}", data_file.display()),
         },
     }
 }

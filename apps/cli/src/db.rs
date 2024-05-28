@@ -1,7 +1,7 @@
-use xdg::BaseDirectories;
-use sea_orm::{DatabaseConnection};
-use sea_orm_migration::*;
+use sea_orm::DatabaseConnection;
 use sea_orm::*;
+use sea_orm_migration::*;
+use xdg::BaseDirectories;
 
 /// Function will initialize database in the default location
 /// relative to user's home directory and XDG_DATA_HOME.
@@ -42,7 +42,6 @@ pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
 
     Ok(db)
 }
-
 
 pub async fn get_database_connection() -> DatabaseConnection {
     let database_path = locate_db_file();

@@ -1,10 +1,14 @@
-use std::fs::{File, OpenOptions};
-use std::io::BufReader;
-use std::path::Path;
+use crate::entities::ingestion::{ActiveModel, Model};
+use crate::entities::prelude::Ingestion;
+
 use chrono::Utc;
+use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::de::from_reader;
 use serde_json::ser::to_writer_pretty;
+use std::fs::{File, OpenOptions};
+use std::io::BufReader;
+use std::path::Path;
 use tabled::{Table, Tabled};
 
 pub fn delete_ingestion(ingestion_id: i32, data_file: &Path) {
@@ -19,7 +23,7 @@ pub fn delete_ingestion(ingestion_id: i32, data_file: &Path) {
     }
 }
 
-pub fn load_ingestions(file_path: &Path) -> Vec<Ingestion> {
+pub fn load_ingestions(file_path: &Path) -> Vec<IngestionStructure> {
     if let Ok(file) = File::open(file_path) {
         from_reader(BufReader::new(file)).unwrap_or_default()
     } else {
@@ -27,7 +31,7 @@ pub fn load_ingestions(file_path: &Path) -> Vec<Ingestion> {
     }
 }
 
-pub fn save_ingestions(data_file: &Path, ingestions: &[Ingestion]) {
+pub fn save_ingestions(data_file: &Path, ingestions: &[IngestionStructure]) {
     let file = OpenOptions::new()
         .write(true)
         .create(true)
@@ -45,8 +49,29 @@ pub fn list_ingestions(data_file: &Path) {
     println!("{}", table);
 }
 
+pub async fn db_create_ingestion(
+    db: &DatabaseConnection,
+    create_ingestion: IngestionStructure,
+) -> Model {
+    let ingestion_payload: ActiveModel = ActiveModel {
+        id: ActiveValue::NotSet,
+        ingested_at: ActiveValue::Set(create_ingestion.ingested_at.to_rfc3339()),
+        dosage: ActiveValue::Set(create_ingestion.dosage),
+        substance_name: ActiveValue::Set(create_ingestion.substance_name),
+    };
+
+    let ingestion = Ingestion::insert(ingestion_payload)
+        .exec_with_returning(db)
+        .await
+        .unwrap();
+
+    println!("Ingestion created with ID: {}", ingestion.id);
+
+    return ingestion;
+}
+
 #[derive(Tabled, Serialize, Deserialize, Debug)]
-pub struct Ingestion {
+pub struct IngestionStructure {
     pub(crate) id: i32,
     pub(crate) substance_name: String,
     pub(crate) dosage: String,

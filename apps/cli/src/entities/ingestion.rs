@@ -8,30 +8,24 @@ pub struct Entity;
 
 impl EntityName for Entity {
     fn table_name(&self) -> &str {
-        "substance"
+        "ingestion"
     }
 }
 
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
 pub struct Model {
     pub id: i32,
-    pub name: String,
-    pub common_names: String,
-    pub brand_names: String,
-    pub substitute_name: String,
-    pub chemical_classes: String,
-    pub description: String,
+    pub substance_name: String,
+    pub ingested_at: String,
+    pub dosage: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
     Id,
-    Name,
-    CommonNames,
-    BrandNames,
-    SubstituteName,
-    ChemicalClasses,
-    Description,
+    SubstanceName,
+    IngestedAt,
+    Dosage,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -54,12 +48,9 @@ impl ColumnTrait for Column {
     fn def(&self) -> ColumnDef {
         match self {
             Self::Id => ColumnType::Integer.def(),
-            Self::Name => ColumnType::String(None).def(),
-            Self::CommonNames => ColumnType::String(None).def(),
-            Self::BrandNames => ColumnType::String(None).def(),
-            Self::SubstituteName => ColumnType::String(None).def(),
-            Self::ChemicalClasses => ColumnType::String(None).def(),
-            Self::Description => ColumnType::String(None).def(),
+            Self::SubstanceName => ColumnType::String(None).def(),
+            Self::IngestedAt => ColumnType::String(None).def(),
+            Self::Dosage => ColumnType::String(None).def(),
         }
     }
 }
