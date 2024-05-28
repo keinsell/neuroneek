@@ -6,3 +6,6 @@ neuronek ingest
 neuronek ingestion create <substance> <amount>
 neuronek ingestion list
 neuronek ingestion delete <id>
+
+- [ ] Storage mechanism based on SQLite
+- [ ] Implementation of migrations from one data model to another
