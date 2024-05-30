@@ -13,9 +13,9 @@ pub(super) fn locate_db_file() -> String {
     debug!("Initializing database");
     const SQLITE_FILE: &str = "db.sqlite";
     const APPLICATION_NAMESPACE: &str = "xyz.neuronek.cli";
-    
+
     let xdg_dirs: BaseDirectories = BaseDirectories::with_prefix(APPLICATION_NAMESPACE).unwrap();
-    
+
     let environemnt_relative_database_file_name = if cfg!(feature = "dev") {
         format!("dev-{}", SQLITE_FILE)
     } else {
@@ -44,7 +44,7 @@ pub(super) fn locate_db_file() -> String {
     let database_url = format!("sqlite://{}?mode=rwc", path.display());
     debug!("Database connection string: {:#?}", database_url);
 
-    return database_url.clone();
+    database_url.clone()
 }
 
 pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {

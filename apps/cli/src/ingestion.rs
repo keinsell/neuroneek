@@ -62,7 +62,7 @@ pub async fn list_ingestions(db: &DatabaseConnection) {
         .collect();
 
     let string_table = Table::new(view_models);
-    println!("{}", string_table.to_string());
+    println!("{}", string_table);
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]
@@ -73,6 +73,6 @@ pub struct ViewModel {
     pub(crate) substance_name: String,
     #[tabled(order = 2)]
     pub(crate) dosage: String,
-    #[tabled(rename = "date", order=3)]
+    #[tabled(rename = "date", order = 3)]
     pub(crate) ingested_at: String,
 }
