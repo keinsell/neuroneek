@@ -44,7 +44,7 @@ pub(super) fn locate_db_file() -> String {
     let database_url = format!("sqlite://{}?mode=rwc", path.display());
     debug!("Database connection string: {:#?}", database_url);
 
-    return database_url.clone();
+    database_url.clone()
 }
 
 pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {

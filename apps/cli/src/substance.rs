@@ -163,7 +163,7 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
     let substances = Substance::find().all(db).await.unwrap();
 
     let string_table = Table::new(substances);
-    println!("{}", string_table.to_string());
+    println!("{}", string_table);
 }
 
 pub async fn list_substances(db: &DatabaseConnection) {
@@ -187,5 +187,5 @@ pub async fn list_substances(db: &DatabaseConnection) {
 
     let table = Table::new(substances);
 
-    println!("{}", table.to_string());
+    println!("{}", table);
 }

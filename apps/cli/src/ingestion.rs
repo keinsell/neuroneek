@@ -62,7 +62,7 @@ pub async fn list_ingestions(db: &DatabaseConnection) {
         .collect();
 
     let string_table = Table::new(view_models);
-    println!("{}", string_table.to_string());
+    println!("{}", string_table);
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]
