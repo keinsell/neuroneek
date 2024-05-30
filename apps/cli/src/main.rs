@@ -14,7 +14,7 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(
     name = "neuronek",
-    about = "Minimal visable product of neuronek which have pure local functionality without prettifiers."
+    about = "Minimal visible product of neuronek which have pure local functionality without prettifiers."
 )]
 struct CommandLineInterface {
     #[structopt(subcommand)]
