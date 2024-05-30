@@ -73,6 +73,6 @@ pub struct ViewModel {
     pub(crate) substance_name: String,
     #[tabled(order = 2)]
     pub(crate) dosage: String,
-    #[tabled(rename = "date", order=3)]
+    #[tabled(rename = "date", order = 3)]
     pub(crate) ingested_at: String,
 }
