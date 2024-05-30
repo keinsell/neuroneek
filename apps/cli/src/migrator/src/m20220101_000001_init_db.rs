@@ -1,6 +1,5 @@
 use sea_orm_migration::prelude::*;
-use tabled::{col, Tabled};
-use crate::sea_orm::prelude::DateTime;
+use tabled::Tabled;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

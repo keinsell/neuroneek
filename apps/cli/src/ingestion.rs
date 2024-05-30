@@ -1,74 +1,36 @@
-use crate::entities::ingestion::{ActiveModel, Model};
 use crate::entities::prelude::Ingestion;
-
-use chrono::{DateTime, Utc};
-use sea_orm::{ActiveValue, DatabaseConnection, DeleteResult, EntityTrait, TryIntoModel};
+use crate::{cli::ingestion::create::CreateIngestion, entities::ingestion::ActiveModel};
+use chrono::Utc;
+use chrono_english::{parse_date_string, Dialect};
+use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
-use serde_json::de::from_reader;
-use serde_json::ser::to_writer_pretty;
-use std::fs::{File, OpenOptions};
-use std::io::BufReader;
-use std::path::Path;
-use chrono_english::{Dialect, parse_date_string};
-use futures::future::OptionFuture;
+use std::fmt::Debug;
 use tabled::{Table, Tabled};
-use uom::typenum::Mod;
-use crate::CreateIngestion;
-
-pub fn load_ingestions(file_path: &Path) -> Vec<ViewModel> {
-    if let Ok(file) = File::open(file_path) {
-        from_reader(BufReader::new(file)).unwrap_or_default()
-    } else {
-        Vec::new()
-    }
-}
-
-pub fn save_ingestions(data_file: &Path, ingestions: &[ViewModel]) {
-    let file = OpenOptions::new()
-        .write(true)
-        .create(true)
-        .truncate(true)
-        .open(data_file)
-        .unwrap();
-    to_writer_pretty(file, &ingestions).unwrap();
-}
-
-pub fn list_ingestions(data_file: &Path) {
-    let ingestions = load_ingestions(data_file);
-
-    let table = Table::new(ingestions).to_string();
-
-    println!("{}", table);
-}
-
 pub async fn delete_ingestion(db: &DatabaseConnection, ingestion_id: i32) {
     let res = Ingestion::delete_by_id(ingestion_id).exec(db).await;
     let delete_response = res.expect("Error deleting ingestion");
-    
+
     assert_eq!(delete_response.rows_affected, 1);
     println!("Ingestion with ID {} deleted.", ingestion_id);
 }
 
-pub async fn create_ingestion(
-    db: &DatabaseConnection,
-    create_ingestion: CreateIngestion,
-) -> ViewModel {
+pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
     // Parse the date from relative to the current time
     let parsed_time = parse_date_string(&create_ingestion.ingested_at, Utc::now(), Dialect::Us)
         .unwrap_or_else(|_| Utc::now());
-    
-    let ingestion_payload: ActiveModel = ActiveModel {
+
+    let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::NotSet,
         ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
         dosage: ActiveValue::Set(create_ingestion.dosage),
         substance_name: ActiveValue::Set(create_ingestion.substance_name),
     };
 
-    let ingestion = Ingestion::insert(ingestion_payload)
+    let ingestion = Ingestion::insert(ingestion_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();
-    
+
     let view_model = ViewModel {
         id: ingestion.id,
         ingested_at: ingestion.ingested_at,
@@ -76,15 +38,19 @@ pub async fn create_ingestion(
         substance_name: ingestion.substance_name,
     };
 
-    println!("Ingestion created with ID: {}", ingestion.id);
+    println!("Ingestion created with ID: {}", view_model.id);
+}
 
-    return view_model;
+pub async fn list_ingestions(db: &DatabaseConnection) {
+    let ingestions = Ingestion::find().all(db).await.unwrap();
+    let string_table = Table::new(ingestions);
+    println!("{}", string_table.to_string());
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]
 pub struct ViewModel {
-    pub id: i32,
-    pub ingested_at: String,
-    pub dosage: String,
-    pub substance_name: String,
+    pub(crate) id: i32,
+    pub(crate) ingested_at: String,
+    pub(crate) dosage: String,
+    pub(crate) substance_name: String,
 }

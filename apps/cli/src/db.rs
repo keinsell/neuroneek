@@ -1,3 +1,4 @@
+use log::debug;
 use sea_orm::DatabaseConnection;
 use sea_orm::*;
 use sea_orm_migration::*;
@@ -9,24 +10,24 @@ use xdg::BaseDirectories;
 /// file being created in the default location that will be
 /// later used with SeaORM to create database connection.
 fn locate_db_file() -> String {
-    println!("Initializing database");
+    debug!("Initializing database");
     let xdg_dirs = BaseDirectories::with_prefix("xyz.neuronek.cli").unwrap();
     let database_file = xdg_dirs.place_data_file("db.sqlite").unwrap();
 
     if !database_file.exists() {
-        println!("Creating database in {:#?}", database_file);
+        debug!("Creating database in {:#?}", database_file);
         std::fs::create_dir_all(database_file.parent().unwrap()).unwrap();
         std::fs::File::create(&database_file).unwrap();
     }
 
-    println!("Database initialized");
+    debug!("Database initialized");
     let path = database_file.parent().unwrap().join("db.sqlite");
 
-    println!("Database path: {:#?}", path);
+    debug!("Database path: {:#?}", path);
 
     // Transform path into database connection string with sqlite dialect
     let database_url = format!("sqlite://{}?mode=rwc", path.display());
-    println!("Database connection string: {:#?}", database_url);
+    debug!("Database connection string: {:#?}", database_url);
 
     return database_url.clone();
 }
@@ -41,23 +42,4 @@ pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
     };
 
     Ok(db)
-}
-
-pub async fn get_database_connection() -> DatabaseConnection {
-    let database_path = locate_db_file();
-    let connection_options = sea_orm::ConnectOptions::new(database_path);
-    let future_connection = sea_orm::Database::connect(connection_options);
-
-    let connection_result = future_connection.await;
-
-    println!("Connected to database");
-
-    match connection_result {
-        Ok(connection) => connection,
-
-        // When error happens this may be because database file is not found
-        // in this case we should handle it with retry (like create database file)
-        // or just panic.
-        Err(error) => panic!("Error connecting to database: {}", error),
-    }
 }

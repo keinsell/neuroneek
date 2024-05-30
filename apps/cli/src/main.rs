@@ -1,19 +1,15 @@
+mod cli;
 mod db;
-mod ingestion;
-
 mod entities;
+mod ingestion;
 mod substance;
-
-use std::process::id;
-use crate::ingestion::{create_ingestion, delete_ingestion, list_ingestions, load_ingestions, save_ingestions};
+use crate::ingestion::{create_ingestion, delete_ingestion};
 use crate::substance::list_substances;
-use chrono::Utc;
-use chrono_english::{parse_date_string, Dialect};
+use ingestion::list_ingestions;
+use log::debug;
 use migrator::Migrator;
-use sea_orm::TryIntoModel;
 use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
-use xdg::BaseDirectories;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -56,13 +52,9 @@ enum SubstanceCommand {
 }
 
 #[derive(StructOpt, Debug)]
-struct CreateIngestion {
+struct DeleteIngestion {
     #[structopt(short, long)]
-    pub substance_name: String,
-    #[structopt(short, long)]
-    pub dosage: String,
-    #[structopt(short = "t", long = "time", default_value = "now")]
-    pub ingested_at: String,
+    pub ingestion_id: i32,
 }
 
 #[derive(StructOpt, Debug)]
@@ -71,12 +63,9 @@ enum IngestionCommand {
         name = "create",
         about = "Create new ingestion by providing substance name and dosage in string."
     )]
-    Create(CreateIngestion),
+    Create(cli::ingestion::create::CreateIngestion),
     #[structopt(name = "delete")]
-    IngestionDelete {
-        #[structopt(short, long)]
-        ingestion_id: i32,
-    },
+    IngestionDelete(DeleteIngestion),
     #[structopt(name = "list", about = "List all ingestion's in table")]
     IngestionList {},
 }
@@ -90,36 +79,31 @@ enum DataManagementCommand {
 #[tokio::main]
 async fn main() {
     let cli = CommandLineInterface::from_args();
-    let xdg_dirs = BaseDirectories::with_prefix("neuronek").unwrap();
-    let data_file = xdg_dirs.place_data_file("journal.json").unwrap();
-
-    // TODO: For the old users of CLI we need to migrate JSON file to SQLite database
 
     let db = match db::setup_database().await {
         Ok(db) => db,
-        Err(error) => panic!("Error connecting to database: {}", error),
+        Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    // match Migrator::up(db.into_schema_manager_connection(), None).await {
+    match Migrator::up(db.into_schema_manager_connection(), None).await {
+        Ok(_) => debug!("Migrations applied"),
+        Err(error) => panic!("Could not migrate database schema: {}", error),
+    };
+
+    // match Migrator::fresh(db.into_schema_manager_connection()).await {
     //     Ok(_) => println!("Migrations applied"),
     //     Err(error) => panic!("Error applying migrations: {}", error),
     // };
 
-    match Migrator::fresh(db.into_schema_manager_connection()).await {
-        Ok(_) => println!("Migrations applied"),
-        Err(error) => panic!("Error applying migrations: {}", error),
-    };
-
-    // List all ingestion's from database
-    println!("Loading data from {:#?}", data_file.as_path());
-    let ingestion = load_ingestions(data_file.as_path());
-    println!("{:#?}", ingestion);
-
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
-            IngestionCommand::Create(create_ingestion_command) => create_ingestion(&db, create_ingestion_command),
-            IngestionCommand::IngestionDelete { ingestion_id } => delete_ingestion(&db, ingestion_id),
-            IngestionCommand::IngestionList { .. } => list_ingestions(data_file.as_path()),
+            IngestionCommand::Create(create_ingestion_command) => {
+                create_ingestion(&db, create_ingestion_command).await
+            }
+            IngestionCommand::IngestionDelete(delete_ingestion_command) => {
+                delete_ingestion(&db, delete_ingestion_command.ingestion_id).await
+            }
+            IngestionCommand::IngestionList { .. } => list_ingestions(&db).await,
         },
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,
@@ -134,7 +118,9 @@ async fn main() {
             }
         },
         Commands::Data(data) => match data {
-            DataManagementCommand::Path {} => println!("Data path: {}", data_file.display()),
+            DataManagementCommand::Path {} => {
+                todo!("Get path to data file")
+            }
         },
     }
 }
