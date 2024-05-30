@@ -8,11 +8,11 @@ use crate::ingestion::{create_ingestion, delete_ingestion, list_ingestions};
 use crate::substance::{list_substances, refresh_substances};
 use crate::ingestion::{create_ingestion, delete_ingestion};
 use crate::substance::list_substances;
-use ingestion::list_ingestions;
 use log::debug;
 use migrator::Migrator;
 use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
+use crate::db::locate_db_file;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -128,7 +128,8 @@ async fn main() {
         },
         Commands::Data(data) => match data {
             DataManagementCommand::Path {} => {
-                todo!("Get path to data file")
+                let path = locate_db_file();
+                println!("{}", path);
             }
             DataManagementCommand::RefreshDatasources {} => {
                 refresh_substances(&db).await;

@@ -9,15 +9,17 @@ use xdg::BaseDirectories;
 /// Initialization of database will result in SQLite database
 /// file being created in the default location that will be
 /// later used with SeaORM to create database connection.
-fn locate_db_file() -> String {
+pub(super) fn locate_db_file() -> String {
     debug!("Initializing database");
-    const DATABASE_FILE_NAME: &str = "db.sqlite";
-    let xdg_dirs: BaseDirectories = BaseDirectories::with_prefix("xyz.neuronek.cli").unwrap();
-
-    let environemnt_relative_database_file_name = if cfg!(feature = "development") {
-        format!("dev-{}", DATABASE_FILE_NAME)
+    const SQLITE_FILE: &str = "db.sqlite";
+    const APPLICATION_NAMESPACE: &str = "xyz.neuronek.cli";
+    
+    let xdg_dirs: BaseDirectories = BaseDirectories::with_prefix(APPLICATION_NAMESPACE).unwrap();
+    
+    let environemnt_relative_database_file_name = if cfg!(feature = "dev") {
+        format!("dev-{}", SQLITE_FILE)
     } else {
-        DATABASE_FILE_NAME.to_string()
+        SQLITE_FILE.to_string()
     };
 
     let database_file = xdg_dirs
