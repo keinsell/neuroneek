@@ -1,7 +1,7 @@
 cargo-features = ["edition2024"]
 [package]
 name = "neuronek-cli"
-version = "0.1.0"
+version = "0.0.1-dev.0"
 autobins = true
 edition = "2024"
 readme = "README.md"
@@ -10,7 +10,8 @@ rust-version = "1.71.0"
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
 chrono-english = "0.1.7"
-clap = { version = "4.5.4", features = ["derive"] }
+chrono-humanize = "0.2.3"
+clap = { version = "4.5.4", features = ["derive", "cargo", "color", "error-context", "unicode"] }
 futures = "0.3.28"
 libsqlite3-sys = { version = "*", features = ["bundled"] }
 log = "0.4.21"
@@ -18,8 +19,8 @@ migrator = { path = "./src/migrator", package = "neuronek-cli-migrator" }
 sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time", "with-time", "with-chrono", "with-json", "with-uuid", "with-rust_decimal", "with-bigdecimal"] }
 sea-orm-migration = "^0.12.0"
 serde = { version = "1.0.203", features = ["derive"] }
-serde_json = "1.0.117"
-structopt = { version = "0.3.26" }
+serde_json = { version = "1.0.117", features = ["alloc", "preserve_order", "raw_value"] }
+structopt = { version = "0.3.26", features = ["suggestions", "color"] }
 tabled = "0.15.0"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
 uom = "0.36.0"
@@ -27,11 +28,12 @@ xdg = "2.5.2"
 
 [features]
 default = []
-development = []
+# Development features will disable production-like storage
+# and enable features that are useful for development.
+dev = []
 
 [profile.dev]
 opt-level = 0
-features = ["development"]
 
 [profile.release]
 opt-level = 3

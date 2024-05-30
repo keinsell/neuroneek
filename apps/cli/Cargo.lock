@@ -561,6 +561,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "chrono-humanize"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "799627e6b4d27827a814e837b9d8a504832086081806d45b1afa34dc982b023b"
+dependencies = [
+ "chrono",
+]
+
+[[package]]
 name = "clap"
 version = "2.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -595,6 +604,8 @@ dependencies = [
  "anstyle",
  "clap_lex",
  "strsim 0.11.1",
+ "unicase",
+ "unicode-width",
 ]
 
 [[package]]
@@ -1405,10 +1416,11 @@ dependencies = [
 
 [[package]]
 name = "neuronek-cli"
-version = "0.1.0"
+version = "0.0.1-dev.0"
 dependencies = [
  "chrono",
  "chrono-english",
+ "chrono-humanize",
  "clap 4.5.4",
  "futures",
  "libsqlite3-sys",
@@ -2281,6 +2293,7 @@ version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
 dependencies = [
+ "indexmap",
  "itoa",
  "ryu",
  "serde",
@@ -2926,6 +2939,15 @@ name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
+
+[[package]]
+name = "unicase"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f7d2d4dafb69621809a81864c9c1b864479e1235c0dd4e199924b9742439ed89"
+dependencies = [
+ "version_check",
+]
 
 [[package]]
 name = "unicode-bidi"
