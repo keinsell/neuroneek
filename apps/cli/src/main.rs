@@ -4,13 +4,11 @@ mod ingestion;
 mod entities;
 mod substance;
 
-use crate::ingestion::{
-    db_create_ingestion, delete_ingestion, list_ingestions, load_ingestions, save_ingestions,
-};
+use std::process::id;
+use crate::ingestion::{create_ingestion, delete_ingestion, list_ingestions, load_ingestions, save_ingestions};
 use crate::substance::list_substances;
 use chrono::Utc;
 use chrono_english::{parse_date_string, Dialect};
-use ingestion::IngestionStructure;
 use migrator::Migrator;
 use sea_orm::TryIntoModel;
 use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
@@ -58,7 +56,7 @@ enum SubstanceCommand {
 }
 
 #[derive(StructOpt, Debug)]
-struct CreateIngestionCommand {
+struct CreateIngestion {
     #[structopt(short, long)]
     pub substance_name: String,
     #[structopt(short, long)]
@@ -73,7 +71,7 @@ enum IngestionCommand {
         name = "create",
         about = "Create new ingestion by providing substance name and dosage in string."
     )]
-    CreateIngestionCommand(CreateIngestionCommand),
+    Create(CreateIngestion),
     #[structopt(name = "delete")]
     IngestionDelete {
         #[structopt(short, long)]
@@ -119,46 +117,8 @@ async fn main() {
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
-            IngestionCommand::CreateIngestionCommand(CreateIngestionCommand {
-                substance_name,
-                ingested_at,
-                dosage,
-            }) => {
-                println!("Loading ingestions from {:#?}", data_file.as_path());
-                let mut ingestions = load_ingestions(data_file.as_path());
-
-                let parsed_time = parse_date_string(&ingested_at, Utc::now(), Dialect::Us)
-                    .unwrap_or_else(|_| Utc::now());
-
-                let new_ingestion = IngestionStructure {
-                    id: ingestions.len() as i32 + 1,
-                    substance_name,
-                    ingested_at: parsed_time,
-                    dosage,
-                };
-
-                let created_ingestion = match db_create_ingestion(&db, new_ingestion)
-                    .await
-                    .try_into_model()
-                {
-                    Ok(ingestion) => ingestion,
-                    Err(error) => panic!("Error creating ingestion: {}", error),
-                };
-
-                ingestions.push(IngestionStructure {
-                    id: created_ingestion.id,
-                    substance_name: created_ingestion.substance_name,
-                    ingested_at: parsed_time,
-                    dosage: created_ingestion.dosage,
-                });
-
-                save_ingestions(data_file.as_path(), &ingestions);
-
-                println!("Ingestion created with ID: {}", ingestions.len());
-            }
-            IngestionCommand::IngestionDelete { ingestion_id } => {
-                delete_ingestion(ingestion_id, data_file.as_path())
-            }
+            IngestionCommand::Create(create_ingestion_command) => create_ingestion(&db, create_ingestion_command),
+            IngestionCommand::IngestionDelete { ingestion_id } => delete_ingestion(&db, ingestion_id),
             IngestionCommand::IngestionList { .. } => list_ingestions(data_file.as_path()),
         },
         Commands::Substance(substance) => match substance {
