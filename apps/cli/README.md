@@ -12,12 +12,6 @@ make build-linux
 make copy-bin-linux
 ```
 
-## Commands
-
-- `ingesiton_create --substance_name="caffeine" --dosage="80mg"`
-- `ingestion_list`
-- `ingestion_delete`
-
 ## TODOs
 
 - Substance definitions? Should they be bundled to CLI?
