@@ -11,8 +11,18 @@ use xdg::BaseDirectories;
 /// later used with SeaORM to create database connection.
 fn locate_db_file() -> String {
     debug!("Initializing database");
-    let xdg_dirs = BaseDirectories::with_prefix("xyz.neuronek.cli").unwrap();
-    let database_file = xdg_dirs.place_data_file("db.sqlite").unwrap();
+    const DATABASE_FILE_NAME: &str = "db.sqlite";
+    let xdg_dirs: BaseDirectories = BaseDirectories::with_prefix("xyz.neuronek.cli").unwrap();
+
+    let environemnt_relative_database_file_name = if cfg!(feature = "development") {
+        format!("dev-{}", DATABASE_FILE_NAME)
+    } else {
+        DATABASE_FILE_NAME.to_string()
+    };
+
+    let database_file = xdg_dirs
+        .place_data_file(&environemnt_relative_database_file_name)
+        .unwrap();
 
     if !database_file.exists() {
         debug!("Creating database in {:#?}", database_file);
@@ -21,7 +31,10 @@ fn locate_db_file() -> String {
     }
 
     debug!("Database initialized");
-    let path = database_file.parent().unwrap().join("db.sqlite");
+    let path = database_file
+        .parent()
+        .unwrap()
+        .join(&environemnt_relative_database_file_name);
 
     debug!("Database path: {:#?}", path);
 

@@ -85,15 +85,16 @@ async fn main() {
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    match Migrator::up(db.into_schema_manager_connection(), None).await {
-        Ok(_) => debug!("Migrations applied"),
-        Err(error) => panic!("Could not migrate database schema: {}", error),
-    };
-
+    // #[cfg(feature = "development")]
     // match Migrator::fresh(db.into_schema_manager_connection()).await {
     //     Ok(_) => println!("Migrations applied"),
     //     Err(error) => panic!("Error applying migrations: {}", error),
     // };
+
+    match Migrator::up(db.into_schema_manager_connection(), None).await {
+        Ok(_) => debug!("Migrations applied"),
+        Err(error) => panic!("Could not migrate database schema: {}", error),
+    };
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {

@@ -36,3 +36,24 @@ tabled = "0.15.0"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
 uom = "0.36.0"
 xdg = "2.5.2"
+libsqlite3-sys = { version = "*", features = ["bundled"] }
+
+[features]
+default = ["development"]
+development = []
+
+[profile.dev]
+opt-level = 0
+features = ["development"]
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+[[bin]]
+name = "neuronek"
+path = "src/main.rs"
