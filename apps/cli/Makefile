@@ -1,3 +1,6 @@
+_install_rustup:
+	rustup component add rustc cargo rustfmt rust-std rust-docs rust-analyzer clippy miri rust-src rust-mingw llvm-tools rustc-dev
+
 # Install toolchain for building for x86_64-unknown-linux-gnu
 _install-target-linux:
 	rustup target add x86_64-unknown-linux-gnu

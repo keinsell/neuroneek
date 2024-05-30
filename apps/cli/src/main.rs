@@ -3,6 +3,9 @@ mod db;
 mod entities;
 mod ingestion;
 mod substance;
+use crate::db::locate_db_file;
+use crate::ingestion::{create_ingestion, delete_ingestion, list_ingestions};
+use crate::substance::{list_substances, refresh_substances};
 use crate::ingestion::{create_ingestion, delete_ingestion};
 use crate::substance::list_substances;
 use ingestion::list_ingestions;
@@ -74,6 +77,11 @@ enum IngestionCommand {
 enum DataManagementCommand {
     #[structopt(name = "path", about = "Returns the path to the data file")]
     Path {},
+    #[structopt(
+        name = "refresh-substances",
+        about = "Refreshes local database with cloud databasources"
+    )]
+    RefreshDatasources {},
 }
 
 #[tokio::main]
@@ -85,7 +93,7 @@ async fn main() {
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    // #[cfg(feature = "development")]
+    // #[cfg(feature = "dev")]
     // match Migrator::fresh(db.into_schema_manager_connection()).await {
     //     Ok(_) => println!("Migrations applied"),
     //     Err(error) => panic!("Error applying migrations: {}", error),
@@ -121,6 +129,9 @@ async fn main() {
         Commands::Data(data) => match data {
             DataManagementCommand::Path {} => {
                 todo!("Get path to data file")
+            }
+            DataManagementCommand::RefreshDatasources {} => {
+                refresh_substances(&db).await;
             }
         },
     }

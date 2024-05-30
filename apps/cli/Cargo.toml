@@ -15,12 +15,14 @@ futures = "0.3.28"
 libsqlite3-sys = { version = "*", features = ["bundled"] }
 log = "0.4.21"
 migrator = { path = "./src/migrator", package = "neuronek-cli-migrator" }
+rust-embed = "8.4.0"
 sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time", "with-time", "with-chrono", "with-json", "with-uuid", "with-rust_decimal", "with-bigdecimal"] }
 sea-orm-migration = "^0.12.0"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
 structopt = { version = "0.3.26" }
 tabled = "0.15.0"
+terminal_size = "0.3.0"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
 uom = "0.36.0"
 xdg = "2.5.2"
