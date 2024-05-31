@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use tabled::Table;
 
 use crate::entities::{self, prelude::Substance, substance::ActiveModel};
+use crate::service::roa::{CreateRouteOfAdministration, RouteOfAdministrationClassification};
 
 #[derive(Embed)]
 #[folder = "public/"]
@@ -136,7 +137,7 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
             description: Set(String::new().to_string()),
         };
 
-        let existing_substance = Substance::find()
+        let mut existing_substance = Substance::find()
             .filter(entities::substance::Column::Name.eq(&substance_info.name))
             .one(db)
             .await
@@ -155,8 +156,46 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
             substance.common_names = Set(substance_info.common_names.join(","));
 
             println!("{:?}", substance);
-            Substance::update(substance).exec(db).await.unwrap();
         }
+
+        for roa in substance_info.routes_of_administration {
+            fn match_dump_route_of_administration_name_with_internal_route_of_administration_name(
+                input: &Name,
+            ) -> RouteOfAdministrationClassification {
+                match input {
+                    _ => todo!(),
+                }
+            }
+
+            let mut create_roa_dto: CreateRouteOfAdministration = CreateRouteOfAdministration {
+                classification: match_dump_route_of_administration_name_with_internal_route_of_administration_name(&roa.name),
+                dosage: Vec::new(),
+                phase: Vec::new(),
+            };
+        }
+
+        // For each route of administration we should find and update the route of administration
+
+        // for roa in roas {
+        //     let mut roa_active_model: ActiveModel = ActiveModel {
+        //         id: Default::default(),
+        //         name: Set(roa.name),
+        //         bioavailability: Set(roa.bioavailability),
+        //         dosage: Set(roa.dosage),
+        //         phase: Set(roa.phase),
+        //     };
+        //
+        //     let existing_roa = RouteOfAdministration::find()
+        //         .filter(entities::route_of_administration::Column::Name.eq(&roa.name))
+        //         .one(db)
+        //         .await
+        //         .unwrap();
+        //
+        //     if existing_roa.is_none() {
+        //         roa_active_model.id = Set(existing_roa.unwrap().id);
+        //         RouteOfAdministration::insert(roa_active_model).exec(db).await.unwrap();
+        //     }
+        // }
     }
 
     // Print all substances parsed from the JSON data
@@ -169,7 +208,7 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
 
 pub async fn list_substances(db: &DatabaseConnection) {
     let substances = Substance::find().all(db).await.unwrap();
-    
+
     let table = Table::new(substances);
 
     println!("{}", table);

@@ -1,12 +1,16 @@
-use crate::entities;
-use crate::entities::prelude::Ingestion;
+use std::fmt::Debug;
+
 use chrono::{DateTime, Utc};
-use chrono_english::{parse_date_string, Dialect};
-use entities::ingestion::ActiveModel;
+use chrono_english::{Dialect, parse_date_string};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 use tabled::{Table, Tabled};
+
+use entities::ingestion::ActiveModel;
+
+use crate::entities;
+use crate::entities::prelude::Ingestion;
+use crate::service::roa::RouteOfAdministrationClassification;
 
 pub async fn delete_ingestion(db: &DatabaseConnection, ingestion_id: i32) {
     let res = Ingestion::delete_by_id(ingestion_id).exec(db).await;
@@ -71,39 +75,6 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
 
     let string_table = Table::new(view_models);
     println!("{}", string_table);
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum RouteOfAdministrationClassification {
-    Buccal,
-    Inhaled,
-    Insufflated,
-    Intramuscular,
-    Intravenous,
-    Oral,
-    Rectal,
-    Smoked,
-    Sublingual,
-    Transdermal,
-}
-
-pub fn string_to_route_of_administration_classification(
-    string: &str,
-) -> RouteOfAdministrationClassification {
-    match string {
-        "Buccal" => RouteOfAdministrationClassification::Buccal,
-        "Inhaled" => RouteOfAdministrationClassification::Inhaled,
-        "Insufflated" => RouteOfAdministrationClassification::Insufflated,
-        "Intramuscular" => RouteOfAdministrationClassification::Intramuscular,
-        "Intravenous" => RouteOfAdministrationClassification::Intravenous,
-        "Oral" => RouteOfAdministrationClassification::Oral,
-        "Rectal" => RouteOfAdministrationClassification::Rectal,
-        "Smoked" => RouteOfAdministrationClassification::Smoked,
-        "Sublingual" => RouteOfAdministrationClassification::Sublingual,
-        "Transdermal" => RouteOfAdministrationClassification::Transdermal,
-        _ => panic!("Unknown route of administration classification"),
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

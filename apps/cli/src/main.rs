@@ -3,8 +3,8 @@ use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
 
 use migrator::Migrator;
-use crate::cli::ingestion::create::handle_create_ingestion;
 
+use crate::cli::ingestion::create::{handle_create_ingestion, IngestionCommand};
 use crate::ingestion::{delete_ingestion, list_ingestion};
 use crate::substance::{list_substances, refresh_substances};
 
@@ -12,6 +12,7 @@ mod cli;
 mod db;
 mod entities;
 mod ingestion;
+mod service;
 mod substance;
 
 #[derive(StructOpt, Debug)]
@@ -46,31 +47,12 @@ enum Commands {
 enum SubstanceCommand {
     #[structopt(name = "list")]
     ListSubstances {},
-    #[structopt(name = "create")]
-    CreateSubstance {},
-    #[structopt(name = "delete")]
-    DeleteSubstance {},
-    #[structopt(name = "dump")]
-    DumpSubstance {},
 }
 
 #[derive(StructOpt, Debug)]
 struct DeleteIngestion {
     #[structopt(short, long)]
     pub ingestion_id: i32,
-}
-
-#[derive(StructOpt, Debug)]
-enum IngestionCommand {
-    #[structopt(
-        name = "create",
-        about = "Create new ingestion by providing substance name and dosage in string."
-    )]
-    Create(cli::ingestion::create::CreateIngestionCommand),
-    #[structopt(name = "delete")]
-    IngestionDelete(DeleteIngestion),
-    #[structopt(name = "list", about = "List all ingestion's in table")]
-    IngestionList {},
 }
 
 #[derive(StructOpt, Debug)]
@@ -106,7 +88,9 @@ async fn main() {
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
-            IngestionCommand::Create(create_ingestion_command) => handle_create_ingestion(create_ingestion_command, &db).await,
+            IngestionCommand::Create(create_ingestion_command) => {
+                handle_create_ingestion(create_ingestion_command, &db).await
+            }
             IngestionCommand::IngestionDelete(delete_ingestion_command) => {
                 delete_ingestion(&db, delete_ingestion_command.ingestion_id).await
             }
@@ -114,15 +98,6 @@ async fn main() {
         },
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,
-            SubstanceCommand::CreateSubstance {} => {
-                println!("Not implemented yet!")
-            }
-            SubstanceCommand::DeleteSubstance {} => {
-                println!("Not implemented yet!")
-            }
-            SubstanceCommand::DumpSubstance {} => {
-                println!("Not implemented yet!")
-            }
         },
         Commands::Data(data) => match data {
             DataManagementCommand::Path {} => {

@@ -1,7 +1,7 @@
 use sea_orm_migration::prelude::*;
 use tabled_derive::Tabled;
 
-use crate::m20240530_215436_add_ingestion_route_of_administration::RouteOfAdministration::RouteOfAdministrationClassification;
+use crate::m20240530_215436_add_ingestion_route_of_administration::RouteOfAdministration::Classification;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -44,16 +44,16 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(
-                        ColumnDef::new(RouteOfAdministration::RouteOfAdministrationClassification)
+                        ColumnDef::new(RouteOfAdministration::Classification)
                             .string()
                             .not_null(),
                     )
                     .to_owned(),
             )
             .await?;
-        
+
         // Migration to add phase entity which will be linked to route of administration
-        
+
         manager
             .create_table(
                 Table::create()
@@ -71,27 +71,15 @@ impl MigrationTrait for Migration {
                             .integer()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(Phase::PhaseClassification)
-                            .string()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(Phase::DurationMin)
-                            .integer()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(Phase::DurationMax)
-                            .integer()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(Phase::Classification).string().not_null())
+                    .col(ColumnDef::new(Phase::DurationMin).integer().not_null())
+                    .col(ColumnDef::new(Phase::DurationMax).integer().not_null())
                     .to_owned(),
             )
             .await?;
-        
+
         // Migration to add dosage entity which will be linked to route of administration
-        
+
         manager
             .create_table(
                 Table::create()
@@ -109,25 +97,13 @@ impl MigrationTrait for Migration {
                             .integer()
                             .not_null(),
                     )
-                    .col(
-                        ColumnDef::new(Dosage::DosageClassification)
-                            .string()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(Dosage::DosageMin)
-                            .integer()
-                            .not_null(),
-                    )
-                    .col(
-                        ColumnDef::new(Dosage::DosageMax)
-                            .integer()
-                            .not_null(),
-                    )
+                    .col(ColumnDef::new(Dosage::Classification).string().not_null())
+                    .col(ColumnDef::new(Dosage::Min).integer().not_null())
+                    .col(ColumnDef::new(Dosage::Max).integer().not_null())
                     .to_owned(),
             )
             .await?;
-        
+
         // manager.create_foreign_key(
         //     ForeignKey::create()
         //         .name("fk_dosage_route_of_administration")
@@ -137,7 +113,7 @@ impl MigrationTrait for Migration {
         //         .on_update(ForeignKeyAction::Cascade)
         //         .to_owned(),
         // ).await?;
-        // 
+        //
         // manager.create_foreign_key(
         //     ForeignKey::create()
         //         .name("fk_phase_route_of_administration")
@@ -147,9 +123,9 @@ impl MigrationTrait for Migration {
         //         .on_update(ForeignKeyAction::Cascade)
         //         .to_owned(),
         // ).await?;
-        // 
+        //
         // // Add unique constraint allowing only one route of administration classification per substance
-        // 
+        //
         // manager.create_index(
         //     Index::create()
         //         .name("idx_substance_route_of_administration_classification")
@@ -159,9 +135,9 @@ impl MigrationTrait for Migration {
         //         .unique()
         //         .to_owned(),
         // ).await?;
-        // 
+        //
         // // Add unique constraint allowing only one phase classification per route of administration
-        // 
+        //
         // manager.create_index(
         //     Index::create()
         //         .name("idx_route_of_administration_phase_classification")
@@ -171,9 +147,9 @@ impl MigrationTrait for Migration {
         //         .unique()
         //         .to_owned(),
         // ).await?;
-        // 
+        //
         // // Add unique constraint allowing only one dosage classification per route of administration
-        // 
+        //
         // manager.create_index(
         //     Index::create()
         //         .name("idx_route_of_administration_dosage_classification")
@@ -210,7 +186,7 @@ enum RouteOfAdministration {
     Table,
     Id,
     SubstanceName,
-    RouteOfAdministrationClassification,
+    Classification,
 }
 
 #[derive(DeriveIden)]
@@ -218,7 +194,7 @@ enum Phase {
     Table,
     Id,
     RouteOfAdministrationId,
-    PhaseClassification,
+    Classification,
     DurationMin,
     DurationMax,
 }
@@ -228,7 +204,7 @@ enum Dosage {
     Table,
     Id,
     RouteOfAdministrationId,
-    DosageClassification,
-    DosageMin,
-    DosageMax,
+    Classification,
+    Min,
+    Max,
 }
