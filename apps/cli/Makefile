@@ -5,6 +5,9 @@ _install_rustup:
 _install-target-linux:
 	rustup target add x86_64-unknown-linux-gnu
 
+dev-build:
+	cargo build --features dev
+
 lint:
 	cargo fmt --all
 	cargo clippy --all-targets --all-features --fix
@@ -32,13 +35,13 @@ install_bin_windows:
 	cp target/release/neuronek.exe dist/windows/neuronek.exe
 
 install_bin_linux:
-	cp target/release/neuronek-cli /usr/local/bin/neuronek
+	cp dist/linux/neuronek /usr/local/bin/neuronek
 
 orm-push:
 	cd src/migrator && cargo run -- fresh --database-url sqlite://db.sqlite
 
 orm-pull:
-	sea-orm-cli generate entity --database-url sqlite://src/migrator/db.sqlite --output-dir src/entities --seaography --expanded-format --with-serde both --date-time-crate chrono
+	sea-orm-cli generate entity --database-url sqlite://src/migrator/db.sqlite --output-dir src/db --date-time-crate chrono --with-copy-enums
 
 # Requires:
 # - paru -S mingw-w64 pkg-config

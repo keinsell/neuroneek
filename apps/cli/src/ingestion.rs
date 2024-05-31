@@ -1,19 +1,16 @@
-use crate::entities::prelude::Ingestion;
-use crate::{cli::ingestion::create::CreateIngestion, entities::ingestion::ActiveModel};
+use std::fmt::Debug;
+
 use chrono::{DateTime, Utc};
-use chrono_english::{parse_date_string, Dialect};
+use chrono_english::{Dialect, parse_date_string};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 use tabled::{Table, Tabled};
 
-pub async fn delete_ingestion(db: &DatabaseConnection, ingestion_id: i32) {
-    let res = Ingestion::delete_by_id(ingestion_id).exec(db).await;
-    let delete_response = res.expect("Error deleting ingestion");
+use db::ingestion::ActiveModel;
 
-    assert_eq!(delete_response.rows_affected, 1);
-    println!("Ingestion with ID {} deleted.", ingestion_id);
-}
+use crate::db;
+use crate::db::prelude::Ingestion;
+use crate::service::roa::RouteOfAdministrationClassification;
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
     // Parse the date from relative to the current time
@@ -25,6 +22,9 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
         dosage: ActiveValue::Set(create_ingestion.dosage),
         substance_name: ActiveValue::Set(create_ingestion.substance_name),
+        route_of_administration: ActiveValue::Set(
+            serde_json::to_string(&create_ingestion.route_of_administration).unwrap(),
+        ),
     };
 
     let ingestion = Ingestion::insert(ingestion_active_model)
@@ -37,12 +37,14 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ingested_at: ingestion.ingested_at,
         dosage: ingestion.dosage,
         substance_name: ingestion.substance_name,
+        progress: String::from("n/a").to_string(),
+        route_of_administration: ingestion.route_of_administration,
     };
 
     println!("Ingestion created with ID: {}", view_model.id);
 }
 
-pub async fn list_ingestions(db: &DatabaseConnection) {
+pub async fn list_ingestion(db: &DatabaseConnection) {
     let ingestions = Ingestion::find().all(db).await.unwrap();
 
     let view_models: Vec<ViewModel> = ingestions
@@ -57,12 +59,22 @@ pub async fn list_ingestions(db: &DatabaseConnection) {
                 ingested_at: humanized_date.to_string(),
                 dosage: ingestion.dosage,
                 substance_name: ingestion.substance_name,
+                progress: String::from("N/a").to_string(),
+                route_of_administration: ingestion.route_of_administration,
             }
         })
         .collect();
 
     let string_table = Table::new(view_models);
     println!("{}", string_table);
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CreateIngestion {
+    pub substance_name: String,
+    pub dosage: String,
+    pub route_of_administration: RouteOfAdministrationClassification,
+    pub ingested_at: String,
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]
@@ -75,4 +87,6 @@ pub struct ViewModel {
     pub(crate) dosage: String,
     #[tabled(rename = "date", order = 3)]
     pub(crate) ingested_at: String,
+    pub(crate) progress: String,
+    pub(crate) route_of_administration: String,
 }
