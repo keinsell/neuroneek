@@ -16,14 +16,14 @@ pub(super) fn locate_db_file() -> String {
 
     let xdg_dirs: BaseDirectories = BaseDirectories::with_prefix(APPLICATION_NAMESPACE).unwrap();
 
-    let environemnt_relative_database_file_name = if cfg!(feature = "dev") {
+    let environment_relative_database_file_name = if cfg!(feature = "dev") {
         format!("dev-{}", SQLITE_FILE)
     } else {
         SQLITE_FILE.to_string()
     };
 
     let database_file = xdg_dirs
-        .place_data_file(&environemnt_relative_database_file_name)
+        .place_data_file(&environment_relative_database_file_name)
         .unwrap();
 
     if !database_file.exists() {
@@ -36,7 +36,7 @@ pub(super) fn locate_db_file() -> String {
     let path = database_file
         .parent()
         .unwrap()
-        .join(&environemnt_relative_database_file_name);
+        .join(&environment_relative_database_file_name);
 
     debug!("Database path: {:#?}", path);
 
@@ -52,7 +52,7 @@ pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
 
     let db = match db.get_database_backend() {
         DbBackend::MySql => panic!("MySQL is not supported"),
-        DbBackend::Postgres => panic!("PostgreSQL is not supported"),
+        DbBackend::Postgres => panic!("PostgresSQL is not supported"),
         DbBackend::Sqlite => db,
     };
 

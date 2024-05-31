@@ -7,7 +7,7 @@
 
 - Generate a new migration file
   ```sh
-  cargo run -- generate MIGRATION_NAME --database-url sqlite://db.sqlite
+  cargo run -- generate add_ingestion_route_of_administration --database-url sqlite://db.sqlite
   ```
 - Apply all pending migrations
   ```sh
