@@ -2,10 +2,13 @@ use rust_embed::{Embed, EmbeddedFile};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
+use serde::de::IntoDeserializer;
+use serde_json::to_string;
 use tabled::Table;
-use crate::db::prelude::SubstanceEntity;
+use crate::db::prelude::Substance;
 use crate::db::substance;
 use crate::{db};
+use crate::service::dosage::{create_dosage, CreateDosage};
 use crate::service::roa::{create_route_of_administration, CreateRouteOfAdministration, RouteOfAdministrationClassification};
 
 #[derive(Embed)]
@@ -87,14 +90,16 @@ pub enum Unit {
     G,
     #[serde(rename = "mL")]
     ML,
+    #[serde(rename = "mg")]
     Mg,
     #[serde(rename = "mg/kg of body weight")]
     MgKgOfBodyWeight,
     #[serde(rename = "μg")]
-    PurpleG,
+    Migrograms,
+    #[serde(rename = "seeds")]
     Seeds,
     #[serde(rename = "g")]
-    UnitG,
+    Grams,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -128,38 +133,31 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
     // TODO: Make this parallel and wrap this into one transaction
 
     for substance_info in substances {
-
-        let substance_name: String = substance_info.name.clone();
-
         let mut substance_active_model: substance::ActiveModel = substance::ActiveModel {
             id: Default::default(),
-            name: Default::default(),
-            common_names: Default::default(),
+            name: Set(substance_info.name.clone()),
+            common_names: Set(substance_info.common_names.join(",")),
             brand_names: Set(String::new().to_string()),
             substitute_name: Set(String::new().to_string()),
             chemical_classes: Set(String::new().to_string()),
             description: Set(String::new().to_string()),
         };
 
-        let mut existing_substance = substance::Entity::find()
+        let substance = match substance::Entity::find()
             .filter(db::substance::Column::Name.eq(&substance_info.name))
             .one(db)
             .await
-            .unwrap();
-
-        println!("{:?}", existing_substance);
-
-        if existing_substance.is_none() {
-            substance_active_model.name = Set(substance_info.name);
-            substance_active_model.common_names = Set(substance_info.common_names.join(","));
-            println!("{:?}", substance_active_model);
-            SubstanceEntity::insert(substance_active_model).exec(db).await.unwrap();
-        } else {
-            substance_active_model.id = Set(existing_substance.unwrap().id);
-            substance_active_model.common_names = Set(substance_info.common_names.join(","));
-            println!("{:?}", substance_active_model);
-            SubstanceEntity::update(substance_active_model).filter(db::substance::Column::Id.eq(substance_name.clone())).exec(db).await.unwrap();
-        }
+            .unwrap() {
+            Some(existing_substance) => existing_substance,
+            None => {
+                substance_active_model.name = Set(substance_info.name.clone());
+                substance_active_model.common_names = Set(substance_info.common_names.join(","));
+                Substance::insert(substance_active_model)
+                    .exec_with_returning(db)
+                    .await
+                    .unwrap()
+            }
+        };
 
         for roa in substance_info.routes_of_administration {
             fn match_dump_route_of_administration_name_with_internal_route_of_administration_name(
@@ -181,18 +179,43 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
 
             let create_roa_dto: CreateRouteOfAdministration = CreateRouteOfAdministration {
                 classification: match_dump_route_of_administration_name_with_internal_route_of_administration_name(&roa.name),
-                substance_name: substance_name.clone(),
+                substance_name: substance.name.clone(),
             };
 
-            create_route_of_administration(&db, create_roa_dto).await;
-            // Map creation of dosages
-            // Map creation of phases
+            let created_roa = match create_route_of_administration(&db, create_roa_dto).await {
+                Ok(roa) => roa,
+                Err(_) => continue,
+            };
+
+            for dosage in roa.dosage {
+                fn map_dump_intensivity_to_dosage_intensivity_classification(
+                    input: &Intensivity,
+                ) -> crate::service::dosage::DosageClassification {
+                    match input {
+                        Intensivity::Common => crate::service::dosage::DosageClassification::Common,
+                        Intensivity::Heavy => crate::service::dosage::DosageClassification::Heavy,
+                        Intensivity::Light => crate::service::dosage::DosageClassification::Light,
+                        Intensivity::Strong => crate::service::dosage::DosageClassification::Strong,
+                        Intensivity::Threshold => crate::service::dosage::DosageClassification::Threshold,
+                    }
+                }
+
+                let create_dosage_input: CreateDosage = CreateDosage {
+                    route_of_administration_id: created_roa.id.clone(),
+                    intensity: map_dump_intensivity_to_dosage_intensivity_classification(&dosage.intensivity),
+                    range_max: dosage.amount_max as i32,
+                    range_min: dosage.amount_min as i32,
+                    unit: to_string(&dosage.unit).unwrap(),
+                };
+
+                create_dosage(&db,create_dosage_input).await;
+            }
         }
     }
 
     // Print all substances parsed from the JSON data
     // (single name for single line)
-    let substances = SubstanceEntity::find().all(db).await.unwrap();
+    let substances = Substance::find().all(db).await.unwrap();
 
     let string_table = Table::new(substances);
     println!("{}", string_table);

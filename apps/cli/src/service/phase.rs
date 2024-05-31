@@ -4,8 +4,7 @@ use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::ChronoTime;
 use serde::{Deserialize, Serialize};
 use crate::db::phase;
-use crate::db::phase::Model;
-use crate::db::prelude::PhaseEntity;
+use crate::db::prelude::Phase;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -66,7 +65,7 @@ pub async fn create_phase(db: &DatabaseConnection, create_phase: CreatePhase) {
         route_of_administration_id: Set(
             create_phase.route_of_administration_id
         ),
-        phase_classification: Set(
+        classification: Set(
             String::from(create_phase.phase_classification)
         ),
         duration_min: Set(
@@ -77,7 +76,7 @@ pub async fn create_phase(db: &DatabaseConnection, create_phase: CreatePhase) {
         )
     };
 
-    PhaseEntity::insert(phase_active_model)
+    Phase::insert(phase_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();

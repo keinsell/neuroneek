@@ -9,7 +9,7 @@ use tabled::{Table, Tabled};
 use db::ingestion::ActiveModel;
 
 use crate::db;
-use crate::db::prelude::IngestionEntity;
+use crate::db::prelude::Ingestion;
 use crate::service::roa::RouteOfAdministrationClassification;
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
@@ -27,7 +27,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ),
     };
 
-    let ingestion = IngestionEntity::insert(ingestion_active_model)
+    let ingestion = Ingestion::insert(ingestion_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();
@@ -45,7 +45,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
 }
 
 pub async fn list_ingestion(db: &DatabaseConnection) {
-    let ingestions = IngestionEntity::find().all(db).await.unwrap();
+    let ingestions = Ingestion::find().all(db).await.unwrap();
 
     let view_models: Vec<ViewModel> = ingestions
         .into_iter()

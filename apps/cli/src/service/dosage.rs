@@ -1,7 +1,8 @@
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
-use crate::db::prelude::DosageEntity;
+use crate::db::prelude::Dosage;
 
 use crate::{db};
 
@@ -17,6 +18,7 @@ pub enum DosageClassification {
     Unknown,
 }
 
+#[derive(Debug)]
 pub struct CreateDosage {
     pub route_of_administration_id: i32,
     pub intensity: DosageClassification,
@@ -27,12 +29,12 @@ pub struct CreateDosage {
 
 pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage) {
     // Protect against duplication by intensity on routeOfAdministrationId
-    let existing_dosage = DosageEntity::find()
+    let existing_dosage = Dosage::find()
         .filter(
             <db::dosage::Entity as sea_orm::EntityTrait>::Column::RouteOfAdministrationId
                 .eq(create_dosage.route_of_administration_id)
                 .and(
-                    <db::dosage::Entity as sea_orm::EntityTrait>::Column::DosageClassification
+                    <db::dosage::Entity as sea_orm::EntityTrait>::Column::Classification
                         .eq(to_string(&create_dosage.intensity).unwrap()),
                 ),
         )
@@ -45,13 +47,13 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
 
     let dosage_active_model: db::dosage::ActiveModel = db::dosage::ActiveModel {
         id: Default::default(),
-        route_of_administration_id: Default::default(),
-        dosage_classification: Default::default(),
-        dosage_min: Default::default(),
-        dosage_max: Default::default(),
+        route_of_administration_id: Set(create_dosage.route_of_administration_id),
+        classification: Set(to_string(&create_dosage.intensity).unwrap()),
+        min: Set(create_dosage.range_min),
+        max: Set(create_dosage.range_max),
     };
 
-    DosageEntity::insert(dosage_active_model)
+    Dosage::insert(dosage_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();

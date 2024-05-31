@@ -43,37 +43,33 @@ pub struct CreateRouteOfAdministration {
     pub substance_name: String,
 }
 
-pub struct InternalRouteOfAdministration {
-    pub id: i32,
-    pub substance_name: String,
-    pub classification: RouteOfAdministrationClassification,
-    pub dosage: Vec<DosageEntity>,
-    pub phase: Vec<PhaseEntity>,
-}
-
 pub async fn create_route_of_administration(
     db: &DatabaseConnection,
     roa: CreateRouteOfAdministration,
-) {
+) -> Result<db::route_of_administration::Model, sea_orm::error::DbErr> {
     let substance_name = roa.substance_name.clone();
 
     let roa_active_model: db::route_of_administration::ActiveModel = db::route_of_administration::ActiveModel {
         id: Default::default(),
-        route_of_administration_classification: Set(serde_json::to_string(&roa.classification)
+        classification: Set(serde_json::to_string(&roa.classification)
             .unwrap()
             .to_string()),
         substance_name: Set(substance_name.clone()),
     };
 
-    let existing_roa = RouteOfAdministrationEntity::find().filter(
-        db::route_of_administration::Column::RouteOfAdministrationClassification.eq(
+    let existing_roa = RouteOfAdministration::find().filter(
+        db::route_of_administration::Column::Classification.eq(
             serde_json::to_string(&roa.classification).unwrap(),
         ).and(
             db::route_of_administration::Column::SubstanceName.eq(substance_name.clone()),
         )
-    ).one(db).await.unwrap();
+    ).one(db).await?;
 
-    if existing_roa.is_none() {
-        RouteOfAdministrationEntity::insert(roa_active_model).exec_with_returning(db).await.unwrap();
+    match existing_roa {
+        Some(roa) => Ok(roa),
+        None => {
+            let inserted_roa = RouteOfAdministration::insert(roa_active_model).exec_with_returning(db).await?;
+            Ok(inserted_roa)
+        }
     }
 }

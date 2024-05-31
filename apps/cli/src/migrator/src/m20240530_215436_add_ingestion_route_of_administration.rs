@@ -1,6 +1,5 @@
 use sea_orm_migration::prelude::*;
 use tabled_derive::Tabled;
-
 use crate::m20240530_215436_add_ingestion_route_of_administration::RouteOfAdministration::Classification;
 
 #[derive(DeriveMigrationName)]
@@ -104,62 +103,6 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        // manager.create_foreign_key(
-        //     ForeignKey::create()
-        //         .name("fk_dosage_route_of_administration")
-        //         .from(Dosage::Table, Dosage::RouteOfAdministrationId)
-        //         .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
-        //         .on_delete(ForeignKeyAction::Cascade)
-        //         .on_update(ForeignKeyAction::Cascade)
-        //         .to_owned(),
-        // ).await?;
-        //
-        // manager.create_foreign_key(
-        //     ForeignKey::create()
-        //         .name("fk_phase_route_of_administration")
-        //         .from(Phase::Table, Phase::RouteOfAdministrationId)
-        //         .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
-        //         .on_delete(ForeignKeyAction::Cascade)
-        //         .on_update(ForeignKeyAction::Cascade)
-        //         .to_owned(),
-        // ).await?;
-        //
-        // // Add unique constraint allowing only one route of administration classification per substance
-        //
-        // manager.create_index(
-        //     Index::create()
-        //         .name("idx_substance_route_of_administration_classification")
-        //         .table(RouteOfAdministration::Table)
-        //         .col(RouteOfAdministration::RouteOfAdministrationClassification)
-        //         .col(RouteOfAdministration::SubstanceName)
-        //         .unique()
-        //         .to_owned(),
-        // ).await?;
-        //
-        // // Add unique constraint allowing only one phase classification per route of administration
-        //
-        // manager.create_index(
-        //     Index::create()
-        //         .name("idx_route_of_administration_phase_classification")
-        //         .table(Phase::Table)
-        //         .col(Phase::PhaseClassification)
-        //         .col(Phase::RouteOfAdministrationId)
-        //         .unique()
-        //         .to_owned(),
-        // ).await?;
-        //
-        // // Add unique constraint allowing only one dosage classification per route of administration
-        //
-        // manager.create_index(
-        //     Index::create()
-        //         .name("idx_route_of_administration_dosage_classification")
-        //         .table(Dosage::Table)
-        //         .col(Dosage::DosageClassification)
-        //         .col(Dosage::RouteOfAdministrationId)
-        //         .unique()
-        //         .to_owned(),
-        // ).await?;
-
         Ok(())
     }
 
@@ -171,7 +114,20 @@ impl MigrationTrait for Migration {
                     .drop_column(Ingestion::RouteOfAdministration)
                     .to_owned(),
             )
-            .await
+            .await?;
+
+manager
+            .drop_table(Table::drop().table(RouteOfAdministration::Table).to_owned())
+            .await?;
+        manager
+            .drop_table(Table::drop().table(Phase::Table).to_owned())
+            .await?;
+
+manager
+            .drop_table(Table::drop().table(Dosage::Table).to_owned())
+            .await?;
+        
+        Ok(())
     }
 }
 

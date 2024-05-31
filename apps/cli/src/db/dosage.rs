@@ -8,9 +8,9 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub route_of_administration_id: i32,
-    pub dosage_classification: String,
-    pub dosage_min: i32,
-    pub dosage_max: i32,
+    pub classification: String,
+    pub min: i32,
+    pub max: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
