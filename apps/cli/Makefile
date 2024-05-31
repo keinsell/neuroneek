@@ -41,7 +41,7 @@ orm-push:
 	cd src/migrator && cargo run -- fresh --database-url sqlite://db.sqlite
 
 orm-pull:
-	sea-orm-cli generate entity --database-url sqlite://src/migrator/db.sqlite --output-dir src/entities --seaography --expanded-format --with-serde both --date-time-crate chrono
+	sea-orm-cli generate entity --database-url sqlite://src/migrator/db.sqlite --output-dir src/entities --seaography --compact-format --with-serde both --date-time-crate chrono --with-copy-enums
 
 # Requires:
 # - paru -S mingw-w64 pkg-config
