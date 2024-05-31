@@ -1,14 +1,11 @@
 use std::str::FromStr;
-use std::time::Duration;
 use sea_orm::{DatabaseConnection, EntityTrait};
 use sea_orm::ActiveValue::Set;
 use sea_orm::prelude::ChronoTime;
 use serde::{Deserialize, Serialize};
-use serde_json::to_string;
-use crate::entities;
-use crate::entities::phase;
-use crate::entities::phase::Model;
-use crate::entities::prelude::Phase;
+use crate::db::phase;
+use crate::db::phase::Model;
+use crate::db::prelude::PhaseEntity;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -73,14 +70,14 @@ pub async fn create_phase(db: &DatabaseConnection, create_phase: CreatePhase) {
             String::from(create_phase.phase_classification)
         ),
         duration_min: Set(
-            create_phase.min_duration.to_string()
+            create_phase.min_duration.to_string().parse().unwrap()
         ),
         duration_max: Set(
-            create_phase.max_duration.to_string()
+            create_phase.max_duration.to_string().parse().unwrap()
         )
     };
 
-    phase::Entity::insert(phase_active_model)
+    PhaseEntity::insert(phase_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();

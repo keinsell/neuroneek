@@ -1,14 +1,13 @@
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
+use crate::db::prelude::DosageEntity;
 
-use crate::entities;
-use crate::entities::dosage;
-use crate::entities::prelude::Dosage;
+use crate::{db};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-enum DosageClassification {
+pub enum DosageClassification {
     Threshold,
     Heavy,
     Common,
@@ -28,12 +27,12 @@ pub struct CreateDosage {
 
 pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage) {
     // Protect against duplication by intensity on routeOfAdministrationId
-    let existing_dosage = Dosage::find()
+    let existing_dosage = DosageEntity::find()
         .filter(
-            <entities::dosage::Entity as sea_orm::EntityTrait>::Column::RouteOfAdministrationId
+            <db::dosage::Entity as sea_orm::EntityTrait>::Column::RouteOfAdministrationId
                 .eq(create_dosage.route_of_administration_id)
                 .and(
-                    <entities::dosage::Entity as sea_orm::EntityTrait>::Column::DosageClassification
+                    <db::dosage::Entity as sea_orm::EntityTrait>::Column::DosageClassification
                         .eq(to_string(&create_dosage.intensity).unwrap()),
                 ),
         )
@@ -44,7 +43,7 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
         return;
     }
 
-    let dosage_active_model: dosage::ActiveModel = dosage::ActiveModel {
+    let dosage_active_model: db::dosage::ActiveModel = db::dosage::ActiveModel {
         id: Default::default(),
         route_of_administration_id: Default::default(),
         dosage_classification: Default::default(),
@@ -52,7 +51,7 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
         dosage_max: Default::default(),
     };
 
-    dosage::Entity::insert(dosage_active_model)
+    DosageEntity::insert(dosage_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();

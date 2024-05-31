@@ -6,19 +6,11 @@ use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
 
-use entities::ingestion::ActiveModel;
+use db::ingestion::ActiveModel;
 
-use crate::entities;
-use crate::entities::prelude::Ingestion;
+use crate::db;
+use crate::db::prelude::IngestionEntity;
 use crate::service::roa::RouteOfAdministrationClassification;
-
-pub async fn delete_ingestion(db: &DatabaseConnection, ingestion_id: i32) {
-    let res = Ingestion::delete_by_id(ingestion_id).exec(db).await;
-    let delete_response = res.expect("Error deleting ingestion");
-
-    assert_eq!(delete_response.rows_affected, 1);
-    println!("Ingestion with ID {} deleted.", ingestion_id);
-}
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
     // Parse the date from relative to the current time
@@ -35,7 +27,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ),
     };
 
-    let ingestion = Ingestion::insert(ingestion_active_model)
+    let ingestion = IngestionEntity::insert(ingestion_active_model)
         .exec_with_returning(db)
         .await
         .unwrap();
@@ -53,7 +45,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
 }
 
 pub async fn list_ingestion(db: &DatabaseConnection) {
-    let ingestions = Ingestion::find().all(db).await.unwrap();
+    let ingestions = IngestionEntity::find().all(db).await.unwrap();
 
     let view_models: Vec<ViewModel> = ingestions
         .into_iter()

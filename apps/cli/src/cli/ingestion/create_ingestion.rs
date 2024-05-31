@@ -1,27 +1,12 @@
 use sea_orm::DatabaseConnection;
 use structopt::StructOpt;
-
-use crate::DeleteIngestion;
 use crate::ingestion::{
-    create_ingestion, CreateIngestion, string_to_route_of_administration_classification,
+    create_ingestion, CreateIngestion,
 };
-use crate::service::roa::RouteOfAdministrationClassification;
+use crate::service::roa::{RouteOfAdministrationClassification, string_to_route_of_administration_classification};
 
 #[derive(StructOpt, Debug)]
-pub enum IngestionCommand {
-    #[structopt(
-        name = "create",
-        about = "Create new ingestion by providing substance name and dosage in string."
-    )]
-    Create(CreateIngestionCommand),
-    #[structopt(name = "delete")]
-    IngestionDelete(DeleteIngestion),
-    #[structopt(name = "list", about = "List all ingestion's in table")]
-    IngestionList {},
-}
-
-#[derive(StructOpt, Debug)]
-pub struct CreateIngestionCommand {
+pub(crate) struct CreateIngestionFeature {
     #[structopt(short, long)]
     pub substance_name: String,
     #[structopt(short, long)]
@@ -33,7 +18,7 @@ pub struct CreateIngestionCommand {
 }
 
 pub async fn handle_create_ingestion(
-    create_ingestion_command: CreateIngestionCommand,
+    create_ingestion_command: CreateIngestionFeature,
     db: &DatabaseConnection,
 ) {
     let roa_class: RouteOfAdministrationClassification =
