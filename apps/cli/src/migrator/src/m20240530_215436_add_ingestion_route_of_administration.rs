@@ -72,8 +72,8 @@ impl MigrationTrait for Migration {
                             .not_null(),
                     )
                     .col(ColumnDef::new(Phase::Classification).string().not_null())
-                    .col(ColumnDef::new(Phase::DurationMin).integer().not_null())
-                    .col(ColumnDef::new(Phase::DurationMax).integer().not_null())
+                    .col(ColumnDef::new(Phase::DurationMin).string().not_null())
+                    .col(ColumnDef::new(Phase::DurationMax).string().not_null())
                     .to_owned(),
             )
             .await?;
