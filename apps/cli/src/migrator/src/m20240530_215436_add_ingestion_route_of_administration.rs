@@ -23,8 +23,6 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        // Migration to add route of administration entity to the database
-
         manager
             .create_table(
                 Table::create()
@@ -51,8 +49,6 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        // Migration to add phase entity which will be linked to route of administration
-
         manager
             .create_table(
                 Table::create()
@@ -73,6 +69,14 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Phase::Classification).string().not_null())
                     .col(ColumnDef::new(Phase::DurationMin).string().not_null())
                     .col(ColumnDef::new(Phase::DurationMax).string().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_phase_route_of_administration_id")
+                            .from(Phase::Table, Phase::RouteOfAdministrationId)
+                            .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade)
+                    )
                     .to_owned(),
             )
             .await?;
@@ -99,6 +103,14 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Dosage::Classification).string().not_null())
                     .col(ColumnDef::new(Dosage::Min).integer().not_null())
                     .col(ColumnDef::new(Dosage::Max).integer().not_null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("fk_dosage_route_of_administration_id")
+                            .from(Dosage::Table, Dosage::RouteOfAdministrationId)
+                            .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
+                            .on_delete(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade)
+                    )
                     .to_owned(),
             )
             .await?;
@@ -126,7 +138,7 @@ manager
 manager
             .drop_table(Table::drop().table(Dosage::Table).to_owned())
             .await?;
-        
+
         Ok(())
     }
 }

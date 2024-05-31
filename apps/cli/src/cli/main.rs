@@ -63,11 +63,11 @@ pub async fn cli() {
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    // #[cfg(feature = "dev")]
-    // match Migrator::fresh(db.into_schema_manager_connection()).await {
-    //     Ok(_) => println!("Migrations applied"),
-    //     Err(error) => panic!("Error applying migrations: {}", error),
-    // };
+    #[cfg(feature = "dev")]
+    match Migrator::fresh(db.into_schema_manager_connection()).await {
+        Ok(_) => println!("Migrations applied"),
+        Err(error) => panic!("Error applying migrations: {}", error),
+    };
 
     match Migrator::up(db.into_schema_manager_connection(), None).await {
         Ok(_) => debug!("Migrations applied"),
