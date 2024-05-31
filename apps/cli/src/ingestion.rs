@@ -1,7 +1,8 @@
+use crate::entities;
 use crate::entities::prelude::Ingestion;
-use crate::{cli::ingestion::create::CreateIngestion, entities::ingestion::ActiveModel};
 use chrono::{DateTime, Utc};
 use chrono_english::{parse_date_string, Dialect};
+use entities::ingestion::ActiveModel;
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -25,6 +26,9 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
         dosage: ActiveValue::Set(create_ingestion.dosage),
         substance_name: ActiveValue::Set(create_ingestion.substance_name),
+        route_of_administration: ActiveValue::Set(
+            serde_json::to_string(&create_ingestion.route_of_administration).unwrap(),
+        ),
     };
 
     let ingestion = Ingestion::insert(ingestion_active_model)
@@ -37,12 +41,14 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         ingested_at: ingestion.ingested_at,
         dosage: ingestion.dosage,
         substance_name: ingestion.substance_name,
+        progress: String::from("n/a").to_string(),
+        route_of_administration: ingestion.route_of_administration,
     };
 
     println!("Ingestion created with ID: {}", view_model.id);
 }
 
-pub async fn list_ingestions(db: &DatabaseConnection) {
+pub async fn list_ingestion(db: &DatabaseConnection) {
     let ingestions = Ingestion::find().all(db).await.unwrap();
 
     let view_models: Vec<ViewModel> = ingestions
@@ -57,12 +63,55 @@ pub async fn list_ingestions(db: &DatabaseConnection) {
                 ingested_at: humanized_date.to_string(),
                 dosage: ingestion.dosage,
                 substance_name: ingestion.substance_name,
+                progress: String::from("N/a").to_string(),
+                route_of_administration: ingestion.route_of_administration,
             }
         })
         .collect();
 
     let string_table = Table::new(view_models);
     println!("{}", string_table);
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RouteOfAdministrationClassification {
+    Buccal,
+    Inhaled,
+    Insufflated,
+    Intramuscular,
+    Intravenous,
+    Oral,
+    Rectal,
+    Smoked,
+    Sublingual,
+    Transdermal,
+}
+
+pub fn string_to_route_of_administration_classification(
+    string: &str,
+) -> RouteOfAdministrationClassification {
+    match string {
+        "Buccal" => RouteOfAdministrationClassification::Buccal,
+        "Inhaled" => RouteOfAdministrationClassification::Inhaled,
+        "Insufflated" => RouteOfAdministrationClassification::Insufflated,
+        "Intramuscular" => RouteOfAdministrationClassification::Intramuscular,
+        "Intravenous" => RouteOfAdministrationClassification::Intravenous,
+        "Oral" => RouteOfAdministrationClassification::Oral,
+        "Rectal" => RouteOfAdministrationClassification::Rectal,
+        "Smoked" => RouteOfAdministrationClassification::Smoked,
+        "Sublingual" => RouteOfAdministrationClassification::Sublingual,
+        "Transdermal" => RouteOfAdministrationClassification::Transdermal,
+        _ => panic!("Unknown route of administration classification"),
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct CreateIngestion {
+    pub substance_name: String,
+    pub dosage: String,
+    pub route_of_administration: RouteOfAdministrationClassification,
+    pub ingested_at: String,
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]
@@ -75,4 +124,6 @@ pub struct ViewModel {
     pub(crate) dosage: String,
     #[tabled(rename = "date", order = 3)]
     pub(crate) ingested_at: String,
+    pub(crate) progress: String,
+    pub(crate) route_of_administration: String,
 }

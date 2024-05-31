@@ -1,14 +1,18 @@
+use log::debug;
+use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
+use structopt::StructOpt;
+
+use migrator::Migrator;
+use crate::cli::ingestion::create::handle_create_ingestion;
+
+use crate::ingestion::{delete_ingestion, list_ingestion};
+use crate::substance::{list_substances, refresh_substances};
+
 mod cli;
 mod db;
 mod entities;
 mod ingestion;
 mod substance;
-use crate::ingestion::{create_ingestion, delete_ingestion, list_ingestions};
-use crate::substance::{list_substances, refresh_substances};
-use log::debug;
-use migrator::Migrator;
-use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
-use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -62,7 +66,7 @@ enum IngestionCommand {
         name = "create",
         about = "Create new ingestion by providing substance name and dosage in string."
     )]
-    Create(cli::ingestion::create::CreateIngestion),
+    Create(cli::ingestion::create::CreateIngestionCommand),
     #[structopt(name = "delete")]
     IngestionDelete(DeleteIngestion),
     #[structopt(name = "list", about = "List all ingestion's in table")]
@@ -75,9 +79,9 @@ enum DataManagementCommand {
     Path {},
     #[structopt(
         name = "refresh-substances",
-        about = "Refreshes local database with cloud databasources"
+        about = "Refreshes local database with cloud datasource"
     )]
-    RefreshDatasources {},
+    RefreshDatasource {},
 }
 
 #[tokio::main]
@@ -102,13 +106,11 @@ async fn main() {
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
-            IngestionCommand::Create(create_ingestion_command) => {
-                create_ingestion(&db, create_ingestion_command).await
-            }
+            IngestionCommand::Create(create_ingestion_command) => handle_create_ingestion(create_ingestion_command, &db).await,
             IngestionCommand::IngestionDelete(delete_ingestion_command) => {
                 delete_ingestion(&db, delete_ingestion_command.ingestion_id).await
             }
-            IngestionCommand::IngestionList { .. } => list_ingestions(&db).await,
+            IngestionCommand::IngestionList { .. } => list_ingestion(&db).await,
         },
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,
@@ -126,7 +128,7 @@ async fn main() {
             DataManagementCommand::Path {} => {
                 todo!("Get path to data file")
             }
-            DataManagementCommand::RefreshDatasources {} => {
+            DataManagementCommand::RefreshDatasource {} => {
                 refresh_substances(&db).await;
             }
         },

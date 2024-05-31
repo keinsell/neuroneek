@@ -21,6 +21,7 @@ pub struct Model {
     pub substance_name: String,
     pub ingested_at: String,
     pub dosage: String,
+    pub route_of_administration: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
@@ -29,6 +30,7 @@ pub enum Column {
     SubstanceName,
     IngestedAt,
     Dosage,
+    RouteOfAdministration,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
@@ -54,6 +56,7 @@ impl ColumnTrait for Column {
             Self::SubstanceName => ColumnType::String(None).def(),
             Self::IngestedAt => ColumnType::String(None).def(),
             Self::Dosage => ColumnType::String(None).def(),
+            Self::RouteOfAdministration => ColumnType::String(None).def(),
         }
     }
 }

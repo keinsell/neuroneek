@@ -1,9 +1,10 @@
-use crate::entities::{self, prelude::Substance, substance::ActiveModel};
 use rust_embed::{Embed, EmbeddedFile};
-use sea_orm::ActiveValue::Set;
 use sea_orm::*;
+use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
 use tabled::Table;
+
+use crate::entities::{self, prelude::Substance, substance::ActiveModel};
 
 #[derive(Embed)]
 #[folder = "public/"]
@@ -168,23 +169,7 @@ pub async fn refresh_substances(db: &DatabaseConnection) {
 
 pub async fn list_substances(db: &DatabaseConnection) {
     let substances = Substance::find().all(db).await.unwrap();
-
-    // fn get_terminal_size() -> (usize, usize) {
-    //     let (TerminalWidth(width), TerminalHeight(height)) =
-    //         terminal_size().expect("failed to obtain a terminal size");
-
-    //     (width as usize, height as usize)
-    // }
-
-    // let (width, height) = get_terminal_size();
-
-    // let table_settings = Settings::default()
-    //     .with(Width::increase(width))
-    //     .with(Height::limit(height))
-    //     .with(Height::increase(height));
-
-    // Configure table to be fitten into terminal width
-
+    
     let table = Table::new(substances);
 
     println!("{}", table);
