@@ -11,6 +11,7 @@ pub struct Model {
     pub ingested_at: String,
     pub dosage: String,
     pub route_of_administration: String,
+    
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

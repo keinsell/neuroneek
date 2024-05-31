@@ -4,6 +4,14 @@ use sea_orm::*;
 use sea_orm_migration::*;
 use xdg::BaseDirectories;
 
+lazy_static::lazy_static! {
+    pub static ref DB_CONNECTION: DatabaseConnection = {
+        async_std::task::block_on(async {
+            Database::connect(locate_db_file()).await.unwrap()
+        })
+    };
+}
+
 /// Function will initialize database in the default location
 /// relative to user's home directory and XDG_DATA_HOME.
 /// Initialization of database will result in SQLite database
@@ -49,12 +57,10 @@ pub(super) fn locate_db_file() -> String {
 
 pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
     let db = Database::connect(locate_db_file()).await?;
-
     let db = match db.get_database_backend() {
         DbBackend::MySql => panic!("MySQL is not supported"),
         DbBackend::Postgres => panic!("PostgresSQL is not supported"),
         DbBackend::Sqlite => db,
     };
-
     Ok(db)
 }

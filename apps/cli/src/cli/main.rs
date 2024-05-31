@@ -5,6 +5,7 @@ use structopt::StructOpt;
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
 use crate::cli::ingestion::IngestionCommand;
+use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::substance::list_substances::list_substances;
 use crate::ingestion::{list_ingestion};
 use crate::orm;
@@ -63,11 +64,11 @@ pub async fn cli() {
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    #[cfg(feature = "dev")]
-    match Migrator::fresh(db.into_schema_manager_connection()).await {
-        Ok(_) => println!("Migrations applied"),
-        Err(error) => panic!("Error applying migrations: {}", error),
-    };
+    // #[cfg(feature = "dev")]
+    // match Migrator::fresh(db.into_schema_manager_connection()).await {
+    //     Ok(_) => println!("Migrations applied"),
+    //     Err(error) => panic!("Error applying migrations: {}", error),
+    // };
 
     match Migrator::up(db.into_schema_manager_connection(), None).await {
         Ok(_) => debug!("Migrations applied"),
@@ -83,6 +84,7 @@ pub async fn cli() {
                 delete_ingestion(&db, delete_ingestion_command.ingestion_id).await
             }
             IngestionCommand::IngestionList { .. } => list_ingestion(&db).await,
+            IngestionCommand::Plan(command) => handle_plan_ingestion(command).await,
         },
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,

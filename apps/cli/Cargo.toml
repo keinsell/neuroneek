@@ -30,8 +30,12 @@ structopt = { version = "0.3.26", features = ["suggestions", "color"] }
 tabled = "0.15.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
-uom = "0.36.0"
+uom = { version = "0.36.0", features = ["autoconvert", "use_serde", "serde", "default", "std", "si"] }
 xdg = "2.5.2"
+lazy_static = "1.4.0"
+async-std = "1.12.0"
+fuzzy-matcher = "0.3.7"
+emojic = { version = "0.4.1", features = ["lazy_static", "doc_cfg"] }
 
 [features]
 default = []
