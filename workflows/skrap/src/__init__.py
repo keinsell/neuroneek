@@ -1,4 +1,5 @@
 import json
+from enum import Enum
 from typing import Any, Optional
 
 import requests
@@ -39,8 +40,17 @@ IGNORE_SUBSTANCE_NAMES: list[str] = [
 ]
 
 
+# Define enum
+class DosageIntensivity(str, Enum):
+    threshold = ("threshold",)
+    light = ("light",)
+    common = ("common",)
+    strong = ("strong",)
+    heavy = "heavy"
+
+
 def create_dosage_input(
-    intensivity: str,
+    intensivity: DosageIntensivity,
     dose: codegen_types.psychonautwiki.Dose,
     route_of_administration: prisma.models.RouteOfAdministration,
 ) -> Optional[DosageCreateInput]:
@@ -257,6 +267,7 @@ class GetPsychonautwiki(FlowSpec):
         ).data.substances
 
         # Parse data from GraphQL into Model and assign to workflow
+        # noinspection PyAttributeOutsideInit
         self.psychonautwiki: codegen_types.psychonautwiki.Model = (
             codegen_types.psychonautwiki.Model.parse_obj(self.psychonautwiki_response)
         )
@@ -431,7 +442,9 @@ class GetPsychonautwiki(FlowSpec):
                         )
                         continue
 
-                    dose_input = create_dosage_input(intensivity, dose, db_roa)
+                    dose_input = create_dosage_input(
+                        DosageIntensivity(intensivity), dose, db_roa
+                    )
 
                     if not dose_input:
                         print(
@@ -517,13 +530,13 @@ class GetPsychonautwiki(FlowSpec):
                 print(f"Failed to insert {effect.title}")
                 continue
 
-        self.next(self.connect_effectindex_with_psychonautwiki)
+        self.next(self.merge_effect_references)
 
     # TODO: This needs to be implemented
     @step
-    def connect_effectindex_with_psychonautwiki(self):
+    def merge_effect_references(self):
         """
-        This step will extract all of the effects mentioned in psychonautwiki and connect them with the effects from effectindex.
+        This step will extract all the effects mentioned in psychonautwiki and connect them with the effects from effectindex.
         In the result effects in database will have url to psychoanautwiki's page.
         """
 
