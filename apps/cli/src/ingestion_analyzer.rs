@@ -9,7 +9,6 @@ use uom::si::f32::Mass;
 use crate::db;
 use crate::ingestion::CreateIngestion;
 use crate::orm::DB_CONNECTION;
-use crate::service::dosage::DosageClassification;
 use crate::service::substance::search_substance;
 
 // https://docs.rs/indicatif/latest/indicatif/

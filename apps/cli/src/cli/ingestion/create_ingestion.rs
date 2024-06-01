@@ -36,7 +36,7 @@ pub async fn handle_create_ingestion(
         route_of_administration: roa_class,
     };
     
-    if (create_ingestion_command.plan) {
+    if create_ingestion_command.plan {
         analyze_future_ingestion(&create_ingestion_payload).await;
         return;
     }

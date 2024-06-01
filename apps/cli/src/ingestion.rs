@@ -1,13 +1,10 @@
 use std::fmt::Debug;
-
 use chrono::{DateTime, Utc};
 use chrono_english::{Dialect, parse_date_string};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
-
 use db::ingestion::ActiveModel;
-
 use crate::db;
 use crate::db::prelude::Ingestion;
 use crate::ingestion_analyzer::analyze_future_ingestion;
