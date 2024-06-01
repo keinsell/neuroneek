@@ -72,21 +72,20 @@ model Substance {
 }
 
 model RouteOfAdministration {
-  id              String     @id @default(cuid())
-  substanceName   String?
-  name            String
-  bioavailability Float
-  dosage          Dosage[]
-  phases          Phase[]
-  Substance       Substance? @relation(fields: [substanceName], references: [name])
+  id             String    @id @default(cuid())
+  substanceName  String
+  classification String    @map("name")
+  dosage         Dosage[]
+  phases         Phase[]
+  Substance      Substance @relation(fields: [substanceName], references: [name])
 
-  @@unique([name, substanceName])
+  @@unique([classification, substanceName])
 }
 
 model Phase {
   id                      String                 @id @default(cuid())
-  from_duration                    Int? @map("min_duration")
-  to_duration                      Int? @map("max_duration")
+  from_duration           Int?                   @map("min_duration")
+  to_duration             Int?                   @map("max_duration")
   RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
   routeOfAdministrationId String?
   effects                 Effect[]

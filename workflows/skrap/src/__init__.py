@@ -10,6 +10,7 @@ from prisma.types import (
     DosageWhereInput,
     EffectCreateInput,
     SubstanceCreateInput,
+    RouteOfAdministrationWhereInput,
 )
 
 import codegen_types  # type: ignore
@@ -49,38 +50,95 @@ class DosageIntensivity(str, Enum):
     heavy = "heavy"
 
 
+class DosageUnit(str, Enum):
+    microgram = ("μg",)
+    milligram = ("mg",)
+    gram = ("g",)
+
+
+class RouteOfAdministrationClassification(str, Enum):
+    oral = ("oral",)
+    sublingual = ("sublingual",)
+    buccal = ("buccal",)
+    insufflated = ("insufflated",)
+    rectal = ("rectal",)
+    transdermal = ("transdermal",)
+    subcutaneous = ("subcutaneous",)
+    intramuscular = ("intramuscular",)
+    interavenous = ("interavenous",)
+    smoked = ("smoked",)
+
+
 def create_dosage_input(
     intensivity: DosageIntensivity,
     dose: codegen_types.psychonautwiki.Dose,
     route_of_administration: prisma.models.RouteOfAdministration,
 ) -> Optional[DosageCreateInput]:
     try:
-        if intensivity in ["threshold", "heavy"]:
-            return {
-                "routeOfAdministrationId": route_of_administration.id,
-                "intensivity": intensivity,
-                "amount_min": dose.model_dump()[intensivity],
-                "amount_max": dose.model_dump()[intensivity],
-                "unit": dose.units,
-            }
-        else:
-            # Avoid filling database with None values
-            is_min_dosage_none = dose.model_dump()[intensivity]["min"] is None
-            is_max_dosage_none = dose.model_dump()[intensivity]["max"] is None
-
-            if is_max_dosage_none or is_min_dosage_none:
+        if intensivity is DosageIntensivity.heavy:
+            # Expect heavy dosage to be present and use it as
+            # lower and upper bound for min and max dosage.
+            if not dose.heavy:
                 return None
 
-            # Return dosage input
             return {
                 "routeOfAdministrationId": route_of_administration.id,
-                "intensivity": intensivity,
-                "amount_min": dose.model_dump()[intensivity]["min"],
-                "amount_max": dose.model_dump()[intensivity]["max"],
+                "intensivity": intensivity.lower(),
+                "amount_min": dose.heavy,
+                "amount_max": dose.heavy,
                 "unit": dose.units,
             }
+        if intensivity is DosageIntensivity.threshold:
+            # Expect threshold dosage to be present and use it as
+            # lower and upper bound for min and max dosage.
+            if not dose.threshold:
+                return None
+
+            return {
+                "routeOfAdministrationId": route_of_administration.id,
+                "intensivity": intensivity.lower(),
+                "amount_min": dose.threshold,
+                "amount_max": dose.threshold,
+                "unit": dose.units,
+            }
+
+            # Avoid filling database with None values
+        is_min_dosage_none = dose.model_dump()[intensivity]["min"] is None
+        is_max_dosage_none = dose.model_dump()[intensivity]["max"] is None
+
+        if is_max_dosage_none or is_min_dosage_none:
+            return None
+
+        # Return dosage input
+        return DosageCreateInput(
+            routeOfAdministrationId=route_of_administration.id,
+            intensivity=intensivity.lower(),
+            amount_min=dose.model_dump()[intensivity]["min"],
+            amount_max=dose.model_dump()[intensivity]["max"],
+            unit=dose.units,
+        )
     except Exception as e:
         print(f"Failed to extract data for {intensivity}: {e}")
+        return None
+
+
+def create_route_of_administration_input(
+    psychonautwiki_roa: codegen_types.psychonautwiki.Roa,
+    substance: prisma.models.Substance,
+) -> Optional[RouteOfAdministrationCreateInput]:
+    if not psychonautwiki_roa:
+        return None
+
+    try:
+        classification = RouteOfAdministrationClassification(
+            psychonautwiki_roa.name.lower()
+        )
+
+        return RouteOfAdministrationCreateInput(
+            classification=classification,
+            substanceName=substance.name,
+        )
+    except Exception:
         return None
 
 
@@ -295,7 +353,6 @@ class GetPsychonautwiki(FlowSpec):
         For each substance in a database we will explore the route of administration in the provided
         dataset, if one exists in a database the insertion will be skipped nad if not it will be inserted.
         """
-
         db = prisma.Prisma()
         db.connect()
 
@@ -323,43 +380,27 @@ class GetPsychonautwiki(FlowSpec):
                 continue
 
             # Find route of administration in the dataset
-            roas = pw_substance.roas
+            psychonautwiki_route_of_administration = pw_substance.roas
 
-            if not roas:
+            if not psychonautwiki_route_of_administration:
                 print("No route of administration found for substance")
                 continue
 
-            for roa in roas:
-                print("Processing route of administration: ", roa.name)
-
-                # Find route of administration in the database
-                db_roa = db.routeofadministration.find_first(
-                    where={"name": roa.name, "substanceName": pw_substance.name}
+            for roa in psychonautwiki_route_of_administration:
+                create_route_of_administration_payload = (
+                    create_route_of_administration_input(
+                        psychonautwiki_route_of_administration, substance
+                    )
                 )
 
-                if db_roa:
-                    print("Route of administration already exists in the database")
+                if not create_route_of_administration_payload:
                     continue
 
-                print("Inserting route of administration into the database")
-
-                roa_input: RouteOfAdministrationCreateInput = {
-                    "name": roa.name,
-                    "substanceName": substance.name,
-                    "bioavailability": (
-                        roa.bioavailability.min
-                        if roa.bioavailability and roa.bioavailability.min
-                        else (
-                            roa.bioavailability.max
-                            if roa.bioavailability and roa.bioavailability.max
-                            else 100
-                        )
-                    ),
-                }
-
                 try:
-                    db_roa = db.routeofadministration.create(roa_input)
-                    print(f"Inserted {db_roa.name}", db_roa)
+                    db_roa = db.routeofadministration.create(
+                        data=create_route_of_administration_payload
+                    )
+                    print(f"Created {db_roa.classification} for {db_roa.substanceName}")
                 except TypeError as e:
                     print(f"Failed to insert {roa['name']}: ", e)
                     continue
@@ -406,11 +447,12 @@ class GetPsychonautwiki(FlowSpec):
                 print("Processing route of administration: ", roa.name)
 
                 db_roa = db.routeofadministration.find_first(
-                    where={"name": roa.name, "substanceName": pw_substance.name}
+                    where=RouteOfAdministrationWhereInput(
+                        classification=roa.name, substanceName=substance.name
+                    )
                 )
 
                 if not db_roa:
-                    print("Route of administration not found in the database")
                     continue
 
                 dose = roa.dose
@@ -430,26 +472,11 @@ class GetPsychonautwiki(FlowSpec):
                 ]
 
                 for intensivity in dosage_intensivities:
-                    print(
-                        f"Processing {intensivity} dosage for {roa.name} of {substance.name}:",
-                        dose.model_dump_json(),
-                    )
-
-                    if getattr(dose, intensivity, None) is None:
-                        print(
-                            f"No {intensivity} dosage found for {roa.name} of {substance.name}",
-                            dose.model_dump_json(),
-                        )
-                        continue
-
                     dose_input = create_dosage_input(
                         DosageIntensivity(intensivity), dose, db_roa
                     )
 
                     if not dose_input:
-                        print(
-                            f"Failed to create dosage input for {intensivity}: {dose.model_dump_json()}"
-                        )
                         continue
 
                     try:
@@ -473,6 +500,24 @@ class GetPsychonautwiki(FlowSpec):
                             f"Failed to insert {dose['routeOfAdministrationName']}: ", e
                         )
                         continue
+
+        self.next(self.import_effects)
+
+    def import_phases(self):
+        """
+        Step will parse information from psychonautwiki to add durations for each
+        route of administration that was imported before.
+        """
+        db = prisma.Prisma()
+        db.connect()
+
+        routes_of_administration = db.routeofadministration.find_many()
+
+        for route_of_administration in routes_of_administration:
+            # Find substance in psychonautwiki dataset available in class.
+            psychonautwiki_substances = codegen_types.psychonautwiki.Model.parse_obj(
+                self.psychonautwiki
+            ).data.substances
 
         self.next(self.import_effects)
 
