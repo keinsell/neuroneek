@@ -64,3 +64,21 @@ pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
     };
     Ok(db)
 }
+
+/// Get database file and create a snapshot of it by creating a copy with a timestamp
+pub async fn snapshot_database() {
+    let db_file = locate_db_file();
+    let db_file = std::path::Path::new(&db_file);
+
+    let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
+    let snapshot_file = db_file.with_file_name(format!("snapshot_{}.sqlite", timestamp));
+
+    debug!("Creating snapshot of database");
+
+    match std::fs::copy(db_file, &snapshot_file) {
+        Ok(_) => println!("Database snapshot created at: {:#?}", snapshot_file),
+        Err(e) => eprintln!("Failed to create database snapshot: {:#?}", e),
+    }
+
+    println!("Database snapshot created at: {:#?}", snapshot_file);
+}

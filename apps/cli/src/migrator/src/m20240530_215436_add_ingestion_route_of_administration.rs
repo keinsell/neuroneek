@@ -2,7 +2,7 @@ use sea_orm_migration::prelude::*;
 use tabled_derive::Tabled;
 use crate::m20240530_215436_add_ingestion_route_of_administration::RouteOfAdministration::Classification;
 
-#[derive(DeriveMigrationName)]
+#[derive(DeriveMigrationName,Debug)]
 pub struct Migration;
 
 #[async_trait::async_trait]

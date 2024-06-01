@@ -1,7 +1,5 @@
-use sea_orm::DatabaseConnection;
 use structopt::StructOpt;
-use crate::cli::ingestion::create_ingestion::CreateIngestionFeature;
-use crate::ingestion::{create_ingestion, CreateIngestion};
+use crate::ingestion::{ CreateIngestion};
 use crate::ingestion_analyzer::analyze_future_ingestion;
 use crate::service::roa::{RouteOfAdministrationClassification, string_to_route_of_administration_classification};
 
@@ -29,6 +27,6 @@ pub async fn handle_plan_ingestion(plan_ingestion_command: PlanIngestionCommand)
         ingested_at: plan_ingestion_command.ingested_at,
         route_of_administration: roa_class,
     };
-    
+
     analyze_future_ingestion(&create_ingestion_payload).await;
 }
