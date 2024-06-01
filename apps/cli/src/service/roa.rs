@@ -1,7 +1,7 @@
 use crate::db;
 use crate::db::prelude::*;
 use sea_orm::ActiveValue::Set;
-use sea_orm::{entity::*, query::*, DbBackend};
+use sea_orm::*;
 use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 

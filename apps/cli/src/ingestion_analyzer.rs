@@ -78,7 +78,7 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
     let route_of_administration = maybe_roa.unwrap().clone();
 
     ingestion_analisis.route_of_administration_classification =
-        create_ingestion.route_of_administration.clone();
+        create_ingestion.route_of_administration;
 
     let dosage = db::dosage::Entity::find()
         .filter(db::dosage::Column::RouteOfAdministrationId.eq(route_of_administration.id))

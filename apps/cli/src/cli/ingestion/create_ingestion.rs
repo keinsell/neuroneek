@@ -1,22 +1,26 @@
+use crate::ingestion::{create_ingestion, CreateIngestion};
+use crate::ingestion_analyzer::analyze_future_ingestion;
+use crate::service::roa::{
+    string_to_route_of_administration_classification, RouteOfAdministrationClassification,
+};
 use sea_orm::DatabaseConnection;
 use structopt::StructOpt;
-use crate::ingestion::{
-    create_ingestion, CreateIngestion,
-};
-use crate::ingestion_analyzer::analyze_future_ingestion;
-use crate::service::roa::{RouteOfAdministrationClassification, string_to_route_of_administration_classification};
 
 #[derive(StructOpt, Debug)]
 pub(crate) struct CreateIngestionFeature {
     #[structopt(short, long)]
     pub substance_name: String,
-    #[structopt(short="d", long="dosage")]
+    #[structopt(short = "d", long = "dosage")]
     pub dosage: String,
     #[structopt(short = "t", long = "time", default_value = "now")]
     pub ingested_at: String,
     #[structopt(short = "r", long = "route-of-administration", default_value = "Oral", possible_values = &["Oral", "Injection", "Insufflated"])]
     pub route_of_administration: String,
-    #[structopt(short, long="plan", about="Ingestion will be not stored, yet analyzed.")]
+    #[structopt(
+        short,
+        long = "plan",
+        about = "Ingestion will be not stored, yet analyzed."
+    )]
     pub plan: bool,
 }
 
@@ -35,7 +39,7 @@ pub async fn handle_create_ingestion(
         ingested_at: create_ingestion_command.ingested_at,
         route_of_administration: roa_class,
     };
-    
+
     if create_ingestion_command.plan {
         analyze_future_ingestion(&create_ingestion_payload).await;
         return;

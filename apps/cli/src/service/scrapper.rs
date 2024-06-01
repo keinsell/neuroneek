@@ -185,7 +185,7 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
                 substance_name: substance.name.clone(),
             };
 
-            let created_roa = match create_route_of_administration(&db, create_roa_dto).await {
+            let created_roa = match create_route_of_administration(db, create_roa_dto).await {
                 Ok(roa) => roa,
                 Err(_) => continue,
             };
@@ -206,7 +206,7 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
                 }
 
                 let create_dosage_input: CreateDosage = CreateDosage {
-                    route_of_administration_id: created_roa.id.clone(),
+                    route_of_administration_id: created_roa.id,
                     intensity: map_dump_intensivity_to_dosage_intensivity_classification(
                         &dosage.intensivity,
                     ),
@@ -215,7 +215,7 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
                     unit: to_string(&dosage.unit).unwrap(),
                 };
 
-                create_dosage(&db, create_dosage_input).await;
+                create_dosage(db, create_dosage_input).await;
             }
         }
     }

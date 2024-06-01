@@ -3,12 +3,7 @@ use sea_orm::ActiveValue::Set;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
-use std::cmp::min;
-use std::collections::hash_set::Union;
 use std::str::FromStr;
-use uom::si::f32::*;
-use uom::si::mass::{kilogram, milligram};
-use uom::si::{Quantity, Units};
 
 use crate::core::mass_range::{parse_mass_by_f32_and_unit, MassRange};
 use crate::db;
