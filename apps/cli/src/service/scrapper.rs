@@ -1,15 +1,17 @@
+use crate::db;
+use crate::db::prelude::Substance;
+use crate::db::substance;
+use crate::service::dosage::{create_dosage, CreateDosage};
+use crate::service::roa::{
+    create_route_of_administration, CreateRouteOfAdministration,
+    RouteOfAdministrationClassification,
+};
 use rust_embed::{Embed, EmbeddedFile};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
-use serde::de::IntoDeserializer;
 use serde_json::to_string;
 use tabled::Table;
-use crate::db::prelude::Substance;
-use crate::db::substance;
-use crate::{db};
-use crate::service::dosage::{create_dosage, CreateDosage};
-use crate::service::roa::{create_route_of_administration, CreateRouteOfAdministration, RouteOfAdministrationClassification};
 
 #[derive(Embed)]
 #[folder = "public/"]
@@ -147,7 +149,8 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
             .filter(db::substance::Column::Name.eq(&substance_info.name))
             .one(db)
             .await
-            .unwrap() {
+            .unwrap()
+        {
             Some(existing_substance) => existing_substance,
             None => {
                 substance_active_model.name = Set(substance_info.name.clone());
@@ -196,19 +199,23 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
                         Intensivity::Heavy => crate::service::dosage::DosageClassification::Heavy,
                         Intensivity::Light => crate::service::dosage::DosageClassification::Light,
                         Intensivity::Strong => crate::service::dosage::DosageClassification::Strong,
-                        Intensivity::Threshold => crate::service::dosage::DosageClassification::Threshold,
+                        Intensivity::Threshold => {
+                            crate::service::dosage::DosageClassification::Threshold
+                        }
                     }
                 }
 
                 let create_dosage_input: CreateDosage = CreateDosage {
                     route_of_administration_id: created_roa.id.clone(),
-                    intensity: map_dump_intensivity_to_dosage_intensivity_classification(&dosage.intensivity),
+                    intensity: map_dump_intensivity_to_dosage_intensivity_classification(
+                        &dosage.intensivity,
+                    ),
                     range_max: dosage.amount_max as i32,
                     range_min: dosage.amount_min as i32,
                     unit: to_string(&dosage.unit).unwrap(),
                 };
 
-                create_dosage(&db,create_dosage_input).await;
+                create_dosage(&db, create_dosage_input).await;
             }
         }
     }

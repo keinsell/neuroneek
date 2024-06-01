@@ -1,11 +1,11 @@
-use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter};
-use sea_orm::ActiveValue::Set;
-use serde::{Deserialize, Serialize};
-use sea_orm::{entity::*, query::*, DbBackend};
 use crate::db;
 use crate::db::prelude::*;
+use sea_orm::ActiveValue::Set;
+use sea_orm::{entity::*, query::*, DbBackend};
+use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RouteOfAdministrationClassification {
     Buccal,
@@ -49,26 +49,30 @@ pub async fn create_route_of_administration(
 ) -> Result<db::route_of_administration::Model, sea_orm::error::DbErr> {
     let substance_name = roa.substance_name.clone();
 
-    let roa_active_model: db::route_of_administration::ActiveModel = db::route_of_administration::ActiveModel {
-        id: Default::default(),
-        classification: Set(serde_json::to_string(&roa.classification)
-            .unwrap()
-            .to_string()),
-        substance_name: Set(substance_name.clone()),
-    };
+    let roa_active_model: db::route_of_administration::ActiveModel =
+        db::route_of_administration::ActiveModel {
+            id: Default::default(),
+            classification: Set(serde_json::to_string(&roa.classification)
+                .unwrap()
+                .to_string()),
+            substance_name: Set(substance_name.clone()),
+        };
 
-    let existing_roa = RouteOfAdministration::find().filter(
-        db::route_of_administration::Column::Classification.eq(
-            serde_json::to_string(&roa.classification).unwrap(),
-        ).and(
-            db::route_of_administration::Column::SubstanceName.eq(substance_name.clone()),
+    let existing_roa = RouteOfAdministration::find()
+        .filter(
+            db::route_of_administration::Column::Classification
+                .eq(serde_json::to_string(&roa.classification).unwrap())
+                .and(db::route_of_administration::Column::SubstanceName.eq(substance_name.clone())),
         )
-    ).one(db).await?;
+        .one(db)
+        .await?;
 
     match existing_roa {
         Some(roa) => Ok(roa),
         None => {
-            let inserted_roa = RouteOfAdministration::insert(roa_active_model).exec_with_returning(db).await?;
+            let inserted_roa = RouteOfAdministration::insert(roa_active_model)
+                .exec_with_returning(db)
+                .await?;
             Ok(inserted_roa)
         }
     }
