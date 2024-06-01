@@ -122,7 +122,7 @@ pub enum DumpRoa {
 /// is useful when public data is updated and clients can have access
 /// to latest batch of information, in other cases there should be a fallback
 /// mechanism to database file bundled with the application.
-pub async fn refresh_substances(db: &DatabaseConnection) {
+pub async fn scrape_local_database(db: &DatabaseConnection) {
     let json_data: EmbeddedFile = Asset::get("neuronek-2024-05-30.json").unwrap();
     let json_string = std::str::from_utf8(json_data.data.as_ref())
         .expect("Failed to read bundled information about substances");

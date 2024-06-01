@@ -4,6 +4,14 @@ use sea_orm::*;
 use sea_orm_migration::*;
 use xdg::BaseDirectories;
 
+lazy_static::lazy_static! {
+    pub static ref DB_CONNECTION: DatabaseConnection = {
+        async_std::task::block_on(async {
+            Database::connect(locate_db_file()).await.unwrap()
+        })
+    };
+}
+
 /// Function will initialize database in the default location
 /// relative to user's home directory and XDG_DATA_HOME.
 /// Initialization of database will result in SQLite database
@@ -49,12 +57,28 @@ pub(super) fn locate_db_file() -> String {
 
 pub(super) async fn setup_database() -> Result<DatabaseConnection, DbErr> {
     let db = Database::connect(locate_db_file()).await?;
-
     let db = match db.get_database_backend() {
         DbBackend::MySql => panic!("MySQL is not supported"),
         DbBackend::Postgres => panic!("PostgresSQL is not supported"),
         DbBackend::Sqlite => db,
     };
-
     Ok(db)
+}
+
+/// Get database file and create a snapshot of it by creating a copy with a timestamp
+pub async fn snapshot_database() {
+    let db_file = locate_db_file();
+    let db_file = std::path::Path::new(&db_file);
+
+    let timestamp = chrono::Utc::now().format("%Y%m%d_%H%M%S").to_string();
+    let snapshot_file = db_file.with_file_name(format!("snapshot_{}.sqlite", timestamp));
+
+    debug!("Creating snapshot of database");
+
+    match std::fs::copy(db_file, &snapshot_file) {
+        Ok(_) => println!("Database snapshot created at: {:#?}", snapshot_file),
+        Err(e) => eprintln!("Failed to create database snapshot: {:#?}", e),
+    }
+
+    println!("Database snapshot created at: {:#?}", snapshot_file);
 }

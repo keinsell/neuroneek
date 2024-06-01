@@ -5,10 +5,11 @@ use structopt::StructOpt;
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
 use crate::cli::ingestion::IngestionCommand;
+use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::substance::list_substances::list_substances;
 use crate::ingestion::{list_ingestion};
 use crate::orm;
-use crate::service::scrapper::refresh_substances;
+use crate::service::scrapper::scrape_local_database;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -58,21 +59,48 @@ enum DataManagementCommand {
 pub async fn cli() {
     let cli = CommandLineInterface::from_args();
 
+    // #[cfg(feature = "dev")]
+    // {
+    //     let db = match orm::setup_database().await {
+    //         Ok(db) => db,
+    //         Err(error) => panic!("Could not connect to database: {}", error),
+    //     };
+    //     
+    //     match Migrator::reset(db.into_schema_manager_connection()).await {
+    //         Ok(_) => println!("Development database reset!"),
+    //         Err(error) => panic!("Error applying migrations: {}", error),
+    //     };
+    // }
+    
     let db = match orm::setup_database().await {
         Ok(db) => db,
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    // #[cfg(feature = "dev")]
-    // match Migrator::fresh(db.into_schema_manager_connection()).await {
-    //     Ok(_) => println!("Migrations applied"),
-    //     Err(error) => panic!("Error applying migrations: {}", error),
-    // };
+    let pending_migrations = match Migrator::get_pending_migrations(&db.into_schema_manager_connection()).await {
+        Ok(pending_migrations) => pending_migrations,
+        Err(error) => panic!("Could not get pending migrations: {}", error),
+    };
+    
+    // Check if the specific migration is in the list of pending migrations
+    let specific_migration_exists = pending_migrations.iter().any(|migration| migration.name() == "m20240530_215436_add_ingestion_route_of_administration");
 
+    // Before applying migration perform snapshot of the database
+    // This is done to prevent data loss in case of migration failure
+    
+    if !pending_migrations.is_empty() {
+        orm::snapshot_database().await;
+    }
+    
     match Migrator::up(db.into_schema_manager_connection(), None).await {
         Ok(_) => debug!("Migrations applied"),
         Err(error) => panic!("Could not migrate database schema: {}", error),
     };
+
+    // If the specific migration was applied, scrape the bundled JSON file
+    if specific_migration_exists {
+        scrape_local_database(&db).await;
+    }
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {
@@ -83,6 +111,7 @@ pub async fn cli() {
                 delete_ingestion(&db, delete_ingestion_command.ingestion_id).await
             }
             IngestionCommand::IngestionList { .. } => list_ingestion(&db).await,
+            IngestionCommand::Plan(command) => handle_plan_ingestion(command).await,
         },
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,
@@ -92,7 +121,7 @@ pub async fn cli() {
                 todo!("Get path to data file")
             }
             DataManagementCommand::RefreshDatasource {} => {
-                refresh_substances(&db).await;
+                scrape_local_database(&db).await;
             }
         },
     }

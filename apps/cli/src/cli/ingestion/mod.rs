@@ -4,6 +4,7 @@ use crate::cli::ingestion::delete_ingestion::DeleteIngestion;
 
 pub(crate) mod create_ingestion;
 pub(crate) mod delete_ingestion;
+pub(crate) mod plan_ingestion;
 
 
 #[derive(StructOpt, Debug)]
@@ -17,4 +18,6 @@ pub enum IngestionCommand {
     IngestionDelete(DeleteIngestion),
     #[structopt(name = "list", about = "List all ingestion's in table")]
     IngestionList {},
+    #[structopt(name = "plan", about = "Plan ingestion without saving it to database.")]
+    Plan(plan_ingestion::PlanIngestionCommand),
 }

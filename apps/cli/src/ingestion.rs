@@ -1,15 +1,13 @@
 use std::fmt::Debug;
-
 use chrono::{DateTime, Utc};
 use chrono_english::{Dialect, parse_date_string};
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
-
 use db::ingestion::ActiveModel;
-
 use crate::db;
 use crate::db::prelude::Ingestion;
+use crate::ingestion_analyzer::analyze_future_ingestion;
 use crate::service::roa::RouteOfAdministrationClassification;
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
@@ -17,6 +15,8 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
     let parsed_time = parse_date_string(&create_ingestion.ingested_at, Utc::now(), Dialect::Us)
         .unwrap_or_else(|_| Utc::now());
 
+    analyze_future_ingestion(&create_ingestion).await;
+    
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::NotSet,
         ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
@@ -31,7 +31,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         .exec_with_returning(db)
         .await
         .unwrap();
-
+    
     let view_model = ViewModel {
         id: ingestion.id,
         ingested_at: ingestion.ingested_at,
