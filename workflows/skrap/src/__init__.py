@@ -10,24 +10,25 @@ from prisma.types import (
     EffectCreateInput,
 )
 
+import codegen_types  # type: ignore
 import prisma
-import pw_types
-import types_effectindex
+
+IGNORE_SUBSTANCE_NAMES: list[str] = [
+    "Selective serotonin reuptake inhibitor",
+    "Stimulants",
+    "Serotonin-norepinephrine reuptake inhibitor",
+    "Serotonin",
+    "Serotonergic psychedelic",
+    "Sedative",
+    "Depressant",
+    "Deliriant",
+]
 
 
 class GetPsychonautwiki(FlowSpec):
-    """
-    A flow where Metaflow prints 'Hi'.
-
-    Run this flow to validate that Metaflow is installed correctly.
-
-    """
-
     def __init__(self, use_cli=True):
         super().__init__(use_cli)
-        self.effectindex: Optional[types_effectindex.EffectIndexRoot] = None
-        self.raw_json_data: Any = None
-        self.psychonautwiki: pw_types.Model
+        self.raw_json_data: codegen_types.psychonautwiki.Model | None = None
 
     @step
     def start(self):
@@ -57,7 +58,10 @@ class GetPsychonautwiki(FlowSpec):
 
         print("Using metadata provider: %s" % get_metadata())
 
-        cached_data = Flow("GetPsychonautwiki").latest_successful_run
+        cached_data: codegen_types.psychonautwiki.Model = Flow(
+            "GetPsychonautwiki"
+        ).latest_successful_run
+
         print("Using analysis from '%s'" % str(cached_data))
 
         if not cached_data:
@@ -163,10 +167,12 @@ class GetPsychonautwiki(FlowSpec):
 
             response_data = response.json()
 
-            if "errors" in response_data:
-                raise Exception("GraphQL errors: {}".format(response_data["errors"]))
-
             print(response_data)
+
+            # if "errors" in response_data:
+            #     raise Exception("GraphQL errors: {}".format(response_data["errors"]))
+
+            # print(response_data)
 
             self.raw_json_data = response_data
         else:
@@ -175,7 +181,7 @@ class GetPsychonautwiki(FlowSpec):
             print(self.raw_json_data)
 
         # Save a local copy of the data in .out/psychonautwiki.json
-        with open("psychonautwiki.json", "w") as outfile:
+        with open("../../psychonautwiki.json", "w") as outfile:
             json.dump(self.raw_json_data, outfile, indent=2)
 
         self.next(self.save_information_from_psychonautwiki)
@@ -189,32 +195,18 @@ class GetPsychonautwiki(FlowSpec):
         db = prisma.Prisma()
         db.connect()
 
-        print("Parsing saved information into typed model...")
-        self.psychonautwiki: pw_types.Model = pw_types.Model.parse_obj(
-            self.raw_json_data
+        # Parse data from GraphQL into Model and assign to workflow
+        self.psychonautwiki: codegen_types.psychonautwiki.Model = (
+            codegen_types.psychonautwiki.Model.parse_obj(self.raw_json_data)
         )
 
         print("Transforming and storing PsychonautWiki data...")
         substances = self.psychonautwiki.data.substances
 
-        ignored_substances = [
-            "Selective serotonin reuptake inhibitor",
-            "Stimulants",
-            "Serotonin-norepinephrine reuptake inhibitor",
-            "Serotonin",
-            "Serotonergic psychedelic",
-            "Sedative",
-            "Depressant",
-            "Deliriant",
-        ]
-
         for pw_substance in substances:
-            substance = pw_types.Substance.parse_obj(pw_substance)
+            substance = codegen_types.psychonautwiki.Substance.parse_obj(pw_substance)
 
-            # Continue loop if substance is ignored or starts with 'Substituted'
-            if substance.name in ignored_substances or substance.name.startswith(
-                "Substituted"
-            ):
+            if substance.name in IGNORE_SUBSTANCE_NAMES:
                 continue
 
             # Continue loop if substance already exists in database
@@ -244,6 +236,7 @@ class GetPsychonautwiki(FlowSpec):
                     data={
                         "name": substance.name,
                         "psychoactive_class": psychoactive_class,
+                        "brand_names": "",
                         "chemical_class": chemical_class,
                         "common_names": common_names,
                     }
@@ -268,17 +261,20 @@ class GetPsychonautwiki(FlowSpec):
 
         substances = db.substance.find_many()
 
-        # Log count of counted substances
-        print("Substances in database: ", len(substances))
+        # Handle loop in cooroutime
 
         for substance in substances:
             print("Processing substance: ", substance.name)
 
             # Find substance in psychonautwiki dataset available in class.
+            psychonautwiki_substances = codegen_types.psychonautwiki.Model.parse_obj(
+                self.psychonautwiki
+            ).data.substances
+
             pw_substance = next(
                 (
                     pw_substance
-                    for pw_substance in self.psychonautwiki.data.substances
+                    for pw_substance in psychonautwiki_substances
                     if pw_substance.name == substance.name
                 ),
                 None,
@@ -424,14 +420,23 @@ class GetPsychonautwiki(FlowSpec):
         self.next(self.import_effects)
 
     @step
+    def create_dosage(self):
+        # TODO: This step should take a dosage from route of administration
+        # and validate against null values - in database we should not allow
+        # for any case of null values in dosages and all units specified must
+        # be actually units of mass - every other should be most likely avoided
+        # and not saved to database.
+        self.end()
+
+    @step
     def import_effects(self):
         # Read effectindex json from file
-        with open("effectindex.json") as f:
+        with open("../.cached_data/effectindex.json") as f:
             self.effects_raw_json_data = json.load(f)
 
         # Parse json data into typed model
-        self.effectindex: types_effectindex.EffectIndexRoot = (
-            types_effectindex.EffectIndexRoot.parse_obj(self.effects_raw_json_data)
+        self.effectindex: codegen_types.effectindex.Model = (
+            codegen_types.effectindex.Model.parse_obj(self.effects_raw_json_data)
         )
 
         print("Parsed effectindex data: ", self.effectindex)

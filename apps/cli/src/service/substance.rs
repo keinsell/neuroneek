@@ -1,11 +1,10 @@
 // TODO: Search substance (with typo-tolerance and alternative names)
 // TODO: Extractor: Get Dosage Classification by Dosage Amount
 
-use sea_orm::*;
-use fuzzy_matcher::FuzzyMatcher;
-use fuzzy_matcher::skim::SkimMatcherV2;
 use crate::db::substance;
-
+use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
+use sea_orm::*;
 
 pub async fn search_substance(db: &DatabaseConnection, query: &str) -> Option<substance::Model> {
     let substances = substance::Entity::find().all(db).await.unwrap();
@@ -21,7 +20,7 @@ pub async fn search_substance(db: &DatabaseConnection, query: &str) -> Option<su
         }
     }
 
-    return if results.is_empty() {
+    if results.is_empty() {
         None
     } else {
         Some(results[0].clone())

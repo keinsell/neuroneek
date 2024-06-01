@@ -1,5 +1,5 @@
+use serde::Serialize;
 use std::str::FromStr;
-use serde::{Serialize, Serializer};
 use uom::si::f32::Mass;
 use uom::str::ParseQuantityError;
 
@@ -18,7 +18,6 @@ pub fn parse_mass_by_f32_and_unit(value: f32, unit: &str) -> Result<Mass, ParseQ
     Mass::from_str(&input)
 }
 
-pub fn serialize_mass_to_string(mass: Mass) -> String 
-{
+pub fn serialize_mass_to_string(mass: Mass) -> String {
     format!("{} {:?}", &mass.value.to_string(), mass.units)
 }
