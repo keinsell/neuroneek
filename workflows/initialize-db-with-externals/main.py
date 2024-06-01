@@ -163,10 +163,12 @@ class GetPsychonautwiki(FlowSpec):
 
             response_data = response.json()
 
-            if "errors" in response_data:
-                raise Exception("GraphQL errors: {}".format(response_data["errors"]))
-
             print(response_data)
+
+            # if "errors" in response_data:
+            #     raise Exception("GraphQL errors: {}".format(response_data["errors"]))
+
+            # print(response_data)
 
             self.raw_json_data = response_data
         else:
