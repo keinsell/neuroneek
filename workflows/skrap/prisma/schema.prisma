@@ -71,6 +71,18 @@ model Substance {
   SubstanceInteraction     SubstanceInteraction[]
 }
 
+model ChemicalClass {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+}
+
+model PsychoactiveClass {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+}
+
 model RouteOfAdministration {
   id             String    @id @default(cuid())
   substanceName  String
