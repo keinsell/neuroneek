@@ -31,7 +31,7 @@ cache = Cache(directory=".cache")
 memory = joblib.Memory(".cache", verbose=0)
 
 pydevd_pycharm.settrace(
-    "localhost", port=8934, stdoutToServer=True, stderrToServer=True
+    "localhost", port=8938, stdoutToServer=True, stderrToServer=True
 )
 
 # I could whitelist scrape to just Caffeine at this point lolz

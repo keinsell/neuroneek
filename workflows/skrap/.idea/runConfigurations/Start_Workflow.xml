@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="__main__" type="PythonConfigurationType" factoryName="Python" activateToolWindowBeforeRun="false" focusToolWindowBeforeRun="true" nameIsGenerated="true">
+  <configuration default="false" name="Start Workflow" type="PythonConfigurationType" factoryName="Python" activateToolWindowBeforeRun="false" focusToolWindowBeforeRun="true" show_console_on_std_err="true">
     <module name="skrap" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
