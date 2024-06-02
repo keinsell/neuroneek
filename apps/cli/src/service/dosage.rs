@@ -11,7 +11,7 @@ use crate::db;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DosageClassification {
-    Threshold,
+    Threshold ,
     Heavy,
     Common,
     Light,
@@ -36,6 +36,18 @@ impl FromStr for DosageClassification {
         }
     }
 }
+
+impl Display for DosageClassification {
+    fn to_str(s: &DosageClassification) -> Result<Self, Self::Err> {
+        println!("{}", s)
+        match s {
+            DosageClassification::Threshold => "threshold"
+            DosageL
+            
+        }
+    }
+}
+
 
 #[derive(Debug)]
 pub struct CreateDosage {

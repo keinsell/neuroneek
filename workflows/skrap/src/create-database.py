@@ -9,7 +9,6 @@ from enum import Enum
 from typing import Optional
 import pubchempy as pcp
 from diskcache import Cache
-import requests
 from metaflow import FlowSpec, step
 from prisma.types import (
     DosageCreateInput,
@@ -231,24 +230,30 @@ def fetch_pubchem(substance_name: str) -> Optional[pcp.Compound]:
         return None
 
 
-async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance | None]:
+async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance]:
     try:
         client = PsychonautwikiGraphqlClient(
             url="https://api.psychonautwiki.org/graphql"
         )
         all_substances = await client.all_substances()
-        custom_types.psychonautwiki.Model.parse_obj(all_substances)
+
+        if not all_substances:
+            raise Exception("No substances found in PsychonautWiki dataset")
+
         return all_substances
     except GraphQLClientGraphQLMultiError as e:
         if e.data:
             from graphql_client import AllSubstances
 
-            return AllSubstances.model_validate(e.data).substances
+            substances = AllSubstances.model_validate(e.data).substances
+
+            if substances:
+                return substances
         raise e
 
 
 def create_substance_input(
-    substance: custom_types.psychonautwiki.Substance,
+    substance: PsychonautwikiSubstance,
 ) -> Optional[SubstanceCreateInput]:
     # If substance was blacklisted, return None
     if substance.name in IGNORE_SUBSTANCE_NAMES:
@@ -271,7 +276,7 @@ def create_substance_input(
 
     common_names = (
         # Parse the common names list to string separated by comma
-        ",".join(substance.commonNames) if substance.commonNames else ""
+        ",".join(substance.common_names) if substance.common_names else ""
     )
 
     pubchem: Compound | None = fetch_pubchem(substance.name)
@@ -298,9 +303,48 @@ def create_substance_input(
     )
 
 
-class GetPsychonautwiki(FlowSpec):
+def get_psychonautwiki_substance_by_name_or_panic(
+    name: str, psychonautwiki_substances: list[PsychonautwikiSubstance]
+) -> PsychonautwikiSubstance:
+    maybe_substance = next(
+        (
+            pw_substance
+            for pw_substance in psychonautwiki_substances
+            if pw_substance.name == name
+        ),
+        None,
+    )
+
+    if not maybe_substance:
+        print(f"Substance {name} not found in PsychonautWiki dataset")
+        raise Exception(f"Substance {name} not found in PsychonautWiki dataset")
+
+    return maybe_substance
+
+
+def get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
+    name: str, psychonautwiki_substances: list[PsychonautwikiSubstance]
+) -> list[custom_types.psychonautwiki.Roa]:
+    maybe_substance = next(
+        (
+            pw_substance
+            for pw_substance in psychonautwiki_substances
+            if pw_substance.name == name
+        ),
+        None,
+    )
+
+    if not maybe_substance:
+        print(f"Substance {name} not found in PsychonautWiki dataset")
+        raise Exception(f"Substance {name} not found in PsychonautWiki dataset")
+
+    return maybe_substance.roas
+
+
+class CreateDatabase(FlowSpec):
     def __init__(self, use_cli=True):
         super().__init__(use_cli)
+        self.psychonautwiki_substances: list[PsychonautwikiSubstance] = []
 
     # noinspection PyUnusedFunction
     @step
@@ -321,124 +365,9 @@ class GetPsychonautwiki(FlowSpec):
 
         self.next(self.fetch_psychonautwikiv2)
 
-    # @step
-    def fetch_psychonautwiki(self):
-        graphql_query = {
-            "query": """
-                     query AllSubstances {
-                         substances(limit: 9999) {
-                             name
-                             commonNames
-                             url
-                             class {
-                                 chemical
-                                 psychoactive
-                             }
-                             tolerance {
-                                 full
-                                 half
-                                 zero
-                             }
-                             roas {
-                                 name
-                                 dose {
-                                     units
-                                     threshold
-                                     light {
-                                         min
-                                         max
-                                     }
-                                     common {
-                                         min
-                                         max
-                                     }
-                                     strong {
-                                         min
-                                         max
-                                     }
-                                     heavy
-                                 }
-                                 duration {
-                                     onset {
-                                         min
-                                         max
-                                         units
-                                     }
-                                     comeup {
-                                         min
-                                         max
-                                         units
-                                     }
-                                     peak {
-                                         min
-                                         max
-                                         units
-                                     }
-                                     offset {
-                                         min
-                                         max
-                                         units
-                                     }
-                                     total {
-                                         min
-                                         max
-                                         units
-                                     }
-                                     afterglow {
-                                         min
-                                         max
-                                         units
-                                     }
-                                 }
-                                 bioavailability {
-                                     min
-                                     max
-                                 }
-                             }
-                             addictionPotential
-                             toxicity
-                             crossTolerances
-                             uncertainInteractions {
-                                 name
-                             }
-                             unsafeInteractions {
-                                 name
-                             }
-                             dangerousInteractions {
-                                 name
-                             }
-
-                             effects {
-                                 name
-                                 url
-                             }
-                         }
-                     }
-                     """,
-            "variables": None,
-        }
-
-        response = requests.post(
-            "https://api.psychonautwiki.org/", json=graphql_query, headers=None
-        )
-
-        response.raise_for_status()
-        unknown_response_json = response.json()
-
-        self.psychonautwiki_substances = custom_types.psychonautwiki.Model.parse_obj(
-            unknown_response_json
-        )
-
-        # Save a local copy of the data in .out/psychonautwiki.json
-        with open("../../psychonautwiki.json", "w") as outfile:
-            json.dump(self.psychonautwiki_substances.model_dump(), outfile, indent=2)
-
-        self.next(self.import_substances)
-
     @step
     def fetch_psychonautwikiv2(self):
-        query = fetch_psychaonutwiki()
-        response = asyncio.run(query)
+        response = asyncio.run(fetch_psychaonutwiki())
         self.psychonautwiki_substances = response
         self.next(self.import_substances)
 
@@ -478,78 +407,47 @@ class GetPsychonautwiki(FlowSpec):
         substances = db.substance.find_many()
 
         for substance in substances:
-            print("Processing substance: ", substance.name)
-
-            # Find substance in psychonautwiki dataset available in class.
-            psychonautwiki_substances = self.psychonautwiki.data.substances
-
-            pw_substance = next(
-                (
-                    pw_substance
-                    for pw_substance in psychonautwiki_substances
-                    if pw_substance.name == substance.name
-                ),
-                None,
-            )
-
-            if not pw_substance:
-                print("Substance not found in PsychonautWiki dataset")
-                continue
-
-            # Find route of administration in the dataset
-            psychonautwiki_route_of_administration = pw_substance.roas
-
-            if not psychonautwiki_route_of_administration:
-                print("No route of administration found for substance")
-                continue
-
-            for roa in psychonautwiki_route_of_administration:
-                create_route_of_administration_payload = (
-                    create_route_of_administration_input(roa, substance)
+            try:
+                psychonautwiki_roa = get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
+                    substance.name, self.psychonautwiki_substances
                 )
 
-                if not create_route_of_administration_payload:
-                    continue
-
-                try:
-                    db_roa = db.routeofadministration.create(
-                        data=create_route_of_administration_payload
+                for roa in psychonautwiki_roa:
+                    create_route_of_administration_payload = (
+                        create_route_of_administration_input(roa, substance)
                     )
-                    print(f"Created {db_roa.classification} for {db_roa.substanceName}")
-                except TypeError as e:
-                    print(f"Failed to insert {roa['name']}: ", e)
-                    continue
+
+                    if not create_route_of_administration_payload:
+                        continue
+
+                    try:
+                        db_roa = db.routeofadministration.create(
+                            data=create_route_of_administration_payload
+                        )
+                        print(
+                            f"Created {db_roa.classification} for {db_roa.substanceName}"
+                        )
+                    except TypeError as e:
+                        print(f"Failed to insert {roa.name} for {substance.name}: ", e)
+                        continue
+            except Exception:
+                continue
 
         self.next(self.create_dosage)
 
     @step
     def create_dosage(self):
-        # TODO: This step should take a dosage from route of administration
-        # and validate against null values - in database we should not allow
-        # for any case of null values in dosages and all units specified must
-        # be actually units of mass - every other should be most likely avoided
-        # and not saved to database.
         db = prisma.Prisma()
         db.connect()
 
         substances = db.substance.find_many()
 
         for substance in substances:
-            psychonautwiki_substances = custom_types.psychonautwiki.Model.parse_obj(
-                self.psychonautwiki
-            ).data.substances
-
-            pw_substance = next(
-                (
-                    pw_substance
-                    for pw_substance in psychonautwiki_substances
-                    if pw_substance.name == substance.name
-                ),
-                None,
+            pw_substance = get_psychonautwiki_substance_by_name_or_panic(
+                substance.name, self.psychonautwiki_substances
             )
 
             if not pw_substance:
-                print("Substance not found in PsychonautWiki dataset")
                 continue
 
             roas = pw_substance.roas
@@ -730,4 +628,4 @@ class GetPsychonautwiki(FlowSpec):
 
 
 if __name__ == "__main__":
-    GetPsychonautwiki()
+    CreateDatabase(use_cli=True)
