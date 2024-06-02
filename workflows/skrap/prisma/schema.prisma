@@ -4,11 +4,16 @@ datasource db {
   relationMode = "foreignKeys"
 }
 
-generator client {
+generator client_python {
   provider             = "prisma-client-py"
   interface            = "sync"
-  recursive_type_depth = 10
+  recursive_type_depth = 5
 }
+
+// generator client_javascript {
+//   provider = "prisma-client-js"
+//   output   = "../generated/prisma-client"
+// }
 
 model Account {
   id       String    @id @default(cuid())
@@ -26,62 +31,89 @@ model Subject {
   height      Int?
   account_id  String?     @unique
   account     Account?    @relation(fields: [account_id], references: [id])
-  IngestionStore   Ingestion[]
+  Ingestions  Ingestion[]
   Stash       Stash[]
 }
-
-// export enum RouteOfAdministrationClassification {
-//   oral = 'oral',
-//   sublingual = 'sublingual',
-//   buccal = 'buccal',
-//   insufflated = 'insufflated',
-//   rectal = 'rectal',
-//   transdermal = 'transdermal',
-//   subcutaneous = 'subcutaneous',
-//   intramuscular = 'intramuscular',
-//   interavenous = 'interavenous',
-//   smoked = 'smoked'
-// }
 
 model Substance {
   id                       String                  @id @default(cuid())
   name                     String                  @unique
   /// Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition.
-  common_names             String?
-  brand_names              String? // Should be array
+  common_names             String
+  brand_names              String // Should be array
   /// Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix.
   substitutive_name        String?                 @unique
-  systematic_name          String?                 @unique
+  /// Systematic name is a type of chemical nomenclature used for both inorganic and organic compounds. In this system, the compound is named based on the type and number of atoms present, as well as the chemical bonds between them.
+  ///
+  /// The systematic naming of inorganic compounds follows the guidelines of the International Union of Pure and Applied Chemistry (IUPAC) and usually requires the use of oxidation numbers, prefixes and suffixes to indicate the oxidation state and stoichiometry of the compound.
+  ///
+  /// In the case of organic compounds, the systematic name is based on the parent hydrocarbon chain, with prefixes and suffixes indicating the position and nature of the functional groups present in the compound.
+  ///
+  /// @example "(RS)-1-Phenylpropan-2-amine"
+  systematic_name          String                  @unique
+  pubchem_cid              Int                     @unique
+  /// UNIIs are generated based on scientific identity characteristics using ISO 11238 data elements. UNII availability does not imply any regulatory review or approval. Synonyms and mappings are based on the best public information available at the time of publication.
   unii                     String?
+  /// CAS number is a unique numerical identifier assigned to pure substances and mixtures by the Chemical Abstracts Service registry, a division of the American Chemical Society (ACS). The CAS registry number is the de facto standard for the identification of chemical substances in scientific literature.
   cas_number               String?                 @unique
-  inchi_key                String?
-  iupac                    String?
-  smiles                   String?
+  /// InChIKey is a condensed, 27-character representation of a molecule's InChI (International Chemical Identifier)
+  inchi_key                String                  @unique
+  /// SMILES is a chemical notation for describing the structure of chemical compounds using ASCII characters.
+  smiles                   String                  @unique
+  psychonautwiki_url       String?
   psychoactive_class       String // Should be array
   chemical_class           String?
   description              String?
   routes_of_administration RouteOfAdministration[]
-  IngestionStore                Ingestion[]
+  Ingestion                Ingestion[]
   Stash                    Stash[]
   SubstanceInteraction     SubstanceInteraction[]
+  psychoactive_classes     PsychoactiveClass[]
+}
+
+model ChemicalClass {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+}
+
+model PsychoactiveClass {
+  /// PsychoactiveClass do not use automatic ID generation
+  /// as names needs to be unique and they can be used as
+  /// identifiers as well.
+  id          String     @id
+  /// Single-word name of the psychoactive class
+  name        String     @unique
+  /// Defines few words that describe the class
+  summary     String?
+  /// Defines the complete description and specification
+  /// related to given psychoactive class
+  description String?
+  Substance   Substance? @relation(fields: [substanceId], references: [id])
+  substanceId String?
 }
 
 model RouteOfAdministration {
-  id              String     @id @default(cuid())
-  substanceName   String?
-  name            String
-  bioavailability Float
-  dosage          Dosage[]
-  phases          Phase[]
-  Substance       Substance? @relation(fields: [substanceName], references: [name])
+  id             String    @id @default(cuid())
+  substanceName  String
+  classification String    @map("name")
+  dosage         Dosage[]
+  phases         Phase[]
+  Substance      Substance @relation(fields: [substanceName], references: [name])
 
-  @@unique([name, substanceName])
+  @@unique([classification, substanceName])
 }
+
+// Substance Dosage:
+// - Should be able to define intensivity
+// - Should have notes on specific dosage or maybe on specific range
+// - Should be able to define dosage per kilogram
+// - Should contain information about units in which dosage is presented (base unit)
 
 model Phase {
   id                      String                 @id @default(cuid())
-  start                   Int?                   @map("from")
-  to                      Int?
+  from_duration           Int?                   @map("min_duration")
+  to_duration             Int?                   @map("max_duration")
   RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
   routeOfAdministrationId String?
   effects                 Effect[]
@@ -120,7 +152,7 @@ model Effect {
   Phase          Phase[]
 }
 
-model IngestionStore {
+model Ingestion {
   id                    String     @id @default(cuid())
   substanceName         String?
   routeOfAdministration String?

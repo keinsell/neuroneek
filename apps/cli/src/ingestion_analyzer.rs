@@ -2,33 +2,38 @@
 // and try to extract and provide as much information as it's
 // possible. This is a very important part of the application
 
-use std::str::FromStr;
-use sea_orm::prelude::*;
-use serde_json::to_string;
-use uom::si::f32::Mass;
 use crate::db;
 use crate::ingestion::CreateIngestion;
 use crate::orm::DB_CONNECTION;
+use crate::service::dosage::DosageClassification;
+use crate::service::roa::RouteOfAdministrationClassification;
 use crate::service::substance::search_substance;
+use sea_orm::prelude::*;
+use serde::{Deserialize, Serialize};
+use serde_json::to_string;
+use std::str::FromStr;
+use uom::si::f32::Mass;
 
 // https://docs.rs/indicatif/latest/indicatif/
 
-// struct DosageAnalysis {
-//     dosage_classification: DosageClassification,
-// }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct DosageAnalysis {
+    dosage_classification: DosageClassification,
+}
 
-// pub struct IngestionAnalysis {
-//     substance_name: String,
-//     // Depending on the information
-//     dosage_analysis: Option<DosageAnalysis>,
-// }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct IngestionAnalysis {
+    substance_name: String,
+    route_of_administration_classification: RouteOfAdministrationClassification,
+    // Depending on the information
+    dosage_analysis: Option<DosageAnalysis>,
+}
 
 // TODO: Get duration analysis from ingestion
 // TODO: Get effect spotlight
 // TODO: Get phase plan
 
 pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
-
     let connection = &DB_CONNECTION;
 
     // 1. Find substance related to ingestion
@@ -40,35 +45,40 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
     }
 
     let substance = substance.unwrap();
-    println!("Hello, \u{f913}!");
-    println!("{} Substance: {} (Substance#{})", "\u{f0668}", substance.name, substance.id);
+
+    let mut ingestion_analisis = IngestionAnalysis {
+        substance_name: substance.name.clone(),
+        route_of_administration_classification: create_ingestion.route_of_administration,
+        dosage_analysis: None,
+    };
 
     let roa_classification = &create_ingestion.route_of_administration;
 
-    let maybe_route_of_administration = db::route_of_administration::Entity::find()
+    let maybe_roa_or_error = db::route_of_administration::Entity::find()
         .filter(db::route_of_administration::Column::SubstanceName.eq(substance.name))
-        .filter(db::route_of_administration::Column::Classification.eq(to_string(roa_classification).unwrap()))
+        .filter(
+            db::route_of_administration::Column::Classification
+                .eq(to_string(roa_classification).unwrap()),
+        )
         .one(connection as &DatabaseConnection)
         .await;
 
-
-    // Do nothing on error and print discovered roa on success
-    if maybe_route_of_administration.is_err() {
+    if maybe_roa_or_error.is_err() {
         println!("Analysis failed: Route of administration not found");
         return;
     }
 
-    let maybe_route_of_administration = maybe_route_of_administration.unwrap();
+    let maybe_roa = maybe_roa_or_error.unwrap();
 
-
-    if maybe_route_of_administration.is_none() {
+    if maybe_roa.is_none() {
         println!("Analysis failed: Route of administration not found");
         return;
     }
 
-    let route_of_administration = maybe_route_of_administration.unwrap().clone();
+    let route_of_administration = maybe_roa.unwrap().clone();
 
-    println!("Route of administration: {} (ROA#{})", route_of_administration.classification, route_of_administration.id);
+    ingestion_analisis.route_of_administration_classification =
+        create_ingestion.route_of_administration;
 
     let dosage = db::dosage::Entity::find()
         .filter(db::dosage::Column::RouteOfAdministrationId.eq(route_of_administration.id))
@@ -98,7 +108,6 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
         let minimum_mass_string = d.min.to_string() + " mg";
         let maximum_mass_string = d.max.to_string() + " mg";
 
-
         let min_mass = Mass::from_str(&minimum_mass_string).unwrap();
         let max_mass = Mass::from_str(&maximum_mass_string).unwrap();
 
@@ -115,5 +124,13 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
 
     let closest_dosage = closest_dosage.unwrap();
 
-    println!("Dosage classified: {} (Dosage#{})", closest_dosage.classification, closest_dosage.id);
+    let dosage_analysis = DosageAnalysis {
+        dosage_classification: DosageClassification::from_str(&closest_dosage.classification)
+            .unwrap_or(DosageClassification::Unknown),
+    };
+
+    ingestion_analisis.dosage_analysis = Some(dosage_analysis);
+
+    // Pretty-print the ingestion analysis
+    println!("{:#?}", ingestion_analisis);
 }

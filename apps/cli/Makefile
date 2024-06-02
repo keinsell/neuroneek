@@ -10,7 +10,7 @@ dev-build:
 
 lint:
 	cargo fmt --all
-	cargo clippy --all-targets --all-features --fix
+	cargo clippy --all-targets --all-features --fix --allow-dirty
 	cargo miri test
 	cargo test
 

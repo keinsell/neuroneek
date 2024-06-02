@@ -1,21 +1,17 @@
-use std::cmp::min;
-use std::collections::hash_set::Union;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use crate::db::prelude::Dosage;
 use sea_orm::ActiveValue::Set;
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
-use uom::si::f32::*;
-use uom::si::mass::{kilogram, milligram};
-use uom::si::{Quantity, Units};
-use crate::db::prelude::Dosage;
+use std::str::FromStr;
 
-use crate::{db};
-use crate::core::mass_range::{MassRange, parse_mass_by_f32_and_unit};
+use crate::core::mass_range::{parse_mass_by_f32_and_unit, MassRange};
+use crate::db;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DosageClassification {
-    Threshold,
+    Threshold ,
     Heavy,
     Common,
     Light,
@@ -23,6 +19,35 @@ pub enum DosageClassification {
     Exceptional,
     Unknown,
 }
+
+impl FromStr for DosageClassification {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        println!("{}", s);
+        match s {
+            "threshold" => Ok(DosageClassification::Threshold),
+            "heavy" => Ok(DosageClassification::Heavy),
+            "common" => Ok(DosageClassification::Common),
+            "light" => Ok(DosageClassification::Light),
+            "strong" => Ok(DosageClassification::Strong),
+            "exceptional" => Ok(DosageClassification::Exceptional),
+            _ => Err(()),
+        }
+    }
+}
+
+impl Display for DosageClassification {
+    fn to_str(s: &DosageClassification) -> Result<Self, Self::Err> {
+        println!("{}", s)
+        match s {
+            DosageClassification::Threshold => "threshold"
+            DosageL
+            
+        }
+    }
+}
+
 
 #[derive(Debug)]
 pub struct CreateDosage {
@@ -32,7 +57,6 @@ pub struct CreateDosage {
     pub range_max: i32,
     pub unit: String,
 }
-
 
 #[derive(Debug, Serialize)]
 pub struct InternalDosage {
@@ -53,7 +77,8 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
                 ),
         )
         .one(db)
-        .await.unwrap();
+        .await
+        .unwrap();
 
     if existing_dosage.is_some() {
         return;
@@ -74,8 +99,14 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
 
     println!("Creating dosage: {:?}", create_dosage);
 
-    let min_mass_result = parse_mass_by_f32_and_unit(create_dosage.range_min as f32, &create_dosage.unit.replace("\"", ""));
-    let max_mass_result = parse_mass_by_f32_and_unit(create_dosage.range_max as f32, &create_dosage.unit.replace("\"", ""));
+    let min_mass_result = parse_mass_by_f32_and_unit(
+        create_dosage.range_min as f32,
+        &create_dosage.unit.replace("\"", ""),
+    );
+    let max_mass_result = parse_mass_by_f32_and_unit(
+        create_dosage.range_max as f32,
+        &create_dosage.unit.replace("\"", ""),
+    );
 
     match (min_mass_result, max_mass_result) {
         (Ok(min_mass), Ok(max_mass)) => {
@@ -88,7 +119,10 @@ pub async fn create_dosage(db: &DatabaseConnection, create_dosage: CreateDosage)
             println!("Serialized mass: {:?}", to_string(&min_mass));
             println!("Created dosage: {:?}", internal_dosage);
             // Log serialized internal dosage
-            println!("Serialized dosage: {}", to_string(&internal_dosage).unwrap());
+            println!(
+                "Serialized dosage: {}",
+                to_string(&internal_dosage).unwrap()
+            );
         }
         _ => {
             println!("Failed to parse mass range for dosage: {:?}", create_dosage);

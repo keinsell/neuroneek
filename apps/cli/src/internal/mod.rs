@@ -1,10 +1,10 @@
-use chrono::{DateTime, Utc};
-use sea_orm::{ActiveValue};
-use uom::si::f32::Mass;
 use crate::core::mass_range::serialize_mass_to_string;
-use crate::db::ingestion::{ActiveModel};
-use crate::db::prelude::{ Substance};
+use crate::db::ingestion::ActiveModel;
+use crate::db::prelude::Substance;
 use crate::service::roa::RouteOfAdministrationClassification;
+use chrono::{DateTime, Utc};
+use sea_orm::ActiveValue;
+use uom::si::f32::Mass;
 
 pub struct MagicIngestion {
     id: i32,

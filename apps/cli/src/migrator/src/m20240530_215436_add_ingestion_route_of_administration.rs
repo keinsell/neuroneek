@@ -1,8 +1,6 @@
 use sea_orm_migration::prelude::*;
-use tabled_derive::Tabled;
-use crate::m20240530_215436_add_ingestion_route_of_administration::RouteOfAdministration::Classification;
 
-#[derive(DeriveMigrationName,Debug)]
+#[derive(DeriveMigrationName, Debug)]
 pub struct Migration;
 
 #[async_trait::async_trait]
@@ -75,7 +73,7 @@ impl MigrationTrait for Migration {
                             .from(Phase::Table, Phase::RouteOfAdministrationId)
                             .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
                             .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )
@@ -109,7 +107,7 @@ impl MigrationTrait for Migration {
                             .from(Dosage::Table, Dosage::RouteOfAdministrationId)
                             .to(RouteOfAdministration::Table, RouteOfAdministration::Id)
                             .on_delete(ForeignKeyAction::Cascade)
-                            .on_update(ForeignKeyAction::Cascade)
+                            .on_update(ForeignKeyAction::Cascade),
                     )
                     .to_owned(),
             )
@@ -128,14 +126,14 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-manager
+        manager
             .drop_table(Table::drop().table(RouteOfAdministration::Table).to_owned())
             .await?;
         manager
             .drop_table(Table::drop().table(Phase::Table).to_owned())
             .await?;
 
-manager
+        manager
             .drop_table(Table::drop().table(Dosage::Table).to_owned())
             .await?;
 
