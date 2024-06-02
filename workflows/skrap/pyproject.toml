@@ -1,10 +1,33 @@
+[project]
+name = "skarp"
+version = "0.1.0"
+description = "Scrapper filter out incorrect data and build database of substance information."
+authors = []
+entry-points = { workflow = { main = "workflow:main" } }
+readme = "README.md"
+dependencies = [
+    "metaflow>=2.12.0",
+    "prisma>=0.13.1",
+    "pydantic>=2.7.2",
+    "pubchempy>=1.0.4",
+    "diskcache>=5.6.3",
+    "gql>=3.5.0",
+    "strawberry-graphql>=0.234.0",
+    "pendulum>=3.0.0",
+    "joblib>=1.4.2",
+    #    "pydevd-pycharm>=242.10180.30",
+]
+requires-python = ">= 3.10"
+
+[project.scripts]
+"workflow" = "workflow:main"
+
 [tool.poetry]
 name = "neuronek-skrap"
 version = "0.1.0"
 description = "Scrapper filter out incorrect data and build database of substance information."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -20,8 +43,7 @@ gql = "^3.5.0"
 strawberry-graphql = "^0.234.0"
 pendulum = "^3.0.0"
 joblib = "^1.4.2"
-pycharm-debug = "^0.4.0"
-pydevd-pycharm = ">=241.17011.127,<241.17012.0"
+#pydevd-pycharm = ">=241.17011.127,<241.17012.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -37,9 +59,13 @@ black = "^22.1b1"
 isort = "^5.10.2"
 flake8 = "^4.0.1"
 
+#[build-system]
+#requires = ["poetry-core"]
+#build-backend = "poetry.core.masonry.api"
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["maturin>=1.2,<2.0", "pdm-backend", "poetry-core", "setuptools>=60", "hatching"]
+build-backend = "pdm.backend"
 
 [tool.ariadne-codegen]
 schema_path = "graphql/psychonautwiki/schema.graphql"
@@ -47,3 +73,15 @@ queries_path = "graphql/psychonautwiki/queries.graphql"
 plugins = ["ariadne_codegen.contrib.shorter_results.ShorterResultsPlugin"]
 
 static-type-checking = true
+
+[tool.rye]
+managed = true
+lock-with-sources = true
+dev-dependencies = [
+    "prisma>=0.13.1",
+]
+
+#[tool.maturin]
+#python-source = "src"
+#module-name = "skrape._lowlevel"
+#features = ["pyo3/extension-module"]
