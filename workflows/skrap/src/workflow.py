@@ -1,5 +1,8 @@
+import pydevd_pycharm
 import json
 
+import joblib
+import pendulum
 from pubchempy import Compound
 
 import custom_types
@@ -25,6 +28,11 @@ from graphql_client.client import Client as PsychonautwikiGraphqlClient
 import asyncio
 
 cache = Cache(directory=".cache")
+memory = joblib.Memory(".cache", verbose=0)
+
+pydevd_pycharm.settrace(
+    "localhost", port=8934, stdoutToServer=True, stderrToServer=True
+)
 
 # I could whitelist scrape to just Caffeine at this point lolz
 IGNORE_SUBSTANCE_NAMES: list[str] = [
@@ -87,13 +95,6 @@ class PhaseClassification(str, Enum):
     total = ("total",)
     afterglow = ("afterglow",)
 
-    # assert "onset" in keys
-    # assert "comeup" in keys
-    # assert "peak" in keys
-    # assert "offset" in keys
-    # assert "total" in keys
-    # assert "afterglow" in keys
-
     @classmethod
     def __from_psychonautwiki_duration___(
         self, input: Literal["onset", "comeup", "peak", "asddsad", "asddsa", "asd"]
@@ -105,9 +106,9 @@ class PhaseClassification(str, Enum):
                 return PhaseClassification.comeup
             case "peak":
                 return PhaseClassification.peak
-            case "asddsad":
+            case "offset":
                 return PhaseClassification.offset
-            case "asddsa":
+            case "afterglow":
                 return PhaseClassification.afterglow
             case _:
                 raise NotImplementedError()
@@ -150,17 +151,62 @@ class DosageRange:
 class PhaseRange:
     """Represents a range of phase values with associated categories."""
 
-    min_value: int
-    max_value: int
-    category: PhaseClassification
+    min_value: pendulum.Duration
+    max_value: pendulum.Duration
+    classification: PhaseClassification
 
     @classmethod
     def onset(cls, min_value, max_value):
         return cls(min_value, max_value, PhaseClassification.onset)
 
     @classmethod
+    def comeup(cls, min_value, max_value):
+        return cls(min_value, max_value, PhaseClassification.comeup)
+
+    @classmethod
+    def peak(cls, min_value, max_value):
+        return cls(min_value, max_value, PhaseClassification.peak)
+
+    @classmethod
+    def offset(cls, min_value, max_value):
+        return cls(min_value, max_value, PhaseClassification.offset)
+
+    @classmethod
     def afterglow(cls, min_value, max_value):
         return cls(min_value, max_value, PhaseClassification.afterglow)
+
+    @classmethod
+    def __from_psychonautwiki_duration___(
+        cls,
+        classification: PhaseClassification,
+        min_duraation: float,
+        max_duration: float,
+        duration_unit: str,
+    ):
+        min_duration_string = f"{min_duraation} {duration_unit}"
+        max_duration_string = f"{max_duration} {duration_unit}"
+
+        min_duration = pendulum.parse(min_duration_string)
+        max_duration = pendulum.parse(max_duration_string)
+
+        assert min_duration <= max_duration
+        # Check if min_duration and max_duration are instance of pendulum.Duration
+        assert isinstance(min_duration, pendulum.Duration)
+        assert isinstance(max_duration, pendulum.Duration)
+
+        match classification:
+            case PhaseClassification.onset:
+                return cls.onset(min_duraation, max_duration)
+            case PhaseClassification.comeup:
+                return cls.comeup(min_duraation, max_duration)
+            case PhaseClassification.peak:
+                return cls.peak(min_duraation, max_duration)
+            case PhaseClassification.offset:
+                return cls.offset(min_duraation, max_duration)
+            case PhaseClassification.afterglow:
+                return cls.afterglow(min_duraation, max_duration)
+            case _:
+                raise ValueError(f"Unknown classification: {classification}")
 
 
 def create_dosage_input(
@@ -273,18 +319,14 @@ def fetch_pubchem(substance_name: str) -> Optional[pcp.Compound]:
         return None
 
 
+@memory.cache
 async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance]:
+    client = PsychonautwikiGraphqlClient(url="https://api.psychonautwiki.org/graphql")
+
     try:
-        client = PsychonautwikiGraphqlClient(
-            url="https://api.psychonautwiki.org/graphql"
-        )
         all_substances = await client.all_substances()
-
-        if not all_substances:
-            raise Exception("No substances found in PsychonautWiki dataset")
-
-        # Remove nulls from the list
-        all_substances = list(filter(None, all_substances))
+        assert all_substances is not None
+        # print(all_substances)
         return all_substances
 
     except GraphQLClientGraphQLMultiError as e:
@@ -292,9 +334,9 @@ async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance]:
             from graphql_client import AllSubstances
 
             substances = AllSubstances.model_validate(e.data).substances
-
-            if substances:
-                return substances
+            assert substances is not None
+            # print(substances)
+            return substances
         raise e
 
 
@@ -412,6 +454,25 @@ def get_psychonautwiki_route_of_administration_by_classification_from_singular_s
     )
 
 
+def create_phase_ranges_from_psychonautwiki_duration(
+    roa_duration: graphql_client.PsychonautwikiDuration,
+) -> list[PhaseRange]:
+    phase_ranges = []
+    for phase in PhaseClassification:
+        phase_duration = getattr(roa_duration, phase.value, None)
+
+        if phase_duration:
+            phase_range = PhaseRange.__from_psychonautwiki_duration___(
+                PhaseClassification(phase),
+                phase_duration.min,
+                phase_duration.max,
+                roa_duration.units,
+            )
+            phase_ranges.append(phase_range)
+
+    return phase_ranges
+
+
 def get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic(
     name: str,
     classification: RouteOfAdministrationClassification,
@@ -425,31 +486,11 @@ def get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_pani
         classification, substance
     )
 
-    durations: list[PhaseRange] = []
+    assert roa.duration, f"No route of administration found for {name}"
 
-    assert roa.duration.keys() in [
-        "onset",
-        "comeup",
-        "peak",
-        "offset",
-        "total",
-        "afterglow",
-    ], f"Duration keys {roa.duration.keys()} not supported"
-
-    duration_keys: list[PhaseClassification] = roa.duration.keys().map(
-        PhaseClassification.__from_psychonautwiki_duration___
+    durations: list[PhaseRange] = create_phase_ranges_from_psychonautwiki_duration(
+        roa.duration
     )
-
-    duration_keys = list(filter(None, duration_keys))
-
-    for duration_key in duration_keys:
-        duration_range = PhaseRange(
-            min_value=roa.duration[duration_key].min,
-            max_value=roa.duration[duration_key].max,
-            category=duration_key,
-        )
-
-        durations.append(duration_range)
 
     return durations
 
@@ -626,8 +667,9 @@ class CreateDatabase(FlowSpec):
                         )
                         continue
 
-        self.next(self.import_effects)
+        self.next(self.import_phases)
 
+    @step
     def import_phases(self):
         """
         Step will parse information from psychonautwiki to add durations for each
@@ -645,24 +687,17 @@ class CreateDatabase(FlowSpec):
                     self.psychonautwiki_substances,
                 )
 
-                for (
-                    route_of_administration_from_psychonautwiki
-                ) in routes_of_administration_from_psychonautwiki:
-                    try:
-                        assert route_of_administration_from_psychonautwiki
-                        assert route_of_administration_from_psychonautwiki.name
-                        assert route_of_administration_from_psychonautwiki.duration
+                for roa in routes_of_administration_from_psychonautwiki:
+                    print(roa)
 
-                        for (
-                            phase
-                        ) in route_of_administration_from_psychonautwiki.duration:
-                            try:
-                                assert phase
-                            finally:
-                                continue
+                    phases = get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic(
+                        routes_of_administration_from_database.substanceName,
+                        RouteOfAdministrationClassification(roa.name),
+                        self.psychonautwiki_substances,
+                    )
 
-                    finally:
-                        continue
+                    print(phases)
+
             finally:
                 continue
 
@@ -671,7 +706,7 @@ class CreateDatabase(FlowSpec):
     @step
     def import_effects(self):
         # Read effectindex json from file
-        with open("../.cached_data/effectindex.json") as f:
+        with open(".cached_data/effectindex.json") as f:
             self.effects_raw_json_data = json.load(f)
 
         # Parse json data into typed model
@@ -679,28 +714,15 @@ class CreateDatabase(FlowSpec):
             custom_types.effectindex.Model.parse_obj(self.effects_raw_json_data)
         )
 
-        print("Parsed effectindex data: ", self.effectindex)
-
         self.next(self.save_effects)
 
     @step
     def save_effects(self):
         db = prisma.Prisma()
         db.connect()
-
-        print("Transforming and storing effectindex data...")
         effects = self.effectindex.root
 
         for effect in effects:
-            print("Processing effect: ", effect.title)
-
-            # Continue loop if effect already exists in database
-            if db.effect.find_first(where={"name": effect.title}):
-                print("Effect already exists: ", effect.title)
-                continue
-
-            print("Inserting effect into the database")
-
             create_effect: EffectCreateInput = {
                 "name": effect.title,
                 # Parse "slug" from url (the last part of the url)
@@ -716,10 +738,9 @@ class CreateDatabase(FlowSpec):
 
             try:
                 db_effect = db.effect.create(data=create_effect)
-
-                print(f"Created {db_effect.name}", db_effect)
-            except Exception:
-                print(f"Failed to insert {effect.title}")
+                print(f"Created {db_effect.name}")
+            except Exception as e:
+                print(f"Failed to insert {effect.title}: ", e)
                 continue
 
         self.next(self.merge_effect_references)
@@ -762,4 +783,10 @@ class CreateDatabase(FlowSpec):
 
 
 if __name__ == "__main__":
+    import pydevd_pycharm
+
+    pydevd_pycharm.settrace(
+        "localhost", port=8934, stdoutToServer=True, stderrToServer=True
+    )
+
     CreateDatabase(use_cli=True)
