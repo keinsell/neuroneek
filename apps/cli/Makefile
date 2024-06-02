@@ -10,7 +10,7 @@ dev-build:
 
 lint:
 	cargo fmt --all
-	cargo clippy --all-targets --all-features --fix
+	cargo clippy --all-targets --all-features --fix --allow-dirty
 	cargo miri test
 	cargo test
 
@@ -41,7 +41,7 @@ orm-push:
 	cd src/migrator && cargo run -- fresh --database-url sqlite://db.sqlite
 
 orm-pull:
-	sea-orm-cli generate entity --database-url sqlite://src/migrator/db.sqlite --output-dir src/db --date-time-crate chrono --with-copy-enums
+	sea-orm-cli generate entity --database-url sqlite://src/migrator/dev.sqlite --output-dir src/db --date-time-crate chrono --with-copy-enums
 
 # Requires:
 # - paru -S mingw-w64 pkg-config

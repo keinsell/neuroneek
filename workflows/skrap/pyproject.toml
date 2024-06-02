@@ -1,0 +1,88 @@
+[project]
+name = "skarp"
+version = "0.1.0"
+description = "Scrapper filter out incorrect data and build database of substance information."
+authors = []
+entry-points = { workflow = { main = "workflow:main" } }
+readme = "README.md"
+dependencies = [
+    "metaflow>=2.12.0",
+    "prisma>=0.13.1",
+    "pydantic>=2.7.2",
+    "pubchempy>=1.0.4",
+    "diskcache>=5.6.3",
+    "gql>=3.5.0",
+    "strawberry-graphql>=0.234.0",
+    "pendulum>=3.0.0",
+    "joblib>=1.4.2",
+    "pydevd-pycharm>=242.10180.30",
+    "quantities>=0.15.0",
+    "ariadne-codegen>=0.13.0",
+    "pint>=0.23",
+]
+requires-python = ">= 3.10"
+
+[project.scripts]
+"workflow" = "workflow:main"
+
+[tool.poetry]
+name = "neuronek-skrap"
+version = "0.1.0"
+description = "Scrapper filter out incorrect data and build database of substance information."
+authors = ["Jakub Olan <keinsell@protonmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+metaflow = "^2.11.10"
+prisma = "^0.13.1"
+datamodel-code-generator = "^0.25.5"
+pydantic = "^2.7.2"
+requests = "^2.32.3"
+types-requests = "^2.32.0.20240523"
+pubchempy = "^1.0.4"
+diskcache = "^5.6.3"
+gql = "^3.5.0"
+strawberry-graphql = "^0.234.0"
+pendulum = "^3.0.0"
+joblib = "^1.4.2"
+#pydevd-pycharm = ">=241.17011.127,<241.17012.0"
+
+
+[tool.poetry.group.dev.dependencies]
+strawberry-graphql = { extras = ["cli"], version = "^0.234.0" }
+ariadne-codegen = "^0.13.0"
+pylint = "^3.2.2"
+pytype = "^2024.4.11"
+monkeytype = "^23.3.0"
+ruff = "^0.4.7"
+mypy = "^1.9.0"
+pylyzer = "0.1.0b0"
+black = "^22.1b1"
+isort = "^5.10.2"
+flake8 = "^4.0.1"
+
+#[build-system]
+#requires = ["poetry-core"]
+#build-backend = "poetry.core.masonry.api"
+
+
+[tool.pdm]
+[build-system]
+requires = ["maturin>=1.2,<2.0", "pdm-backend", "poetry-core", "setuptools>=61.0", "hatchling"]
+# build-backend = "pdm.backend"
+build-backend = "setuptools.build_meta"
+#build-backend = "hatchling.build"
+#build-backend = "poetry.core.masonry.api"
+
+[tool.ariadne-codegen]
+schema_path = "graphql/psychonautwiki/schema.graphql"
+queries_path = "graphql/psychonautwiki/queries.graphql"
+plugins = ["ariadne_codegen.contrib.shorter_results.ShorterResultsPlugin"]
+
+static-type-checking = true
+
+#[tool.maturin]
+#python-source = "src"
+#module-name = "skrape._lowlevel"
+#features = ["pyo3/extension-module"]

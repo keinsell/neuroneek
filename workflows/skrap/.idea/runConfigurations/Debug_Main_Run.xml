@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Debug Main Run" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
+    <module name="skrap" />
+    <option name="PORT" value="8938" />
+    <option name="HOST" value="localhost" />
+    <PathMappingSettings>
+      <option name="pathMappings">
+        <list />
+      </option>
+    </PathMappingSettings>
+    <option name="REDIRECT_OUTPUT" value="true" />
+    <option name="SUSPEND_AFTER_CONNECT" value="true" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Start Workflow" run_configuration_type="PythonConfigurationType" />
+    </method>
+  </configuration>
+</component>

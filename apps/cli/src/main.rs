@@ -1,17 +1,14 @@
-use async_std::{task};
-use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
-use structopt::StructOpt;
 use crate::cli::main::cli;
+use async_std::task;
 
 mod cli;
-mod orm;
+mod core;
 mod db;
 mod ingestion;
-mod service;
-mod core;
-mod internal;
 mod ingestion_analyzer;
-
+mod internal;
+mod orm;
+mod service;
 
 fn main() {
     task::block_on(cli());

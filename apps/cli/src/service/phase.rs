@@ -1,10 +1,10 @@
-use std::str::FromStr;
-use sea_orm::{DatabaseConnection, EntityTrait};
-use sea_orm::ActiveValue::Set;
-use sea_orm::prelude::ChronoTime;
-use serde::{Deserialize, Serialize};
 use crate::db::phase;
 use crate::db::prelude::Phase;
+use sea_orm::prelude::ChronoTime;
+use sea_orm::ActiveValue::Set;
+use sea_orm::{DatabaseConnection, EntityTrait};
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -49,31 +49,23 @@ impl FromStr for PhaseClassification {
 }
 
 fn parse_duration_to_chrono_time(duration: u32) -> ChronoTime {
-    ChronoTime::from_hms_milli_opt(0,0,0,duration).unwrap()
+    ChronoTime::from_hms_milli_opt(0, 0, 0, duration).unwrap()
 }
 
 pub struct CreatePhase {
     route_of_administration_id: i32,
     phase_classification: PhaseClassification,
     min_duration: ChronoTime,
-    max_duration: ChronoTime
+    max_duration: ChronoTime,
 }
 
 pub async fn create_phase(db: &DatabaseConnection, create_phase: CreatePhase) {
     let phase_active_model: phase::ActiveModel = phase::ActiveModel {
         id: Default::default(),
-        route_of_administration_id: Set(
-            create_phase.route_of_administration_id
-        ),
-        classification: Set(
-            String::from(create_phase.phase_classification)
-        ),
-        duration_min: Set(
-            create_phase.min_duration.to_string().parse().unwrap()
-        ),
-        duration_max: Set(
-            create_phase.max_duration.to_string().parse().unwrap()
-        )
+        route_of_administration_id: Set(create_phase.route_of_administration_id),
+        classification: Set(String::from(create_phase.phase_classification)),
+        duration_min: Set(create_phase.min_duration.to_string().parse().unwrap()),
+        duration_max: Set(create_phase.max_duration.to_string().parse().unwrap()),
     };
 
     Phase::insert(phase_active_model)
