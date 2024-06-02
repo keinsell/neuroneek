@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
@@ -67,6 +68,48 @@ class RouteOfAdministrationClassification(str, Enum):
     intramuscular = ("intramuscular",)
     interavenous = ("interavenous",)
     smoked = ("smoked",)
+
+
+class PhaseClassification(str, Enum):
+    onset = ("onset",)
+    comeup = ("comeup",)
+    peak = ("peak",)
+    offset = ("offset",)
+    total = ("total",)
+    afterglow = ("afterglow",)
+
+
+@dataclass
+class DosageRange:
+    """Represents a range of dosage values with associated categories."""
+
+    min_value: float
+    max_value: float
+    category: str
+
+    @classmethod
+    def UnderThreshold(cls, max_value):
+        return cls(float("-inf"), max_value, "UnderThreshold")
+
+    @classmethod
+    def Light(cls, min_value, max_value):
+        return cls(min_value, max_value, "Light")
+
+    @classmethod
+    def Common(cls, min_value, max_value):
+        return cls(min_value, max_value, "Common")
+
+    @classmethod
+    def Strong(cls, min_value, max_value):
+        return cls(min_value, max_value, "Strong")
+
+    @classmethod
+    def Heavy(cls, min_value):
+        return cls(min_value, float("inf"), "Heavy")
+
+    def __contains__(self, dosage):
+        """Allows checking if a dosage is within this range."""
+        return self.min_value <= dosage <= self.max_value
 
 
 def create_dosage_input(
@@ -169,13 +212,13 @@ def create_substance_input(
         ",".join(substance.commonNames) if substance.commonNames else ""
     )
 
-    return {
-        "name": substance.name,
-        "psychoactive_class": psychoactive_class,
-        "brand_names": "",
-        "chemical_class": chemical_class,
-        "common_names": common_names,
-    }
+    return SubstanceCreateInput(
+        name=substance.name,
+        psychoactive_class=psychoactive_class,
+        chemical_class=chemical_class,
+        common_names=common_names,
+        brand_names="",
+    )
 
 
 class GetPsychonautwiki(FlowSpec):
@@ -183,6 +226,7 @@ class GetPsychonautwiki(FlowSpec):
         super().__init__(use_cli)
         self.psychonautwiki_response: codegen_types.psychonautwiki.Model | None = None
 
+    # noinspection PyUnusedFunction
     @step
     def start(self):
         """
@@ -362,9 +406,7 @@ class GetPsychonautwiki(FlowSpec):
             print("Processing substance: ", substance.name)
 
             # Find substance in psychonautwiki dataset available in class.
-            psychonautwiki_substances = codegen_types.psychonautwiki.Model.parse_obj(
-                self.psychonautwiki
-            ).data.substances
+            psychonautwiki_substances = self.psychonautwiki.data.substances
 
             pw_substance = next(
                 (
