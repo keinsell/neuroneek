@@ -1,17 +1,71 @@
-load_psychonautwiki: "Fetch substances from PsychonautWiki"
-load_effectindex: "Fetch effectindex.json"
+#     ______               ______     _
+#     | ___ \              | ___ \   | |
+#     | |_/ / __ ___ ______| |_/ /___| | ___  __ _ ___  ___
+#     |  __/ '__/ _ \______|    // _ \ |/ _ \/ _` / __|/ _ \
+#     | |  | | |  __/      | |\ \  __/ |  __/ (_| \__ \  __/
+#     \_|  |_|  \___|      \_| \_\___|_|\___|\__,_|___/\___|
+
+load_psychonautwiki: "Load com.psychonautwiki.graphql"
+load_effectindex: "Load com.effectindex.json"
 import_effects: "Import effects"
 import_substances: "Import substances"
 import_routes_of_administration: "Import routes of administration"
 import_dosage: "Import dosages"
 import_phases: "Import phases"
+import_substance_effects: "Import effects for substances"
 
-start:
-    load_psychonautwiki
-    load_effectindex
-    import_effects
-    import_substances
-    import_routes_of_administration
-    import_dosage
-    import_phases
-end
+# Initial process of data ingestion based on PsychonautWiki
+load_psychonautwiki -> import_substances
+load_effectindex -> import_effects
+import_substances -> import_routes_of_administration
+import_routes_of_administration -> import_dosage
+import_routes_of_administration -> import_phases
+import_substances -> import_substance_effects
+import_effects -> import_substance_effects
+
+# After operations listed above there is potential possibility for
+# "nullish" values in terms of substances, as they were imported at
+# the very beginning of the process, it's possible that later such
+# substance has not got any route of administration, or maybe route
+# of administration has not got any dosage and so on. There is low
+# probability as we're doing cleanup of most "nullish" or invalid
+# substances by correlating them with PubMed IDs.
+
+# There are two most important dependencies for this process:
+# - Imported dosages
+# - Imported phases
+
+clean_substances_without_route_of_administration: "Clean substances without route of administration"
+clean_routes_of_administration_without_dosages: "Clean routes of administration without complete dosage"
+clean_routes_of_administration_without_phases: "Clean routes of administration without complete phases"
+clean_substances_without_effects: "Clean substances without effects"
+
+import_dosage -> clean_routes_of_administration_without_dosages
+import_phases -> clean_routes_of_administration_without_phases
+clean_routes_of_administration_without_dosages -> clean_substances_without_route_of_administration
+clean_routes_of_administration_without_phases -> clean_substances_without_route_of_administration
+clean_substances_without_route_of_administration -> clean_substances_without_effects
+
+# At this point database should be clean from most of dangerous nullish
+# values, and due to heavy focus on correlating data with formal
+# sources, we have assurance that we're not made up some custom
+# substances like psychonautwiki done in the process of exposing
+# information from wiki (not blaming tho, I believe trying to
+# structure unstructured data is whole stack of mess).
+#
+#     ______         _       _______     _
+#     | ___ \       | |     / | ___ \   | |
+#     | |_/ ___  ___| |_   / /| |_/ /___| | ___  __ _ ___  ___
+#     |  __/ _ \/ __| __| / / |    // _ | |/ _ \/ _` / __|/ _ \
+#     | | | (_) \__ | |_ / /  | |\ |  __| |  __| (_| \__ |  __/
+#     \_|  \___/|___/\__/_/   \_| \_\___|_|\___|\__,_|___/\___|
+#
+# Plan presented on the diagrams mentioned above will be enough
+# for archiving initial complete functionality of the application,
+# it may be a little rough on the edges as correlations will be
+# weak and generalized instead precise, but it's a start.
+#
+# Later implementations should include following steps:
+# - Import, Preprocessing and Deduplication of Erowid reports
+# - Correlation of metabolites and interactions with Drugbank
+#
