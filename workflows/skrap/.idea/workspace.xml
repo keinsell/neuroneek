@@ -5,32 +5,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c722a59e-329e-4c81-9b6c-f24bb64f3bef" name="Changes" comment=".">
-      <change afterPath="$PROJECT_DIR$/graphql/psychonautwiki/graphql.config.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mypy.ini" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/setup.cfg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/create-database.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../apps/cli/src/service/dosage.rs" beforeDir="false" afterPath="$PROJECT_DIR$/../../apps/cli/src/service/dosage.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../psychonautwiki.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../psychonautwiki.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/mypy.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/mypy.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/__init__.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/__init__.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/pydantic.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/snakemake-settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ruff.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/__main__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e51ad556-495f-47a7-9fb6-a40ee8e56f4d.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/e51ad556-495f-47a7-9fb6-a40ee8e56f4d.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ruff.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ruff.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/skrap.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/skrap.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/graphql.config.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphql_client/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphql_client/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/graphql_client/all_substances.py" beforeDir="false" afterPath="$PROJECT_DIR$/graphql_client/all_substances.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mypy.ini" beforeDir="false" afterPath="$PROJECT_DIR$/mypy.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/poetry.lock" beforeDir="false" afterPath="$PROJECT_DIR$/poetry.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/prisma/dev.db" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/dev.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/psychonautwiki.operation.graphql" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/psychonautwiki/queries.graphql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/psychonautwiki.schema.graphql" beforeDir="false" afterPath="$PROJECT_DIR$/graphql/psychonautwiki/schema.graphql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/codegen_types/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/custom_types/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/codegen_types/effectindex.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/custom_types/effectindex.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/codegen_types/psychonautwiki.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/custom_types/psychonautwiki.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/create-database.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/workflow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/custom_types/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/custom_types/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/custom_types/psychonautwiki.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myAllFileTypesSelected" value="true" />
+    <option name="mySelectedFileTypes">
+      <set />
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
@@ -90,6 +95,8 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Makefile Target.annotate_types.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.check_types.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.generate_packages_stubs.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.generate_psychonautwiki_types.executor&quot;: &quot;Run&quot;,
     &quot;Makefile Target.generate_stubs.executor&quot;: &quot;Run&quot;,
@@ -98,17 +105,28 @@
     &quot;Python.__main__.executor&quot;: &quot;Run&quot;,
     &quot;Python.create-database.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;#486 on pythonic-upgrades&quot;,
     &quot;last_opened_file_path&quot;: &quot;/home/keinsell/Projects/neuronek/workflows/skrap/src/__init__.py&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Color Scheme Font&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myUseExistingConsole" value="true" />
+    <option name="myCommandQueueEnabled" value="true" />
+  </component>
+  <component name="PyDebuggerOptionsProvider">
+    <option name="mySaveCallSignatures" value="true" />
+    <option name="mySupportGeventDebugging" value="true" />
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/graphql/com.api.psychonautwiki" />
@@ -116,40 +134,17 @@
       <recent name="$PROJECT_DIR$/graphql" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.create-database">
-    <configuration name="generate_psychonautwiki_types" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="generate_psychonautwiki_types" workingDirectory="" arguments="">
+  <component name="RunManager" selected="Python.__main__">
+    <configuration name="annotate_types" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="annotate_types" workingDirectory="" arguments="">
         <envs />
       </makefile>
       <method v="2" />
     </configuration>
-    <configuration name="generate_stubs" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
-      <makefile filename="$PROJECT_DIR$/Makefile" target="generate_stubs" workingDirectory="" arguments="">
+    <configuration name="check_types" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="check_types" workingDirectory="" arguments="">
         <envs />
       </makefile>
-      <method v="2" />
-    </configuration>
-    <configuration name="__init__ (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="skrap" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/__init__.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
     <configuration name="__main__" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
@@ -175,18 +170,21 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="create-database" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="workflow" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="skrap" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/create-database.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/workflow.py" />
       <option name="PARAMETERS" value="run" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -196,20 +194,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Makefile Target.generate_psychonautwiki_types" />
-      <item itemvalue="Makefile Target.generate_stubs" />
+      <item itemvalue="Makefile Target.annotate_types" />
+      <item itemvalue="Makefile Target.check_types" />
       <item itemvalue="Python.__init__" />
-      <item itemvalue="Python.__init__ (1)" />
       <item itemvalue="Python.__main__" />
-      <item itemvalue="Python.create-database" />
+      <item itemvalue="Python.workflow" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.create-database" />
         <item itemvalue="Python.__main__" />
-        <item itemvalue="Python.__init__ (1)" />
-        <item itemvalue="Makefile Target.generate_stubs" />
-        <item itemvalue="Makefile Target.generate_psychonautwiki_types" />
+        <item itemvalue="Makefile Target.check_types" />
+        <item itemvalue="Makefile Target.annotate_types" />
+        <item itemvalue="Python.workflow" />
+        <item itemvalue="Python.__main__" />
       </list>
     </recent_temporary>
   </component>
@@ -231,7 +228,9 @@
       <updated>1717277208238</updated>
       <workItem from="1717277209529" duration="10082000" />
       <workItem from="1717308298505" duration="16659000" />
-      <workItem from="1717325063334" duration="1372000" />
+      <workItem from="1717325063334" duration="3752000" />
+      <workItem from="1717329083918" duration="3824000" />
+      <workItem from="1717332919655" duration="1597000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />
@@ -265,7 +264,23 @@
       <option name="project" value="LOCAL" />
       <updated>1717290734277</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary=".">
+      <option name="closed" value="true" />
+      <created>1717326512477</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1717326512477</updated>
+    </task>
+    <task id="LOCAL-00006" summary=".">
+      <option name="closed" value="true" />
+      <created>1717326519319</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1717326519319</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -278,7 +293,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/skrap$create_database.coverage" NAME="create-database Coverage Results" MODIFIED="1717324254196" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/skrap$__init____1_.coverage" NAME="__init__ (1) Coverage Results" MODIFIED="1717322679350" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/skrap$__main__.coverage" NAME="__main__ Coverage Results" MODIFIED="1717322993520" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/skrap$__main__.coverage" NAME="__main__ Coverage Results" MODIFIED="1717329844808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/skrap$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1717322532791" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$ContentRoot$" />
   </component>
 </project>

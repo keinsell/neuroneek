@@ -18,7 +18,7 @@ class PsychonautwikiSubstance(BaseModel):
     url: Optional[str]
     class_: Optional["AllSubstancesSubstancesClass"] = Field(alias="class")
     tolerance: Optional["AllSubstancesSubstancesTolerance"]
-    roas: Optional[List[Optional["AllSubstancesSubstancesRoas"]]]
+    roas: Optional[List[Optional["PsychonautwikiRouteOfAdministration"]]]
     addiction_potential: Optional[str] = Field(alias="addictionPotential")
     toxicity: Optional[List[Optional[str]]]
     cross_tolerances: Optional[List[Optional[str]]] = Field(alias="crossTolerances")
@@ -45,10 +45,10 @@ class AllSubstancesSubstancesTolerance(BaseModel):
     zero: Optional[str]
 
 
-class AllSubstancesSubstancesRoas(BaseModel):
+class PsychonautwikiRouteOfAdministration(BaseModel):
     name: Optional[str]
     dose: Optional["AllSubstancesSubstancesRoasDose"]
-    duration: Optional["AllSubstancesSubstancesRoasDuration"]
+    duration: Optional["PsychonautwikiDuration"]
     bioavailability: Optional["AllSubstancesSubstancesRoasBioavailability"]
 
 
@@ -76,7 +76,7 @@ class AllSubstancesSubstancesRoasDoseStrong(BaseModel):
     max: Optional[float]
 
 
-class AllSubstancesSubstancesRoasDuration(BaseModel):
+class PsychonautwikiDuration(BaseModel):
     onset: Optional["AllSubstancesSubstancesRoasDurationOnset"]
     comeup: Optional["AllSubstancesSubstancesRoasDurationComeup"]
     peak: Optional["AllSubstancesSubstancesRoasDurationPeak"]
@@ -145,6 +145,6 @@ class AllSubstancesSubstancesEffects(BaseModel):
 
 AllSubstances.model_rebuild()
 PsychonautwikiSubstance.model_rebuild()
-AllSubstancesSubstancesRoas.model_rebuild()
+PsychonautwikiRouteOfAdministration.model_rebuild()
 AllSubstancesSubstancesRoasDose.model_rebuild()
-AllSubstancesSubstancesRoasDuration.model_rebuild()
+PsychonautwikiDuration.model_rebuild()

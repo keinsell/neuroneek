@@ -6,7 +6,7 @@ import custom_types
 import prisma
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
+from typing import Optional, Literal
 import pubchempy as pcp
 from diskcache import Cache
 from metaflow import FlowSpec, step
@@ -19,10 +19,10 @@ from prisma.types import (
     RouteOfAdministrationWhereInput,
 )
 
+import graphql_client
 from graphql_client import GraphQLClientGraphQLMultiError, PsychonautwikiSubstance
 from graphql_client.client import Client as PsychonautwikiGraphqlClient
 import asyncio
-
 
 cache = Cache(directory=".cache")
 
@@ -87,6 +87,31 @@ class PhaseClassification(str, Enum):
     total = ("total",)
     afterglow = ("afterglow",)
 
+    # assert "onset" in keys
+    # assert "comeup" in keys
+    # assert "peak" in keys
+    # assert "offset" in keys
+    # assert "total" in keys
+    # assert "afterglow" in keys
+
+    @classmethod
+    def __from_psychonautwiki_duration___(
+        self, input: Literal["onset", "comeup", "peak", "asddsad", "asddsa", "asd"]
+    ) -> "PhaseClassification":
+        match input:
+            case "onset":
+                return PhaseClassification.onset
+            case "comeup":
+                return PhaseClassification.comeup
+            case "peak":
+                return PhaseClassification.peak
+            case "asddsad":
+                return PhaseClassification.offset
+            case "asddsa":
+                return PhaseClassification.afterglow
+            case _:
+                raise NotImplementedError()
+
 
 @dataclass
 class DosageRange:
@@ -121,9 +146,26 @@ class DosageRange:
         return self.min_value <= dosage <= self.max_value
 
 
+@dataclass
+class PhaseRange:
+    """Represents a range of phase values with associated categories."""
+
+    min_value: int
+    max_value: int
+    category: PhaseClassification
+
+    @classmethod
+    def onset(cls, min_value, max_value):
+        return cls(min_value, max_value, PhaseClassification.onset)
+
+    @classmethod
+    def afterglow(cls, min_value, max_value):
+        return cls(min_value, max_value, PhaseClassification.afterglow)
+
+
 def create_dosage_input(
     intensivity: DosageIntensivity,
-    dose: custom_types.psychonautwiki.Dose,
+    dose: graphql_client.AllSubstancesSubstancesRoasDose,
     route_of_administration: prisma.models.RouteOfAdministration,
 ) -> Optional[DosageCreateInput]:
     try:
@@ -135,13 +177,13 @@ def create_dosage_input(
 
             dosage_range = DosageRange.heavy(dose.heavy)
 
-            return {
-                "routeOfAdministrationId": route_of_administration.id,
-                "intensivity": intensivity.lower(),
-                "amount_min": dosage_range.min_value,
-                "amount_max": dosage_range.max_value,
-                "unit": dose.units,
-            }
+            return DosageCreateInput(
+                routeOfAdministrationId=route_of_administration.id,
+                intensivity=intensivity.lower(),
+                amount_min=dosage_range.min_value,
+                amount_max=dosage_range.max_value,
+                unit=DosageUnit(dose.units),
+            )
         if intensivity is DosageIntensivity.threshold:
             # Expect threshold dosage to be present and use it as
             # lower and upper bound for min and max dosage.
@@ -150,15 +192,16 @@ def create_dosage_input(
 
             dosage_range = DosageRange.under_threshold(dose.threshold)
 
-            return {
-                "routeOfAdministrationId": route_of_administration.id,
-                "intensivity": intensivity.lower(),
-                "amount_min": dosage_range.min_value,
-                "amount_max": dosage_range.max_value,
-                "unit": DosageUnit(dose.units),
-            }
+            return DosageCreateInput(
+                routeOfAdministrationId=route_of_administration.id,
+                intensivity=intensivity.lower(),
+                amount_min=dosage_range.min_value,
+                amount_max=dosage_range.max_value,
+                unit=DosageUnit(dose.units),
+            )
 
             # Avoid filling database with None values
+
         is_min_dosage_none = dose.model_dump()[intensivity]["min"] is None
         is_max_dosage_none = dose.model_dump()[intensivity]["max"] is None
 
@@ -185,10 +228,10 @@ def create_dosage_input(
 
 
 def create_route_of_administration_input(
-    psychonautwiki_roa: custom_types.psychonautwiki.Roa,
+    psychonautwiki_roa: graphql_client.PsychonautwikiRouteOfAdministration,
     substance: prisma.models.Substance,
 ) -> Optional[RouteOfAdministrationCreateInput]:
-    if not psychonautwiki_roa:
+    if not psychonautwiki_roa or not psychonautwiki_roa.name:
         return None
 
     try:
@@ -240,7 +283,10 @@ async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance]:
         if not all_substances:
             raise Exception("No substances found in PsychonautWiki dataset")
 
+        # Remove nulls from the list
+        all_substances = list(filter(None, all_substances))
         return all_substances
+
     except GraphQLClientGraphQLMultiError as e:
         if e.data:
             from graphql_client import AllSubstances
@@ -260,6 +306,9 @@ def create_substance_input(
         return None
     # If substance do not have psychoactive class, return None
     if not substance or not substance.class_ or not substance.class_.psychoactive:
+        return None
+
+    if substance.class_ or not substance.class_.chemical:
         return None
 
     chemical_class = (
@@ -324,7 +373,7 @@ def get_psychonautwiki_substance_by_name_or_panic(
 
 def get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
     name: str, psychonautwiki_substances: list[PsychonautwikiSubstance]
-) -> list[custom_types.psychonautwiki.Roa]:
+) -> list[graphql_client.PsychonautwikiRouteOfAdministration]:
     maybe_substance = next(
         (
             pw_substance
@@ -334,11 +383,75 @@ def get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
         None,
     )
 
-    if not maybe_substance:
+    if not maybe_substance or not maybe_substance.roas:
         print(f"Substance {name} not found in PsychonautWiki dataset")
         raise Exception(f"Substance {name} not found in PsychonautWiki dataset")
 
-    return maybe_substance.roas
+    roas_without_nulls = list(filter(None, maybe_substance.roas))
+    return roas_without_nulls
+
+
+def get_psychonautwiki_route_of_administration_by_classification_from_singular_substance_or_panic(
+    classification: RouteOfAdministrationClassification,
+    substance: PsychonautwikiSubstance,
+) -> graphql_client.PsychonautwikiRouteOfAdministration:
+    if not substance or not substance.roas:
+        print(f"Substance {substance.name} not found in PsychonautWiki dataset")
+        raise Exception(
+            f"Substance {substance.name} not found in PsychonautWiki dataset"
+        )
+
+    roas_without_nulls = list(filter(None, substance.roas))
+
+    for roa in roas_without_nulls:
+        if RouteOfAdministrationClassification(roa.name) == classification:
+            return roa
+
+    raise Exception(
+        f"No route of administration with classification {classification} found in {substance.name}"
+    )
+
+
+def get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic(
+    name: str,
+    classification: RouteOfAdministrationClassification,
+    psychonautwiki_substances: list[PsychonautwikiSubstance],
+) -> list[PhaseRange]:
+    substance = get_psychonautwiki_substance_by_name_or_panic(
+        name, psychonautwiki_substances
+    )
+
+    roa = get_psychonautwiki_route_of_administration_by_classification_from_singular_substance_or_panic(
+        classification, substance
+    )
+
+    durations: list[PhaseRange] = []
+
+    assert roa.duration.keys() in [
+        "onset",
+        "comeup",
+        "peak",
+        "offset",
+        "total",
+        "afterglow",
+    ], f"Duration keys {roa.duration.keys()} not supported"
+
+    duration_keys: list[PhaseClassification] = roa.duration.keys().map(
+        PhaseClassification.__from_psychonautwiki_duration___
+    )
+
+    duration_keys = list(filter(None, duration_keys))
+
+    for duration_key in duration_keys:
+        duration_range = PhaseRange(
+            min_value=roa.duration[duration_key].min,
+            max_value=roa.duration[duration_key].max,
+            category=duration_key,
+        )
+
+        durations.append(duration_range)
+
+    return durations
 
 
 class CreateDatabase(FlowSpec):
@@ -493,10 +606,9 @@ class CreateDatabase(FlowSpec):
                         continue
 
                     try:
-                        dosage_find_first_query: DosageWhereInput = {
-                            "routeOfAdministrationId": db_roa.id,
-                            "intensivity": intensity,
-                        }
+                        dosage_find_first_query = DosageWhereInput(
+                            routeOfAdministrationId=db_roa.id, intensivity=intensity
+                        )
 
                         db_dose = db.dosage.find_first(where=dosage_find_first_query)
 
@@ -510,7 +622,7 @@ class CreateDatabase(FlowSpec):
                         print(f"Inserted {db_dose.id}", db_dose)
                     except TypeError as e:
                         print(
-                            f"Failed to insert {dose['routeOfAdministrationName']}: ", e
+                            f"Failed to insert {dose["routeOfAdministrationName"]}: ", e
                         )
                         continue
 
@@ -526,11 +638,33 @@ class CreateDatabase(FlowSpec):
 
         routes_of_administration = db.routeofadministration.find_many()
 
-        for route_of_administration in routes_of_administration:
-            # Find substance in psychonautwiki dataset available in class.
-            psychonautwiki_substances = custom_types.psychonautwiki.Model.parse_obj(
-                self.psychonautwiki
-            ).data.substances
+        for routes_of_administration_from_database in routes_of_administration:
+            try:
+                routes_of_administration_from_psychonautwiki = get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
+                    routes_of_administration_from_database.substanceName,
+                    self.psychonautwiki_substances,
+                )
+
+                for (
+                    route_of_administration_from_psychonautwiki
+                ) in routes_of_administration_from_psychonautwiki:
+                    try:
+                        assert route_of_administration_from_psychonautwiki
+                        assert route_of_administration_from_psychonautwiki.name
+                        assert route_of_administration_from_psychonautwiki.duration
+
+                        for (
+                            phase
+                        ) in route_of_administration_from_psychonautwiki.duration:
+                            try:
+                                assert phase
+                            finally:
+                                continue
+
+                    finally:
+                        continue
+            finally:
+                continue
 
         self.next(self.import_effects)
 
@@ -601,10 +735,10 @@ class CreateDatabase(FlowSpec):
         db = prisma.Prisma()
         db.connect()
 
-        # psychonautwiki.data.substances.*.effects -> deduplicate -> update database where entry do not have url to pw
-        substances_by_psychonautwiki_json = self.psychonautwiki.data.substances
+        for substance in self.psychonautwiki_substances:
+            if not substance.effects:
+                continue
 
-        for substance in substances_by_psychonautwiki_json:
             for effect in substance.effects:
                 db_effect = db.effect.find_first(where={"name": effect.name})
                 if db_effect and not db_effect.psychonautwiki:

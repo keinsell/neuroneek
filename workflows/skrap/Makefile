@@ -22,3 +22,7 @@ generate_stubs:
 
 annotate_types:
 	poetry run pytype src
+	merge-pyi -i <filepath>.py .pytype/pyi/<filename>.pyi
+
+check_types:
+	poetry run pylyzer src

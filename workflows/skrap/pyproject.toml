@@ -4,17 +4,16 @@ version = "0.1.0"
 description = "Scrapper filter out incorrect data and build database of substance information."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
 metaflow = "^2.11.10"
 prisma = "^0.13.1"
 datamodel-code-generator = "^0.25.5"
-mypy = "^1.9.0"
 pydantic = "^2.7.2"
 requests = "^2.32.3"
 types-requests = "^2.32.0.20240523"
-ruff = "^0.4.7"
 pubchempy = "^1.0.4"
 diskcache = "^5.6.3"
 gql = "^3.5.0"
@@ -23,10 +22,16 @@ strawberry-graphql = "^0.234.0"
 
 [tool.poetry.group.dev.dependencies]
 strawberry-graphql = {extras = ["cli"], version = "^0.234.0"}
-ruff = "^0.4.7"
 ariadne-codegen = "^0.13.0"
 pylint = "^3.2.2"
 pytype = "^2024.4.11"
+monkeytype = "^23.3.0"
+ruff = "^0.4.7"
+mypy = "^1.9.0"
+pylyzer = "0.1.0b0"
+black = "^22.1b1"
+isort = "^5.10.2"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core"]
