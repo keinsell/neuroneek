@@ -1,7 +1,9 @@
-use structopt::StructOpt;
-use crate::ingestion::{ CreateIngestion};
+use crate::ingestion::CreateIngestion;
 use crate::ingestion_analyzer::analyze_future_ingestion;
-use crate::service::roa::{RouteOfAdministrationClassification, string_to_route_of_administration_classification};
+use crate::service::roa::{
+    string_to_route_of_administration_classification, RouteOfAdministrationClassification,
+};
+use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 pub struct PlanIngestionCommand {

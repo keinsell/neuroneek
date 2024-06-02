@@ -1,15 +1,15 @@
+use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
+use crate::cli::ingestion::delete_ingestion::delete_ingestion;
+use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
+use crate::cli::ingestion::IngestionCommand;
+use crate::cli::substance::list_substances::list_substances;
+use crate::ingestion::list_ingestion;
+use crate::orm;
+use crate::service::scrapper::scrape_local_database;
 use log::debug;
 use migrator::Migrator;
 use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
-use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
-use crate::cli::ingestion::delete_ingestion::delete_ingestion;
-use crate::cli::ingestion::IngestionCommand;
-use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
-use crate::cli::substance::list_substances::list_substances;
-use crate::ingestion::{list_ingestion};
-use crate::orm;
-use crate::service::scrapper::scrape_local_database;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -65,33 +65,36 @@ pub async fn cli() {
     //         Ok(db) => db,
     //         Err(error) => panic!("Could not connect to database: {}", error),
     //     };
-    //     
+
     //     match Migrator::reset(db.into_schema_manager_connection()).await {
     //         Ok(_) => println!("Development database reset!"),
     //         Err(error) => panic!("Error applying migrations: {}", error),
     //     };
     // }
-    
+
     let db = match orm::setup_database().await {
         Ok(db) => db,
         Err(error) => panic!("Could not connect to database: {}", error),
     };
 
-    let pending_migrations = match Migrator::get_pending_migrations(&db.into_schema_manager_connection()).await {
-        Ok(pending_migrations) => pending_migrations,
-        Err(error) => panic!("Could not get pending migrations: {}", error),
-    };
-    
+    let pending_migrations =
+        match Migrator::get_pending_migrations(&db.into_schema_manager_connection()).await {
+            Ok(pending_migrations) => pending_migrations,
+            Err(error) => panic!("Could not get pending migrations: {}", error),
+        };
+
     // Check if the specific migration is in the list of pending migrations
-    let specific_migration_exists = pending_migrations.iter().any(|migration| migration.name() == "m20240530_215436_add_ingestion_route_of_administration");
+    let specific_migration_exists = pending_migrations.iter().any(|migration| {
+        migration.name() == "m20240530_215436_add_ingestion_route_of_administration"
+    });
 
     // Before applying migration perform snapshot of the database
     // This is done to prevent data loss in case of migration failure
-    
+
     if !pending_migrations.is_empty() {
         orm::snapshot_database().await;
     }
-    
+
     match Migrator::up(db.into_schema_manager_connection(), None).await {
         Ok(_) => debug!("Migrations applied"),
         Err(error) => panic!("Could not migrate database schema: {}", error),

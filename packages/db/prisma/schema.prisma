@@ -84,8 +84,8 @@ model RouteOfAdministration {
 
 model Phase {
   id                      String                 @id @default(cuid())
-  from                    Int?
-  to                      Int?
+  from_duration           Int?                   @map("min_duration")
+  to_duration             Int?                   @map("max_duration")
   RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
   routeOfAdministrationId String?
   effects                 Effect[]
