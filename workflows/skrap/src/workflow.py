@@ -30,36 +30,7 @@ import asyncio
 cache = Cache(directory=".cache")
 memory = joblib.Memory(".cache", verbose=0)
 
-pydevd_pycharm.settrace(
-    "localhost", port=8938, stdoutToServer=True, stderrToServer=True
-)
 
-# I could whitelist scrape to just Caffeine at this point lolz
-IGNORE_SUBSTANCE_NAMES: list[str] = [
-    "Selective serotonin reuptake inhibitor",
-    "Stimulants",
-    "Serotonin-norepinephrine reuptake inhibitor",
-    "Serotonin",
-    "Serotonergic psychedelic",
-    "Sedative",
-    "Depressant",
-    "Deliriant",
-    "Dissociative",
-    "Empathogen-entactogen",
-    "Stimulant",
-    "Substituted amphetamines",
-    "Substituted cathinones",
-    "Substituted phenidates",
-    "Substituted tryptamines",
-    "Substituted phenethylamines",
-    "Substituted morphinans",
-    "Substituted cathinones",
-    "Substituted amphetamines",
-    "Substituted aminorexes",
-]
-
-
-# Define enum
 class DosageIntensivity(str, Enum):
     threshold = ("threshold",)
     light = ("light",)
@@ -293,8 +264,8 @@ def create_route_of_administration_input(
         return None
 
 
-@cache.memoize()
-def fetch_pubchem(substance_name: str) -> Optional[pcp.Compound]:
+@memory.cache()
+async def fetch_pubchem(substance_name: str) -> Optional[pcp.Compound]:
     """
     Fetches the PubChem data for a given substance name.
     With caching mechanism based on local filesystem.
@@ -340,19 +311,9 @@ async def fetch_psychaonutwiki() -> list[PsychonautwikiSubstance]:
         raise e
 
 
-def create_substance_input(
+async def create_substance_input(
     substance: PsychonautwikiSubstance,
 ) -> Optional[SubstanceCreateInput]:
-    # If substance was blacklisted, return None
-    if substance.name in IGNORE_SUBSTANCE_NAMES:
-        return None
-    # If substance do not have psychoactive class, return None
-    if not substance or not substance.class_ or not substance.class_.psychoactive:
-        return None
-
-    if substance.class_ or not substance.class_.chemical:
-        return None
-
     chemical_class = (
         ",".join(substance.class_.chemical)
         if substance.class_ and substance.class_.chemical
@@ -370,7 +331,7 @@ def create_substance_input(
         ",".join(substance.common_names) if substance.common_names else ""
     )
 
-    pubchem: Compound | None = fetch_pubchem(substance.name)
+    pubchem: Compound | None = await fetch_pubchem(substance.name)
 
     # Do not support custom substances as they will cause
     # problems with data integrity later on, neuronek
@@ -517,10 +478,10 @@ class CreateDatabase(FlowSpec):
         db.substance.delete_many()
         db.effect.delete_many()
 
-        self.next(self.fetch_psychonautwikiv2)
+        self.next(self.fetch_psychonautwiki)
 
     @step
-    def fetch_psychonautwikiv2(self):
+    def fetch_psychonautwiki(self):
         response = asyncio.run(fetch_psychaonutwiki())
         self.psychonautwiki_substances = response
         self.next(self.import_substances)
@@ -532,20 +493,29 @@ class CreateDatabase(FlowSpec):
 
         psychonautwiki_substances = self.psychonautwiki_substances
 
-        for psychonautwiki_substance in psychonautwiki_substances:
-            create_substance_payload = create_substance_input(psychonautwiki_substance)
+        async def process_substance(psychonautwiki_substance):
+            create_substance_payload = await create_substance_input(
+                psychonautwiki_substance
+            )
 
             if not create_substance_payload:
-                continue
+                print(f"Skipping {psychonautwiki_substance.name}")
+                return
 
             try:
                 inserted_substance = db.substance.create(data=create_substance_payload)
-                print(f"Imported {inserted_substance.name} ({inserted_substance.id})")
+                print(f"Imported {inserted_substance.name}")
             except TypeError as e:
                 print(f"Failed to insert {psychonautwiki_substance.name}: ", e)
-                raise Exception(
-                    "There was problem with insertion to database which should be successful."
-                )
+                raise e
+
+            pass
+
+        tasks = [
+            process_substance(substance) for substance in psychonautwiki_substances
+        ]
+
+        asyncio.run(asyncio.gather(*tasks))
 
         self.next(self.legacy_import_route_of_administration)
 
@@ -662,9 +632,7 @@ class CreateDatabase(FlowSpec):
                         db_dose = db.dosage.create(data=dose_input)
                         print(f"Inserted {db_dose.id}", db_dose)
                     except TypeError as e:
-                        print(
-                            f"Failed to insert {dose["routeOfAdministrationName"]}: ", e
-                        )
+                        print(e)
                         continue
 
         self.next(self.import_phases)
@@ -785,8 +753,11 @@ class CreateDatabase(FlowSpec):
 if __name__ == "__main__":
     import pydevd_pycharm
 
-    pydevd_pycharm.settrace(
-        "localhost", port=8934, stdoutToServer=True, stderrToServer=True
-    )
+    try:
+        pydevd_pycharm.settrace(
+            "localhost", port=8938, stdoutToServer=True, stderrToServer=True
+        )
+    finally:
+        print("Stopping debugger")
 
     CreateDatabase(use_cli=True)

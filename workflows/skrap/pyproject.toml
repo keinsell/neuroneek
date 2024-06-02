@@ -15,7 +15,7 @@ dependencies = [
     "strawberry-graphql>=0.234.0",
     "pendulum>=3.0.0",
     "joblib>=1.4.2",
-    #    "pydevd-pycharm>=242.10180.30",
+    "pydevd-pycharm>=242.10180.30",
 ]
 requires-python = ">= 3.10"
 
@@ -63,9 +63,14 @@ flake8 = "^4.0.1"
 #requires = ["poetry-core"]
 #build-backend = "poetry.core.masonry.api"
 
+
+[tool.pdm]
 [build-system]
-requires = ["maturin>=1.2,<2.0", "pdm-backend", "poetry-core", "setuptools>=60", "hatching"]
-build-backend = "pdm.backend"
+requires = ["maturin>=1.2,<2.0", "pdm-backend", "poetry-core", "setuptools>=61.0", "hatchling"]
+# build-backend = "pdm.backend"
+build-backend = "setuptools.build_meta"
+#build-backend = "hatchling.build"
+#build-backend = "poetry.core.masonry.api"
 
 [tool.ariadne-codegen]
 schema_path = "graphql/psychonautwiki/schema.graphql"
@@ -79,6 +84,7 @@ managed = true
 lock-with-sources = true
 dev-dependencies = [
     "prisma>=0.13.1",
+    "pydevd-pycharm>=242.10180.30",
 ]
 
 #[tool.maturin]
