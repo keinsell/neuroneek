@@ -2,6 +2,15 @@
 
 This module is dedicated to infrastructure provisioning through Terraform. It handles everything related to the infrastructure of our project. The key tools used in this repository are GitHub, Vercel, and Infisical.
 
+Our infrastructure covers the following areas:
+
+- Server Application
+- Web Application
+- Secret Management
+- CI/CD
+- Database with Migrations
+- Source Code Repository
+
 ---
 
 ## Tools & Services
@@ -14,6 +23,8 @@ We chose Vercel for serverless deployments. It is primarily used here for deploy
 
 ### Infisical
 Infisical is our Secret Management tool. It's where we store all the secrets for our multiple environments. Secret management refers to the tools and methods for managing digital authentication credentials (secrets), including passwords, keys, APIs, and tokens.
+
+### Planetscale
 
 ---
 
