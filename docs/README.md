@@ -37,3 +37,24 @@ There is a lot to be contained in documentation but I think application should b
 |       `-- 6-substance-information.md
 `-- reference
 ```
+
+```
+my-monorepo/ (System Context)
+├── README.md (System description)
+├── web-app/ (Container)
+│   ├── README.md (Container description)
+│   ├── authentication/ (Component)
+│   │   ├── README.md (Component description)
+│   │   ├── login.js
+│   │   └── signup.js
+│   ├── product-catalog/ (Component)
+│   │   └── ...
+│   └── shopping-cart/ (Component)
+│       └── ...
+├── api-gateway/ (Container)
+│   └── ...
+├── database/ (Container)
+│   └── ...
+└── shared-library/ (Container)
+    └── ...
+```

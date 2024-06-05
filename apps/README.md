@@ -1,3 +1,3 @@
-# `/apps`
+# `/containers`
 
-Directory contains standalone applications that are can be executed as single containers.
+Directory dedicated for storing all **Containers** related to project, in the meaning of the **C4 Diagram**, telling apart suggestions and guidelines made by **JavaScript Monorepos**. Container in our repository is everything that is related to some actor that is going to interact with such container, in this particular case it can be web application, server, mobile application, desktop application, cli application and so on - all of these application could be a single dockerfile yet you should not think about container as dockerfile but more like standalone application that can interact with other containers or directly with actors.
