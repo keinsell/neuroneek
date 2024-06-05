@@ -1,9 +1,10 @@
+use std::str::FromStr;
+
+use structopt::StructOpt;
+
+use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::ingestion::CreateIngestion;
 use crate::ingestion_analyzer::analyze_future_ingestion;
-use crate::service::roa::{
-    string_to_route_of_administration_classification, RouteOfAdministrationClassification,
-};
-use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 pub struct PlanIngestionCommand {
@@ -19,9 +20,10 @@ pub struct PlanIngestionCommand {
 
 pub async fn handle_plan_ingestion(plan_ingestion_command: PlanIngestionCommand) {
     let roa_class: RouteOfAdministrationClassification =
-        string_to_route_of_administration_classification(
+        RouteOfAdministrationClassification::from_str(
             plan_ingestion_command.route_of_administration.as_str(),
-        );
+        )
+        .unwrap();
 
     let create_ingestion_payload = CreateIngestion {
         substance_name: plan_ingestion_command.substance_name,

@@ -1,10 +1,11 @@
-use crate::ingestion::{create_ingestion, CreateIngestion};
-use crate::ingestion_analyzer::analyze_future_ingestion;
-use crate::service::roa::{
-    string_to_route_of_administration_classification, RouteOfAdministrationClassification,
-};
+use std::str::FromStr;
+
 use sea_orm::DatabaseConnection;
 use structopt::StructOpt;
+
+use crate::core::route_of_administration::RouteOfAdministrationClassification;
+use crate::ingestion::{create_ingestion, CreateIngestion};
+use crate::ingestion_analyzer::analyze_future_ingestion;
 
 #[derive(StructOpt, Debug)]
 pub(crate) struct CreateIngestionFeature {
@@ -29,9 +30,10 @@ pub async fn handle_create_ingestion(
     db: &DatabaseConnection,
 ) {
     let roa_class: RouteOfAdministrationClassification =
-        string_to_route_of_administration_classification(
+        RouteOfAdministrationClassification::from_str(
             create_ingestion_command.route_of_administration.as_str(),
-        );
+        )
+        .unwrap();
 
     let create_ingestion_payload = CreateIngestion {
         substance_name: create_ingestion_command.substance_name,

@@ -6,6 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/migrator/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/src/migrator/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
+      <excludeFolder url="file://$MODULE_DIR$/src/db/migrations/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

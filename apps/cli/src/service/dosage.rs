@@ -1,53 +1,12 @@
-use crate::db::prelude::Dosage;
-use sea_orm::ActiveValue::Set;
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
-use serde::{Deserialize, Serialize};
+use sea_orm::ActiveValue::Set;
+use serde::Serialize;
 use serde_json::to_string;
-use std::str::FromStr;
 
-use crate::core::mass_range::{parse_mass_by_f32_and_unit, MassRange};
+use crate::core::mass_range::{MassRange, parse_mass_by_f32_and_unit};
+use crate::core::route_of_administration_dosage::DosageClassification;
 use crate::db;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum DosageClassification {
-    Threshold ,
-    Heavy,
-    Common,
-    Light,
-    Strong,
-    Exceptional,
-    Unknown,
-}
-
-impl FromStr for DosageClassification {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        println!("{}", s);
-        match s {
-            "threshold" => Ok(DosageClassification::Threshold),
-            "heavy" => Ok(DosageClassification::Heavy),
-            "common" => Ok(DosageClassification::Common),
-            "light" => Ok(DosageClassification::Light),
-            "strong" => Ok(DosageClassification::Strong),
-            "exceptional" => Ok(DosageClassification::Exceptional),
-            _ => Err(()),
-        }
-    }
-}
-
-impl Display for DosageClassification {
-    fn to_str(s: &DosageClassification) -> Result<Self, Self::Err> {
-        println!("{}", s)
-        match s {
-            DosageClassification::Threshold => "threshold"
-            DosageL
-            
-        }
-    }
-}
-
+use crate::db::prelude::Dosage;
 
 #[derive(Debug)]
 pub struct CreateDosage {

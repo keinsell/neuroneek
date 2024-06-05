@@ -1,42 +1,10 @@
-use crate::db;
-use crate::db::prelude::*;
-use sea_orm::ActiveValue::Set;
 use sea_orm::*;
 use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter};
-use serde::{Deserialize, Serialize};
+use sea_orm::ActiveValue::Set;
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum RouteOfAdministrationClassification {
-    Buccal,
-    Inhaled,
-    Insufflated,
-    Intramuscular,
-    Intravenous,
-    Oral,
-    Rectal,
-    Smoked,
-    Sublingual,
-    Transdermal,
-}
-
-pub fn string_to_route_of_administration_classification(
-    string: &str,
-) -> RouteOfAdministrationClassification {
-    match string {
-        "Buccal" => RouteOfAdministrationClassification::Buccal,
-        "Inhaled" => RouteOfAdministrationClassification::Inhaled,
-        "Insufflated" => RouteOfAdministrationClassification::Insufflated,
-        "Intramuscular" => RouteOfAdministrationClassification::Intramuscular,
-        "Intravenous" => RouteOfAdministrationClassification::Intravenous,
-        "Oral" => RouteOfAdministrationClassification::Oral,
-        "Rectal" => RouteOfAdministrationClassification::Rectal,
-        "Smoked" => RouteOfAdministrationClassification::Smoked,
-        "Sublingual" => RouteOfAdministrationClassification::Sublingual,
-        "Transdermal" => RouteOfAdministrationClassification::Transdermal,
-        _ => panic!("Unknown route of administration classification"),
-    }
-}
+use crate::core::route_of_administration::RouteOfAdministrationClassification;
+use crate::db;
+use crate::db::prelude::*;
 
 pub struct CreateRouteOfAdministration {
     pub classification: RouteOfAdministrationClassification,

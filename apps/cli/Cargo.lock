@@ -1464,6 +1464,7 @@ dependencies = [
  "sea-orm-migration",
  "serde",
  "serde_json",
+ "strsim 0.11.1",
  "structopt",
  "tabled",
  "terminal_size",

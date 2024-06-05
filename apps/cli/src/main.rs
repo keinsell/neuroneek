@@ -1,12 +1,12 @@
-use crate::cli::main::cli;
 use async_std::task;
+
+use crate::cli::main::cli;
 
 mod cli;
 mod core;
 mod db;
 mod ingestion;
 mod ingestion_analyzer;
-mod internal;
 mod orm;
 mod service;
 

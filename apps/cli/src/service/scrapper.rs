@@ -1,17 +1,17 @@
+use rust_embed::{Embed, EmbeddedFile};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::ActiveValue::Set;
+use serde::{Deserialize, Serialize};
+use serde_json::to_string;
+use tabled::Table;
+
+use crate::core::route_of_administration::RouteOfAdministrationClassification;
+use crate::core::route_of_administration_dosage::DosageClassification;
 use crate::db;
 use crate::db::prelude::Substance;
 use crate::db::substance;
 use crate::service::dosage::{create_dosage, CreateDosage};
-use crate::service::roa::{
-    create_route_of_administration, CreateRouteOfAdministration,
-    RouteOfAdministrationClassification,
-};
-use rust_embed::{Embed, EmbeddedFile};
-use sea_orm::ActiveValue::Set;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
-use serde::{Deserialize, Serialize};
-use serde_json::to_string;
-use tabled::Table;
+use crate::service::roa::{create_route_of_administration, CreateRouteOfAdministration};
 
 #[derive(Embed)]
 #[folder = "public/"]
@@ -193,15 +193,13 @@ pub async fn scrape_local_database(db: &DatabaseConnection) {
             for dosage in roa.dosage {
                 fn map_dump_intensivity_to_dosage_intensivity_classification(
                     input: &Intensivity,
-                ) -> crate::service::dosage::DosageClassification {
+                ) -> DosageClassification {
                     match input {
-                        Intensivity::Common => crate::service::dosage::DosageClassification::Common,
-                        Intensivity::Heavy => crate::service::dosage::DosageClassification::Heavy,
-                        Intensivity::Light => crate::service::dosage::DosageClassification::Light,
-                        Intensivity::Strong => crate::service::dosage::DosageClassification::Strong,
-                        Intensivity::Threshold => {
-                            crate::service::dosage::DosageClassification::Threshold
-                        }
+                        Intensivity::Common => DosageClassification::Common,
+                        Intensivity::Heavy => DosageClassification::Heavy,
+                        Intensivity::Light => DosageClassification::Light,
+                        Intensivity::Strong => DosageClassification::Strong,
+                        Intensivity::Threshold => DosageClassification::Threshold,
                     }
                 }
 

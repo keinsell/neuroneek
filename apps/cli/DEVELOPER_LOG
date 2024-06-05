@@ -1,0 +1,7 @@
+[2024-06-05]
+
+Come down to conclusion that scrapper of API information seems to be completely useless in CLI application, data may be delivered through SQL migration that will out of the box perform updates of stale data - I just wonder if there's a some solution for like incremental dumping of database, I really want avoid case where something will be related to substance_id then substance_id got changed or substance itself will get removed and then we'll lose ingestion information.
+
+Since now development should be mostly focused on internal functionality of application and then persistence will come, instead focusing on persistence first, data-models are de facto already designed in TypeScript however it's possible to build TypeScript interfaces from Rust but not unversed so I would like to keep everything in Rust as it's just seem more rational.
+
+I also think holding database migrations in the apps/cli directory is confusing as there is also packages/db directory which actually holds information about database schema and handles client generation.

@@ -2,17 +2,19 @@
 // and try to extract and provide as much information as it's
 // possible. This is a very important part of the application
 
-use crate::db;
-use crate::ingestion::CreateIngestion;
-use crate::orm::DB_CONNECTION;
-use crate::service::dosage::DosageClassification;
-use crate::service::roa::RouteOfAdministrationClassification;
-use crate::service::substance::search_substance;
+use std::str::FromStr;
+
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
-use std::str::FromStr;
 use uom::si::f32::Mass;
+
+use crate::core::route_of_administration::RouteOfAdministrationClassification;
+use crate::core::route_of_administration_dosage::DosageClassification;
+use crate::db;
+use crate::ingestion::CreateIngestion;
+use crate::orm::DB_CONNECTION;
+use crate::service::substance::search_substance;
 
 // https://docs.rs/indicatif/latest/indicatif/
 
