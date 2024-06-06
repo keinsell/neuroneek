@@ -3,55 +3,47 @@
 use sea_orm::entity::prelude::*;
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "Ingestion")]
+#[sea_orm(table_name = "Stash")]
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-    #[sea_orm(column_name = "substanceName")]
-    pub substance_name: Option<String>,
-    #[sea_orm(column_name = "routeOfAdministration")]
-    pub route_of_administration: Option<String>,
-    pub dosage_unit: Option<String>,
-    pub dosage_amount: Option<i32>,
-    #[sea_orm(column_name = "isEstimatedDosage")]
-    pub is_estimated_dosage: Option<bool>,
-    pub date: Option<DateTime>,
-    pub subject_id: Option<String>,
-    #[sea_orm(column_name = "stashId")]
-    pub stash_id: Option<String>,
+    pub owner_id: String,
+    pub substance_id: String,
+    #[sea_orm(column_name = "addedDate")]
+    pub added_date: Option<DateTime>,
+    pub expiration: Option<DateTime>,
+    pub amount: Option<i32>,
+    pub price: Option<String>,
+    pub vendor: Option<String>,
+    pub description: Option<String>,
+    pub purity: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::stash::Entity",
-        from = "Column::StashId",
-        to = "super::stash::Column::Id",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
-    Stash,
+    #[sea_orm(has_many = "super::ingestion::Entity")]
+    Ingestion,
     #[sea_orm(
         belongs_to = "super::subject::Entity",
-        from = "Column::SubjectId",
+        from = "Column::OwnerId",
         to = "super::subject::Column::Id",
         on_update = "Cascade",
-        on_delete = "SetNull"
+        on_delete = "Restrict"
     )]
     Subject,
     #[sea_orm(
         belongs_to = "super::substance::Entity",
-        from = "Column::SubstanceName",
+        from = "Column::SubstanceId",
         to = "super::substance::Column::Name",
         on_update = "Cascade",
-        on_delete = "SetNull"
+        on_delete = "Restrict"
     )]
     Substance,
 }
 
-impl Related<super::stash::Entity> for Entity {
+impl Related<super::ingestion::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Stash.def()
+        Relation::Ingestion.def()
     }
 }
 

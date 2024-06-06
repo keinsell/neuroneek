@@ -7,7 +7,7 @@
 
 - Generate a new migration file
   ```sh
-  cargo run -- generate add_ingestion_route_of_administration --database-url sqlite://db.sqlite
+  cargo run -- generate add_ingestion_route_of_administration --database-url sqlite:///home/keinsell/Projects/neuronek/stores/primarydb/dev.db
   ```
 - Apply all pending migrations
   ```sh

@@ -2,5 +2,6 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/stores/primarydb/dump.sql" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/stores/primarydb/migrations/20240606044243_create_blog_posts.sql" dialect="SQLite" />
   </component>
 </project>

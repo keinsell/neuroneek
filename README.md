@@ -48,6 +48,7 @@ configuration in repository will automatically spin up all dependencies and set 
 ```bash
 direnv allow
 cp example.env .env
+touch db.sqlite
 devenv shell
 pnpm dev
 ```

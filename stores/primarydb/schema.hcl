@@ -314,7 +314,7 @@ table "substance_route_of_administration" {
     null = false
     type = text
   }
-  column "substanceName" {
+  column "substance_name" {
     null = false
     type = text
   }
@@ -325,15 +325,15 @@ table "substance_route_of_administration" {
   primary_key {
     columns = [column.id]
   }
-  foreign_key "substance_route_of_administration_substanceName_fkey" {
-    columns = [column.substanceName]
+  foreign_key "substance_route_of_administration_substance_name_fkey" {
+    columns = [column.substance_name]
     ref_columns = [table.substance.column.name]
     on_update = CASCADE
     on_delete = RESTRICT
   }
-  index "substance_route_of_administration_name_substanceName_key" {
+  index "substance_route_of_administration_name_substance_name_key" {
     unique = true
-    columns = [column.name, column.substanceName]
+    columns = [column.name, column.substance_name]
   }
 }
 table "route_of_administration_phase" {
@@ -485,11 +485,11 @@ table "Ingestion" {
     null = false
     type = text
   }
-  column "substanceName" {
+  column "substance_name" {
     null = true
     type = text
   }
-  column "routeOfAdministration" {
+  column "administration_route" {
     null = true
     type = text
   }
@@ -501,12 +501,12 @@ table "Ingestion" {
     null = true
     type = integer
   }
-  column "isEstimatedDosage" {
+  column "is_dosage_estimate" {
     null    = true
     type    = boolean
     default = false
   }
-  column "date" {
+  column "ingested_at" {
     null = true
     type = datetime
   }
@@ -527,8 +527,8 @@ table "Ingestion" {
     on_update = CASCADE
     on_delete = SET_NULL
   }
-  foreign_key "Ingestion_substanceName_fkey" {
-    columns = [column.substanceName]
+  foreign_key "Ingestion_substance_name_fkey" {
+    columns = [column.substance_name]
     ref_columns = [table.substance.column.name]
     on_update = CASCADE
     on_delete = SET_NULL

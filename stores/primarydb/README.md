@@ -37,14 +37,14 @@ atlas schema inspect -u "sqlite://dev.db"
 atlas migrate diff baseline_migration \
   --dir "file://migrations" \
   --to "file://schema.hcl" \
-  --dev-url "sqlite://migration.db"
+  --dev-url "sqlite://dev?mode=memory"
 ```
 
 ```bash
 atlas migrate diff create_blog_posts \
   --dir "file://migrations" \
-  --to "file://schema.hcl" \
-  --dev-url "sqlite://migration.db" --web
+  --to "sqlite:///home/keinsell/Projects/neuronek/apps/cli/src/migrator/dev.db" \
+  --dev-url "sqlite://dev?mode=memory"
 ```
 
 ### Applying changes

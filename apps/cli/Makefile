@@ -41,7 +41,7 @@ orm-push:
 	cd src/migrator && cargo run -- fresh --database-url sqlite://db.sqlite
 
 orm-pull:
-	sea-orm-cli generate entity --database-url sqlite://src/migrator/dev.sqlite --output-dir src/db --date-time-crate chrono --with-copy-enums
+	sea-orm-cli generate entity --database-url sqlite:///home/keinsell/Projects/neuronek/stores/primarydb/dev.db --output-dir src/db --date-time-crate chrono --with-copy-enums
 
 # Requires:
 # - paru -S mingw-w64 pkg-config

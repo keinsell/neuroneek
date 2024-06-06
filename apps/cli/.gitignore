@@ -1,4 +1,4 @@
 db.sqlite
-src/migrator/db.sqlite
+src/migrator/db1.sqlite
 target/**
 **/target/**
