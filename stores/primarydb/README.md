@@ -2,6 +2,12 @@
 
 This is a database that is used for storing all the data that is needed for the application to function.
 
+## TODOs
+
+- This directory should "export" packages necessary to work with database in monorepository (prisma)
+- This directory should be one and only source of truth for database implementations around apps in project.
+- This directory should contain only database related code.
+
 ## Compatibility
 
 Atlas covers most of the databases which is not a common case when we'll take look into ORMs, even with Prisma there are a lot of cases where database functionality supports something but Prisma does not and migrations in such case are becoming little pain, to avoid all of this there is a tool called `Atlas` which will be useful for actual SQLite migrations and then migrations of cloud database with correct enforcing of gitflow-like migrations.
