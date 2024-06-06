@@ -1,2 +1,0 @@
-dsn: sqlite://apps/server/prisma/dev.db
-docPath: apps/server/prisma/tlbs

@@ -11,25 +11,35 @@
 
 <br>
 
-Neuronek is an innovative and valuable application that provides essential tools for people who want to use psychoactive
+Neuronek is an application that provides essential tools for people who want to use psychoactive
 substances in a safe and healthy way, regardless of their personal goals or usage patterns. The app offers personalized
 dosing recommendations, insights into usage patterns, a comprehensive database of substances, and a community of users
 who are also interested in promoting responsible usage of these substances.
 
-**8 May 2024**: Special thanks for current >10 ⭐ stargazzers, that mean a lot.
+<p align="center">
+Special thanks for current >10 ⭐ stargazzers, somehow this revived project.
+</p>
+
+
 
 <h2 align="center">Getting started</h2>
 
 <br>
 
 > [!CAUTION]  
-> You should not try to use project at all, front-end is bleeding in terms of functionality and API can be considered read-only with Psychonautwiki substances available - see [Hosted Instance on Railway](https://neuronek.up.railway.app/reference)
+> Application is during development and drafting stage, there are and will be a lot of breaking changes and none of applications or features are recommended to be used yet, for public usage there is a [Hosted Instance on Railway](https://neuronek.up.railway.app/reference) which is a read-only overview what server will provide yet first application released related to repository will be CLI Application as it's easiest to write and allow for quick experimenting comparing to changes needed to be made in server or web environments.
+
+Application currently is available as CLI Application, you can find it in [bin](./apps/cli) directory, it's a Rust application and you can run it with `cargo run` command. Eventually there is `Makefile` contained which allows you to build application with `make build-linux` and then `sudo make install-bin-linux` to install one in `${HOME}/.local/bin` on your host machine, as it's early development version it is not released publicly and again, it's not recommended to be used yet.
 
 ```bash
-# To be announced 
+cd apps/cli && make build-linux && sudo make install-bin-linux
 ```
 
 <h2 align="center">Development</h2>
+
+There are various ways to get started with development on this project, as Nix Stan I always prefer to have like "native-like" experience, when I'm working on some code - that means I like everybody in project to have the same versions of packages as ones used for building project, deploying project  through pipeline and at the end running the project - to archive such there are two ways that makes it easy - [Nix](https://nixos.org/) and [Docker](https://www.docker.com/), where Docker is a virtualized environment which wastes some resources during development and Nix which may be something new to newcomers, yet it's setup is pretty straightforward and available for every machine.
+
+Some folks who do not like Nix, or Docker (or both) may want to use tools like [`pkgx`](https://pkgx.sh/) which is fundamentally something like `nix` therefore without `nix` - you can build configuration of tools and packages you need to run project and then use them in project.
 
 Starting a development in recommended way requires you to have [`nix`](https://nixos.org/),
 [`direnv`](https://direnv.net/) and [`devenv`](https://devenv.sh/) installed on your machine,
@@ -42,23 +52,21 @@ devenv shell
 pnpm dev
 ```
 
-<h2 align="center">Technical Approach</h2>
+If you are person who prefer working with Docker, you can use probably known concept of [Devcontainer](https://code.visualstudio.com/docs/remote/containers) and [Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) to get started with development, and the configuration is available at `.devcontainer.json` - it's a replication of Nix-based environment in Docker which should be enough provide you environment in which you can start development of project.
 
-It would be a big waste when I would not learn anything doing such project, in this case I've decided to try Emergent
-Design along with Evolutionary architecture and push project through a lot of iterations before releasing final
-solution.
+```
+# TODO
+```
 
 <h2 align="center">Documentation</h2>
 
-Documentation is actively maintained
-in [Notion](https://www.notion.so/neuronek/invite/3893a7eb16843e642e0155a1119216a84b343d3b), it's public so anyone can
-read it and understand vision of project. Besides that, our features, feedback and roadmap is available
-at [Hellonext](https://neuronek.hellonext.co/) where everybody is able to add new suggestions to application. There's no
-communication channels related to projects and I doubt that they will be created in future. In future feature planning
-may happen on [Linear](https://linear.app/neuronek) but as now GitHub issues are good way to go.
+Documentation is actively maintained in `docs` directory, it's public so anyone can
+read it and understand vision of project. There is no near plans to change place where documentation is mantained as once it was available in Notion things we're not so accessible as they can be in repository.
 
 <h2 align="center">Contributing</h2>
 
-```js
-notRecommenedYet()
-```
+Before contributing to this project, please read [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md).
+
+I would like to discourage you to contribute to this project, as I think it's too early as one question about contributing was asked - however, if you really want it's necessary to conduct `docs` to see like bigger picture of application, choose application you would like to extend - no matter it's a server, web or cli (for purpose of learning I use different language for each app) and then you can just open PR and change things, leave it for me to review, and we can discuss it together.
+
+Some issues may be tagged as `help wanted` or `good first issue`, there are always good starting point however this do not mean other issues cannot be taken or are more  complicated (I mean this project will be indefinitely complicated due to my technical approach there but this should fade away over time).

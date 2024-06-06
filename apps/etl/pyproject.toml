@@ -1,0 +1,40 @@
+[project]
+name = "etl"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Jakub Olan", email = "keinsell@protonmail.com" }
+]
+dependencies = [
+    "metaflow>=2.12.3",
+    "prisma>=0.13.1",
+    "datamodel-code-generator>=0.25.6",
+    "pydantic>=2.7.3",
+    "requests>=2.32.3",
+    "types-requests>=2.32.0.20240602",
+    "pubchempy>=1.0.4",
+    "diskcache>=5.6.3",
+    "gql>=3.5.0",
+    "pendulum>=3.0.0",
+    "joblib>=1.4.2",
+    "strawberry-graphql>=0.234.0",
+    "ariadne-codegen>=0.13.0",
+    "pint>=0.23",
+    "quantities>=0.15.0",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/etl"]

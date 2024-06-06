@@ -1,5 +1,6 @@
 packages:
   - "apps/*"
-  - "packages/*"
-  - "packages/datasources/*"
-  - "functions/*"
+  - "libs/*"
+  - "libs/datasources/*"
+  - "apps/functions/*"
+  - "stores/*"
