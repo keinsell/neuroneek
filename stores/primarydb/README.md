@@ -7,14 +7,20 @@ This is a database that is used for storing all the data that is needed for the 
 - This directory should "export" packages necessary to work with database in monorepository (prisma)
 - This directory should be one and only source of truth for database implementations around apps in project.
 - This directory should contain only database related code.
+- Integration with tlbs for sharing database documentation.
+- Scripts for managing database along with documentation.
+- CI/CD for applying and linting changes of database.
 
 ## Compatibility
 
 Atlas covers most of the databases which is not a common case when we'll take look into ORMs, even with Prisma there are a lot of cases where database functionality supports something but Prisma does not and migrations in such case are becoming little pain, to avoid all of this there is a tool called `Atlas` which will be useful for actual SQLite migrations and then migrations of cloud database with correct enforcing of gitflow-like migrations.
+We no longer depend on Prisma as main definition of database, and instead we use `schema.hcl` which is representation of latest database schema and other implementations of features that related to database are pulling schema from `schema.hcl` not in a different manner (however one is possible).
 
-We no longer depend on Prisma as main definition of database and instead we use `schema.hcl` which is representation of latest database schema and other implementations of features that related to database are pulling schema from `schema.hcl` not in a different manner (however one is possible).
 
-
+Publishing changes to database
+```bash
+atlas migrate push neuronek --dev-url "sqlite://dev?mode=memory"
+```
 
 
 ## Introspection

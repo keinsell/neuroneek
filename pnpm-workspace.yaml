@@ -3,3 +3,4 @@ packages:
   - "libs/*"
   - "libs/datasources/*"
   - "apps/functions/*"
+  - "stores/*"
