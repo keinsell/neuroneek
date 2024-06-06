@@ -5,8 +5,46 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c722a59e-329e-4c81-9b6c-f24bb64f3bef" name="Changes" comment="refactor: ♻️ rewrite data workflow (#487)">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/etl.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/Makefile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/graphql/psychonautwiki/graphql.config.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/graphql/psychonautwiki/queries.graphql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/graphql/psychonautwiki/schema.graphql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/prisma/schema.prisma" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/public/effectindex.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/__main__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/custom_types/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/custom_types/effectindex.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/all_substances.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/async_base_client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/base_model.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/client.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/enums.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/exceptions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/get_substances.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/graphql_client/input_types.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/neuronek/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/psychonautwiki/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../etl/src/workflow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/e51ad556-495f-47a7-9fb6-a40ee8e56f4d.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/e51ad556-495f-47a7-9fb6-a40ee8e56f4d.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/skrap.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/skrap.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.pdm-python" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/flow.d2" beforeDir="false" afterPath="$PROJECT_DIR$/../etl/flow.d2" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mypy.ini" beforeDir="false" afterPath="$PROJECT_DIR$/../etl/mypy.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pdm.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pytype.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../etl/pytype.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ruff.toml" beforeDir="false" afterPath="$PROJECT_DIR$/../etl/ruff.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,12 +56,6 @@
       <list>
         <option value="Python Script" />
       </list>
-    </option>
-  </component>
-  <component name="FormatOnSaveOptions">
-    <option name="myAllFileTypesSelected" value="true" />
-    <option name="mySelectedFileTypes">
-      <set />
     </option>
   </component>
   <component name="Git.Settings">
@@ -84,6 +116,13 @@
     <setting file="file://$PROJECT_DIR$/.venv/lib/python3.12/site-packages/metaflow/flowspec.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/.venv/lib/python3.12/site-packages/pydantic/main.py" root0="SKIP_INSPECTION" />
   </component>
+  <component name="JsBowerSettings">
+    <bower-package value="" />
+    <bower.json value="" />
+  </component>
+  <component name="LLMProjectSettings">
+    <option name="aiignore_manually_set" value="true" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
@@ -96,36 +135,36 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Makefile Target.annotate_types.executor": "Run",
-    "Makefile Target.check_types.executor": "Run",
-    "Makefile Target.generate_packages_stubs.executor": "Run",
-    "Makefile Target.generate_psychonautwiki_types.executor": "Run",
-    "Makefile Target.generate_stubs.executor": "Run",
-    "Python Debug Server.Debug Main Run.executor": "Debug",
-    "Python Debug Server.Run Debugger.executor": "Debug",
-    "Python.Start Workflow.executor": "Debug",
-    "Python.__init__ (1).executor": "Run",
-    "Python.__init__.executor": "Run",
-    "Python.__main__.executor": "Debug",
-    "Python.create-database.executor": "Run",
-    "Python.workflow.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "trunk",
-    "last_opened_file_path": "/home/keinsell/Projects/neuronek/workflows/skrap",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.stylelint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.stylelint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "settings.sync",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Makefile Target.annotate_types.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.check_types.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.generate_packages_stubs.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.generate_psychonautwiki_types.executor&quot;: &quot;Run&quot;,
+    &quot;Makefile Target.generate_stubs.executor&quot;: &quot;Run&quot;,
+    &quot;Python Debug Server.Debug Main Run.executor&quot;: &quot;Debug&quot;,
+    &quot;Python Debug Server.Run Debugger.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.Start Workflow.executor&quot;: &quot;Run&quot;,
+    &quot;Python.__init__ (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.__init__.executor&quot;: &quot;Run&quot;,
+    &quot;Python.__main__.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.create-database.executor&quot;: &quot;Run&quot;,
+    &quot;Python.workflow.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;refactor/c4-monorepository-design&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/keinsell/Projects/neuronek/apps/etl&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myUseExistingConsole" value="true" />
     <option name="myCommandQueueEnabled" value="true" />
@@ -136,7 +175,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/../../apps/cli/src/migrator" />
+      <recent name="$PROJECT_DIR$/../cli/src/migrator" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -198,6 +237,7 @@
       <workItem from="1717457189224" duration="11000" />
       <workItem from="1717458633154" duration="1211000" />
       <workItem from="1717462248866" duration="4443000" />
+      <workItem from="1717630440367" duration="2581000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <option name="closed" value="true" />

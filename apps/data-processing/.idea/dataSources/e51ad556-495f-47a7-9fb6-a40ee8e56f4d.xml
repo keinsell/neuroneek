@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataSource name="dev.db">
-  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.52">
+  <database-model serializer="dbm" dbms="SQLITE" family-id="SQLITE" format-version="4.53">
     <root id="1">
       <ServerVersion>3.45.1</ServerVersion>
     </root>
@@ -1607,19 +1607,19 @@
       <System>1</System>
     </table>
     <column id="569" parent="555" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="570" parent="555" name="username">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="571" parent="555" name="password">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <index id="572" parent="555" name="sqlite_autoindex_Account_1">
       <ColNames>id</ColNames>
@@ -1636,18 +1636,18 @@
       <UnderlyingIndexName>sqlite_autoindex_Account_1</UnderlyingIndexName>
     </key>
     <column id="575" parent="556" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="576" parent="556" name="name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="577" parent="556" name="description">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <index id="578" parent="556" name="sqlite_autoindex_ChemicalClass_1">
       <ColNames>id</ColNames>
@@ -1664,39 +1664,39 @@
       <UnderlyingIndexName>sqlite_autoindex_ChemicalClass_1</UnderlyingIndexName>
     </key>
     <column id="581" parent="557" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="582" parent="557" name="intensivity">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="583" parent="557" name="amount_min">
-      <DasType>REAL|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>REAL|0s</StoredType>
     </column>
     <column id="584" parent="557" name="amount_max">
-      <DasType>REAL|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
+      <StoredType>REAL|0s</StoredType>
     </column>
     <column id="585" parent="557" name="unit">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="586" parent="557" name="perKilogram">
-      <DasType>BOOLEAN|0s</DasType>
       <DefaultExpression>false</DefaultExpression>
       <NotNull>1</NotNull>
       <Position>6</Position>
+      <StoredType>BOOLEAN|0s</StoredType>
     </column>
     <column id="587" parent="557" name="routeOfAdministrationId">
-      <DasType>TEXT|0s</DasType>
       <Position>7</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="588" parent="557" name="Dosage_routeOfAdministrationId_fkey">
       <ColNames>routeOfAdministrationId</ColNames>
@@ -1721,59 +1721,59 @@ routeOfAdministrationId</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Dosage_1</UnderlyingIndexName>
     </key>
     <column id="592" parent="558" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="593" parent="558" name="name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="594" parent="558" name="slug">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="595" parent="558" name="category">
-      <DasType>TEXT|0s</DasType>
       <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="596" parent="558" name="type">
-      <DasType>TEXT|0s</DasType>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="597" parent="558" name="tags">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="598" parent="558" name="summary">
-      <DasType>TEXT|0s</DasType>
       <Position>7</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="599" parent="558" name="description">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>8</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="600" parent="558" name="parameters">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>9</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="601" parent="558" name="see_also">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>10</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="602" parent="558" name="effectindex">
-      <DasType>TEXT|0s</DasType>
       <Position>11</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="603" parent="558" name="psychonautwiki">
-      <DasType>TEXT|0s</DasType>
       <Position>12</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <index id="604" parent="558" name="sqlite_autoindex_Effect_1">
       <ColNames>id</ColNames>
@@ -1794,42 +1794,42 @@ routeOfAdministrationId</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Effect_1</UnderlyingIndexName>
     </key>
     <column id="608" parent="559" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="609" parent="559" name="substanceName">
-      <DasType>TEXT|0s</DasType>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="610" parent="559" name="routeOfAdministration">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="611" parent="559" name="dosage_unit">
-      <DasType>TEXT|0s</DasType>
       <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="612" parent="559" name="dosage_amount">
-      <DasType>INTEGER|0s</DasType>
       <Position>5</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="613" parent="559" name="isEstimatedDosage">
-      <DasType>BOOLEAN|0s</DasType>
       <DefaultExpression>false</DefaultExpression>
       <Position>6</Position>
+      <StoredType>BOOLEAN|0s</StoredType>
     </column>
     <column id="614" parent="559" name="date">
-      <DasType>DATETIME|0s</DasType>
       <Position>7</Position>
+      <StoredType>DATETIME|0s</StoredType>
     </column>
     <column id="615" parent="559" name="subject_id">
-      <DasType>TEXT|0s</DasType>
       <Position>8</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="616" parent="559" name="stashId">
-      <DasType>TEXT|0s</DasType>
       <Position>9</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="617" parent="559" name="Ingestion_substanceName_fkey">
       <ColNames>substanceName</ColNames>
@@ -1863,21 +1863,21 @@ routeOfAdministrationId</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Ingestion_1</UnderlyingIndexName>
     </key>
     <column id="622" parent="560" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="623" parent="560" name="min_duration">
-      <DasType>INTEGER|0s</DasType>
       <Position>2</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="624" parent="560" name="max_duration">
-      <DasType>INTEGER|0s</DasType>
       <Position>3</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="625" parent="560" name="routeOfAdministrationId">
-      <DasType>TEXT|0s</DasType>
       <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="626" parent="560" name="Phase_routeOfAdministrationId_fkey">
       <ColNames>routeOfAdministrationId</ColNames>
@@ -1897,26 +1897,26 @@ routeOfAdministrationId</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Phase_1</UnderlyingIndexName>
     </key>
     <column id="629" parent="561" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="630" parent="561" name="name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="631" parent="561" name="summary">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="632" parent="561" name="description">
-      <DasType>TEXT|0s</DasType>
       <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="633" parent="561" name="substanceId">
-      <DasType>TEXT|0s</DasType>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="634" parent="561" name="PsychoactiveClass_substanceId_fkey">
       <ColNames>substanceId</ColNames>
@@ -1940,19 +1940,19 @@ routeOfAdministrationId</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_PsychoactiveClass_1</UnderlyingIndexName>
     </key>
     <column id="638" parent="562" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="639" parent="562" name="substanceName">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="640" parent="562" name="name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="641" parent="562" name="RouteOfAdministration_substanceName_fkey">
       <ColNames>substanceName</ColNames>
@@ -1977,49 +1977,49 @@ substanceName</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_RouteOfAdministration_1</UnderlyingIndexName>
     </key>
     <column id="645" parent="563" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="646" parent="563" name="owner_id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="647" parent="563" name="substance_id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="648" parent="563" name="addedDate">
-      <DasType>DATETIME|0s</DasType>
       <DefaultExpression>CURRENT_TIMESTAMP</DefaultExpression>
       <Position>4</Position>
+      <StoredType>DATETIME|0s</StoredType>
     </column>
     <column id="649" parent="563" name="expiration">
-      <DasType>DATETIME|0s</DasType>
       <Position>5</Position>
+      <StoredType>DATETIME|0s</StoredType>
     </column>
     <column id="650" parent="563" name="amount">
-      <DasType>INTEGER|0s</DasType>
       <Position>6</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="651" parent="563" name="price">
-      <DasType>TEXT|0s</DasType>
       <Position>7</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="652" parent="563" name="vendor">
-      <DasType>TEXT|0s</DasType>
       <Position>8</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="653" parent="563" name="description">
-      <DasType>TEXT|0s</DasType>
       <Position>9</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="654" parent="563" name="purity">
-      <DasType>INTEGER|0s</DasType>
       <DefaultExpression>100</DefaultExpression>
       <Position>10</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <foreign-key id="655" parent="563" name="Stash_owner_id_fkey">
       <ColNames>owner_id</ColNames>
@@ -2046,33 +2046,33 @@ substanceName</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Stash_1</UnderlyingIndexName>
     </key>
     <column id="659" parent="564" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="660" parent="564" name="firstName">
-      <DasType>TEXT|0s</DasType>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="661" parent="564" name="lastName">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="662" parent="564" name="dateOfBirth">
-      <DasType>DATETIME|0s</DasType>
       <Position>4</Position>
+      <StoredType>DATETIME|0s</StoredType>
     </column>
     <column id="663" parent="564" name="weight">
-      <DasType>INTEGER|0s</DasType>
       <Position>5</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="664" parent="564" name="height">
-      <DasType>INTEGER|0s</DasType>
       <Position>6</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="665" parent="564" name="account_id">
-      <DasType>TEXT|0s</DasType>
       <Position>7</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="666" parent="564" name="Subject_account_id_fkey">
       <ColNames>account_id</ColNames>
@@ -2096,73 +2096,73 @@ substanceName</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Subject_1</UnderlyingIndexName>
     </key>
     <column id="670" parent="565" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="671" parent="565" name="name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="672" parent="565" name="common_names">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="673" parent="565" name="brand_names">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>4</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="674" parent="565" name="substitutive_name">
-      <DasType>TEXT|0s</DasType>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="675" parent="565" name="systematic_name">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>6</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="676" parent="565" name="pubchem_cid">
-      <DasType>INTEGER|0s</DasType>
       <NotNull>1</NotNull>
       <Position>7</Position>
+      <StoredType>INTEGER|0s</StoredType>
     </column>
     <column id="677" parent="565" name="unii">
-      <DasType>TEXT|0s</DasType>
       <Position>8</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="678" parent="565" name="cas_number">
-      <DasType>TEXT|0s</DasType>
       <Position>9</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="679" parent="565" name="inchi_key">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>10</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="680" parent="565" name="smiles">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>11</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="681" parent="565" name="psychoactive_class">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>12</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="682" parent="565" name="chemical_class">
-      <DasType>TEXT|0s</DasType>
       <Position>13</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="683" parent="565" name="description">
-      <DasType>TEXT|0s</DasType>
       <Position>14</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="684" parent="565" name="psychonautwiki_url">
-      <DasType>TEXT|0s</DasType>
       <Position>15</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <index id="685" parent="565" name="sqlite_autoindex_Substance_1">
       <ColNames>id</ColNames>
@@ -2203,13 +2203,13 @@ substanceName</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_Substance_1</UnderlyingIndexName>
     </key>
     <column id="694" parent="566" name="id">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="695" parent="566" name="substanceId">
-      <DasType>TEXT|0s</DasType>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="696" parent="566" name="SubstanceInteraction_substanceId_fkey">
       <ColNames>substanceId</ColNames>
@@ -2229,14 +2229,14 @@ substanceName</ColNames>
       <UnderlyingIndexName>sqlite_autoindex_SubstanceInteraction_1</UnderlyingIndexName>
     </key>
     <column id="699" parent="567" name="A">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="700" parent="567" name="B">
-      <DasType>TEXT|0s</DasType>
       <NotNull>1</NotNull>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <foreign-key id="701" parent="567" name="_EffectToPhase_A_fkey">
       <ColNames>A</ColNames>
@@ -2261,24 +2261,24 @@ B</ColNames>
       <ColNames>B</ColNames>
     </index>
     <column id="705" parent="568" name="type">
-      <DasType>TEXT|0s</DasType>
       <Position>1</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="706" parent="568" name="name">
-      <DasType>TEXT|0s</DasType>
       <Position>2</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="707" parent="568" name="tbl_name">
-      <DasType>TEXT|0s</DasType>
       <Position>3</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
     <column id="708" parent="568" name="rootpage">
-      <DasType>INT|0s</DasType>
       <Position>4</Position>
+      <StoredType>INT|0s</StoredType>
     </column>
     <column id="709" parent="568" name="sql">
-      <DasType>TEXT|0s</DasType>
       <Position>5</Position>
+      <StoredType>TEXT|0s</StoredType>
     </column>
   </database-model>
 </dataSource>

@@ -4,7 +4,7 @@
     <option name="executionMode" value="BINARY" />
     <option name="sdkName" value="Poetry (skrap)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (skrap)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (data-processing)" project-jdk-type="Python SDK" />
   <component name="PythonCompatibilityInspectionAdvertiser">
     <option name="version" value="3" />
   </component>

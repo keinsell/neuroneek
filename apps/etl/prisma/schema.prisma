@@ -10,10 +10,10 @@ generator client_python {
   recursive_type_depth = 5
 }
 
-generator client_javascript {
-  provider = "prisma-client-js"
-  output   = "./vendor/prisma-client"
-}
+// generator client_javascript {
+//   provider = "prisma-client-js"
+//   output   = "../generated/prisma-client"
+// }
 
 model Account {
   id       String    @id @default(cuid())
