@@ -40,6 +40,8 @@ atlas migrate diff baseline_migration \
   --dev-url "sqlite://dev?mode=memory"
 ```
 
+atlas migrate diff baseline_migration --dir "file://migrations" --to "file://schema.hcl" --dev-url "sqlite://dev?mode=memory"
+
 ```bash
 atlas migrate diff create_blog_posts \
   --dir "file://migrations" \
@@ -47,10 +49,10 @@ atlas migrate diff create_blog_posts \
   --dev-url "sqlite://dev?mode=memory"
 ```
 
-### Applying changes
+### Apply Schema to Database
 
 ```bash
-atlas schema apply --to "sqlite://dev.db" --url "sqlite://dev.db"
+atlas schema apply --to "file://schema.hcl" --url "sqlite://db.sqlite"
 ```
 
 ## Checkpoint

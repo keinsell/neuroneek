@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "db:migration:create": "atlas migrate diff %process-args% --dir \"file://migrations\" --to \"file://schema.hcl\" --dev-url \"sqlite://dev?mode=memory\"\n",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
