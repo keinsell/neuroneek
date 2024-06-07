@@ -4,7 +4,6 @@ use crate::cli::main::cli;
 
 mod cli;
 mod core;
-mod db;
 mod ingestion;
 mod ingestion_analyzer;
 mod orm;

@@ -11,7 +11,6 @@ use uom::si::f32::Mass;
 
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::core::route_of_administration_dosage::DosageClassification;
-use crate::db;
 use crate::ingestion::CreateIngestion;
 use crate::orm::DB_CONNECTION;
 use crate::service::substance::search_substance;
@@ -56,10 +55,10 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
 
     let roa_classification = &create_ingestion.route_of_administration;
 
-    let maybe_roa_or_error = db::route_of_administration::Entity::find()
-        .filter(db::route_of_administration::Column::SubstanceName.eq(substance.name))
+    let maybe_roa_or_error = db::substance_route_of_administration::Entity::find()
+        .filter(db::substance_route_of_administration::Column::SubstanceName.eq(substance.name))
         .filter(
-            db::route_of_administration::Column::Classification
+            db::substance_route_of_administration::Column::Name
                 .eq(to_string(roa_classification).unwrap()),
         )
         .one(connection as &DatabaseConnection)
@@ -82,8 +81,11 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
     ingestion_analisis.route_of_administration_classification =
         create_ingestion.route_of_administration;
 
-    let dosage = db::dosage::Entity::find()
-        .filter(db::dosage::Column::RouteOfAdministrationId.eq(route_of_administration.id))
+    let dosage = db::substance_route_of_administration_dosage::Entity::find()
+        .filter(
+            db::substance_route_of_administration_dosage::Column::RouteOfAdministrationId
+                .eq(route_of_administration.id),
+        )
         .all(connection as &DatabaseConnection)
         .await;
 
@@ -107,8 +109,8 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
     let mut closest_dosage = None;
 
     for d in dosage {
-        let minimum_mass_string = d.min.to_string() + " mg";
-        let maximum_mass_string = d.max.to_string() + " mg";
+        let minimum_mass_string = d.amount_min.to_string() + " mg";
+        let maximum_mass_string = d.amount_max.to_string() + " mg";
 
         let min_mass = Mass::from_str(&minimum_mass_string).unwrap();
         let max_mass = Mass::from_str(&maximum_mass_string).unwrap();
@@ -127,7 +129,7 @@ pub async fn analyze_future_ingestion(create_ingestion: &CreateIngestion) {
     let closest_dosage = closest_dosage.unwrap();
 
     let dosage_analysis = DosageAnalysis {
-        dosage_classification: DosageClassification::from_str(&closest_dosage.classification)
+        dosage_classification: DosageClassification::from_str(&closest_dosage.intensivity)
             .unwrap_or(DosageClassification::Unknown),
     };
 
