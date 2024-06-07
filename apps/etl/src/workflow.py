@@ -499,6 +499,7 @@ def prisma_create_phase_input(
         routeOfAdministrationId=route_of_administration_id,
         from_duration=int(round(phase_range.min_value.seconds)),
         to_duration=int(round(phase_range.max_value.seconds)),
+        classification=phase_range.classification,
     )
 
 
