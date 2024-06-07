@@ -26,6 +26,7 @@ impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![
             Box::new(migrations::m20220101_000001_init::Migration),
+            Box::new(migrations::m20240607_000002::Migration)
         ]
     }
 }

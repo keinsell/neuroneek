@@ -1,6 +1,3 @@
-use db::Migrator;
-use log::debug;
-use sea_orm_migration::{IntoSchemaManagerConnection, MigratorTrait};
 use structopt::StructOpt;
 
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
@@ -10,6 +7,7 @@ use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::substance::list_substances::list_substances;
 use crate::ingestion::list_ingestion;
 use crate::orm;
+use crate::orm::migrate_database;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
@@ -57,41 +55,18 @@ enum DataManagementCommand {
 pub async fn cli() {
     let cli = CommandLineInterface::from_args();
 
-    #[cfg(feature = "dev")]
-    {
-        let db = match orm::setup_database().await {
-            Ok(db) => db,
-            Err(error) => panic!("Could not connect to database: {}", error),
-        };
-
-        match Migrator::fresh(db.into_schema_manager_connection()).await {
-            Ok(_) => println!("Development database reset!"),
-            Err(error) => panic!("Error applying migrations: {}", error),
-        };
-    }
-
     let db = match orm::setup_database().await {
         Ok(db) => db,
-        Err(error) => panic!("Could not connect to database: {}", error),
+        Err(error) => panic!("Could not locate database file: {}", error),
     };
 
-    let pending_migrations =
-        match Migrator::get_pending_migrations(&db.into_schema_manager_connection()).await {
-            Ok(pending_migrations) => pending_migrations,
-            Err(error) => panic!("Could not get pending migrations: {}", error),
-        };
-
-    // Before applying migration perform snapshot of the database
-    // This is done to prevent data loss in case of migration failure
-
-    if !pending_migrations.is_empty() {
-        orm::snapshot_database().await;
+    #[cfg(feature = "dev")]
+    {
+        use crate::orm::refresh_database_as_developer;
+        refresh_database_as_developer().await;
     }
 
-    match Migrator::up(db.into_schema_manager_connection(), None).await {
-        Ok(_) => debug!("Migrations applied"),
-        Err(error) => panic!("Could not migrate database schema: {}", error),
-    };
+    migrate_database(&db).await;
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {

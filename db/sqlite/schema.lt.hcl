@@ -534,7 +534,8 @@ table "ingestion" {
   schema = schema.main
   column "id" {
     null = false
-    type = text
+    type = integer
+    auto_increment = true
   }
   column "substance_name" {
     null = true
@@ -546,12 +547,12 @@ table "ingestion" {
   }
   column "dosage_unit" {
     null = true
-    type = text
+    type = text(2)
   }
 
   column "dosage_amount" {
     null = true
-    type = integer
+    type = float
   }
 
   column "ingestion_date" {

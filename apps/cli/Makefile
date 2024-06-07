@@ -7,12 +7,16 @@ _install-target-linux:
 
 dev-build:
 	cargo build --features dev
+dev-install-bin:
+	cargo install --path . --features dev
 
 lint:
 	cargo fmt --all
 	cargo clippy --all-targets --all-features --fix --allow-dirty
 	cargo miri test
 	cargo test
+
+build: build-linux
 
 # Build for x86_64-unknown-linux-gnu (production)
 build-linux: _install-target-linux
@@ -31,11 +35,15 @@ build-linux: _install-target-linux
 	# Add README to the binary
 	cp README.md dist/linux/README
 
-install_bin_windows:
-	cp target/release/neuronek.exe dist/windows/neuronek.exe
+install: install_bin_linux
 
 install_bin_linux:
 	cp dist/linux/neuronek /usr/local/bin/neuronek
+
+install_bin_windows:
+	cp target/release/neuronek.exe dist/windows/neuronek.exe
+
+
 
 orm-push:
 	cd src/migrator && cargo run -- fresh --database-url sqlite://db.sqlite

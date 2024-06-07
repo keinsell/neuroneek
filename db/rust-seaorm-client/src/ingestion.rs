@@ -11,13 +11,13 @@ impl EntityName for Entity {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq)]
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel)]
 pub struct Model {
-    pub id: String,
+    pub id: i32,
     pub substance_name: Option<String>,
     pub administration_route: Option<String>,
     pub dosage_unit: Option<String>,
-    pub dosage_amount: Option<i32>,
+    pub dosage_amount: Option<f64>,
     pub ingestion_date: Option<DateTime>,
     pub subject_id: Option<String>,
     pub stash_id: Option<String>,
@@ -41,9 +41,9 @@ pub enum PrimaryKey {
 }
 
 impl PrimaryKeyTrait for PrimaryKey {
-    type ValueType = String;
+    type ValueType = i32;
     fn auto_increment() -> bool {
-        false
+        true
     }
 }
 
@@ -58,11 +58,11 @@ impl ColumnTrait for Column {
     type EntityName = Entity;
     fn def(&self) -> ColumnDef {
         match self {
-            Self::Id => ColumnType::String(None).def(),
+            Self::Id => ColumnType::Integer.def(),
             Self::SubstanceName => ColumnType::String(None).def().null(),
             Self::AdministrationRoute => ColumnType::String(None).def().null(),
             Self::DosageUnit => ColumnType::String(None).def().null(),
-            Self::DosageAmount => ColumnType::Integer.def().null(),
+            Self::DosageAmount => ColumnType::Double.def().null(),
             Self::IngestionDate => ColumnType::DateTime.def().null(),
             Self::SubjectId => ColumnType::String(None).def().null(),
             Self::StashId => ColumnType::String(None).def().null(),

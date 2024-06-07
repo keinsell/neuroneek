@@ -23,7 +23,7 @@ atlas migrate diff \
   --dir "file://migrations" \
   --to "file://schema.lt.hcl" \
   --dev-url "sqlite://dev?mode=memory"
-atlas schema apply --to "file://schema.lt.hcl" --url "sqlite://../../db.sqlite"
+atlas schema apply --to "file://schema.lt.hcl" --url "sqlite://../../db.sqlite"  --auto-approve 
 prisma db pull
 ```
 
@@ -52,7 +52,7 @@ atlas migrate diff baseline_migration \
 ```
 
 ```bash
-atlas migrate diff init \
+atlas migrate diff \
   --dir "file://migrations" \
   --to "file://schema.lt.hcl" \
   --dev-url "sqlite://dev?mode=memory"

@@ -15,7 +15,7 @@ pub(crate) struct CreateIngestionFeature {
     pub dosage: String,
     #[structopt(short = "t", long = "time", default_value = "now")]
     pub ingested_at: String,
-    #[structopt(short = "r", long = "route-of-administration", default_value = "Oral", possible_values = &["Oral", "Injection", "Insufflated"])]
+    #[structopt(short = "r", long = "route-of-administration", default_value = "oral", possible_values = &["oral", "injection", "insufflated"])]
     pub route_of_administration: String,
     #[structopt(
         short,

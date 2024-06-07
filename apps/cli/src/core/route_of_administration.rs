@@ -67,6 +67,23 @@ impl FromStr for RouteOfAdministrationClassification {
     }
 }
 
+impl From<RouteOfAdministrationClassification> for String {
+    fn from(roa: RouteOfAdministrationClassification) -> Self {
+        match roa {
+            RouteOfAdministrationClassification::Buccal => "buccal".to_string(),
+            RouteOfAdministrationClassification::Inhaled => "inhaled".to_string(),
+            RouteOfAdministrationClassification::Insufflated => "insufflated".to_string(),
+            RouteOfAdministrationClassification::Intramuscular => "intramuscular".to_string(),
+            RouteOfAdministrationClassification::Intravenous => "intravenous".to_string(),
+            RouteOfAdministrationClassification::Oral => "oral".to_string(),
+            RouteOfAdministrationClassification::Rectal => "rectal".to_string(),
+            RouteOfAdministrationClassification::Smoked => "smoked".to_string(),
+            RouteOfAdministrationClassification::Sublingual => "sublingual".to_string(),
+            RouteOfAdministrationClassification::Transdermal => "transdermal".to_string(),
+        }
+    }
+}
+
 #[test]
 fn should_match_insufflated_input_with_insufflated_enum() {
     let result = RouteOfAdministrationClassification::from_str("insufflated");

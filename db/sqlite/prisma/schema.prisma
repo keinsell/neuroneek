@@ -42,7 +42,7 @@ model Substance {
   psychoactive_class       String
   chemical_class           String?
   description              String?
-  ingestion                ingestion[]
+  ingestion                Ingestion[]
   psychoactive_classes     PsychoactiveClass[]
   stash                    stash[]
   substance_interactions   substance_interactions[]
@@ -164,18 +164,20 @@ model Effect {
   @@map("effect")
 }
 
-model ingestion {
-  id                   String     @id
+model Ingestion {
+  id                   Int        @id @default(autoincrement())
   substance_name       String?
   administration_route String?
   dosage_unit          String?
-  dosage_amount        Int?
+  dosage_amount        Float?
   ingestion_date       DateTime?
   subject_id           String?
   stash_id             String?
   subject              subject?   @relation(fields: [subject_id], references: [id])
   substance            Substance? @relation(fields: [substance_name], references: [name])
   stash                stash?     @relation(fields: [stash_id], references: [id])
+
+  @@map("ingestion")
 }
 
 model stash {
@@ -189,7 +191,7 @@ model stash {
   vendor       String?
   description  String?
   purity       Int?        @default(100)
-  ingestion    ingestion[]
+  ingestion    Ingestion[]
   subject      subject     @relation(fields: [owner_id], references: [id])
   substance    Substance   @relation(fields: [substance_id], references: [name])
 }
@@ -202,7 +204,7 @@ model subject {
   weight      Int?
   height      Int?
   account_id  String?     @unique(map: "Subject_account_id_key")
-  ingestion   ingestion[]
+  ingestion   Ingestion[]
   stash       stash[]
   account     Account?    @relation(fields: [account_id], references: [id])
 }
