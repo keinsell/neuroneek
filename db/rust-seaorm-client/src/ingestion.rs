@@ -2,10 +2,17 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "ingestion")]
+#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+pub struct Entity;
+
+impl EntityName for Entity {
+    fn table_name(&self) -> &str {
+        "ingestion"
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq)]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
     pub substance_name: Option<String>,
     pub administration_route: Option<String>,
@@ -16,32 +23,70 @@ pub struct Model {
     pub stash_id: Option<String>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column {
+    Id,
+    SubstanceName,
+    AdministrationRoute,
+    DosageUnit,
+    DosageAmount,
+    IngestionDate,
+    SubjectId,
+    StashId,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey {
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey {
+    type ValueType = String;
+    fn auto_increment() -> bool {
+        false
+    }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::stash::Entity",
-        from = "Column::StashId",
-        to = "super::stash::Column::Id",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
     Stash,
-    #[sea_orm(
-        belongs_to = "super::subject::Entity",
-        from = "Column::SubjectId",
-        to = "super::subject::Column::Id",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
     Subject,
-    #[sea_orm(
-        belongs_to = "super::substance::Entity",
-        from = "Column::SubstanceName",
-        to = "super::substance::Column::Name",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
     Substance,
+}
+
+impl ColumnTrait for Column {
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef {
+        match self {
+            Self::Id => ColumnType::String(None).def(),
+            Self::SubstanceName => ColumnType::String(None).def().null(),
+            Self::AdministrationRoute => ColumnType::String(None).def().null(),
+            Self::DosageUnit => ColumnType::String(None).def().null(),
+            Self::DosageAmount => ColumnType::Integer.def().null(),
+            Self::IngestionDate => ColumnType::DateTime.def().null(),
+            Self::SubjectId => ColumnType::String(None).def().null(),
+            Self::StashId => ColumnType::String(None).def().null(),
+        }
+    }
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        match self {
+            Self::Stash => Entity::belongs_to(super::stash::Entity)
+                .from(Column::StashId)
+                .to(super::stash::Column::Id)
+                .into(),
+            Self::Subject => Entity::belongs_to(super::subject::Entity)
+                .from(Column::SubjectId)
+                .to(super::subject::Column::Id)
+                .into(),
+            Self::Substance => Entity::belongs_to(super::substance::Entity)
+                .from(Column::SubstanceName)
+                .to(super::substance::Column::Name)
+                .into(),
+        }
+    }
 }
 
 impl Related<super::stash::Entity> for Entity {

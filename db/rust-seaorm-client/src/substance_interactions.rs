@@ -2,25 +2,64 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "substance_interactions")]
+#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+pub struct Entity;
+
+impl EntityName for Entity {
+    fn table_name(&self) -> &str {
+        "substance_interactions"
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq)]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
-    #[sea_orm(column_name = "substanceId")]
     pub substance_id: Option<String>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column {
+    Id,
+    #[sea_orm(column_name = "substanceId")]
+    SubstanceId,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey {
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey {
+    type ValueType = String;
+    fn auto_increment() -> bool {
+        false
+    }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation {
-    #[sea_orm(
-        belongs_to = "super::substance::Entity",
-        from = "Column::SubstanceId",
-        to = "super::substance::Column::Id",
-        on_update = "Cascade",
-        on_delete = "SetNull"
-    )]
     Substance,
+}
+
+impl ColumnTrait for Column {
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef {
+        match self {
+            Self::Id => ColumnType::String(None).def(),
+            Self::SubstanceId => ColumnType::String(None).def().null(),
+        }
+    }
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        match self {
+            Self::Substance => Entity::belongs_to(super::substance::Entity)
+                .from(Column::SubstanceId)
+                .to(super::substance::Column::Id)
+                .into(),
+        }
+    }
 }
 
 impl Related<super::substance::Entity> for Entity {

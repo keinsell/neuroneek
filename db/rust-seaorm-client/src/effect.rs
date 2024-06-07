@@ -2,10 +2,17 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "effect")]
+#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+pub struct Entity;
+
+impl EntityName for Entity {
+    fn table_name(&self) -> &str {
+        "effect"
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq)]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
     pub name: String,
     pub slug: String,
@@ -20,8 +27,61 @@ pub struct Model {
     pub psychonautwiki: Option<String>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column {
+    Id,
+    Name,
+    Slug,
+    Category,
+    Type,
+    Tags,
+    Summary,
+    Description,
+    Parameters,
+    SeeAlso,
+    Effectindex,
+    Psychonautwiki,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey {
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey {
+    type ValueType = String;
+    fn auto_increment() -> bool {
+        false
+    }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {}
+
+impl ColumnTrait for Column {
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef {
+        match self {
+            Self::Id => ColumnType::String(None).def(),
+            Self::Name => ColumnType::String(None).def(),
+            Self::Slug => ColumnType::String(None).def(),
+            Self::Category => ColumnType::String(None).def().null(),
+            Self::Type => ColumnType::String(None).def().null(),
+            Self::Tags => ColumnType::String(None).def(),
+            Self::Summary => ColumnType::String(None).def().null(),
+            Self::Description => ColumnType::String(None).def(),
+            Self::Parameters => ColumnType::String(None).def(),
+            Self::SeeAlso => ColumnType::String(None).def(),
+            Self::Effectindex => ColumnType::String(None).def().null(),
+            Self::Psychonautwiki => ColumnType::String(None).def().null(),
+        }
+    }
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        panic!("No RelationDef")
+    }
 }
 
 impl ActiveModelBehavior for ActiveModel {}

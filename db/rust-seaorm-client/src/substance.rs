@@ -2,10 +2,17 @@
 
 use sea_orm::entity::prelude::*;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq)]
-#[sea_orm(table_name = "substance")]
+#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+pub struct Entity;
+
+impl EntityName for Entity {
+    fn table_name(&self) -> &str {
+        "substance"
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq)]
 pub struct Model {
-    #[sea_orm(primary_key, auto_increment = false)]
     pub id: String,
     pub name: String,
     pub common_names: String,
@@ -23,22 +30,87 @@ pub struct Model {
     pub description: Option<String>,
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {
-    #[sea_orm(has_many = "super::ingestion::Entity")]
-    Ingestion,
-    #[sea_orm(has_many = "super::psychoactive_class::Entity")]
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column {
+    Id,
+    Name,
+    CommonNames,
+    BrandNames,
+    SubstitutiveName,
+    SystematicName,
+    PubchemCid,
+    Unii,
+    CasNumber,
+    InchiKey,
+    Smiles,
+    PsychonautwikiUrl,
     PsychoactiveClass,
-    #[sea_orm(has_many = "super::stash::Entity")]
+    ChemicalClass,
+    Description,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey {
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey {
+    type ValueType = String;
+    fn auto_increment() -> bool {
+        false
+    }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {
+    Ingestion,
+    PsychoactiveClass,
     Stash,
-    #[sea_orm(has_many = "super::substance_interactions::Entity")]
     SubstanceInteractions,
-    #[sea_orm(has_many = "super::substance_route_of_administration::Entity")]
     SubstanceRouteOfAdministration,
-    #[sea_orm(has_many = "super::substance_synonym::Entity")]
     SubstanceSynonym,
-    #[sea_orm(has_many = "super::substance_tolerance::Entity")]
     SubstanceTolerance,
+}
+
+impl ColumnTrait for Column {
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef {
+        match self {
+            Self::Id => ColumnType::String(None).def(),
+            Self::Name => ColumnType::String(None).def(),
+            Self::CommonNames => ColumnType::String(None).def(),
+            Self::BrandNames => ColumnType::String(None).def(),
+            Self::SubstitutiveName => ColumnType::String(None).def().null(),
+            Self::SystematicName => ColumnType::String(None).def(),
+            Self::PubchemCid => ColumnType::Integer.def(),
+            Self::Unii => ColumnType::String(None).def().null(),
+            Self::CasNumber => ColumnType::String(None).def().null(),
+            Self::InchiKey => ColumnType::String(None).def(),
+            Self::Smiles => ColumnType::String(None).def(),
+            Self::PsychonautwikiUrl => ColumnType::String(None).def().null(),
+            Self::PsychoactiveClass => ColumnType::String(None).def(),
+            Self::ChemicalClass => ColumnType::String(None).def().null(),
+            Self::Description => ColumnType::String(None).def().null(),
+        }
+    }
+}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        match self {
+            Self::Ingestion => Entity::has_many(super::ingestion::Entity).into(),
+            Self::PsychoactiveClass => Entity::has_many(super::psychoactive_class::Entity).into(),
+            Self::Stash => Entity::has_many(super::stash::Entity).into(),
+            Self::SubstanceInteractions => {
+                Entity::has_many(super::substance_interactions::Entity).into()
+            }
+            Self::SubstanceRouteOfAdministration => {
+                Entity::has_many(super::substance_route_of_administration::Entity).into()
+            }
+            Self::SubstanceSynonym => Entity::has_many(super::substance_synonym::Entity).into(),
+            Self::SubstanceTolerance => Entity::has_many(super::substance_tolerance::Entity).into(),
+        }
+    }
 }
 
 impl Related<super::ingestion::Entity> for Entity {
