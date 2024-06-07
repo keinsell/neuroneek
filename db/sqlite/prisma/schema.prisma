@@ -1,13 +1,12 @@
+generator client_javascript {
+  provider = "prisma-client-js"
+  output   = "./vendor/prisma-client"
+}
+
 datasource db {
   provider     = "sqlite"
   url          = "file:./../../../db.sqlite"
   relationMode = "foreignKeys"
-}
-
-generator client_python {
-  provider             = "prisma-client-py"
-  interface            = "sync"
-  recursive_type_depth = 5
 }
 
 model Substance {

@@ -1,17 +1,14 @@
 use std::fmt::Debug;
-use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use chrono_english::{Dialect, parse_date_string};
+use db::ingestion::ActiveModel;
+use db::prelude::Ingestion;
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait};
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
 
-use db::ingestion::ActiveModel;
-
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::db;
-use crate::db::prelude::Ingestion;
 use crate::ingestion_analyzer::analyze_future_ingestion;
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
@@ -23,12 +20,13 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
 
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::NotSet,
-        ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
-        dosage: ActiveValue::Set(create_ingestion.dosage),
-        substance_name: ActiveValue::Set(create_ingestion.substance_name),
-        route_of_administration: ActiveValue::Set(
-            serde_json::to_string(&create_ingestion.route_of_administration).unwrap(),
-        ),
+        substance_name: ActiveValue::Set(Option::from(create_ingestion.substance_name)),
+        administration_route: Default::default(),
+        dosage_unit: Default::default(),
+        dosage_amount: Default::default(),
+        ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_local())),
+        subject_id: Default::default(),
+        stash_id: Default::default(),
     };
 
     let ingestion = Ingestion::insert(ingestion_active_model)
@@ -38,11 +36,15 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
 
     let view_model = ViewModel {
         id: ingestion.id,
-        ingested_at: ingestion.ingested_at,
-        dosage: ingestion.dosage,
-        substance_name: ingestion.substance_name,
+        ingested_at: ingestion.ingestion_date.unwrap().to_string(),
+        dosage: format!(
+            "{} {}",
+            ingestion.dosage_amount.unwrap().to_string(),
+            ingestion.dosage_unit.unwrap().to_string()
+        ),
+        substance_name: ingestion.substance_name.unwrap(),
         progress: String::from("n/a").to_string(),
-        route_of_administration: ingestion.route_of_administration,
+        route_of_administration: ingestion.administration_route.unwrap(),
     };
 
     println!("Ingestion created with ID: {}", view_model.id);
@@ -54,17 +56,22 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
     let view_models: Vec<ViewModel> = ingestions
         .into_iter()
         .map(|ingestion| {
-            let ingestion_date = DateTime::parse_from_rfc3339(&ingestion.ingested_at).unwrap();
-
+            let ingestion_date =
+                DateTime::parse_from_rfc3339(&ingestion.ingestion_date.unwrap().to_string())
+                    .unwrap();
             let humanized_date = chrono_humanize::HumanTime::from(ingestion_date);
 
             ViewModel {
                 id: ingestion.id,
                 ingested_at: humanized_date.to_string(),
-                dosage: ingestion.dosage,
-                substance_name: ingestion.substance_name,
+                dosage: format!(
+                    "{} {}",
+                    ingestion.dosage_amount.unwrap().to_string(),
+                    ingestion.dosage_unit.unwrap().to_string()
+                ),
+                substance_name: ingestion.substance_name.unwrap(),
                 progress: String::from("N/a").to_string(),
-                route_of_administration: ingestion.route_of_administration,
+                route_of_administration: ingestion.administration_route.unwrap(),
             }
         })
         .collect();
@@ -84,7 +91,7 @@ pub struct CreateIngestion {
 #[derive(Tabled, Serialize, Deserialize, Debug)]
 pub struct ViewModel {
     #[tabled(order = 0)]
-    pub(crate) id: i32,
+    pub(crate) id: String,
     #[tabled(order = 1)]
     pub(crate) substance_name: String,
     #[tabled(order = 2)]

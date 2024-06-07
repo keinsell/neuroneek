@@ -1,0 +1,25 @@
+[package]
+name = "neuronek-database-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time", "with-time", "with-chrono", "with-json", "with-uuid", "with-rust_decimal", "with-bigdecimal"] }
+async-std = { version = "1", features = ["attributes", "tokio1"] }
+rust-embed = "8.4.0"
+
+[dependencies.sea-orm-migration]
+version = "0.12.0"
+features = [
+    "runtime-async-std-native-tls",
+    "sqlx-sqlite",
+    "with-time",
+    "with-chrono",
+    "with-json",
+    "with-uuid",
+    "with-rust_decimal",
+    "with-bigdecimal",
+]
+
+[lib]
+name = "db"

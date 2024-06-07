@@ -40,6 +40,8 @@ click==8.1.7
     # via ariadne-codegen
     # via black
     # via prisma
+cuid==0.4
+    # via etl
 datamodel-code-generator==0.25.6
     # via etl
 diskcache==5.6.3

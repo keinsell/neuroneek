@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use db::prelude::SubstanceRouteOfAdministrationPhase;
 use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
 
@@ -8,7 +9,6 @@ use crate::core::route_of_administration_dosage::{
     DosageClassification, RouteOfAdministrationDosage,
 };
 use crate::core::route_of_administration_phase::PhaseClassification;
-use crate::db::prelude::Phase;
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -81,5 +81,5 @@ pub struct RouteOfAdministration {
     substance_name: String,
     classification: RouteOfAdministrationClassification,
     dosages: RouteOfAdministrationDosages,
-    phases: HashMap<PhaseClassification, Phase>,
+    phases: HashMap<PhaseClassification, SubstanceRouteOfAdministrationPhase>,
 }

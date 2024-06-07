@@ -8,7 +8,7 @@ type RoutesOfAdministration =
     HashMap<RouteOfAdministrationClassification, Option<RouteOfAdministration>>;
 
 #[derive()]
-pub struct Substance {
+pub struct SSubstance {
     id: String,
     name: String,
     common_names: Vec<String>,
