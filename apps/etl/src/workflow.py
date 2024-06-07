@@ -7,6 +7,7 @@ from typing import Literal, Optional
 import pint
 import prisma.models
 import quantities.quantity
+from cuid import cuid
 
 import custom_types
 import joblib
@@ -27,11 +28,11 @@ from graphql_client import (
 )
 from graphql_client import Client as PsychonautwikiGraphqlClient
 from prisma.types import (
-    DosageCreateInput,
     EffectCreateInput,
     RouteOfAdministrationCreateInput,
     SubstanceCreateInput,
-    PhaseCreateInput,
+substance_route_of_administration_dosageCreateInput,
+substance_route_of_administration_phaseCreateInput,
 )
 
 # try:
@@ -115,19 +116,6 @@ class PhaseClassification(str, Enum):
                 return PhaseClassification.afterglow
             case _:
                 raise NotImplementedError()
-
-
-ureg = pint.UnitRegistry()
-
-
-def parse_mass_pint(text):
-    try:
-        quantity = ureg.parse_expression(text)
-        print(quantity)
-        return quantity
-    except pint.errors.UndefinedUnitError as e:
-        print(f"Failed to parse {text}: ", e)
-        return None
 
 
 @dataclass
@@ -276,14 +264,15 @@ class PhaseRange:
 def create_dosage_input(
     dosage_range: DosageRange,
     route_of_administration: prisma.models.RouteOfAdministration,
-) -> Optional[DosageCreateInput]:
+) -> Optional[substance_route_of_administration_dosageCreateInput]:
     try:
-        create_dosage = DosageCreateInput(
+        create_dosage = substance_route_of_administration_dosageCreateInput(
             routeOfAdministrationId=route_of_administration.id,
             intensivity=dosage_range.classification.lower(),
             amount_min=dosage_range.min_value,
             amount_max=dosage_range.max_value,
             unit=dosage_range.unit,
+            id=cuid()
         )
         print("Constructed DosageCreateInput", create_dosage)
         return create_dosage
@@ -494,12 +483,13 @@ def create_phase_ranges_from_psychonautwiki_duration(
 def prisma_create_phase_input(
     phase_range: PhaseRange,
     route_of_administration_id: str,
-) -> PhaseCreateInput:
-    return PhaseCreateInput(
+) -> substance_route_of_administration_phaseCreateInput:
+    return substance_route_of_administration_phaseCreateInput(
         routeOfAdministrationId=route_of_administration_id,
-        from_duration=int(round(phase_range.min_value.seconds)),
-        to_duration=int(round(phase_range.max_value.seconds)),
+        min_duration=int(round(phase_range.min_value.seconds)),
+        max_duration=int(round(phase_range.max_value.seconds)),
         classification=phase_range.classification,
+        id=cuid()
     )
 
 
@@ -541,8 +531,8 @@ class CreateDatabase(FlowSpec):
         # Clean database from previous data
         db = prisma.Prisma()
         db.connect()
-        db.dosage.delete_many()
-        db.phase.delete_many()
+        db.substance_route_of_administration_dosage.delete_many()
+        db.substance_route_of_administration_phase.delete_many()
         db.routeofadministration.delete_many()
         db.substance.delete_many()
         db.effect.delete_many()
@@ -672,7 +662,7 @@ class CreateDatabase(FlowSpec):
                         dosage_range, route_of_administration
                     )
 
-                    db.dosage.create(create_dosage_input_payload)
+                    db.substance_route_of_administration_dosage.create(create_dosage_input_payload)
             except Exception as e:
                 print(
                     f"Failed to create dosage for {route_of_administration.substanceName}: ",
@@ -724,7 +714,7 @@ class CreateDatabase(FlowSpec):
                         create_phase_input = prisma_create_phase_input(
                             phase_range, route_of_administration.id
                         )
-                        created_phase = db.phase.create(create_phase_input)
+                        created_phase = db.substance_route_of_administration_phase.create(create_phase_input)
                         print("Created phase", created_phase)
 
             except Exception as e:
@@ -756,6 +746,7 @@ class CreateDatabase(FlowSpec):
 
         for effect in effects:
             create_effect: EffectCreateInput = {
+                "id": cuid(),
                 "name": effect.title,
                 # Parse "slug" from url (the last part of the url)
                 # "https://psychonautwiki.org/wiki/MDMA" -> "MDMA"

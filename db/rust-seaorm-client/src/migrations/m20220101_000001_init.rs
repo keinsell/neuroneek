@@ -1,4 +1,5 @@
 use sea_orm_migration::{prelude::*};
+use crate::migrations::raw_migrations::RawMigrations;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;
@@ -7,19 +8,18 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let connection = manager.get_connection();
+        let migration_file = RawMigrations::get("20240607043921_init.sql").unwrap();
+        let migration_sql = std::str::from_utf8(migration_file.data.as_ref()).unwrap();
 
         connection.execute_unprepared(
-            "CREATE TABLE `cake` (
-                `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                `name` varchar(255) NOT NULL
-            )"
+            migration_sql
         )
             .await?;
 
         Ok(())
     }
 
-    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+    async fn down(&self, _manager: &SchemaManager) -> Result<(), DbErr> {
         Ok(())
     }
 }

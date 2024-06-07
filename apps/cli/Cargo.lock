@@ -1478,6 +1478,7 @@ name = "neuronek-database-client"
 version = "0.1.0"
 dependencies = [
  "async-std",
+ "rust-embed",
  "sea-orm",
  "sea-orm-migration",
 ]

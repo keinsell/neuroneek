@@ -78,7 +78,7 @@ echo ".dump" | sqlite3 dev.db > dump.sql
 
 // TODO: Make dumping script to add dump to latest checkpoint in migraitons directory or fail dump.
 ```bash
-sqlite3 /home/keinsell/Projects/neuronek/apps/etl/prisma/dev.db .dump | sed -e '/BEGIN TRANSACTION;/i \
+sqlite3 /home/keinsell/Projects/neuronek/db.sqlite .dump | sed -e '/BEGIN TRANSACTION;/i \
 PRAGMA foreign_keys=OFF;' -e '/COMMIT;/i \
 PRAGMA foreign_keys=ON;' | grep "INSERT INTO" > dump.sql
 ```

@@ -1,6 +1,6 @@
 datasource db {
   provider     = "sqlite"
-  url          = "file:../../../db.sqlite"
+  url          = "file:./../../../db.sqlite"
   relationMode = "foreignKeys"
 }
 
@@ -10,34 +10,9 @@ generator client_python {
   recursive_type_depth = 5
 }
 
-// generator client_javascript {
-//   provider = "prisma-client-js"
-//   output   = "../generated/prisma-client"
-// }
-
-model Account {
-  id       String    @id @default(cuid())
-  username String    @unique
-  password String
-  Subject  Subject[]
-}
-
-model Subject {
-  id          String      @id @default(cuid())
-  firstName   String?
-  lastName    String?
-  dateOfBirth DateTime?
-  weight      Int?
-  height      Int?
-  account_id  String?     @unique
-  account     Account?    @relation(fields: [account_id], references: [id])
-  Ingestions  Ingestion[]
-  Stash       Stash[]
-}
-
 model Substance {
-  id                       String                  @id @unique @default(cuid())
-  name                     String                  @unique
+  id                       String                   @id @unique @default(cuid())
+  name                     String                   @unique
   /// Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition. This field is serialized from Vector<str>, and in this pericular case it's delimited by comma.
   /// @example "acid,tabs,blotters"
   common_names             String
@@ -45,7 +20,7 @@ model Substance {
   /// @example "adderall"
   brand_names              String
   /// Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix.
-  substitutive_name        String?                 @unique
+  substitutive_name        String?                  @unique
   /// Systematic name is a type of chemical nomenclature used for both inorganic and organic compounds. In this system, the compound is named based on the type and number of atoms present, as well as the chemical bonds between them.
   ///
   /// The systematic naming of inorganic compounds follows the guidelines of the International Union of Pure and Applied Chemistry (IUPAC) and usually requires the use of oxidation numbers, prefixes and suffixes to indicate the oxidation state and stoichiometry of the compound.
@@ -53,35 +28,33 @@ model Substance {
   /// In the case of organic compounds, the systematic name is based on the parent hydrocarbon chain, with prefixes and suffixes indicating the position and nature of the functional groups present in the compound.
   ///
   /// @example "(RS)-1-Phenylpropan-2-amine"
-  systematic_name          String                  @unique
+  systematic_name          String                   @unique
   /// Pubchem CID is a id of compound used in PubChem.
-  pubchem_cid              Int                     @unique
+  pubchem_cid              Int                      @unique
   /// UNIIs are generated based on scientific identity characteristics using ISO 11238 data elements. UNII availability does not imply any regulatory review or approval. Synonyms and mappings are based on the best public information available at the time of publication.
   unii                     String?
   /// CAS number is a unique numerical identifier assigned to pure substances and mixtures by the Chemical Abstracts Service registry, a division of the American Chemical Society (ACS). The CAS registry number is the de facto standard for the identification of chemical substances in scientific literature.
-  cas_number               String?                 @unique
+  cas_number               String?                  @unique
   /// InChIKey is a condensed, 27-character representation of a molecule's InChI (International Chemical Identifier)
-  inchi_key                String                  @unique
+  inchi_key                String                   @unique
   /// SMILES is a chemical notation for describing the structure of chemical compounds using ASCII characters.
-  smiles                   String                  @unique
+  smiles                   String                   @unique
   psychonautwiki_url       String?
-  psychoactive_class       String // Should be array
+  psychoactive_class       String
   chemical_class           String?
   description              String?
-  tolerance                SubstanceTolerance?
-  routes_of_administration RouteOfAdministration[]
-  Ingestion                Ingestion[]
-  Stash                    Stash[]
-  SubstanceInteraction     SubstanceInteraction[]
+  ingestion                ingestion[]
   psychoactive_classes     PsychoactiveClass[]
+  stash                    stash[]
+  substance_interactions   substance_interactions[]
+  routes_of_administration RouteOfAdministration[]
   SubstanceSynonym         SubstanceSynonym[]
+  tolerance                SubstanceTolerance?
 
   @@map("substance")
 }
 
 model SubstanceSynonym {
-  // Synonyms should be uniquely deinining a substance
-  // to avoid confusion, ex. "adderall" for medication
   /// which leads to "lisamphetamine" for drug
   id          String    @id @default(cuid())
   substanceId String
@@ -91,21 +64,15 @@ model SubstanceSynonym {
   @@map("substance_synonym")
 }
 
-// TODO: What about toxicity and adverse effects?
-//    Read: MDMA and 3-months breaks due to seratonin toxicity.
-
 model SubstanceTolerance {
-  id          String @id @default(cuid())
-  substanceId String @unique
-
-  // TODO: Add type of tolerance
+  id                           String    @id @default(cuid())
+  substanceId                  String    @unique
   /// Pharmacokinetic Tolerance: The body becomes more efficient at metabolizing or eliminating the drug.
   /// Pharmacodynamic Tolerance: Changes occur at the cellular level, reducing the drug's impact on receptors or neurotransmitters.
   /// Behavioral Tolerance: Individuals learn to compensate for the effects of the drug, masking its impact. ("One" "learn to" "ignore the drug") - Common in ADHD therapy with stimulants.
-  mechanism            String
+  mechanism                    String
   /// @example "desensitization of nicotinic acetylcholine receptors"
-  mechanism_desciption String?
-
+  mechanism_desciption         String?
   /// Acute: Tolerance builds within a single use or very short period.
   /// Rapid Onset: Tolerance develops quickly over a few days to weeks.
   /// Gradual Onset: Tolerance develops slowly over weeks to months or longer.
@@ -113,20 +80,14 @@ model SubstanceTolerance {
   /// Examples:
   /// Nicotine is a stimulant that is developed tolerance by rapid onset.
   /// LSD is a psychedelic with "anti-abuse" mechanism out of the box and tolerance is developed in acute way and rapid decline (7-14 days).
-  onset_mechanism   String
-  onset_description String?
-
-  // TODO: What about ex. DPH and it's perma-trip limit?
-  /// TODO: What about salvia which kicks harder every next use?
-  /// TODO: What about DMT which resets tolerance after each use or within hours?
-
+  onset_mechanism              String
+  onset_description            String?
   /// Rapid decline: The body's ability to metabolize the drug decreases quickly.
   /// Gradual decline: The body's ability to metabolize the drug decreases over weeks to months or longer. -> Caffeine, Amphetamine (2 weeks - 3 months)
   /// Continuous decline: The body's ability to metabolize the drug decreases over weeks to months or longer. -> MDMA (1-3 Months)
   /// Varies/Unknown: Well... Not everything is researched - default fallback.
-  decline_mechanism   String
-  decline_description String?
-
+  decline_mechanism            String
+  decline_description          String?
   /// Representation of the time duration how long it takes for a substance to reach full tolerance.
   /// This field is nullable, and when it is can mean either substance develops tolerance or it doesn't.
   /// @example "PT1W-PT2W"
@@ -134,15 +95,8 @@ model SubstanceTolerance {
   onset_duration               String?
   decline_to_baseline_duration String?
   decline_to_half_duration     String?
+  Substance                    Substance @relation(fields: [substanceId], references: [id])
 
-  // TODO: Additioanl mechanisms (psychical/psychologiclal)
-  // TODO: Addiction potential? HIgher for opios and stims due to reward system stimulation and lower for drugs that are not rewarding?
-  /// TODO: Dependence potential? How much of a substance is needed to be used to develop tolerance?  - Althrough for most of drugs this will be a tricky case as some people are most prone to physical dependence which later becomes a mental dependence due to physical dependence and other ones in a inverted cycle.
-
-  Substance Substance @relation(fields: [substanceId], references: [id])
-
-  // TODO: Cross-tolerance
-  // TODO: How to handle cross-tolerance which can be based on top of metabolits, substances per se, chemical classes, psychoative classes and probably some more things that I'm not aware of.
   @@map("substance_tolerance")
 }
 
@@ -166,99 +120,69 @@ model PsychoactiveClass {
   /// Defines the complete description and specification
   /// related to given psychoactive class
   description String?
-  Substance   Substance? @relation(fields: [substanceId], references: [id])
   substanceId String?
+  Substance   Substance? @relation(fields: [substanceId], references: [id])
 
   @@map("psychoactive_class")
 }
 
 model RouteOfAdministration {
-  id             String    @id @default(cuid())
-  substanceName  String
-  classification String    @map("name")
-  dosage         Dosage[]
-  phases         Phase[]
-  Substance      Substance @relation(fields: [substanceName], references: [name])
+  id                                       String                                     @id @default(cuid())
+  substanceName                            String
+  classification                           String                                     @map("name")
+  Substance                                Substance                                  @relation(fields: [substanceName], references: [name])
+  substance_route_of_administration_dosage substance_route_of_administration_dosage[]
+  substance_route_of_administration_phase  substance_route_of_administration_phase[]
 
   @@unique([classification, substanceName])
   @@map("substance_route_of_administration")
 }
 
-// Substance Dosage:
-// - Should be able to define intensivity
-// - Should have notes on specific dosage or maybe on specific range
-// - Should be able to define dosage per kilogram
-// - Should contain information about units in which dosage is presented (base unit)
+model Account {
+  id       String   @id
+  username String   @unique(map: "Account_username_key")
+  password String
+  subject  subject?
 
-model Phase {
-  id                      String                 @id @default(cuid())
-  classification          String                 @map("classification")
-  from_duration           Int?                   @map("min_duration")
-  to_duration             Int?                   @map("max_duration")
-  RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
-  routeOfAdministrationId String?
-  effects                 Effect[]
-
-  // Phase is uniquely defined by route of administration and phase classification, ex. "Oral ingestion of caffeine have onset phase"
-  @@unique([routeOfAdministrationId, classification])
-  @@map("route_of_administration_phase")
-}
-
-model Dosage {
-  id                      String                 @id @default(cuid())
-  intensivity             String
-  amount_min              Float
-  amount_max              Float
-  unit                    String
-  perKilogram             Boolean                @default(false)
-  RouteOfAdministration   RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
-  routeOfAdministrationId String?
-
-  @@unique([intensivity, routeOfAdministrationId])
-  @@map("route_of_administration_dosage")
+  @@map("account")
 }
 
 model Effect {
-  id   String @id @default(cuid())
-  name String @unique
-  slug String @unique
+  id                                              String                                            @id
+  name                                            String                                            @unique(map: "Effect_name_key")
+  slug                                            String                                            @unique(map: "Effect_slug_key")
+  category                                        String?
+  type                                            String?
+  tags                                            String
+  summary                                         String?
+  description                                     String
+  parameters                                      String
+  see_also                                        String
+  effectindex                                     String?
+  psychonautwiki                                  String?
+  substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
 
-  category String?
-  type     String?
-  tags     String // Should be array
-
-  summary     String?
-  description String // Should be array
-
-  parameters String // Should be array
-  see_also   String // Should be array
-
-  effectindex    String?
-  psychonautwiki String?
-  Phase          Phase[]
+  @@map("effect")
 }
 
-model Ingestion {
-  id                    String     @id @default(cuid())
-  substanceName         String?
-  routeOfAdministration String?
-  dosage_unit           String?
-  dosage_amount         Int?
-  isEstimatedDosage     Boolean?   @default(false)
-  date                  DateTime?
-  subject_id            String?
-  Subject               Subject?   @relation(fields: [subject_id], references: [id])
-  Substance             Substance? @relation(fields: [substanceName], references: [name])
-  Stash                 Stash?     @relation(fields: [stashId], references: [id])
-  stashId               String?
+model ingestion {
+  id                   String     @id
+  substance_name       String?
+  administration_route String?
+  dosage_unit          String?
+  dosage_amount        Int?
+  ingestion_date       DateTime?
+  subject_id           String?
+  stash_id             String?
+  subject              subject?   @relation(fields: [subject_id], references: [id])
+  substance            Substance? @relation(fields: [substance_name], references: [name])
+  stash                stash?     @relation(fields: [stash_id], references: [id])
 }
 
-model Stash {
-  id           String      @id @default(cuid())
+model stash {
+  id           String      @id
   owner_id     String
-  Subject      Subject?    @relation(fields: [owner_id], references: [id])
   substance_id String
-  Substance    Substance   @relation(fields: [substance_id], references: [name])
   addedDate    DateTime?   @default(now())
   expiration   DateTime?
   amount       Int?
@@ -266,11 +190,61 @@ model Stash {
   vendor       String?
   description  String?
   purity       Int?        @default(100)
-  ingestions   Ingestion[]
+  ingestion    ingestion[]
+  subject      subject     @relation(fields: [owner_id], references: [id])
+  substance    Substance   @relation(fields: [substance_id], references: [name])
 }
 
-model SubstanceInteraction {
-  id          String     @id @default(cuid())
-  Substance   Substance? @relation(fields: [substanceId], references: [id])
+model subject {
+  id          String      @id
+  firstName   String?
+  lastName    String?
+  dateOfBirth DateTime?
+  weight      Int?
+  height      Int?
+  account_id  String?     @unique(map: "Subject_account_id_key")
+  ingestion   ingestion[]
+  stash       stash[]
+  account     Account?    @relation(fields: [account_id], references: [id])
+}
+
+model substance_interactions {
+  id          String     @id
   substanceId String?
+  substance   Substance? @relation(fields: [substanceId], references: [id])
+}
+
+model substance_route_of_administration_dosage {
+  id                                String                 @id
+  intensivity                       String
+  amount_min                        Float
+  amount_max                        Float
+  unit                              String
+  perKilogram                       Boolean                @default(false)
+  routeOfAdministrationId           String?
+  substance_route_of_administration RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
+
+  @@unique([intensivity, routeOfAdministrationId], map: "route_of_administration_dosage_intensivity_routeOfAdministrationId_key")
+}
+
+model substance_route_of_administration_phase {
+  id                                              String                                            @id
+  classification                                  String
+  min_duration                                    Int?
+  max_duration                                    Int?
+  routeOfAdministrationId                         String?
+  substance_route_of_administration               RouteOfAdministration?                            @relation(fields: [routeOfAdministrationId], references: [id])
+  substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
+
+  @@unique([routeOfAdministrationId, classification], map: "route_of_administration_phase_routeOfAdministrationId_classification_key")
+}
+
+model substance_route_of_administration_phase_effects {
+  A                                       String
+  B                                       String
+  effect                                  Effect                                  @relation(fields: [A], references: [id], onDelete: Cascade)
+  substance_route_of_administration_phase substance_route_of_administration_phase @relation(fields: [B], references: [id], onDelete: Cascade)
+
+  @@unique([A, B], map: "_EffectToPhase_AB_unique")
+  @@index([B], map: "_EffectToPhase_B_index")
 }
