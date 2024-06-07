@@ -1,7 +1,8 @@
 use std::fmt::Debug;
 
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Local, Utc};
 use chrono_english::{Dialect, parse_date_string};
+use chrono_humanize::HumanTime;
 use db::ingestion::ActiveModel;
 use db::prelude::Ingestion;
 use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryTrait};
@@ -80,7 +81,6 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
             ingestion.dosage_unit.unwrap()
         ),
         substance_name: ingestion.substance_name.unwrap(),
-        progress: String::from("n/a").to_string(),
         route_of_administration: ingestion.administration_route.unwrap(),
     };
 
@@ -94,20 +94,17 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
         .into_iter()
         .map(|ingestion| {
             let ingestion_date =
-                DateTime::parse_from_rfc3339(&ingestion.ingestion_date.unwrap().to_string())
-                    .unwrap();
-            let humanized_date = chrono_humanize::HumanTime::from(ingestion_date);
+                DateTime::<Local>::from(ingestion.ingestion_date.unwrap().and_utc());
 
             ViewModel {
                 id: ingestion.id.to_string(),
-                ingested_at: humanized_date.to_string(),
+                ingested_at: HumanTime::from(ingestion_date).to_string(),
                 dosage: format!(
                     "{} {}",
                     ingestion.dosage_amount.unwrap(),
                     ingestion.dosage_unit.unwrap()
                 ),
                 substance_name: ingestion.substance_name.unwrap(),
-                progress: String::from("N/a").to_string(),
                 route_of_administration: ingestion.administration_route.unwrap(),
             }
         })
@@ -135,6 +132,5 @@ pub struct ViewModel {
     pub(crate) dosage: String,
     #[tabled(rename = "date", order = 3)]
     pub(crate) ingested_at: String,
-    pub(crate) progress: String,
     pub(crate) route_of_administration: String,
 }

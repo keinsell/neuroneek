@@ -33,6 +33,8 @@ fuzzy-matcher = "0.3.7"
 emojic = { version = "0.4.1", features = ["lazy_static", "doc_cfg"] }
 strsim = "0.11.1"
 uuid = { version = "1.8.0", features = ["v4"] }
+stderrlog = "0.6.0"
+statrs = "0.16.1"
 
 [features]
 default = []

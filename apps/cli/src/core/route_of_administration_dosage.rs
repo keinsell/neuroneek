@@ -49,4 +49,6 @@ pub struct RouteOfAdministrationDosage {
     pub id: i32,
     pub route_of_administration_id: i32,
     pub intensity: DosageClassification,
+    // From Mass Amount
+    // To Mass Amount
 }

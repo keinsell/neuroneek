@@ -1,3 +1,4 @@
+use log::*;
 use structopt::StructOpt;
 
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
@@ -53,12 +54,17 @@ enum DataManagementCommand {
 }
 
 pub async fn cli() {
-    let cli = CommandLineInterface::from_args();
+    info!("Starting neuronek CLI");
+    info!("Version: {}", env!("CARGO_PKG_VERSION"));
 
     let db = match orm::setup_database().await {
         Ok(db) => db,
         Err(error) => panic!("Could not locate database file: {}", error),
     };
+
+    let cli = CommandLineInterface::from_args();
+
+    stderrlog::new().verbosity(1).init().unwrap();
 
     #[cfg(feature = "dev")]
     {
