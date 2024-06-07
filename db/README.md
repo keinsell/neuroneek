@@ -16,6 +16,17 @@ This is a database that is used for storing all the data that is needed for the 
 Atlas covers most of the databases which is not a common case when we'll take look into ORMs, even with Prisma there are a lot of cases where database functionality supports something but Prisma does not and migrations in such case are becoming little pain, to avoid all of this there is a tool called `Atlas` which will be useful for actual SQLite migrations and then migrations of cloud database with correct enforcing of gitflow-like migrations.
 We no longer depend on Prisma as main definition of database, and instead we use `schema.hcl` which is representation of latest database schema and other implementations of features that related to database are pulling schema from `schema.hcl` not in a different manner (however one is possible).
 
+## Creating database with Prisma integration
+
+```bash
+atlas migrate diff \
+  --dir "file://migrations" \
+  --to "file://schema.lt.hcl" \
+  --dev-url "sqlite://dev?mode=memory"
+atlas schema apply --to "file://schema.lt.hcl" --url "sqlite://../../db.sqlite"
+prisma db pull
+```
+
 
 Publishing changes to database
 ```bash
@@ -36,21 +47,21 @@ atlas schema inspect -u "sqlite://dev.db"
 ```bash
 atlas migrate diff baseline_migration \
   --dir "file://migrations" \
-  --to "file://schema.hcl" \
+  --to "file://schema.lt.hcl" \
   --dev-url "sqlite://migration.db"
 ```
 
 ```bash
-atlas migrate diff create_blog_posts \
+atlas migrate diff init \
   --dir "file://migrations" \
-  --to "file://schema.hcl" \
-  --dev-url "sqlite://migration.db" --web
+  --to "file://schema.lt.hcl" \
+  --dev-url "sqlite://dev?mode=memory"
 ```
 
 ### Applying changes
 
 ```bash
-atlas schema apply --to "sqlite://dev.db" --url "sqlite://dev.db"
+atlas schema apply --to "file://schema.lt.hcl" --url "sqlite://../../db.sqlite"
 ```
 
 ## Checkpoint

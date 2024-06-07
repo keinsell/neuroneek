@@ -2,8 +2,17 @@
 
 pub mod prelude;
 
-pub mod dosage;
+pub mod account;
+pub mod chemical_class;
+pub mod effect;
 pub mod ingestion;
-pub mod phase;
-pub mod route_of_administration;
+pub mod psychoactive_class;
+pub mod route_of_administration_dosage;
+pub mod route_of_administration_phase;
+pub mod stash;
+pub mod subject;
 pub mod substance;
+pub mod substance_interaction;
+pub mod substance_route_of_administration;
+pub mod substance_synonym;
+pub mod substance_tolerance;

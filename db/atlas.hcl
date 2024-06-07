@@ -21,8 +21,8 @@ lint {
 // Define an environment named "local"
 env "local" {
   // Declare where the schema definition resides.
-  // Also supported: ["file://multi.hcl", "file://schema.hcl"].
-  src = "file://schema.hcl"
+  // Also supported: ["file://multi.hcl", "file://schema.lt.hcl"].
+  src = "file://schema.lt.hcl"
 
   // Define the URL of the Database for this environment
   // See: https://atlasgo.io/concepts/database

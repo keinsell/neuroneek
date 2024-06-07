@@ -25,6 +25,8 @@ pub(crate) struct CreateIngestionFeature {
     pub plan: bool,
 }
 
+// Input -> Valid internal structure -> database -> Presentation structure
+
 pub async fn handle_create_ingestion(
     create_ingestion_command: CreateIngestionFeature,
     db: &DatabaseConnection,

@@ -23,7 +23,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
 
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::NotSet,
-        ingested_at: ActiveValue::Set(parsed_time.to_rfc3339()),
+        date: ActiveValue::Set(parsed_time),
         dosage: ActiveValue::Set(create_ingestion.dosage),
         substance_name: ActiveValue::Set(create_ingestion.substance_name),
         route_of_administration: ActiveValue::Set(

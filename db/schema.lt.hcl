@@ -1,4 +1,4 @@
-table "Account" {
+table "account" {
   schema = schema.main
   column "id" {
     null = false
@@ -20,7 +20,7 @@ table "Account" {
     columns = [column.username]
   }
 }
-table "Subject" {
+table "subject" {
   schema = schema.main
   column "id" {
     null = false
@@ -55,7 +55,7 @@ table "Subject" {
   }
   foreign_key "Subject_account_id_fkey" {
     columns = [column.account_id]
-    ref_columns = [table.Account.column.id]
+    ref_columns = [table.account.column.id]
     on_update = CASCADE
     on_delete = SET_NULL
   }
@@ -83,6 +83,7 @@ table "substance" {
     type = text
   }
   column "substitutive_name" {
+    comment = "Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix."
     null = true
     type = text
   }
@@ -336,7 +337,7 @@ table "substance_route_of_administration" {
     columns = [column.name, column.substanceName]
   }
 }
-table "route_of_administration_phase" {
+table "substance_route_of_administration_phase" {
   schema = schema.main
   column "id" {
     null = false
@@ -372,7 +373,7 @@ table "route_of_administration_phase" {
     columns = [column.routeOfAdministrationId, column.classification]
   }
 }
-table "route_of_administration_dosage" {
+table "substance_route_of_administration_dosage" {
   schema = schema.main
   column "id" {
     null = false
@@ -417,7 +418,57 @@ table "route_of_administration_dosage" {
     columns = [column.intensivity, column.routeOfAdministrationId]
   }
 }
-table "Effect" {
+table "substance_interactions" {
+  schema = schema.main
+  column "id" {
+    null = false
+    type = text
+  }
+  column "substanceId" {
+    null = true
+    type = text
+  }
+  primary_key {
+    columns = [column.id]
+  }
+  foreign_key "SubstanceInteraction_substanceId_fkey" {
+    columns = [column.substanceId]
+    ref_columns = [table.substance.column.id]
+    on_update = CASCADE
+    on_delete = SET_NULL
+  }
+}
+table "substance_route_of_administration_phase_effects" {
+  schema = schema.main
+  column "A" {
+    null = false
+    type = text
+  }
+  column "B" {
+    null = false
+    type = text
+  }
+  foreign_key "_EffectToPhase_B_fkey" {
+    columns = [column.B]
+    ref_columns = [table.substance_route_of_administration_phase.column.id]
+    on_update = CASCADE
+    on_delete = CASCADE
+  }
+  foreign_key "_EffectToPhase_A_fkey" {
+    columns = [column.A]
+    ref_columns = [table.effect.column.id]
+    on_update = CASCADE
+    on_delete = CASCADE
+  }
+  index "_EffectToPhase_AB_unique" {
+    unique = true
+    columns = [column.A, column.B]
+  }
+  index "_EffectToPhase_B_index" {
+    columns = [column.B]
+  }
+}
+table "effect" {
   schema = schema.main
   column "id" {
     null = false
@@ -479,17 +530,17 @@ table "Effect" {
     columns = [column.slug]
   }
 }
-table "Ingestion" {
+table "ingestion" {
   schema = schema.main
   column "id" {
     null = false
     type = text
   }
-  column "substanceName" {
+  column "substance_name" {
     null = true
     type = text
   }
-  column "routeOfAdministration" {
+  column "administration_route" {
     null = true
     type = text
   }
@@ -497,50 +548,50 @@ table "Ingestion" {
     null = true
     type = text
   }
+
   column "dosage_amount" {
     null = true
     type = integer
   }
-  column "isEstimatedDosage" {
-    null    = true
-    type    = boolean
-    default = false
-  }
-  column "date" {
+
+  column "ingestion_date" {
     null = true
     type = datetime
   }
+
   column "subject_id" {
     null = true
     type = text
   }
-  column "stashId" {
+
+  column "stash_id" {
     null = true
     type = text
   }
+
   primary_key {
     columns = [column.id]
   }
-  foreign_key "Ingestion_stashId_fkey" {
-    columns = [column.stashId]
-    ref_columns = [table.Stash.column.id]
+  foreign_key "fk_stash_ingestion_id" {
+    columns = [column.stash_id]
+    ref_columns = [table.stash.column.id]
     on_update = CASCADE
     on_delete = SET_NULL
   }
-  foreign_key "Ingestion_substanceName_fkey" {
-    columns = [column.substanceName]
+  foreign_key "fk_stash_substance_id" {
+    columns = [column.substance_name]
     ref_columns = [table.substance.column.name]
     on_update = CASCADE
     on_delete = SET_NULL
   }
-  foreign_key "Ingestion_subject_id_fkey" {
+  foreign_key "fk_ingestion_subject_id" {
     columns = [column.subject_id]
-    ref_columns = [table.Subject.column.id]
+    ref_columns = [table.subject.column.id]
     on_update = CASCADE
     on_delete = SET_NULL
   }
 }
-table "Stash" {
+table "stash" {
   schema = schema.main
   column "id" {
     null = false
@@ -587,67 +638,17 @@ table "Stash" {
   primary_key {
     columns = [column.id]
   }
-  foreign_key "Stash_substance_id_fkey" {
+  foreign_key "fk_stash_substance_id" {
     columns = [column.substance_id]
     ref_columns = [table.substance.column.name]
     on_update = CASCADE
     on_delete = RESTRICT
   }
-  foreign_key "Stash_owner_id_fkey" {
+  foreign_key "fk_stash_owner_id" {
     columns = [column.owner_id]
-    ref_columns = [table.Subject.column.id]
+    ref_columns = [table.subject.column.id]
     on_update = CASCADE
     on_delete = RESTRICT
-  }
-}
-table "SubstanceInteraction" {
-  schema = schema.main
-  column "id" {
-    null = false
-    type = text
-  }
-  column "substanceId" {
-    null = true
-    type = text
-  }
-  primary_key {
-    columns = [column.id]
-  }
-  foreign_key "SubstanceInteraction_substanceId_fkey" {
-    columns = [column.substanceId]
-    ref_columns = [table.substance.column.id]
-    on_update = CASCADE
-    on_delete = SET_NULL
-  }
-}
-table "_EffectToPhase" {
-  schema = schema.main
-  column "A" {
-    null = false
-    type = text
-  }
-  column "B" {
-    null = false
-    type = text
-  }
-  foreign_key "_EffectToPhase_B_fkey" {
-    columns = [column.B]
-    ref_columns = [table.route_of_administration_phase.column.id]
-    on_update = CASCADE
-    on_delete = CASCADE
-  }
-  foreign_key "_EffectToPhase_A_fkey" {
-    columns = [column.A]
-    ref_columns = [table.Effect.column.id]
-    on_update = CASCADE
-    on_delete = CASCADE
-  }
-  index "_EffectToPhase_AB_unique" {
-    unique = true
-    columns = [column.A, column.B]
-  }
-  index "_EffectToPhase_B_index" {
-    columns = [column.B]
   }
 }
 schema "main" {
