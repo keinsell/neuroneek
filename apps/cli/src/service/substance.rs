@@ -5,6 +5,15 @@ use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use sea_orm::*;
 
+use crate::core::substance::Substance;
+
+/// This function will query database for a given substance name and will rebuild
+/// substance structure from database, such structure is well more adjusted to
+/// data analytics than serialized information from database.
+pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
+    todo!()
+}
+
 pub async fn search_substance(
     db: &DatabaseConnection,
     query: &str,

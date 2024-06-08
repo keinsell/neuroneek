@@ -10,8 +10,8 @@ use chrono::TimeDelta;
 use chrono_humanize::HumanTime;
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
-use uom::si::f32::Mass;
 
+use crate::core::mass::Mass;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::core::route_of_administration_dosage::DosageClassification;
 use crate::core::route_of_administration_phase::PhaseClassification;

@@ -1,4 +1,6 @@
+use human_panic::setup_panic;
 use log::*;
+use structopt::clap::Shell;
 use structopt::StructOpt;
 
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
@@ -54,6 +56,11 @@ enum DataManagementCommand {
 }
 
 pub async fn cli() {
+    // Initialize panic hook
+    setup_panic!();
+    // Initialize logger
+    stderrlog::new().module(module_path!()).init().unwrap();
+
     info!("Starting neuronek CLI");
     info!("Version: {}", env!("CARGO_PKG_VERSION"));
 
@@ -62,9 +69,9 @@ pub async fn cli() {
         Err(error) => panic!("Could not locate database file: {}", error),
     };
 
-    let cli = CommandLineInterface::from_args();
+    CommandLineInterface::clap().gen_completions(env!("CARGO_PKG_NAME"), Shell::Bash, "target");
 
-    stderrlog::new().verbosity(1).init().unwrap();
+    let cli = CommandLineInterface::from_args();
 
     #[cfg(feature = "dev")]
     {

@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use chrono_humanize::HumanTime;
-use uom::si::f32::Mass;
 
+use crate::core::mass::Mass;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 
 pub struct Ingestion {

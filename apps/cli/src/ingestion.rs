@@ -46,7 +46,9 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         }
     };
 
-    analyze_future_ingestion(&create_ingestion).await;
+    analyze_future_ingestion(&create_ingestion)
+        .await
+        .expect("TODO: panic message");
 
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::default(),

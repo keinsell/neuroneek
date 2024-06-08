@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use db::prelude::SubstanceRouteOfAdministrationPhase;
 use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
 
@@ -90,7 +89,8 @@ fn should_match_insufflated_input_with_insufflated_enum() {
     assert_eq!(result, Ok(RouteOfAdministrationClassification::Insufflated));
 }
 
-type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
+pub type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
+pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, PhaseClassification>;
 
 #[derive()]
 pub struct RouteOfAdministration {
@@ -98,5 +98,5 @@ pub struct RouteOfAdministration {
     substance_name: String,
     classification: RouteOfAdministrationClassification,
     dosages: RouteOfAdministrationDosages,
-    phases: HashMap<PhaseClassification, SubstanceRouteOfAdministrationPhase>,
+    phases: RouteOfAdministrationPhases,
 }
