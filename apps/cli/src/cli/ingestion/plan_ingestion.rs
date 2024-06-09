@@ -32,5 +32,7 @@ pub async fn handle_plan_ingestion(plan_ingestion_command: PlanIngestionCommand)
         route_of_administration: roa_class,
     };
 
-    analyze_future_ingestion(&create_ingestion_payload).await;
+    analyze_future_ingestion(&create_ingestion_payload)
+        .await
+        .unwrap_or_else(|e| println!("Error: {}", e));
 }

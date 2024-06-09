@@ -43,7 +43,7 @@ impl FromStr for PhaseClassification {
 
 pub type PhaseDuration = Range<TimeDelta>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RouteOfAdministrationPhase {
     pub id: String,
     pub route_of_administration_id: String,

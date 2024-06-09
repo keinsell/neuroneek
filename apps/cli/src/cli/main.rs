@@ -59,7 +59,13 @@ pub async fn cli() {
     // Initialize panic hook
     setup_panic!();
     // Initialize logger
-    stderrlog::new().module(module_path!()).init().unwrap();
+    stderrlog::new()
+        // .module(module_path!())
+        .show_level(true)
+        .verbosity(2)
+        .show_module_names(true)
+        .init()
+        .unwrap();
 
     info!("Starting neuronek CLI");
     info!("Version: {}", env!("CARGO_PKG_VERSION"));

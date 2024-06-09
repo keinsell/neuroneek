@@ -1,12 +1,13 @@
 // TODO: Search substance (with typo-tolerance and alternative names)
 // TODO: Extractor: Get Dosage Classification by Dosage Amount
 
-use std::ops::{Range, RangeTo};
+use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
 use chrono::TimeDelta;
 use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
+use log::debug;
 use sea_orm::*;
 
 use crate::core::mass::Mass;
@@ -59,17 +60,13 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                             let max_mass =
                                 Mass::from_str(format!("{} {}", d.amount_max, mass_unit).as_str())
                                     .unwrap();
-                            DosageRange::To(RangeTo {
-                                end: max_mass.clone(),
-                            })
+                            DosageRange::To(RangeTo { end: max_mass })
                         }
                         DosageClassification::Heavy => {
                             let min_mass =
                                 Mass::from_str(format!("{} {}", d.amount_min, mass_unit).as_str())
                                     .unwrap();
-                            DosageRange::To(RangeTo {
-                                end: min_mass.clone(),
-                            })
+                            DosageRange::From(RangeFrom { start: min_mass })
                         }
                         _ => {
                             let min_mass =
@@ -79,8 +76,8 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                                 Mass::from_str(format!("{} {}", d.amount_max, mass_unit).as_str())
                                     .unwrap();
                             DosageRange::Inclusive(Range {
-                                start: min_mass.clone(),
-                                end: max_mass.clone(),
+                                start: min_mass,
+                                end: max_mass,
                             })
                         }
                     };
@@ -104,7 +101,10 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
             roa_dosages.insert(dosage.dosage_classification.clone(), dosage);
         }
 
-        println!("{:?}", roa_dosages);
+        debug!(
+            "Found dosages related to route of administration:{:?}",
+            roa_dosages
+        );
 
         let phases: Vec<RouteOfAdministrationPhase> =
             db::substance_route_of_administration_phase::Entity::find()
@@ -172,7 +172,7 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
         routes_of_administration,
     };
 
-    println!("{:?}", ingernal_substance);
+    debug!("Found substance: {:?}", ingernal_substance);
 
     Some(ingernal_substance)
 }

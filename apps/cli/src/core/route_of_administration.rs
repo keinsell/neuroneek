@@ -4,6 +4,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
 
+use crate::core::mass::Mass;
 use crate::core::route_of_administration_dosage::{
     DosageClassification, RouteOfAdministrationDosage,
 };
@@ -92,11 +93,24 @@ fn should_match_insufflated_input_with_insufflated_enum() {
 pub type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
 pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, RouteOfAdministrationPhase>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct RouteOfAdministration {
     pub id: String,
     pub substance_name: String,
     pub classification: RouteOfAdministrationClassification,
     pub dosages: RouteOfAdministrationDosages,
     pub phases: RouteOfAdministrationPhases,
+}
+
+pub fn get_dosage_classification_by_mass_and_route_of_administration(
+    mass: &Mass,
+    route_of_administration: &RouteOfAdministration,
+) -> Result<DosageClassification, &'static str> {
+    for (classification, dosage) in route_of_administration.dosages.iter() {
+        if dosage.dosage_range.contains(mass) {
+            return Ok(*classification);
+        }
+    }
+
+    Err("No classification found for the given mass and route of administration")
 }

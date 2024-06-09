@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::core::mass::Mass;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum DosageClassification {
     Threshold,
@@ -47,14 +47,24 @@ impl From<DosageClassification> for String {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum DosageRange {
     From(RangeFrom<Mass>),
     To(RangeTo<Mass>),
     Inclusive(Range<Mass>),
 }
 
-#[derive(Debug, Serialize)]
+impl DosageRange {
+    pub fn contains(&self, mass: &Mass) -> bool {
+        match self {
+            DosageRange::From(range) => &range.start <= mass,
+            DosageRange::To(range) => mass <= &range.end,
+            DosageRange::Inclusive(range) => &range.start <= mass && mass <= &range.end,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct RouteOfAdministrationDosage {
     pub id: String,
     pub route_of_administration_id: String,

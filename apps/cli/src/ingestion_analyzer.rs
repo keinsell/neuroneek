@@ -5,20 +5,26 @@
 use std::collections::HashMap;
 use std::ops::Range;
 use std::str::FromStr;
+use std::time::Duration;
 
 use chrono::TimeDelta;
 use chrono_humanize::HumanTime;
-use log::info;
+use log::{debug, error, info};
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
 
-use crate::core::mass::Mass;
-use crate::core::route_of_administration::RouteOfAdministrationClassification;
+use crate::core::ingestion::IngestionPhases;
+use crate::core::mass::deserialize_mass_unit;
+use crate::core::route_of_administration::{
+    get_dosage_classification_by_mass_and_route_of_administration,
+    RouteOfAdministrationClassification,
+};
 use crate::core::route_of_administration_dosage::DosageClassification;
 use crate::core::route_of_administration_phase::PhaseClassification;
+use crate::core::substance::get_route_of_administration_by_classification_and_substance;
 use crate::ingestion::CreateIngestion;
 use crate::orm::DB_CONNECTION;
-use crate::service::substance::{get_substance_by_name, search_substance};
+use crate::service::substance::get_substance_by_name;
 
 // https://docs.rs/indicatif/latest/indicatif/
 
@@ -29,16 +35,13 @@ struct DosageAnalysis {
     dosage_classification: DosageClassification,
 }
 
-struct PhaseAnalysis {
-    duration: TimeDelta,
-    stages: HashMap<PhaseClassification, PhaseDuration>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct IngestionAnalysis {
     substance_name: String,
     route_of_administration_classification: RouteOfAdministrationClassification,
-    dosage_analysis: Option<DosageAnalysis>,
+    dosage_classification: DosageClassification,
+    phases: IngestionPhases,
+    total_duration: Duration,
 }
 
 pub async fn analyze_future_ingestion(
@@ -46,55 +49,45 @@ pub async fn analyze_future_ingestion(
 ) -> Result<(), &'static str> {
     let connection = &DB_CONNECTION;
 
-    let substance = search_substance(connection, &create_ingestion.substance_name)
+    let substance = get_substance_by_name(&create_ingestion.substance_name)
         .await
         .ok_or("Analysis failed: Substance not found")?;
 
-    get_substance_by_name(&substance.name)
-        .await
-        .ok_or("Analysis failed: Substance not found")?;
+    debug!("{:?}", substance);
 
-    let mut ingestion_analysis = IngestionAnalysis {
+    let route_of_administration = get_route_of_administration_by_classification_and_substance(
+        &create_ingestion.route_of_administration,
+        &substance,
+    )
+    .unwrap_or_else(|_| {
+        error!("Analysis failed: Route of administration not found");
+        panic!("Analysis failed: Route of administration not found");
+    });
+
+    // Parse mass from input
+    let ingestion_mass = deserialize_mass_unit(&create_ingestion.dosage).unwrap_or_else(|_| {
+        error!("Analysis failed: Invalid mass");
+        panic!("Analysis failed: Invalid mass unit");
+    });
+
+    let dosage_classification = get_dosage_classification_by_mass_and_route_of_administration(
+        &ingestion_mass,
+        &route_of_administration,
+    )
+    .unwrap_or_else(|_| {
+        error!("Analysis failed: Dosage classification not found");
+        panic!("Analysis failed: Dosage classification not found");
+    });
+
+    let ingestion_analysis = IngestionAnalysis {
         substance_name: substance.name.clone(),
-        route_of_administration_classification: create_ingestion.route_of_administration,
-        dosage_analysis: None,
+        route_of_administration_classification: route_of_administration.classification,
+        dosage_classification,
+        phases: Default::default(),
+        total_duration: Default::default(),
     };
 
-    let route_of_administration = db::substance_route_of_administration::Entity::find()
-        .filter(db::substance_route_of_administration::Column::SubstanceName.eq(&substance.name))
-        .filter(
-            db::substance_route_of_administration::Column::Name
-                .eq(String::from(create_ingestion.route_of_administration).as_str()),
-        )
-        .one(connection as &DatabaseConnection)
-        .await
-        .map_err(|_| "Analysis failed: Route of administration not found")?
-        .ok_or("Analysis failed: Route of administration not found")?;
-
-    ingestion_analysis.route_of_administration_classification =
-        RouteOfAdministrationClassification::from_str(&route_of_administration.name)
-            .map_err(|_| "Analysis failed: Route of administration not found")?;
-
-    let route_of_administration_dosages =
-        db::substance_route_of_administration_dosage::Entity::find()
-            .filter(
-                db::substance_route_of_administration_dosage::Column::RouteOfAdministrationId
-                    .eq(route_of_administration.id.clone()),
-            )
-            .all(connection as &DatabaseConnection)
-            .await
-            .map_err(|_| "Analysis failed: Dosage not found in database")
-            .and_then(|dosages| {
-                if dosages.is_empty() {
-                    Err("Analysis failed: Dosage not found in database")
-                } else {
-                    Ok(dosages)
-                }
-            })?;
-
-    info!("{:?}", route_of_administration_dosages);
-
-    // Search for the closest dosage to match classification
+    info!("{:?}", ingestion_analysis);
 
     // Calculate ingestion plan based on phase information
 
@@ -123,7 +116,7 @@ pub async fn analyze_future_ingestion(
             end: TimeDelta::seconds(phase.max_duration.unwrap() as i64),
         };
 
-        println!("{:?}", phase_duration);
+        debug!("{:?}", phase_duration);
 
         if phase_classification.clone() != PhaseClassification::Afterglow {
             total_ingestion_duration.start += phase_duration.start;

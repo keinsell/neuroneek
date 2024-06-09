@@ -27,7 +27,7 @@ structopt = { version = "0.3.26", features = ["suggestions", "color", "wrap_help
 tabled = "0.15.0"
 terminal_size = "0.3.0"
 tokio = { version = "1.0.0", features = ["rt", "rt-multi-thread", "macros"] }
-uom = { version = "0.36.0", features = ["autoconvert", "serde"] }
+uom = { version = "0.36.0", features = ["autoconvert", "serde", "std"] }
 xdg = "2.5.2"
 lazy_static = "1.4.0"
 async-std = "1.12.0"
@@ -52,11 +52,11 @@ opt-level = 0
 debug = "full"
 
 [profile.release]
-opt-level = 3
-lto = true
+opt-level = 0
+lto = false
 codegen-units = 1
 panic = "abort"
-strip = true
+strip = false
 debug = false
 
 [[bin]]
