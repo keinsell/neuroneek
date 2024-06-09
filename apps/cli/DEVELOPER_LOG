@@ -1,3 +1,23 @@
+[2024-06-09]
+
+Basic functionality of IngestionAnalyzer is working at some point, information about substances were bundled into migrator/db package which is available in monorepo - yet there is no clear way to synchronize migrations along 3 places - database packages and the atlas toolkit themself which also needs to be synchronized with prisma. Current targets should be set into improving structure of ingestions a little bit and analyzing past ingestions (with memoization as there is no reason to compute it every time) - maybe it's also time to introduce automatic completions for CLI as usage feels a little bit clunky - especially for things like substance names.
+
+Ingestion Analyzer currently is able to provide following information:
+
+----------------------------------------
+Ingestion Analysis for "Caffeine"
+Route of Administration: Oral
+Dosage: 0.0001 kg^1
+Dosage Classification: Common
+Total Duration: "in 4 hours"
+Phases:
+* Onset: "now"
+* Comeup: "in 9 minutes"
+* Peak: "in 39 minutes"
+* Offset: "in 2 hours"
+* Afterglow: "in 4 hours"
+----------------------------------------
+
 [2024-06-05]
 
 Come down to conclusion that scrapper of API information seems to be completely useless in CLI application, data may be delivered through SQL migration that will out of the box perform updates of stale data - I just wonder if there's a some solution for like incremental dumping of database, I really want avoid case where something will be related to substance_id then substance_id got changed or substance itself will get removed and then we'll lose ingestion information.

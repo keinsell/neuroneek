@@ -3,7 +3,7 @@ use std::str::FromStr;
 use std::time::Duration;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash, PartialOrd, Ord, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum PhaseClassification {
     Onset,

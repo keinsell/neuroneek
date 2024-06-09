@@ -3,6 +3,7 @@
 // possible. This is a very important part of the application
 
 use std::fmt::Debug;
+use std::ops::Deref;
 use std::time::Duration;
 
 use chrono::{Local};
@@ -89,65 +90,34 @@ pub async fn analyze_future_ingestion(
         }
     });
 
-    let mut ingestion_phases: IngestionPhases = IngestionPhases::new();
 
     let route_of_administration_phases = route_of_administration.phases.clone();
+
     let parsed_time = parse_date_string(&create_ingestion.ingested_at, Local::now(), Dialect::Us)
         .unwrap_or_else(|_| Local::now());
 
-    // Start with onset phase, create ingestion phase and add it to ingestion phases
-    let onset_phase = route_of_administration_phases.get(&PhaseClassification::Onset).unwrap();
+    let mut end_time = parsed_time;
 
-    let onset_ingestion_phase = IngestionPhase {
-        phase_classification: PhaseClassification::Onset,
-        duration: onset_phase.duration_range.clone(),
-        start_time: parsed_time,
-        end_time: parsed_time + onset_phase.duration_range.end,
-    };
+    let phase_classifications = [
+        PhaseClassification::Onset,
+        PhaseClassification::Comeup,
+        PhaseClassification::Peak,
+        PhaseClassification::Offset,
+        PhaseClassification::Afterglow,
+    ];
 
-
-
-    let comeup_phase = route_of_administration_phases.get(&PhaseClassification::Comeup).unwrap();
-
-    let comeup_ingestion_phase = IngestionPhase {
-        phase_classification: PhaseClassification::Comeup,
-        duration: comeup_phase.duration_range.clone(),
-        start_time: onset_ingestion_phase.end_time.clone(),
-        end_time: onset_ingestion_phase.end_time + comeup_phase.duration_range.end,
-    };
-
-    let peak_phase = route_of_administration_phases.get(&PhaseClassification::Peak).unwrap();
-
-    let peak_ingestion_phase = IngestionPhase {
-        phase_classification: PhaseClassification::Peak,
-        duration: peak_phase.duration_range.clone(),
-        start_time: comeup_ingestion_phase.end_time.clone(),
-        end_time: comeup_ingestion_phase.end_time + peak_phase.duration_range.end,
-    };
-
-    let offset_phase = route_of_administration_phases.get(&PhaseClassification::Offset).unwrap();
-
-    let offset_ingestion_phase = IngestionPhase {
-        phase_classification: PhaseClassification::Offset,
-        duration: offset_phase.duration_range.clone(),
-        start_time: peak_ingestion_phase.end_time.clone(),
-        end_time: peak_ingestion_phase.end_time + offset_phase.duration_range.end,
-    };
-
-    let afterglow_phase = route_of_administration_phases.get(&PhaseClassification::Afterglow).unwrap();
-
-    let afterglow_ingestion_phase = IngestionPhase {
-        phase_classification: PhaseClassification::Afterglow,
-        duration: afterglow_phase.duration_range.clone(),
-        start_time: offset_ingestion_phase.end_time.clone(),
-        end_time: offset_ingestion_phase.end_time + afterglow_phase.duration_range.end,
-    };
-
-    ingestion_phases.insert(PhaseClassification::Onset, onset_ingestion_phase);
-    ingestion_phases.insert(PhaseClassification::Comeup, comeup_ingestion_phase);
-    ingestion_phases.insert(PhaseClassification::Peak, peak_ingestion_phase);
-    ingestion_phases.insert(PhaseClassification::Offset, offset_ingestion_phase);
-    ingestion_phases.insert(PhaseClassification::Afterglow, afterglow_ingestion_phase);
+    let ingestion_phases: IngestionPhases = phase_classifications.iter().filter_map(|classification| {
+        route_of_administration_phases.get(&classification.clone()).map(|phase| {
+            let ingestion_phase = IngestionPhase {
+                phase_classification: classification.clone(),
+                duration: phase.duration_range.clone(),
+                start_time: end_time,
+                end_time: end_time + phase.duration_range.end,
+            };
+            end_time = end_time + ingestion_phase.duration.end;
+            (classification.clone(), ingestion_phase)
+        })
+    }).collect();
 
     let ingestion_analysis = IngestionAnalysis {
         substance_name: substance.name.clone(),
@@ -164,15 +134,25 @@ pub async fn analyze_future_ingestion(
 }
 
 pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
+    println!("{}", "-".repeat(40));
     println!("Ingestion Analysis for {:?}", ingestion_analysis.substance_name);
     println!("Route of Administration: {:?}", ingestion_analysis.route_of_administration_classification);
     println!("Dosage: {:?}", ingestion_analysis.dosage);
     println!("Dosage Classification: {:?}", ingestion_analysis.dosage_classification);
     println!("Total Duration: {:?}", HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap()).to_string());
     println!("Phases:");
-    for (phase_classification, phase) in ingestion_analysis.phases.iter() {
+    // Convert HashMap to Vec
+    let mut phases: Vec<(&PhaseClassification, &IngestionPhase)> = ingestion_analysis.phases.iter().collect();
+
+    // Sort Vec based on PhaseClassification
+    phases.sort_by_key(|&(classification, _)| *classification);
+
+    // Iterate over sorted Vec
+    for (phase_classification, phase) in phases {
         println!("* {:?}: {:?}", phase_classification, HumanTime::from(phase.start_time).to_string());
     }
+
+    println!("{}", "-".repeat(40));
 }
 
 
