@@ -19,6 +19,7 @@ We no longer depend on Prisma as main definition of database, and instead we use
 ## Creating database with Prisma integration
 
 ```bash
+atlas migrate hash 
 atlas migrate diff \
   --dir "file://migrations" \
   --to "file://schema.lt.hcl" \

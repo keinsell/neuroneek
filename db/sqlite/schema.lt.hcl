@@ -75,6 +75,7 @@ table "substance" {
     type = text
   }
   column "common_names" {
+    comment = "Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition. This field is serialized from Vector<str>, and in this pericular case it's delimited by comma."
     null = false
     type = text
   }
@@ -104,6 +105,7 @@ table "substance" {
     type = text
   }
   column "inchi_key" {
+    comment = "InChIKey is a condensed, 27-character representation of a molecule's InChI (International Chemical Identifier)"
     null = false
     type = text
   }
@@ -347,13 +349,13 @@ table "substance_route_of_administration_phase" {
     null = false
     type = text
   }
-  column "min_duration" {
+  column "lower_duration" {
     null = true
-    type = integer
+    type = text
   }
-  column "max_duration" {
+  column "upper_duration" {
     null = true
-    type = integer
+    type = text
   }
   column "routeOfAdministrationId" {
     null = true
@@ -379,26 +381,21 @@ table "substance_route_of_administration_dosage" {
     null = false
     type = text
   }
-  column "intensivity" {
+  column "intensity" {
     null = false
     type = text
   }
-  column "amount_min" {
-    null = false
+  column "lower_bound_amount" {
+    null = true
     type = real
   }
-  column "amount_max" {
-    null = false
+  column "upper_bound_amount" {
+    null = true
     type = real
   }
   column "unit" {
     null = false
     type = text
-  }
-  column "perKilogram" {
-    null    = false
-    type    = boolean
-    default = false
   }
   column "routeOfAdministrationId" {
     null = true
@@ -415,7 +412,7 @@ table "substance_route_of_administration_dosage" {
   }
   index "route_of_administration_dosage_intensivity_routeOfAdministrationId_key" {
     unique = true
-    columns = [column.intensivity, column.routeOfAdministrationId]
+    columns = [column.intensity, column.routeOfAdministrationId]
   }
 }
 table "substance_interactions" {

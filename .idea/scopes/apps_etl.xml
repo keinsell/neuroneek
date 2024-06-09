@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="apps/etl" pattern="file[neuronek]:apps/etl//*||file:pyproject.toml||file:requirements-dev.lock||file:requirements.lock||file[neuronek]:db/*||file[neuronek]:db/sqlite/*||file[neuronek]:db/sqlite//*||file[neuronek]:db/rust-seaorm-client//*" />
+</component>

@@ -1,0 +1,11 @@
+etl_pipleline: "ETL Pipeline"
+sqlite_database: "Sqlite3 Database"
+cli_application: "CLI Application"
+server_application: "Server Application"
+database_package_py: "Database Package (py-prisma)"
+database_package_rust: "Database Package (rust-seaorm)"
+database_package_typescript: "Database Package (ts-prisma)"
+
+database_package_py -> etl_pipeline: "Builds database client for ETL pipeline"
+etl_pipeline -> sqlite_database: "Builds database from external sources"
+

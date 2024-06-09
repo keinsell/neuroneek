@@ -3,6 +3,12 @@ generator client_javascript {
   output   = "./vendor/prisma-client"
 }
 
+generator client_python {
+  provider             = "prisma-client-py"
+  interface            = "sync"
+  recursive_type_depth = "5"
+}
+
 datasource db {
   provider     = "sqlite"
   url          = "file:./../../../db.sqlite"
@@ -126,12 +132,12 @@ model PsychoactiveClass {
 }
 
 model RouteOfAdministration {
-  id                                       String                                     @id @default(cuid())
+  id                                       String    @id @default(cuid())
   substanceName                            String
-  classification                           String                                     @map("name")
-  Substance                                Substance                                  @relation(fields: [substanceName], references: [name])
-  substance_route_of_administration_dosage substance_route_of_administration_dosage[]
-  substance_route_of_administration_phase  substance_route_of_administration_phase[]
+  classification                           String    @map("name")
+  Substance                                Substance @relation(fields: [substanceName], references: [name])
+  substance_route_of_administration_dosage Dosage[]
+  substance_route_of_administration_phase  Phase[]
 
   @@unique([classification, substanceName])
   @@map("substance_route_of_administration")
@@ -215,36 +221,37 @@ model substance_interactions {
   substance   Substance? @relation(fields: [substanceId], references: [id])
 }
 
-model substance_route_of_administration_dosage {
+model Dosage {
   id                                String                 @id
-  intensivity                       String
-  amount_min                        Float
-  amount_max                        Float
+  intensity                         String
+  lower_bound_amount                Float?
+  upper_bound_amount                Float?
   unit                              String
-  perKilogram                       Boolean                @default(false)
   routeOfAdministrationId           String?
   substance_route_of_administration RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
 
-  @@unique([intensivity, routeOfAdministrationId], map: "route_of_administration_dosage_intensivity_routeOfAdministrationId_key")
+  @@unique([intensity, routeOfAdministrationId], map: "route_of_administration_dosage_intensivity_routeOfAdministrationId_key")
+  @@map("substance_route_of_administration_dosage")
 }
 
-model substance_route_of_administration_phase {
+model Phase {
   id                                              String                                            @id
   classification                                  String
-  min_duration                                    Int?
-  max_duration                                    Int?
+  lower_duration                                  String?
+  upper_duration                                  String?
   routeOfAdministrationId                         String?
   substance_route_of_administration               RouteOfAdministration?                            @relation(fields: [routeOfAdministrationId], references: [id])
   substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
 
   @@unique([routeOfAdministrationId, classification], map: "route_of_administration_phase_routeOfAdministrationId_classification_key")
+  @@map("substance_route_of_administration_phase")
 }
 
 model substance_route_of_administration_phase_effects {
   A                                       String
   B                                       String
-  effect                                  Effect                                  @relation(fields: [A], references: [id], onDelete: Cascade)
-  substance_route_of_administration_phase substance_route_of_administration_phase @relation(fields: [B], references: [id], onDelete: Cascade)
+  effect                                  Effect @relation(fields: [A], references: [id], onDelete: Cascade)
+  substance_route_of_administration_phase Phase  @relation(fields: [B], references: [id], onDelete: Cascade)
 
   @@unique([A, B], map: "_EffectToPhase_AB_unique")
   @@index([B], map: "_EffectToPhase_B_index")

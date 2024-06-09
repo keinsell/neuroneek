@@ -4,10 +4,11 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal, Optional
 
-import pint
+import isodate
 import prisma.models
 import quantities.quantity
 from cuid import cuid
+from isodate import duration_isoformat
 
 import custom_types
 import joblib
@@ -31,8 +32,8 @@ from prisma.types import (
     EffectCreateInput,
     RouteOfAdministrationCreateInput,
     SubstanceCreateInput,
-substance_route_of_administration_dosageCreateInput,
-substance_route_of_administration_phaseCreateInput,
+    DosageCreateInput,
+    PhaseCreateInput,
 )
 
 # try:
@@ -195,8 +196,8 @@ class DosageRange:
 class PhaseRange:
     """Represents a range of phase values with associated categories."""
 
-    min_value: pendulum.Duration
-    max_value: pendulum.Duration
+    min_value: Optional[pendulum.Duration]
+    max_value: Optional[pendulum.Duration]
     classification: PhaseClassification
 
     @classmethod
@@ -222,12 +223,12 @@ class PhaseRange:
     @staticmethod
     def from_psychonautwiki_duration(
         classification: PhaseClassification,
-        min_duraation_input: float,
-        max_duration_input: float,
+        min_duraation_input: Optional[float],
+        max_duration_input: Optional[float],
         duration_unit: str,
     ):
-        min_duration: pendulum.Duration = None
-        max_duration: pendulum.Duration = None
+        min_duration: Optional[pendulum.Duration] = None
+        max_duration: Optional[pendulum.Duration] = None
 
         if duration_unit == "hours":
             min_duration = pendulum.Duration(hours=min_duraation_input)
@@ -260,17 +261,25 @@ class PhaseRange:
             case _:
                 raise ValueError(f"Unknown classification: {classification}")
 
+def serialize_pendulum_duration(pendulum_duration: pendulum.Duration):
+    duration = isodate.Duration(days=pendulum_duration.days, hours=pendulum_duration.hours, minutes=pendulum_duration.minutes, seconds=pendulum_duration.seconds, microseconds=pendulum_duration.microseconds)
+    print(pendulum_duration)
+    print(duration)
+    print(pendulum_duration.max)
+    print(pendulum_duration.min)
+    iso_duration = duration_isoformat(duration)
+    return iso_duration
 
 def create_dosage_input(
     dosage_range: DosageRange,
     route_of_administration: prisma.models.RouteOfAdministration,
-) -> Optional[substance_route_of_administration_dosageCreateInput]:
+) -> Optional[DosageCreateInput]:
     try:
-        create_dosage = substance_route_of_administration_dosageCreateInput(
+        create_dosage = DosageCreateInput(
             routeOfAdministrationId=route_of_administration.id,
-            intensivity=dosage_range.classification.lower(),
-            amount_min=dosage_range.min_value,
-            amount_max=dosage_range.max_value,
+            intensity=dosage_range.classification.lower(),
+            lower_bound_amount=dosage_range.min_value,
+            upper_bound_amount=dosage_range.max_value,
             unit=dosage_range.unit,
             id=cuid()
         )
@@ -483,11 +492,11 @@ def create_phase_ranges_from_psychonautwiki_duration(
 def prisma_create_phase_input(
     phase_range: PhaseRange,
     route_of_administration_id: str,
-) -> substance_route_of_administration_phaseCreateInput:
-    return substance_route_of_administration_phaseCreateInput(
+) -> PhaseCreateInput:
+    return PhaseCreateInput(
         routeOfAdministrationId=route_of_administration_id,
-        min_duration=int(round(phase_range.min_value.seconds)),
-        max_duration=int(round(phase_range.max_value.seconds)),
+        lower_duration=serialize_pendulum_duration(phase_range.min_value),
+        upper_duration=serialize_pendulum_duration(phase_range.max_value),
         classification=phase_range.classification,
         id=cuid()
     )
@@ -531,8 +540,8 @@ class CreateDatabase(FlowSpec):
         # Clean database from previous data
         db = prisma.Prisma()
         db.connect()
-        db.substance_route_of_administration_dosage.delete_many()
-        db.substance_route_of_administration_phase.delete_many()
+        db.dosage.delete_many()
+        db.phase.delete_many()
         db.routeofadministration.delete_many()
         db.substance.delete_many()
         db.effect.delete_many()
@@ -662,7 +671,7 @@ class CreateDatabase(FlowSpec):
                         dosage_range, route_of_administration
                     )
 
-                    db.substance_route_of_administration_dosage.create(create_dosage_input_payload)
+                    db.dosage.create(create_dosage_input_payload)
             except Exception as e:
                 print(
                     f"Failed to create dosage for {route_of_administration.substanceName}: ",
@@ -714,7 +723,7 @@ class CreateDatabase(FlowSpec):
                         create_phase_input = prisma_create_phase_input(
                             phase_range, route_of_administration.id
                         )
-                        created_phase = db.substance_route_of_administration_phase.create(create_phase_input)
+                        created_phase = db.phase.create(create_phase_input)
                         print("Created phase", created_phase)
 
             except Exception as e:

@@ -1,3 +1,7 @@
+generator client_javascript {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider     = "sqlite"
   url          = "file:./../../../db.sqlite"
@@ -43,7 +47,7 @@ model Substance {
   psychoactive_class       String
   chemical_class           String?
   description              String?
-  ingestion                ingestion[]
+  ingestion                Ingestion[]
   psychoactive_classes     PsychoactiveClass[]
   stash                    stash[]
   substance_interactions   substance_interactions[]
@@ -127,12 +131,12 @@ model PsychoactiveClass {
 }
 
 model RouteOfAdministration {
-  id                                       String                                     @id @default(cuid())
+  id                                       String    @id @default(cuid())
   substanceName                            String
-  classification                           String                                     @map("name")
-  Substance                                Substance                                  @relation(fields: [substanceName], references: [name])
-  substance_route_of_administration_dosage substance_route_of_administration_dosage[]
-  substance_route_of_administration_phase  substance_route_of_administration_phase[]
+  classification                           String    @map("name")
+  Substance                                Substance @relation(fields: [substanceName], references: [name])
+  substance_route_of_administration_dosage Dosage[]
+  substance_route_of_administration_phase  Phase[]
 
   @@unique([classification, substanceName])
   @@map("substance_route_of_administration")
@@ -165,18 +169,20 @@ model Effect {
   @@map("effect")
 }
 
-model ingestion {
-  id                   String     @id
+model Ingestion {
+  id                   Int        @id @default(autoincrement())
   substance_name       String?
   administration_route String?
   dosage_unit          String?
-  dosage_amount        Int?
+  dosage_amount        Float?
   ingestion_date       DateTime?
   subject_id           String?
   stash_id             String?
   subject              subject?   @relation(fields: [subject_id], references: [id])
   substance            Substance? @relation(fields: [substance_name], references: [name])
   stash                stash?     @relation(fields: [stash_id], references: [id])
+
+  @@map("ingestion")
 }
 
 model stash {
@@ -190,7 +196,7 @@ model stash {
   vendor       String?
   description  String?
   purity       Int?        @default(100)
-  ingestion    ingestion[]
+  ingestion    Ingestion[]
   subject      subject     @relation(fields: [owner_id], references: [id])
   substance    Substance   @relation(fields: [substance_id], references: [name])
 }
@@ -203,7 +209,7 @@ model subject {
   weight      Int?
   height      Int?
   account_id  String?     @unique(map: "Subject_account_id_key")
-  ingestion   ingestion[]
+  ingestion   Ingestion[]
   stash       stash[]
   account     Account?    @relation(fields: [account_id], references: [id])
 }
@@ -214,7 +220,7 @@ model substance_interactions {
   substance   Substance? @relation(fields: [substanceId], references: [id])
 }
 
-model substance_route_of_administration_dosage {
+model Dosage {
   id                                String                 @id
   intensivity                       String
   amount_min                        Float
@@ -225,25 +231,27 @@ model substance_route_of_administration_dosage {
   substance_route_of_administration RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
 
   @@unique([intensivity, routeOfAdministrationId], map: "route_of_administration_dosage_intensivity_routeOfAdministrationId_key")
+  @@map("substance_route_of_administration_dosage")
 }
 
-model substance_route_of_administration_phase {
+model Phase {
   id                                              String                                            @id
   classification                                  String
-  min_duration                                    Int?
-  max_duration                                    Int?
+  lower_duration                                  String?
+  upper_duration                                  String?
   routeOfAdministrationId                         String?
   substance_route_of_administration               RouteOfAdministration?                            @relation(fields: [routeOfAdministrationId], references: [id])
   substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
 
   @@unique([routeOfAdministrationId, classification], map: "route_of_administration_phase_routeOfAdministrationId_classification_key")
+  @@map("substance_route_of_administration_phase")
 }
 
 model substance_route_of_administration_phase_effects {
   A                                       String
   B                                       String
-  effect                                  Effect                                  @relation(fields: [A], references: [id], onDelete: Cascade)
-  substance_route_of_administration_phase substance_route_of_administration_phase @relation(fields: [B], references: [id], onDelete: Cascade)
+  effect                                  Effect @relation(fields: [A], references: [id], onDelete: Cascade)
+  substance_route_of_administration_phase Phase  @relation(fields: [B], references: [id], onDelete: Cascade)
 
   @@unique([A, B], map: "_EffectToPhase_AB_unique")
   @@index([B], map: "_EffectToPhase_B_index")
