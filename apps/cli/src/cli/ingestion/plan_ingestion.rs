@@ -34,5 +34,5 @@ pub async fn handle_plan_ingestion(plan_ingestion_command: PlanIngestionCommand)
 
     analyze_future_ingestion(&create_ingestion_payload)
         .await
-        .unwrap_or_else(|e| println!("Error: {}", e));
+        .unwrap();
 }

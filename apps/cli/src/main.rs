@@ -1,3 +1,5 @@
+#![feature(duration_constructors)]
+
 use async_std::task;
 
 use crate::cli::main::cli;

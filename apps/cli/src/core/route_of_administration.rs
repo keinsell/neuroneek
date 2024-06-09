@@ -5,10 +5,10 @@ use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
 
 use crate::core::mass::Mass;
+use crate::core::phase::{Phase, PhaseClassification};
 use crate::core::route_of_administration_dosage::{
     DosageClassification, RouteOfAdministrationDosage,
 };
-use crate::core::route_of_administration_phase::{PhaseClassification, RouteOfAdministrationPhase};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -91,7 +91,7 @@ fn should_match_insufflated_input_with_insufflated_enum() {
 }
 
 pub type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
-pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, RouteOfAdministrationPhase>;
+pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, Phase>;
 
 #[derive(Debug, Clone)]
 pub struct RouteOfAdministration {

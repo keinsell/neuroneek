@@ -40,6 +40,7 @@ statrs = "0.16.1"
 clap-markdown = "0.1.3"
 human-panic = "2.0.0"
 clap_complete = "4.4.10"
+dateless = "0.3.1"
 
 [features]
 default = []

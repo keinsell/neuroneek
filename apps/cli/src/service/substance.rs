@@ -11,15 +11,13 @@ use log::debug;
 use sea_orm::*;
 
 use crate::core::mass::Mass;
+use crate::core::phase::{DurationRange, Phase, PhaseClassification};
 use crate::core::route_of_administration::{
     RouteOfAdministration, RouteOfAdministrationClassification, RouteOfAdministrationDosages,
     RouteOfAdministrationPhases,
 };
 use crate::core::route_of_administration_dosage::{
     DosageClassification, DosageRange, RouteOfAdministrationDosage,
-};
-use crate::core::route_of_administration_phase::{
-    PhaseClassification, PhaseDuration, RouteOfAdministrationPhase,
 };
 use crate::core::substance::{RoutesOfAdministration, Substance};
 use crate::orm::DB_CONNECTION;
@@ -106,37 +104,36 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
             roa_dosages
         );
 
-        let phases: Vec<RouteOfAdministrationPhase> =
-            db::substance_route_of_administration_phase::Entity::find()
-                .filter(
-                    db::substance_route_of_administration_phase::Column::RouteOfAdministrationId
-                        .eq(&route_of_administration.id),
-                )
-                .all(&DB_CONNECTION as &DatabaseConnection)
-                .await
-                .unwrap()
-                .iter()
-                .map(|p| {
-                    let phase_id = p.id.clone();
-                    let route_of_administration_id = p.route_of_administration_id.clone().unwrap();
-                    let phase_classification =
-                        PhaseClassification::from_str(&p.classification).unwrap();
+        let phases: Vec<Phase> = db::substance_route_of_administration_phase::Entity::find()
+            .filter(
+                db::substance_route_of_administration_phase::Column::RouteOfAdministrationId
+                    .eq(&route_of_administration.id),
+            )
+            .all(&DB_CONNECTION as &DatabaseConnection)
+            .await
+            .unwrap()
+            .iter()
+            .map(|p| {
+                let phase_id = p.id.clone();
+                let route_of_administration_id = p.route_of_administration_id.clone().unwrap();
+                let phase_classification =
+                    PhaseClassification::from_str(&p.classification).unwrap();
 
-                    let phase_duration = PhaseDuration {
-                        start: TimeDelta::seconds(p.min_duration.unwrap() as i64),
-                        end: TimeDelta::seconds(p.max_duration.unwrap() as i64),
-                    };
+                let phase_duration = DurationRange {
+                    start: TimeDelta::seconds(p.min_duration.unwrap() as i64),
+                    end: TimeDelta::seconds(p.max_duration.unwrap() as i64),
+                };
 
-                    let phase = RouteOfAdministrationPhase {
-                        id: phase_id,
-                        route_of_administration_id: route_of_administration_id,
-                        phase_classification: phase_classification,
-                        duration_range: phase_duration,
-                    };
+                let phase = Phase {
+                    id: phase_id,
+                    route_of_administration_id: route_of_administration_id,
+                    phase_classification: phase_classification,
+                    duration_range: phase_duration,
+                };
 
-                    phase
-                })
-                .collect();
+                phase
+            })
+            .collect();
 
         let mut roa_phases: RouteOfAdministrationPhases = RouteOfAdministrationPhases::new();
 

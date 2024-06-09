@@ -41,12 +41,12 @@ impl FromStr for PhaseClassification {
     }
 }
 
-pub type PhaseDuration = Range<TimeDelta>;
+pub type DurationRange = Range<TimeDelta>;
 
 #[derive(Debug, Clone)]
-pub struct RouteOfAdministrationPhase {
+pub struct Phase {
     pub id: String,
     pub route_of_administration_id: String,
     pub phase_classification: PhaseClassification,
-    pub duration_range: PhaseDuration,
+    pub duration_range: DurationRange,
 }
