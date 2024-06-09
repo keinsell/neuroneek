@@ -4,8 +4,8 @@ use sea_orm::DatabaseConnection;
 use structopt::StructOpt;
 
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::ingestion::{create_ingestion, CreateIngestion};
 use crate::ingestion_analyzer::analyze_future_ingestion;
+use crate::service::ingestion::{create_ingestion, CreateIngestion};
 
 #[derive(StructOpt, Debug)]
 pub(crate) struct CreateIngestionFeature {
