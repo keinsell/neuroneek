@@ -2,15 +2,17 @@
 // and try to extract and provide as much information as it's
 // possible. This is a very important part of the application
 
+use std::fmt::Debug;
 use std::time::Duration;
 
-use chrono::TimeDelta;
+use chrono::{Local};
+use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
-use log::{debug, error, info};
+use log::{debug, error};
 use serde::{Deserialize, Serialize};
 
-use crate::core::ingestion::IngestionPhases;
-use crate::core::mass::deserialize_mass_unit;
+use crate::core::ingestion::{IngestionPhase, IngestionPhases};
+use crate::core::mass::{deserialize_mass_unit, Mass};
 use crate::core::phase::PhaseClassification;
 use crate::core::route_of_administration::{
     get_dosage_classification_by_mass_and_route_of_administration,
@@ -36,6 +38,7 @@ pub struct IngestionAnalysis {
     substance_name: String,
     route_of_administration_classification: RouteOfAdministrationClassification,
     dosage_classification: DosageClassification,
+    dosage: Mass,
     phases: IngestionPhases,
     total_duration: Duration,
 }
@@ -82,29 +85,97 @@ pub async fn analyze_future_ingestion(
             return acc;
         } else {
             let added = acc + phase.duration_range.end;
-
-            println!(
-                "Added {:?} into total duration (total duration is {:?})",
-                phase.duration_range.end,
-                acc
-            );
-            
             return added;
         }
     });
 
+    let mut ingestion_phases: IngestionPhases = IngestionPhases::new();
+
+    let route_of_administration_phases = route_of_administration.phases.clone();
+    let parsed_time = parse_date_string(&create_ingestion.ingested_at, Local::now(), Dialect::Us)
+        .unwrap_or_else(|_| Local::now());
+
+    // Start with onset phase, create ingestion phase and add it to ingestion phases
+    let onset_phase = route_of_administration_phases.get(&PhaseClassification::Onset).unwrap();
+
+    let onset_ingestion_phase = IngestionPhase {
+        phase_classification: PhaseClassification::Onset,
+        duration: onset_phase.duration_range.clone(),
+        start_time: parsed_time,
+        end_time: parsed_time + onset_phase.duration_range.end,
+    };
+
+
+
+    let comeup_phase = route_of_administration_phases.get(&PhaseClassification::Comeup).unwrap();
+
+    let comeup_ingestion_phase = IngestionPhase {
+        phase_classification: PhaseClassification::Comeup,
+        duration: comeup_phase.duration_range.clone(),
+        start_time: onset_ingestion_phase.end_time.clone(),
+        end_time: onset_ingestion_phase.end_time + comeup_phase.duration_range.end,
+    };
+
+    let peak_phase = route_of_administration_phases.get(&PhaseClassification::Peak).unwrap();
+
+    let peak_ingestion_phase = IngestionPhase {
+        phase_classification: PhaseClassification::Peak,
+        duration: peak_phase.duration_range.clone(),
+        start_time: comeup_ingestion_phase.end_time.clone(),
+        end_time: comeup_ingestion_phase.end_time + peak_phase.duration_range.end,
+    };
+
+    let offset_phase = route_of_administration_phases.get(&PhaseClassification::Offset).unwrap();
+
+    let offset_ingestion_phase = IngestionPhase {
+        phase_classification: PhaseClassification::Offset,
+        duration: offset_phase.duration_range.clone(),
+        start_time: peak_ingestion_phase.end_time.clone(),
+        end_time: peak_ingestion_phase.end_time + offset_phase.duration_range.end,
+    };
+
+    let afterglow_phase = route_of_administration_phases.get(&PhaseClassification::Afterglow).unwrap();
+
+    let afterglow_ingestion_phase = IngestionPhase {
+        phase_classification: PhaseClassification::Afterglow,
+        duration: afterglow_phase.duration_range.clone(),
+        start_time: offset_ingestion_phase.end_time.clone(),
+        end_time: offset_ingestion_phase.end_time + afterglow_phase.duration_range.end,
+    };
+
+    ingestion_phases.insert(PhaseClassification::Onset, onset_ingestion_phase);
+    ingestion_phases.insert(PhaseClassification::Comeup, comeup_ingestion_phase);
+    ingestion_phases.insert(PhaseClassification::Peak, peak_ingestion_phase);
+    ingestion_phases.insert(PhaseClassification::Offset, offset_ingestion_phase);
+    ingestion_phases.insert(PhaseClassification::Afterglow, afterglow_ingestion_phase);
+
     let ingestion_analysis = IngestionAnalysis {
         substance_name: substance.name.clone(),
+        dosage: ingestion_mass.clone(),
         route_of_administration_classification: route_of_administration.classification,
         dosage_classification,
-        phases: Default::default(),
+        phases:ingestion_phases,
         total_duration,
     };
 
-    info!("{:?}", ingestion_analysis);
+    pretty_print_ingestion_analysis(&ingestion_analysis);
 
     Ok(ingestion_analysis)
 }
+
+pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
+    println!("Ingestion Analysis for {:?}", ingestion_analysis.substance_name);
+    println!("Route of Administration: {:?}", ingestion_analysis.route_of_administration_classification);
+    println!("Dosage: {:?}", ingestion_analysis.dosage);
+    println!("Dosage Classification: {:?}", ingestion_analysis.dosage_classification);
+    println!("Total Duration: {:?}", HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap()).to_string());
+    println!("Phases:");
+    for (phase_classification, phase) in ingestion_analysis.phases.iter() {
+        println!("* {:?}: {:?}", phase_classification, HumanTime::from(phase.start_time).to_string());
+    }
+}
+
+
 
 #[cfg(test)]
 mod tests {
@@ -164,22 +235,6 @@ mod tests {
                         .any(|phase| phase.0.clone() == PhaseClassification::Onset),
                     "Onset phase should be present in ingestion phases"
                 );
-
-                // let expected_ingestion_phases = Vec::<IngestionPhase>::new();
-                //
-                // expected_ingestion_phases.push(IngestionPhase {
-                //     phase_classification: PhaseClassification::Onset,
-                //     duration: DurationRange {
-                //         start: Duration::minutes(5),
-                //         end: Duration::seconds(10),
-                //     },
-                //     humanized_duration: Range {},
-                //     start_time: Default::default(),
-                //     duration_range: (0..30).into(),
-                //     end_time: Default::default(),
-                // });
-                //
-                // // Adjust this as necessary
             }
             Err(e) => panic!("Test failed: {}", e),
         }

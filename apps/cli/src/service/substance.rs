@@ -124,7 +124,7 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
 
                 let serialized_lower_duration = p.lower_duration.clone().unwrap();
                 let serialized_upper_duration = p.upper_duration.clone().unwrap();
-                
+
                 let lower_duration =
                     iso8601_duration::Duration::from_str(&serialized_lower_duration)
                         .unwrap().to_std().unwrap();
@@ -182,8 +182,6 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
             .collect(),
         routes_of_administration,
     };
-
-    println!("Found substance: {:?}", ingernal_substance);
 
     Some(ingernal_substance)
 }

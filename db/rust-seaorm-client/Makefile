@@ -4,5 +4,5 @@ orm-push:
 orm-pull: orm-push
 	sea-orm-cli generate entity --database-url sqlite://db.sqlite --output-dir src --date-time-crate chrono --with-copy-enums --serde-skip-hidden-column --ignore-tables seaql_migrations,substance_route_of_administration_phase_effects --expanded-format -v
 
-build:
+build: orm-pull
 	cargo build

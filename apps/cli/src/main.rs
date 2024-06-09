@@ -12,5 +12,5 @@ mod orm;
 mod service;
 
 fn main() {
-    task::block_on(cli());
+    cli::bin::main()
 }
