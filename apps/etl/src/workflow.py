@@ -229,8 +229,12 @@ class PhaseRange:
         max_duration_input: Optional[float],
         duration_unit: str,
     ):
-        min_duration_parsed = durations_nlp.Duration("" + str(min_duraation_input) + duration_unit)
-        max_duration_parsed = durations_nlp.Duration("" + str(max_duration_input) + duration_unit)
+        min_duration_parsed = durations_nlp.Duration(
+            "" + str(min_duraation_input) + duration_unit
+        )
+        max_duration_parsed = durations_nlp.Duration(
+            "" + str(max_duration_input) + duration_unit
+        )
 
         min_duration = pendulum.Duration(seconds=min_duration_parsed.to_seconds())
         max_duration = pendulum.Duration(seconds=max_duration_parsed.to_seconds())
@@ -711,12 +715,21 @@ class CreateDatabase(FlowSpec):
                         phases,
                     )
 
-                    for phase_range in phases:
-                        create_phase_input = prisma_create_phase_input(
-                            phase_range, route_of_administration.id
-                        )
-                        created_phase = db.phase.create(create_phase_input)
-                        print("Created phase", created_phase)
+                for phase_range in phases:
+                    create_phase_input = PhaseCreateInput(
+                        routeOfAdministrationId=route_of_administration.id,
+                        lower_duration=serialize_pendulum_duration(
+                            phase_range.min_value
+                        ),
+                        upper_duration=serialize_pendulum_duration(
+                            phase_range.max_value
+                        ),
+                        classification=phase_range.classification,
+                        id=cuid(),
+                    )
+                    print("Creating phase...", create_phase_input)
+                    created_phase = db.phase.create(create_phase_input)
+                    print("Created phase", created_phase)
 
             except Exception as e:
                 print(
