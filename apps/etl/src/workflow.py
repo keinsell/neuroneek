@@ -261,9 +261,6 @@ class PhaseRange:
 def serialize_pendulum_duration(pendulum_duration: pendulum.Duration):
     dur_obj = pendulum_duration.as_timedelta()
     duration = duration_isoformat(dur_obj)
-    iso_duration = duration_isoformat(duration)
-    print("pendulum_duration", pendulum_duration, "iso_duration", iso_duration, "duration_isoformat", duration)
-
     return duration
 
 
@@ -708,13 +705,6 @@ class CreateDatabase(FlowSpec):
                         self.psychonautwiki_substances,
                     )
 
-                    print(
-                        "get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic"
-                    )
-                    print(
-                        phases,
-                    )
-
                 for phase_range in phases:
                     create_phase_input = PhaseCreateInput(
                         routeOfAdministrationId=route_of_administration.id,
@@ -730,7 +720,6 @@ class CreateDatabase(FlowSpec):
                     print("Creating phase...", create_phase_input)
                     created_phase = db.phase.create(create_phase_input)
                     print("Created phase", created_phase)
-
             except Exception as e:
                 print(
                     f"Failed to import phases for {route_of_administration.substanceName}: {e}"
