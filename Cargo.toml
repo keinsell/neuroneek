@@ -1,5 +1,8 @@
+cargo-features = ["edition2024"]
+
 [workspace]
 members = [
     "db/rust-seaorm-client",
     "apps/cli"
 ]
+resolver = "2"

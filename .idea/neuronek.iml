@@ -29,6 +29,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv/bin" />
       <excludeFolder url="file://$MODULE_DIR$/.venv/lib" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.10 (neuronek)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

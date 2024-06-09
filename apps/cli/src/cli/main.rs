@@ -8,9 +8,9 @@ use crate::cli::ingestion::delete_ingestion::delete_ingestion;
 use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::ingestion::IngestionCommand;
 use crate::cli::substance::list_substances::list_substances;
-use crate::ingestion::list_ingestion;
 use crate::orm;
 use crate::orm::migrate_database;
+use crate::service::ingestion::list_ingestion;
 
 #[derive(StructOpt, Debug)]
 #[structopt(
