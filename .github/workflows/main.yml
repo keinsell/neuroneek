@@ -62,8 +62,8 @@ jobs :
       -
         name : Build
         run  : pnpm run build
-  build:
-    name: Build
+  cli-build:
+    name: "[apps/cli] Build"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
@@ -78,7 +78,7 @@ jobs :
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: Binary
+          name: "neuronek-cli-${{ steps.compile.outputs.BUILT_ARCHIVE }}"
           path: |
             ${{ steps.compile.outputs.BUILT_ARCHIVE }}
             ${{ steps.compile.outputs.BUILT_CHECKSUM }}
