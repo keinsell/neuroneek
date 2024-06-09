@@ -7,10 +7,10 @@ use crate::core::route_of_administration::{
 pub type RoutesOfAdministration =
     HashMap<RouteOfAdministrationClassification, Option<RouteOfAdministration>>;
 
-#[derive()]
+#[derive(Debug)]
 pub struct Substance {
-    id: String,
-    name: String,
-    common_names: Vec<String>,
-    routes_of_administration: RoutesOfAdministration,
+    pub id: String,
+    pub name: String,
+    pub common_names: Vec<String>,
+    pub routes_of_administration: RoutesOfAdministration,
 }

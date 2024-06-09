@@ -1,8 +1,10 @@
+use std::ops::Range;
 use std::str::FromStr;
 
+use chrono::TimeDelta;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum PhaseClassification {
     Onset,
@@ -37,4 +39,14 @@ impl FromStr for PhaseClassification {
             _ => Err(()),
         }
     }
+}
+
+pub type PhaseDuration = Range<TimeDelta>;
+
+#[derive(Debug)]
+pub struct RouteOfAdministrationPhase {
+    pub id: String,
+    pub route_of_administration_id: String,
+    pub phase_classification: PhaseClassification,
+    pub duration_range: PhaseDuration,
 }

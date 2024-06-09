@@ -7,9 +7,9 @@ use strsim::normalized_levenshtein;
 use crate::core::route_of_administration_dosage::{
     DosageClassification, RouteOfAdministrationDosage,
 };
-use crate::core::route_of_administration_phase::PhaseClassification;
+use crate::core::route_of_administration_phase::{PhaseClassification, RouteOfAdministrationPhase};
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum RouteOfAdministrationClassification {
     Buccal,
@@ -90,13 +90,13 @@ fn should_match_insufflated_input_with_insufflated_enum() {
 }
 
 pub type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
-pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, PhaseClassification>;
+pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, RouteOfAdministrationPhase>;
 
-#[derive()]
+#[derive(Debug)]
 pub struct RouteOfAdministration {
-    id: String,
-    substance_name: String,
-    classification: RouteOfAdministrationClassification,
-    dosages: RouteOfAdministrationDosages,
-    phases: RouteOfAdministrationPhases,
+    pub id: String,
+    pub substance_name: String,
+    pub classification: RouteOfAdministrationClassification,
+    pub dosages: RouteOfAdministrationDosages,
+    pub phases: RouteOfAdministrationPhases,
 }

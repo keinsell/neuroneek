@@ -9,35 +9,22 @@ use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use tabled::{Table, Tabled};
-use uom::si::f64::Mass;
-use uom::si::mass::{gram, milligram};
+use uom::num::ToPrimitive;
+use uom::si::mass::milligram;
 
+use crate::core::mass::deserialize_mass_unit;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::ingestion_analyzer::analyze_future_ingestion;
 use crate::service::substance::search_substance;
-
-fn parse_mass(mass_str: &str) -> Result<Mass, &'static str> {
-    let parts: Vec<&str> = mass_str.splitn(2, ' ').collect();
-    if parts.len() != 2 {
-        return Err("Invalid format");
-    }
-
-    let value: f64 = parts[0].parse().map_err(|_| "Invalid number")?;
-    let unit = parts[1];
-
-    match unit {
-        "g" => Ok(Mass::new::<gram>(value)),
-        "mg" => Ok(Mass::new::<milligram>(value)),
-        _ => Err("Unknown unit"),
-    }
-}
 
 pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateIngestion) {
     // Parse the date from relative to the current time
     let parsed_time = parse_date_string(&create_ingestion.ingested_at, Utc::now(), Dialect::Us)
         .unwrap_or_else(|_| Utc::now());
 
-    let parsed_mass = parse_mass(&create_ingestion.dosage).unwrap();
+    let parsed_mass = deserialize_mass_unit(&create_ingestion.dosage).unwrap();
+
+    println!("{:?}", parsed_mass);
 
     let substance = match search_substance(db, &create_ingestion.substance_name).await {
         Some(substance) => substance,
@@ -46,9 +33,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         }
     };
 
-    analyze_future_ingestion(&create_ingestion)
-        .await
-        .expect("TODO: panic message");
+    analyze_future_ingestion(&create_ingestion).await;
 
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::default(),
@@ -56,8 +41,10 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         administration_route: ActiveValue::Set(Option::from(
             to_string(&create_ingestion.route_of_administration).unwrap(),
         )),
-        dosage_unit: ActiveValue::Set(Option::from(parsed_mass.get::<milligram>().to_string())),
-        dosage_amount: ActiveValue::Set(Option::from(parsed_mass.value)),
+        dosage_unit: ActiveValue::Set(Option::from("mg".to_owned())),
+        dosage_amount: ActiveValue::Set(Option::from(
+            parsed_mass.get::<milligram>().to_f32().unwrap() as f64,
+        )),
         ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_local())),
         subject_id: ActiveValue::Set(Option::from(String::from("unknown"))),
         stash_id: ActiveValue::NotSet,

@@ -45,7 +45,9 @@ pub async fn handle_create_ingestion(
     };
 
     if create_ingestion_command.plan {
-        analyze_future_ingestion(&create_ingestion_payload).await;
+        analyze_future_ingestion(&create_ingestion_payload)
+            .await
+            .unwrap();
         return;
     }
 

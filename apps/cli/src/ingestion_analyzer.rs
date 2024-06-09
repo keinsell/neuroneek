@@ -8,6 +8,7 @@ use std::str::FromStr;
 
 use chrono::TimeDelta;
 use chrono_humanize::HumanTime;
+use log::info;
 use sea_orm::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -17,7 +18,7 @@ use crate::core::route_of_administration_dosage::DosageClassification;
 use crate::core::route_of_administration_phase::PhaseClassification;
 use crate::ingestion::CreateIngestion;
 use crate::orm::DB_CONNECTION;
-use crate::service::substance::search_substance;
+use crate::service::substance::{get_substance_by_name, search_substance};
 
 // https://docs.rs/indicatif/latest/indicatif/
 
@@ -46,6 +47,10 @@ pub async fn analyze_future_ingestion(
     let connection = &DB_CONNECTION;
 
     let substance = search_substance(connection, &create_ingestion.substance_name)
+        .await
+        .ok_or("Analysis failed: Substance not found")?;
+
+    get_substance_by_name(&substance.name)
         .await
         .ok_or("Analysis failed: Substance not found")?;
 
@@ -87,40 +92,9 @@ pub async fn analyze_future_ingestion(
                 }
             })?;
 
-    let ingestion_mass = Mass::from_str(&create_ingestion.dosage)
-        .map_err(|_| "Analysis failed: Invalid dosage format")?;
+    info!("{:?}", route_of_administration_dosages);
 
     // Search for the closest dosage to match classification
-
-    let matching_dosage_range_by_ingestion = route_of_administration_dosages
-        .into_iter()
-        .find(|d| {
-            let min_mass = Mass::from_str(&(d.amount_min.to_string() + " mg"))
-                .map_err(|_| "Analysis failed: Invalid dosage format")
-                .unwrap();
-            let max_mass = Mass::from_str(&(d.amount_max.to_string() + " mg"))
-                .map_err(|_| "Analysis failed: Invalid dosage format")
-                .unwrap();
-
-            match DosageClassification::from_str(&d.intensivity)
-                .map_err(|_| "Analysis failed: Invalid dosage classification")
-                .unwrap()
-            {
-                DosageClassification::Threshold => ingestion_mass <= max_mass,
-                DosageClassification::Heavy => ingestion_mass >= min_mass,
-                _ => ingestion_mass >= min_mass && ingestion_mass <= max_mass,
-            }
-        })
-        .ok_or("Analysis failed: Dosage not found")?;
-
-    let dosage_analysis = DosageAnalysis {
-        dosage_classification: DosageClassification::from_str(
-            &matching_dosage_range_by_ingestion.intensivity,
-        )
-        .unwrap_or(DosageClassification::Unknown),
-    };
-
-    ingestion_analysis.dosage_analysis = Some(dosage_analysis);
 
     // Calculate ingestion plan based on phase information
 

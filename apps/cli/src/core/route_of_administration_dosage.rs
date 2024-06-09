@@ -1,8 +1,11 @@
+use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+use crate::core::mass::Mass;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum DosageClassification {
     Threshold,
@@ -45,10 +48,16 @@ impl From<DosageClassification> for String {
 }
 
 #[derive(Debug, Serialize)]
+pub enum DosageRange {
+    From(RangeFrom<Mass>),
+    To(RangeTo<Mass>),
+    Inclusive(Range<Mass>),
+}
+
+#[derive(Debug, Serialize)]
 pub struct RouteOfAdministrationDosage {
-    pub id: i32,
-    pub route_of_administration_id: i32,
-    pub intensity: DosageClassification,
-    // From Mass Amount
-    // To Mass Amount
+    pub id: String,
+    pub route_of_administration_id: String,
+    pub dosage_classification: DosageClassification,
+    pub dosage_range: DosageRange,
 }
