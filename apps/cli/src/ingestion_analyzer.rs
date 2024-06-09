@@ -77,28 +77,28 @@ pub async fn analyze_future_ingestion(
 
     let phases = get_phases_by_route_of_administration(&route_of_administration);
 
-    let total_duration = phases.iter().fold(TimeDelta::seconds(0), |acc, phase| {
+    let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
         if phase.phase_classification == PhaseClassification::Afterglow {
             return acc;
         } else {
-            println!(
-                "Adding {:?} into total duration (total duration is {:?})",
-                phase.duration_range.end.to_string(),
-                acc.to_string()
-            );
+            let added = acc + phase.duration_range.end;
 
-            acc + phase.duration_range.end
+            println!(
+                "Added {:?} into total duration (total duration is {:?})",
+                phase.duration_range.end,
+                acc
+            );
+            
+            return added;
         }
     });
-
-    println!("{:?}", HumanTime::from(total_duration).to_string());
 
     let ingestion_analysis = IngestionAnalysis {
         substance_name: substance.name.clone(),
         route_of_administration_classification: route_of_administration.classification,
         dosage_classification,
         phases: Default::default(),
-        total_duration: total_duration.to_std().unwrap(),
+        total_duration,
     };
 
     info!("{:?}", ingestion_analysis);

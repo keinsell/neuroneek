@@ -6,9 +6,8 @@ use std::str::FromStr;
 
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
-use log::{debug, info};
+use log::{debug};
 use sea_orm::*;
-use serde_json::to_string;
 
 use crate::core::mass::Mass;
 use crate::core::phase::{DurationRange, Phase, PhaseClassification};
@@ -128,19 +127,11 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                 
                 let lower_duration =
                     iso8601_duration::Duration::from_str(&serialized_lower_duration)
-                        .unwrap()
-                        .to_chrono()
-                        .unwrap();
+                        .unwrap().to_std().unwrap();
 
                 let upper_duration =
                     iso8601_duration::Duration::from_str(&serialized_upper_duration)
-                        .unwrap()
-                        .to_chrono()
-                        .unwrap();
-
-                println!("Substance: {}, Route of Administration: {}, Phase: {:?}", substance.name, route_of_administration.name, phase_classification);
-                println!("Lower duration: {:?} parsed from {}", lower_duration, serialized_lower_duration);
-                println!("Upper duration: {:?} parsed from {}", upper_duration, serialized_upper_duration);
+                        .unwrap().to_std().unwrap();
 
                 let phase_duration = DurationRange {
                     start: lower_duration,
@@ -192,7 +183,7 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
         routes_of_administration,
     };
 
-    debug!("Found substance: {:?}", ingernal_substance);
+    println!("Found substance: {:?}", ingernal_substance);
 
     Some(ingernal_substance)
 }
