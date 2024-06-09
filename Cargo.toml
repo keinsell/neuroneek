@@ -5,4 +5,4 @@ members = [
     "db/rust-seaorm-client",
     "apps/cli"
 ]
-workspace.resolver = "3"
+resolver = "2"
