@@ -15,7 +15,7 @@ use crate::core::route_of_administration::{
     RouteOfAdministration, RouteOfAdministrationClassification, RouteOfAdministrationDosages,
     RouteOfAdministrationPhases,
 };
-use crate::core::route_of_administration_dosage::{
+use crate::core::dosage::{
     DosageClassification, DosageRange, RouteOfAdministrationDosage,
 };
 use crate::core::substance::{RoutesOfAdministration, Substance};
@@ -58,14 +58,14 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                                 format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit).as_str(),
                             )
                             .unwrap();
-                            DosageRange::To(RangeTo { end: max_mass })
+                            DosageRange::Threshold(RangeTo { end: max_mass })
                         }
                         DosageClassification::Heavy => {
                             let min_mass = Mass::from_str(
                                 format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit).as_str(),
                             )
                             .unwrap();
-                            DosageRange::From(RangeFrom { start: min_mass })
+                            DosageRange::Heavy(RangeFrom { start: min_mass })
                         }
                         _ => {
                             let min_mass = Mass::from_str(

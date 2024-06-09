@@ -42,6 +42,8 @@ human-panic = "2.0.0"
 clap_complete = "4.4.10"
 dateless = "0.3.1"
 iso8601-duration = { version = "0.2.0",features = ["serde", "chrono"] }
+measurements = { version = "0.11.0",features = ["serde", "std", "from_str"] }
+termimad = "0.29.2"
 
 [features]
 default = []

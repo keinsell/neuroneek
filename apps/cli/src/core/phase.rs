@@ -1,9 +1,11 @@
+use std::fmt::Display;
 use std::ops::Range;
 use std::str::FromStr;
 use std::time::Duration;
 use serde::{Deserialize, Serialize};
+use tabled::Tabled;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash, PartialOrd, Ord, Copy)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash, PartialOrd, Ord, Copy, Tabled)]
 #[serde(rename_all = "snake_case")]
 pub enum PhaseClassification {
     Onset,
@@ -42,7 +44,7 @@ impl FromStr for PhaseClassification {
 
 pub type DurationRange = Range<Duration>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub struct Phase {
     pub id: String,
     pub route_of_administration_id: String,

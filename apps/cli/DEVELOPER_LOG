@@ -18,6 +18,8 @@ Phases:
 * Afterglow: "in 4 hours"
 ----------------------------------------
 
+
+
 [2024-06-05]
 
 Come down to conclusion that scrapper of API information seems to be completely useless in CLI application, data may be delivered through SQL migration that will out of the box perform updates of stale data - I just wonder if there's a some solution for like incremental dumping of database, I really want avoid case where something will be related to substance_id then substance_id got changed or substance itself will get removed and then we'll lose ingestion information.

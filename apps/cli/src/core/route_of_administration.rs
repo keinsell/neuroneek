@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+use sea_orm::DeriveDisplay;
 
 use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
-
-use crate::core::mass::Mass;
 use crate::core::phase::{Phase, PhaseClassification};
-use crate::core::route_of_administration_dosage::{
-    DosageClassification, RouteOfAdministrationDosage,
-};
+use crate::core::dosage::{Dosage, DosageClassification, RouteOfAdministrationDosage};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -103,14 +100,14 @@ pub struct RouteOfAdministration {
 }
 
 pub fn get_dosage_classification_by_mass_and_route_of_administration(
-    mass: &Mass,
+    mass: &Dosage,
     route_of_administration: &RouteOfAdministration,
 ) -> Result<DosageClassification, &'static str> {
     for (classification, dosage) in route_of_administration.dosages.iter() {
-        if dosage.dosage_range.contains(mass) {
+        let contains = dosage.dosage_range.contains(mass.clone());
+        if contains {
             return Ok(*classification);
         }
     }
-
     Err("No classification found for the given mass and route of administration")
 }

@@ -62,7 +62,7 @@ pub async fn cli() {
     stderrlog::new()
         // .module(module_path!())
         .show_level(true)
-        .verbosity(2)
+        .verbosity(0)
         .show_module_names(true)
         .init()
         .unwrap();

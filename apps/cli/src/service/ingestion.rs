@@ -9,10 +9,8 @@ use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use tabled::{Table, Tabled};
-use uom::num::ToPrimitive;
-use uom::si::mass::milligram;
 
-use crate::core::mass::deserialize_mass_unit;
+use crate::core::mass::deserialize_dosage;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::ingestion_analyzer::analyze_future_ingestion;
 use crate::service::substance::search_substance;
@@ -22,9 +20,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
     let parsed_time = parse_date_string(&create_ingestion.ingested_at, Utc::now(), Dialect::Us)
         .unwrap_or_else(|_| Utc::now());
 
-    let parsed_mass = deserialize_mass_unit(&create_ingestion.dosage).unwrap();
-
-    println!("{:?}", parsed_mass);
+    let parsed_mass = deserialize_dosage(&create_ingestion.dosage).unwrap();
 
     let substance = match search_substance(db, &create_ingestion.substance_name).await {
         Some(substance) => substance,
@@ -41,9 +37,9 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         administration_route: ActiveValue::Set(Option::from(
             to_string(&create_ingestion.route_of_administration).unwrap(),
         )),
-        dosage_unit: ActiveValue::Set(Option::from("mg".to_owned())),
+        dosage_unit: ActiveValue::Set(Option::from("kg".to_owned())),
         dosage_amount: ActiveValue::Set(Option::from(
-            parsed_mass.get::<milligram>().to_f32().unwrap() as f64,
+            parsed_mass.as_kilograms()
         )),
         ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_local())),
         subject_id: ActiveValue::Set(Option::from(String::from("unknown"))),
@@ -103,6 +99,15 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
     println!("{}", string_table);
 }
 
+/// This function will return a single ingestion (internal application model) by its ID or will throw and 
+/// error if the ingestion is not found or could not be constructed. This is intended to be used for
+/// all the internal analysis and processing of ingestion data. Ingestions should be most likely serializable
+/// and deserializable as this function will be expensive in time and resources it can be memoized to some
+/// local cache.
+pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
+    todo!()
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CreateIngestion {
     pub substance_name: String,
@@ -123,3 +128,4 @@ pub struct ViewModel {
     pub(crate) ingested_at: String,
     pub(crate) route_of_administration: String,
 }
+

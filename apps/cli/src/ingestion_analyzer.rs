@@ -2,29 +2,29 @@
 // and try to extract and provide as much information as it's
 // possible. This is a very important part of the application
 
-use std::fmt::Debug;
-use std::ops::Deref;
+use std::fmt::{Debug, Display};
 use std::time::Duration;
 
-use chrono::{Local};
+use chrono::{Local, TimeZone};
 use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
 use log::{debug, error};
+use measurements::Measurement;
 use serde::{Deserialize, Serialize};
-
+use termimad::MadSkin;
 use crate::core::ingestion::{IngestionPhase, IngestionPhases};
-use crate::core::mass::{deserialize_mass_unit, Mass};
+use crate::core::mass::{deserialize_dosage, Mass};
 use crate::core::phase::PhaseClassification;
 use crate::core::route_of_administration::{
     get_dosage_classification_by_mass_and_route_of_administration,
     RouteOfAdministrationClassification,
 };
-use crate::core::route_of_administration_dosage::DosageClassification;
+use crate::core::dosage::{Dosage, DosageClassification};
 use crate::core::substance::{
     get_phases_by_route_of_administration,
     get_route_of_administration_by_classification_and_substance,
 };
-use crate::ingestion::CreateIngestion;
+use crate::service::ingestion::CreateIngestion;
 use crate::service::substance::get_substance_by_name;
 
 // https://docs.rs/indicatif/latest/indicatif/
@@ -63,7 +63,7 @@ pub async fn analyze_future_ingestion(
     });
 
     // Parse mass from input
-    let ingestion_mass = deserialize_mass_unit(&create_ingestion.dosage).unwrap_or_else(|_| {
+    let ingestion_mass = deserialize_dosage(&create_ingestion.dosage).unwrap_or_else(|_| {
         error!("Analysis failed: Invalid mass");
         panic!("Analysis failed: Invalid mass unit");
     });
@@ -74,7 +74,7 @@ pub async fn analyze_future_ingestion(
     )
     .unwrap_or_else(|_| {
         error!("Analysis failed: Dosage classification not found");
-        panic!("Analysis failed: Dosage classification not found");
+        return DosageClassification::Unknown;
     });
 
     // Calculate ingestion plan based on phase information
@@ -82,11 +82,11 @@ pub async fn analyze_future_ingestion(
     let phases = get_phases_by_route_of_administration(&route_of_administration);
 
     let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
-        if phase.phase_classification == PhaseClassification::Afterglow {
-            return acc;
+        return if phase.phase_classification == PhaseClassification::Afterglow {
+            acc
         } else {
             let added = acc + phase.duration_range.end;
-            return added;
+            added
         }
     });
 
@@ -134,28 +134,58 @@ pub async fn analyze_future_ingestion(
 }
 
 pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
-    println!("{}", "-".repeat(40));
-    println!("Ingestion Analysis for {:?}", ingestion_analysis.substance_name);
-    println!("Route of Administration: {:?}", ingestion_analysis.route_of_administration_classification);
-    println!("Dosage: {:?}", ingestion_analysis.dosage);
-    println!("Dosage Classification: {:?}", ingestion_analysis.dosage_classification);
-    println!("Total Duration: {:?}", HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap()).to_string());
-    println!("Phases:");
-    // Convert HashMap to Vec
+    let mut markdown = String::new();
+    markdown.push_str(&format!(
+        "{}", "-".repeat(40) + "\n"
+    ));
+    markdown.push_str(&format!(
+        "Ingestion Analysis for **{}**\n",
+        ingestion_analysis.substance_name
+    ));
+    markdown.push_str(&format!(
+        "Route of Administration: **{:?}**\n",
+        ingestion_analysis.route_of_administration_classification
+    ));
+    markdown.push_str(&format!(
+        "Dosage: **{0:.0}**\n",
+        ingestion_analysis.dosage
+    ));
+    markdown.push_str(&format!(
+        "Dosage Classification: **{:?}**\n",
+        ingestion_analysis.dosage_classification
+    ));
+    markdown.push_str(&format!(
+        "Total Duration: **{:?}**\n",
+        HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap()).to_string()
+    ));
+    markdown.push_str(&"Phases:\n".to_string());
+    
     let mut phases: Vec<(&PhaseClassification, &IngestionPhase)> = ingestion_analysis.phases.iter().collect();
-
-    // Sort Vec based on PhaseClassification
     phases.sort_by_key(|&(classification, _)| *classification);
-
-    // Iterate over sorted Vec
+    
     for (phase_classification, phase) in phases {
-        println!("* {:?}: {:?}", phase_classification, HumanTime::from(phase.start_time).to_string());
+        if phase.start_time < Local::now() {
+            markdown.push_str(&format!(
+                "   ▶ ~~{:?}: {:?}~~\n",
+                phase_classification,
+                HumanTime::from(phase.start_time).to_string()
+            ));
+        } else {
+            markdown.push_str(&format!(
+                "   ▶ **{:?}**: {:?}\n",
+                phase_classification,
+                HumanTime::from(phase.start_time).to_string()
+            ));
+        }
     }
 
-    println!("{}", "-".repeat(40));
+    markdown.push_str(&format!(
+        "{}", "-".repeat(40) + "\n"
+    ));
+
+    let skin = MadSkin::default();
+    println!("{}", skin.term_text(&markdown));
 }
-
-
 
 #[cfg(test)]
 mod tests {
@@ -163,9 +193,9 @@ mod tests {
 
     use crate::core::phase::PhaseClassification;
     use crate::core::route_of_administration::RouteOfAdministrationClassification;
-    use crate::core::route_of_administration_dosage::DosageClassification;
-    use crate::ingestion::CreateIngestion;
+    use crate::core::dosage::DosageClassification;
     use crate::ingestion_analyzer::analyze_future_ingestion;
+    use crate::service::ingestion::CreateIngestion;
 
     #[tokio::test]
     async fn test_analyze_future_ingestion() {
