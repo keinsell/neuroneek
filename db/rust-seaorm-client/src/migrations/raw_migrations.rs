@@ -1,8 +1,8 @@
-use rust_embed::{Embed};
-use sea_orm_migration::{prelude::*};
+use rust_embed::Embed;
+use sea_orm_migration::prelude::*;
 
 #[derive(Embed)]
-#[folder = "public/"]
+#[folder = "migrations/"]
 pub struct RawMigrations;
 
 pub async fn execute_migration_from_file(

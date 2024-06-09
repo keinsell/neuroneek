@@ -1,5 +1,5 @@
-use sea_orm_migration::{prelude::*};
-use crate::migrations::raw_migrations::{execute_migration_from_file};
+use crate::migrations::raw_migrations::execute_migration_from_file;
+use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
 pub struct Migration;

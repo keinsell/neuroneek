@@ -1,7 +1,7 @@
 use db::Migrator;
 use log::debug;
-use sea_orm::*;
 use sea_orm::DatabaseConnection;
+use sea_orm::*;
 use sea_orm_migration::*;
 use xdg::BaseDirectories;
 

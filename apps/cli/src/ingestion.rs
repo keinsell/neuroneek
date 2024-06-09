@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 
 use chrono::{DateTime, Local, Utc};
-use chrono_english::{Dialect, parse_date_string};
+use chrono_english::{parse_date_string, Dialect};
 use chrono_humanize::HumanTime;
 use db::ingestion::ActiveModel;
 use db::prelude::Ingestion;

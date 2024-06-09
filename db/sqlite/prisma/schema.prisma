@@ -1,6 +1,5 @@
 generator client_javascript {
   provider = "prisma-client-js"
-  output   = "./vendor/prisma-client"
 }
 
 generator client_python {

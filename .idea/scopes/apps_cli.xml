@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="apps/cli" pattern="file[neuronek]:db/rust-seaorm-client//*||file[neuronek]:apps/cli//*||file:cargo.toml" />
+</component>

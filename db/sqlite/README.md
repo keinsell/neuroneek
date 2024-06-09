@@ -24,10 +24,18 @@ atlas migrate diff \
   --dir "file://migrations" \
   --to "file://schema.lt.hcl" \
   --dev-url "sqlite://dev?mode=memory"
-atlas schema apply --to "file://schema.lt.hcl" --url "sqlite://../../db.sqlite"  --auto-approve 
+atlas schema apply \
+  --to "file://migrations" --url "sqlite://./../../db.sqlite" \
+  --dev-url "sqlite://dev?mode=memory" \
+  --auto-approve 
 prisma db pull
 ```
 
+## Creating a checkpoint without data on the latest schema
+
+```bash
+atlas migrate checkpoint --dev-url "sqlite://dev?mode=memory"
+```
 
 Publishing changes to database
 ```bash

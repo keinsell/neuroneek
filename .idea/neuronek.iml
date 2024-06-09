@@ -28,8 +28,15 @@
       <excludeFolder url="file://$MODULE_DIR$/libs/osiris/dist" />
       <excludeFolder url="file://$MODULE_DIR$/.venv/bin" />
       <excludeFolder url="file://$MODULE_DIR$/.venv/lib" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (neuronek)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
+  <component name="PyDocumentationSettings">
+    <option name="renderExternalDocumentation" value="true" />
   </component>
 </module>

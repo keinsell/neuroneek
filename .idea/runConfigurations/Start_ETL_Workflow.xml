@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Start ETL Workflow" type="PythonConfigurationType" factoryName="Python">
+    <output_file path="$PROJECT_DIR$/apps/etl/recent_workflow.log" is_save="true" />
     <module name="neuronek" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />

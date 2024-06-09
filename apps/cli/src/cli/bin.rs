@@ -2,6 +2,6 @@ use async_std::task;
 
 use crate::cli::main::cli;
 
-fn main() {
+pub fn main() {
     task::block_on(cli());
 }

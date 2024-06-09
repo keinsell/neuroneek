@@ -1,7 +1,6 @@
 use std::ops::Range;
 use std::str::FromStr;
-
-use chrono::TimeDelta;
+use std::time::Duration;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash)]
@@ -41,7 +40,7 @@ impl FromStr for PhaseClassification {
     }
 }
 
-pub type DurationRange = Range<TimeDelta>;
+pub type DurationRange = Range<Duration>;
 
 #[derive(Debug, Clone)]
 pub struct Phase {

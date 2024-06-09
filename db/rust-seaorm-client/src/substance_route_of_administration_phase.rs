@@ -15,8 +15,8 @@ impl EntityName for Entity {
 pub struct Model {
     pub id: String,
     pub classification: String,
-    pub min_duration: Option<i32>,
-    pub max_duration: Option<i32>,
+    pub lower_duration: Option<String>,
+    pub upper_duration: Option<String>,
     pub route_of_administration_id: Option<String>,
 }
 
@@ -24,8 +24,8 @@ pub struct Model {
 pub enum Column {
     Id,
     Classification,
-    MinDuration,
-    MaxDuration,
+    LowerDuration,
+    UpperDuration,
     #[sea_orm(column_name = "routeOfAdministrationId")]
     RouteOfAdministrationId,
 }
@@ -53,8 +53,8 @@ impl ColumnTrait for Column {
         match self {
             Self::Id => ColumnType::String(None).def(),
             Self::Classification => ColumnType::String(None).def(),
-            Self::MinDuration => ColumnType::Integer.def().null(),
-            Self::MaxDuration => ColumnType::Integer.def().null(),
+            Self::LowerDuration => ColumnType::String(None).def().null(),
+            Self::UpperDuration => ColumnType::String(None).def().null(),
             Self::RouteOfAdministrationId => ColumnType::String(None).def().null(),
         }
     }
