@@ -24,6 +24,7 @@ from neuronek import DosageIntensivity, DosageUnit
 
 import graphql_client
 import prisma
+import nids
 
 from graphql_client import (
     GraphQLClientGraphQLMultiError,
@@ -104,7 +105,7 @@ class PhaseClassification(str, Enum):
 
     @classmethod
     def __from_psychonautwiki_duration___(
-        self, input: Literal["onset", "comeup", "peak", "asddsad", "asddsa", "asd"]
+            self, input: Literal["onset", "comeup", "peak", "asddsad", "asddsa", "asd"]
     ) -> "PhaseClassification":
         match input:
             case "onset":
@@ -161,15 +162,9 @@ class DosageRange:
 
     @staticmethod
     def from_psychonautwiki_dosage(
-        dose: graphql_client.AllSubstancesSubstancesRoasDose,
-        intensivity: DosageIntensivity,
+            dose: graphql_client.AllSubstancesSubstancesRoasDose,
+            intensivity: DosageIntensivity,
     ):
-        # print(
-        #     "Constructing DosageRange.from_psychonautwiki_dosage with:",
-        #     dose,
-        #     intensivity,
-        # )
-
         def match_dosage_range(intensivity: DosageIntensivity):
             match intensivity:
                 case DosageIntensivity.threshold:
@@ -224,10 +219,10 @@ class PhaseRange:
 
     @staticmethod
     def from_psychonautwiki_duration(
-        classification: PhaseClassification,
-        min_duraation_input: Optional[float],
-        max_duration_input: Optional[float],
-        duration_unit: str,
+            classification: PhaseClassification,
+            min_duraation_input: Optional[float],
+            max_duration_input: Optional[float],
+            duration_unit: str,
     ):
         min_duration_parsed = durations_nlp.Duration(
             "" + str(min_duraation_input) + duration_unit
@@ -258,6 +253,7 @@ class PhaseRange:
             case _:
                 raise ValueError(f"Unknown classification: {classification}")
 
+
 def serialize_pendulum_duration(pendulum_duration: pendulum.Duration):
     dur_obj = pendulum_duration.as_timedelta()
     duration = duration_isoformat(dur_obj)
@@ -265,8 +261,8 @@ def serialize_pendulum_duration(pendulum_duration: pendulum.Duration):
 
 
 def create_dosage_input(
-    dosage_range: DosageRange,
-    route_of_administration: prisma.models.RouteOfAdministration,
+        dosage_range: DosageRange,
+        route_of_administration: prisma.models.RouteOfAdministration,
 ) -> Optional[DosageCreateInput]:
     try:
         create_dosage = DosageCreateInput(
@@ -275,7 +271,7 @@ def create_dosage_input(
             lower_bound_amount=dosage_range.min_value,
             upper_bound_amount=dosage_range.max_value,
             unit=dosage_range.unit,
-            id=cuid()
+            id=nids.generate_route_of_administration_dosage_id(route_of_administration.id,  dosage_range.classification)
         )
         print("Constructed DosageCreateInput", create_dosage)
         return create_dosage
@@ -285,8 +281,9 @@ def create_dosage_input(
 
 
 def create_route_of_administration_input(
-    psychonautwiki_roa: graphql_client.AllSubstancesSubstancesRoas,
-    substance: prisma.models.Substance,
+        psychonautwiki_roa: graphql_client.AllSubstancesSubstancesRoas,
+        substance: prisma.models.Substance,
+        substance_id: str
 ) -> Optional[RouteOfAdministrationCreateInput]:
     if not psychonautwiki_roa or not psychonautwiki_roa.name:
         return None
@@ -297,6 +294,7 @@ def create_route_of_administration_input(
         )
 
         return RouteOfAdministrationCreateInput(
+            id=nids.generate_route_of_administration_id(substance_id, classification),
             classification=classification,
             substanceName=substance.name,
         )
@@ -352,7 +350,7 @@ async def fetch_psychaonutwiki() -> list[AllSubstancesSubstances]:
 
 
 async def create_substance_input(
-    substance: AllSubstancesSubstances,
+        substance: AllSubstancesSubstances,
 ) -> Optional[SubstanceCreateInput]:
     chemical_class = (
         ",".join(substance.class_.chemical)
@@ -382,6 +380,7 @@ async def create_substance_input(
         return None
 
     return SubstanceCreateInput(
+        id=nids.generate_substance_id(pubchem.iupac_name),
         name=substance.name,
         psychoactive_class=psychoactive_class,
         chemical_class=chemical_class,
@@ -396,7 +395,7 @@ async def create_substance_input(
 
 
 def get_psychonautwiki_substance_by_name_or_panic(
-    name: str, psychonautwiki_substances: list[AllSubstancesSubstances]
+        name: str, psychonautwiki_substances: list[AllSubstancesSubstances]
 ) -> AllSubstancesSubstances:
     maybe_substance = next(
         (
@@ -415,7 +414,7 @@ def get_psychonautwiki_substance_by_name_or_panic(
 
 
 def get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
-    name: str, psychonautwiki_substances: list[AllSubstancesSubstances]
+        name: str, psychonautwiki_substances: list[AllSubstancesSubstances]
 ) -> list[graphql_client.AllSubstancesSubstancesRoas]:
     maybe_substance = next(
         (
@@ -435,8 +434,8 @@ def get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
 
 
 def get_psychonautwiki_route_of_administration_by_classification_from_singular_substance_or_panic(
-    classification: RouteOfAdministrationClassification,
-    substance: AllSubstancesSubstances,
+        classification: RouteOfAdministrationClassification,
+        substance: AllSubstancesSubstances,
 ) -> graphql_client.AllSubstancesSubstancesRoas:
     if not substance or not substance.roas:
         print(f"Substance {substance.name} not found in PsychonautWiki dataset")
@@ -447,7 +446,7 @@ def get_psychonautwiki_route_of_administration_by_classification_from_singular_s
     roas_without_nulls = list(filter(None, substance.roas))
 
     for roa in roas_without_nulls:
-        if RouteOfAdministrationClassification(roa.name) == classification:
+        if roa.name == classification:
             return roa
 
     raise Exception(
@@ -456,17 +455,17 @@ def get_psychonautwiki_route_of_administration_by_classification_from_singular_s
 
 
 def create_phase_ranges_from_psychonautwiki_duration(
-    roa_duration: graphql_client.AllSubstancesSubstancesRoasDuration,
+        roa_duration: graphql_client.AllSubstancesSubstancesRoasDuration,
 ) -> list[PhaseRange]:
     phase_ranges = []
     for phase in PhaseClassification:
         phase_duration = getattr(roa_duration, phase, None)
 
         if (
-            (not phase_duration)
-            or (phase_duration.min is None)
-            or (phase_duration.max is None)
-            or (phase_duration.units is None)
+                (not phase_duration)
+                or (phase_duration.min is None)
+                or (phase_duration.max is None)
+                or (phase_duration.units is None)
         ):
             continue
 
@@ -483,8 +482,8 @@ def create_phase_ranges_from_psychonautwiki_duration(
 
 
 def prisma_create_phase_input(
-    phase_range: PhaseRange,
-    route_of_administration_id: str,
+        phase_range: PhaseRange,
+        route_of_administration_id: str,
 ) -> PhaseCreateInput:
     return PhaseCreateInput(
         routeOfAdministrationId=route_of_administration_id,
@@ -496,9 +495,9 @@ def prisma_create_phase_input(
 
 
 def get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic(
-    name: str,
-    classification: RouteOfAdministrationClassification,
-    psychonautwiki_substances: list[AllSubstancesSubstances],
+        name: str,
+        classification: RouteOfAdministrationClassification,
+        psychonautwiki_substances: list[AllSubstancesSubstances],
 ) -> list[PhaseRange]:
     substance = get_psychonautwiki_substance_by_name_or_panic(
         name, psychonautwiki_substances
@@ -601,7 +600,7 @@ class CreateDatabase(FlowSpec):
 
                 for roa in psychonautwiki_roa:
                     create_route_of_administration_payload = (
-                        create_route_of_administration_input(roa, substance)
+                        create_route_of_administration_input(roa, substance, substance.id)
                     )
 
                     if not create_route_of_administration_payload:
@@ -626,6 +625,7 @@ class CreateDatabase(FlowSpec):
     def create_dosage(self):
         db = prisma.Prisma()
         db.connect()
+
         routes_of_administration = db.routeofadministration.find_many()
 
         for route_of_administration in routes_of_administration:
@@ -661,7 +661,7 @@ class CreateDatabase(FlowSpec):
                         psychonautwiki_dosages, intensity
                     )
                     create_dosage_input_payload = create_dosage_input(
-                        dosage_range, route_of_administration
+                        dosage_range, route_of_administration,
                     )
 
                     db.dosage.create(create_dosage_input_payload)
@@ -687,44 +687,42 @@ class CreateDatabase(FlowSpec):
 
         for route_of_administration in routes_of_administration:
             try:
-                routes_of_administration_from_psychonautwiki = get_psychnautwiki_route_of_administration_by_substance_name_or_panic(
-                    route_of_administration.substanceName,
-                    self.psychonautwiki_substances,
-                )
+                # Get the substance from the database
+                substance = db.substance.find_unique(where={"name": route_of_administration.substanceName})
 
-                for (
-                    route_of_administration_from_psychonautwiki
-                ) in routes_of_administration_from_psychonautwiki:
-                    print(route_of_administration_from_psychonautwiki)
+                # Get the corresponding substance from the PsychonautWiki dataset using the systematic name
+                psychonautwiki_substance = next(
+                    (s for s in self.psychonautwiki_substances if s.name.lower() == substance.name.lower()), None)
 
-                    phases = get_psychonautwiki_duration_by_substance_name_and_roa_classification_or_panic(
-                        route_of_administration.substanceName,
-                        RouteOfAdministrationClassification(
-                            route_of_administration_from_psychonautwiki.name
-                        ),
-                        self.psychonautwiki_substances,
-                    )
+                if not psychonautwiki_substance:
+                    print(f"Substance {substance.systematic_name} not found in PsychonautWiki dataset")
+                    continue
+
+                # Get the route of administration from the PsychonautWiki substance
+                psychonautwiki_roa = next((r for r in psychonautwiki_substance.roas if
+                                           r.name.lower() == route_of_administration.classification), None)
+
+                if not psychonautwiki_roa or not psychonautwiki_roa.duration:
+                    print(f"No route of administration found for {substance.systematic_name}")
+                    continue
+
+                # Create phase ranges from the PsychonautWiki duration
+                phases = create_phase_ranges_from_psychonautwiki_duration(psychonautwiki_roa.duration)
 
                 for phase_range in phases:
                     create_phase_input = PhaseCreateInput(
                         routeOfAdministrationId=route_of_administration.id,
-                        lower_duration=serialize_pendulum_duration(
-                            phase_range.min_value
-                        ),
-                        upper_duration=serialize_pendulum_duration(
-                            phase_range.max_value
-                        ),
+                        lower_duration=serialize_pendulum_duration(phase_range.min_value),
+                        upper_duration=serialize_pendulum_duration(phase_range.max_value),
                         classification=phase_range.classification,
-                        id=cuid(),
+                        id=nids.generate_route_of_administration_phase_id(route_of_administration.id,
+                                                                          phase_range.classification),
                     )
                     print("Creating phase...", create_phase_input)
                     created_phase = db.phase.create(create_phase_input)
                     print("Created phase", created_phase)
             except Exception as e:
-                print(
-                    f"Failed to import phases for {route_of_administration.substanceName}: {e}"
-                )
-                continue
+                print(f"Failed to import phases for {route_of_administration.substanceName}: {e}")
 
         self.next(self.load_effects)
 

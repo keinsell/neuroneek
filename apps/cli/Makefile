@@ -35,7 +35,8 @@ build-linux: _install-target-linux
 	# Add README to the binary
 	cp README.md dist/linux/README
 
-install: install_bin_linux
+install:
+	cargo install --path .
 
 install_bin_linux:
 	cp dist/linux/neuronek /usr/local/bin/neuronek
@@ -67,3 +68,6 @@ orm-pull:
 #	sea-orm-cli migrate up --database-url sqlite://db.sqlite -d src/migrator
 #orm_migrate_down:
 #	sea-orm-cli migrate down --database-url sqlite://db.sqlite -d src/migrator
+
+clean_production_database:
+	rm ~/.local/share/xyz.neuronek.cli/db.sqlite
