@@ -5,8 +5,8 @@ use structopt::StructOpt;
 
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
-use crate::cli::ingestion::IngestionCommand;
 use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
+use crate::cli::ingestion::IngestionCommand;
 use crate::cli::substance::list_substances::list_substances;
 use crate::ingestion::list_ingestion;
 use crate::orm;
@@ -77,8 +77,6 @@ pub async fn cli() {
 
     CommandLineInterface::clap().gen_completions(env!("CARGO_PKG_NAME"), Shell::Bash, "target");
 
-    let cli = CommandLineInterface::from_args();
-
     #[cfg(feature = "dev")]
     {
         use crate::orm::refresh_database_as_developer;
@@ -86,6 +84,8 @@ pub async fn cli() {
     }
 
     migrate_database(&db).await;
+
+    let cli = CommandLineInterface::from_args();
 
     match cli.command {
         Commands::Ingestion(ingestion) => match ingestion {

@@ -23,6 +23,8 @@ dependencies = [
     "quantities>=0.15.0",
     "cuid>=0.4",
     "isodate>=0.6.1",
+    "durations>=0.3.3",
+    "durations-nlp>=1.0.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"

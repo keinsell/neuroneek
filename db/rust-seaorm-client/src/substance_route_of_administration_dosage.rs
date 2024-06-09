@@ -14,23 +14,20 @@ impl EntityName for Entity {
 #[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel)]
 pub struct Model {
     pub id: String,
-    pub intensivity: String,
-    pub amount_min: f64,
-    pub amount_max: f64,
+    pub intensity: String,
+    pub lower_bound_amount: Option<f64>,
+    pub upper_bound_amount: Option<f64>,
     pub unit: String,
-    pub per_kilogram: bool,
     pub route_of_administration_id: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
 pub enum Column {
     Id,
-    Intensivity,
-    AmountMin,
-    AmountMax,
+    Intensity,
+    LowerBoundAmount,
+    UpperBoundAmount,
     Unit,
-    #[sea_orm(column_name = "perKilogram")]
-    PerKilogram,
     #[sea_orm(column_name = "routeOfAdministrationId")]
     RouteOfAdministrationId,
 }
@@ -57,11 +54,10 @@ impl ColumnTrait for Column {
     fn def(&self) -> ColumnDef {
         match self {
             Self::Id => ColumnType::String(None).def(),
-            Self::Intensivity => ColumnType::String(None).def(),
-            Self::AmountMin => ColumnType::Double.def(),
-            Self::AmountMax => ColumnType::Double.def(),
+            Self::Intensity => ColumnType::String(None).def(),
+            Self::LowerBoundAmount => ColumnType::Double.def().null(),
+            Self::UpperBoundAmount => ColumnType::Double.def().null(),
             Self::Unit => ColumnType::String(None).def(),
-            Self::PerKilogram => ColumnType::Boolean.def(),
             Self::RouteOfAdministrationId => ColumnType::String(None).def().null(),
         }
     }

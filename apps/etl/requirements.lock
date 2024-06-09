@@ -48,6 +48,10 @@ diskcache==5.6.3
     # via etl
 dnspython==2.6.1
     # via email-validator
+durations==0.3.3
+    # via etl
+durations-nlp==1.0.1
+    # via etl
 email-validator==2.1.1
     # via pydantic
 genson==1.3.0

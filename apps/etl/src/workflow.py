@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal, Optional
 
+import durations
+import durations_nlp
 import isodate
 import prisma.models
 import quantities.quantity
@@ -227,20 +229,11 @@ class PhaseRange:
         max_duration_input: Optional[float],
         duration_unit: str,
     ):
-        min_duration: Optional[pendulum.Duration] = None
-        max_duration: Optional[pendulum.Duration] = None
+        min_duration_parsed = durations_nlp.Duration("" + str(min_duraation_input) + duration_unit)
+        max_duration_parsed = durations_nlp.Duration("" + str(max_duration_input) + duration_unit)
 
-        if duration_unit == "hours":
-            min_duration = pendulum.Duration(hours=min_duraation_input)
-            max_duration = pendulum.Duration(hours=max_duration_input)
-        elif duration_unit == "minutes":
-            min_duration = pendulum.Duration(minutes=min_duraation_input)
-            max_duration = pendulum.Duration(minutes=max_duration_input)
-        elif duration_unit == "seconds":
-            min_duration = pendulum.Duration(seconds=min_duraation_input)
-            max_duration = pendulum.Duration(seconds=max_duration_input)
-        else:
-            raise ValueError(f"Unknown duration unit: {duration_unit}")
+        min_duration = pendulum.Duration(seconds=min_duration_parsed.to_seconds())
+        max_duration = pendulum.Duration(seconds=max_duration_parsed.to_seconds())
 
         assert min_duration <= max_duration
         # Check if min_duration and max_duration are instance of pendulum.Duration
@@ -262,13 +255,13 @@ class PhaseRange:
                 raise ValueError(f"Unknown classification: {classification}")
 
 def serialize_pendulum_duration(pendulum_duration: pendulum.Duration):
-    duration = isodate.Duration(days=pendulum_duration.days, hours=pendulum_duration.hours, minutes=pendulum_duration.minutes, seconds=pendulum_duration.seconds, microseconds=pendulum_duration.microseconds)
-    print(pendulum_duration)
-    print(duration)
-    print(pendulum_duration.max)
-    print(pendulum_duration.min)
+    dur_obj = pendulum_duration.as_timedelta()
+    duration = duration_isoformat(dur_obj)
     iso_duration = duration_isoformat(duration)
-    return iso_duration
+    print("pendulum_duration", pendulum_duration, "iso_duration", iso_duration, "duration_isoformat", duration)
+
+    return duration
+
 
 def create_dosage_input(
     dosage_range: DosageRange,
@@ -485,7 +478,6 @@ def create_phase_ranges_from_psychonautwiki_duration(
             )
 
             phase_ranges.append(phase_range)
-    print("create_phase_ranges_from_psychonautwiki_duration", phase_ranges)
     return phase_ranges
 
 

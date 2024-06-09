@@ -4,11 +4,11 @@
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
-use chrono::TimeDelta;
-use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
-use log::debug;
+use fuzzy_matcher::FuzzyMatcher;
+use log::{debug, info};
 use sea_orm::*;
+use serde_json::to_string;
 
 use crate::core::mass::Mass;
 use crate::core::phase::{DurationRange, Phase, PhaseClassification};
@@ -50,29 +50,33 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                 .iter()
                 .map(|d| {
                     let dosage_classification =
-                        DosageClassification::from_str(&d.intensivity).unwrap();
+                        DosageClassification::from_str(&d.intensity).unwrap();
                     let mass_unit = d.unit.clone();
                     let route_of_administration_id = d.route_of_administration_id.clone().unwrap();
                     let dosage_range: DosageRange = match dosage_classification {
                         DosageClassification::Threshold => {
-                            let max_mass =
-                                Mass::from_str(format!("{} {}", d.amount_max, mass_unit).as_str())
-                                    .unwrap();
+                            let max_mass = Mass::from_str(
+                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit).as_str(),
+                            )
+                            .unwrap();
                             DosageRange::To(RangeTo { end: max_mass })
                         }
                         DosageClassification::Heavy => {
-                            let min_mass =
-                                Mass::from_str(format!("{} {}", d.amount_min, mass_unit).as_str())
-                                    .unwrap();
+                            let min_mass = Mass::from_str(
+                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit).as_str(),
+                            )
+                            .unwrap();
                             DosageRange::From(RangeFrom { start: min_mass })
                         }
                         _ => {
-                            let min_mass =
-                                Mass::from_str(format!("{} {}", d.amount_min, mass_unit).as_str())
-                                    .unwrap();
-                            let max_mass =
-                                Mass::from_str(format!("{} {}", d.amount_max, mass_unit).as_str())
-                                    .unwrap();
+                            let min_mass = Mass::from_str(
+                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit).as_str(),
+                            )
+                            .unwrap();
+                            let max_mass = Mass::from_str(
+                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit).as_str(),
+                            )
+                            .unwrap();
                             DosageRange::Inclusive(Range {
                                 start: min_mass,
                                 end: max_mass,
@@ -119,9 +123,28 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                 let phase_classification =
                     PhaseClassification::from_str(&p.classification).unwrap();
 
+                let serialized_lower_duration = p.lower_duration.clone().unwrap();
+                let serialized_upper_duration = p.upper_duration.clone().unwrap();
+                
+                let lower_duration =
+                    iso8601_duration::Duration::from_str(&serialized_lower_duration)
+                        .unwrap()
+                        .to_chrono()
+                        .unwrap();
+
+                let upper_duration =
+                    iso8601_duration::Duration::from_str(&serialized_upper_duration)
+                        .unwrap()
+                        .to_chrono()
+                        .unwrap();
+
+                println!("Substance: {}, Route of Administration: {}, Phase: {:?}", substance.name, route_of_administration.name, phase_classification);
+                println!("Lower duration: {:?} parsed from {}", lower_duration, serialized_lower_duration);
+                println!("Upper duration: {:?} parsed from {}", upper_duration, serialized_upper_duration);
+
                 let phase_duration = DurationRange {
-                    start: TimeDelta::seconds(p.min_duration.unwrap() as i64),
-                    end: TimeDelta::seconds(p.max_duration.unwrap() as i64),
+                    start: lower_duration,
+                    end: upper_duration,
                 };
 
                 let phase = Phase {
