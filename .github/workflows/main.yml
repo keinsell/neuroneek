@@ -79,7 +79,7 @@ jobs :
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: "neuronek-cli-${{ steps.compile.outputs.BUILT_ARCHIVE }}"
+          name: "${{ steps.compile.outputs.BUILT_ARCHIVE }}"
           path: |
             ${{ steps.compile.outputs.BUILT_ARCHIVE }}
             ${{ steps.compile.outputs.BUILT_CHECKSUM }}
