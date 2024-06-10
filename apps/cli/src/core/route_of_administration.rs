@@ -1,7 +1,6 @@
 use std::collections::HashMap;
+use std::fmt::Display;
 use std::str::FromStr;
-use sea_orm::DeriveDisplay;
-
 use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
 use crate::core::phase::{Phase, PhaseClassification};
@@ -20,6 +19,24 @@ pub enum RouteOfAdministrationClassification {
     Smoked,
     Sublingual,
     Transdermal,
+}
+
+impl Display for RouteOfAdministrationClassification {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            RouteOfAdministrationClassification::Buccal => "buccal".to_string(),
+            RouteOfAdministrationClassification::Inhaled => "inhaled".to_string(),
+            RouteOfAdministrationClassification::Insufflated => "insufflated".to_string(),
+            RouteOfAdministrationClassification::Intramuscular => "intramuscular".to_string(),
+            RouteOfAdministrationClassification::Intravenous => "intravenous".to_string(),
+            RouteOfAdministrationClassification::Oral => "oral".to_string(),
+            RouteOfAdministrationClassification::Rectal => "rectal".to_string(),
+            RouteOfAdministrationClassification::Smoked => "smoked".to_string(),
+            RouteOfAdministrationClassification::Sublingual => "sublingual".to_string(),
+            RouteOfAdministrationClassification::Transdermal => "transdermal".to_string(),
+        };
+        write!(f, "{}", str)
+    }
 }
 
 impl FromStr for RouteOfAdministrationClassification {
@@ -67,16 +84,16 @@ impl FromStr for RouteOfAdministrationClassification {
 impl From<RouteOfAdministrationClassification> for String {
     fn from(roa: RouteOfAdministrationClassification) -> Self {
         match roa {
-            RouteOfAdministrationClassification::Buccal => "buccal".to_string(),
-            RouteOfAdministrationClassification::Inhaled => "inhaled".to_string(),
-            RouteOfAdministrationClassification::Insufflated => "insufflated".to_string(),
-            RouteOfAdministrationClassification::Intramuscular => "intramuscular".to_string(),
-            RouteOfAdministrationClassification::Intravenous => "intravenous".to_string(),
-            RouteOfAdministrationClassification::Oral => "oral".to_string(),
-            RouteOfAdministrationClassification::Rectal => "rectal".to_string(),
-            RouteOfAdministrationClassification::Smoked => "smoked".to_string(),
-            RouteOfAdministrationClassification::Sublingual => "sublingual".to_string(),
-            RouteOfAdministrationClassification::Transdermal => "transdermal".to_string(),
+            RouteOfAdministrationClassification::Buccal => String::from("buccal"),
+            RouteOfAdministrationClassification::Inhaled => String::from("inhaled"),
+            RouteOfAdministrationClassification::Insufflated => String::from("insufflated"),
+            RouteOfAdministrationClassification::Intramuscular => String::from("intramuscular"),
+            RouteOfAdministrationClassification::Intravenous => String::from("intravenous"),
+            RouteOfAdministrationClassification::Oral => String::from("oral"),
+            RouteOfAdministrationClassification::Rectal => String::from("rectal"),
+            RouteOfAdministrationClassification::Smoked => String::from("smoked"),
+            RouteOfAdministrationClassification::Sublingual => String::from("sublingual"),
+            RouteOfAdministrationClassification::Transdermal => String::from("transdermal")
         }
     }
 }
