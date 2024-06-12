@@ -75,8 +75,6 @@ pub async fn cli() {
         Err(error) => panic!("Could not locate database file: {}", error),
     };
 
-    CommandLineInterface::clap().gen_completions(env!("CARGO_PKG_NAME"), Shell::Bash, "target");
-
     #[cfg(feature = "dev")]
     {
         use crate::orm::refresh_database_as_developer;
