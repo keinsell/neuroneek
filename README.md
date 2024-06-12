@@ -63,6 +63,10 @@ If you are person who prefer working with Docker, you can use probably known con
 Documentation is actively maintained in `docs` directory, it's public so anyone can
 read it and understand vision of project. There is no near plans to change place where documentation is mantained as once it was available in Notion things we're not so accessible as they can be in repository.
 
+<h2 align="center">Alternatives</h2>
+
+- [PsychonautWiki Journal](https://github.com/isaakhanimann/psychonautwiki-journal-ios) by [Issac](), I'm using this one on my mobile and this aplication is a reason why I will not release mobile application at the first place - I think Issac did a quite a solid work on implementing information from PsychonautWiki  and dosage tracking functionalities, instead my focus will be on pure analisis of ingestions to later port such functionalities to other apps in community.
+
 <h2 align="center">Contributing</h2>
 
 Before contributing to this project, please read [Code of Conduct](./CODE_OF_CONDUCT.md) and [Contributing Guidelines](./CONTRIBUTING.md).
