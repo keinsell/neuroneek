@@ -1,52 +1,68 @@
-[workspace]
+cargo-features = ["edition2024"]
 
 [package]
-name = "loco_starter"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "neuronek-server"
+version = "0.1.0-dev"
+authors = ["Jakub Olan <keinsell@protonmail.com>"]
+edition = "2024"
+autobins = true
+readme = "README.md"
+rust-version = "1.71.0"
 
 [dependencies]
+chrono = { version = "0.4.38", features = ["serde"] }
+chrono-english = "0.1.7"
+chrono-humanize = "0.2.3"
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = { version = "1.0.117", features = [
+    "alloc",
+    "preserve_order",
+    "raw_value",
+    "arbitrary_precision",
+    "unbounded_depth",
+] }
+async-std = { version = "1.12.0", features = ["attributes"] }
+rocket = { version = "^0.5.0-rc.2", features = [
+    "json",
+    "secrets",
+    "tls",
+    "mtls",
+    "uuid",
+] }
+ndb = { path = "./../../db/rust-seaorm-client", package = "neuronek-database-client" }
+sea-orm = { version = "0.12", features = [
+    "sqlx-sqlite",
+    "runtime-async-std-native-tls",
+    "macros",
+    "with-chrono",
+    "with-json",
+    "with-time",
+    "with-time",
+    "with-chrono",
+    "with-json",
+    "with-uuid",
+    "with-rust_decimal",
+    "with-bigdecimal",
+] }
+sea-orm-migration = "^0.12.0"
+utoipa = { version = "4", features = ["rocket_extras", "chrono", "debug"] }
+utoipa-scalar = { version = "*", features = ["rocket"] }
 
-loco-rs = { version = "0.4.0" }
-migration = { path = "migration" }
+[dependencies.rocket_db_pools]
+version = "0.2.0"
+features = ["sqlx_sqlite"]
 
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-eyre = "0.6"
-tokio = { version = "1.33.0", default-features = false }
-tokio-util = "0.7.11"
-async-trait = "0.1.74"
-tracing = "0.1.40"
-chrono = "0.4"
-validator = { version = "0.16" }
-axum = { version = "0.7.1", features = ["multipart"] }
-include_dir = "0.7"
-uuid = { version = "1.6.0", features = ["v4"] }
-tracing-subscriber = { version = "0.3.17", features = ["env-filter", "json"] }
-
-[dependencies.sea-orm]
-path = "../../" # remove this line in your own project
-version = "1.0.0-rc.5" # sea-orm version
-features = [
-  "sqlx-sqlite",
-  "sqlx-postgres",
-  "runtime-tokio-rustls",
-  "macros",
-]
+[dependencies.sqlx]
+version = "0.7.0"
+default-features = false
+features = ["macros", "migrate"]
 
 [[bin]]
-name = "loco_starter-cli"
-path = "src/bin/main.rs"
+name = "neuronek-server"
+path = "src/main.rs"
 required-features = []
 
 [dev-dependencies]
 serial_test = "2.0.0"
 rstest = "0.18.2"
-loco-rs = { version = "0.4.0", features = ["testing"] }
 insta = { version = "1.34.0", features = ["redactions", "yaml", "filters"] }
-
-[patch.crates-io]
-sea-orm = { path = "../../" }
-sea-orm-migration = { path = "../../sea-orm-migration" }

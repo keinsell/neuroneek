@@ -3,6 +3,7 @@ cargo-features = ["edition2024"]
 [workspace]
 members = [
     "db/rust-seaorm-client",
-    "apps/cli"
+    "apps/cli",
+    "apps/rust-server"
 ]
 resolver = "2"

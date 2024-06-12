@@ -6,6 +6,9 @@
       <sourceFolder url="file://$MODULE_DIR$/apps/cli/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/cli/src/migrator/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/db/rust-seaorm-client/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/migration/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />

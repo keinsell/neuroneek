@@ -6,9 +6,30 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time", "with-time", "with-chrono", "with-json", "with-uuid", "with-rust_decimal", "with-bigdecimal"] }
+sea-orm = { version = "0.12", features = [
+    "sqlx-sqlite",
+    "runtime-async-std-native-tls",
+    "macros",
+    "with-chrono",
+    "with-json",
+    "with-time",
+    "with-time",
+    "with-chrono",
+    "with-json",
+    "with-uuid",
+    "with-rust_decimal",
+    "with-bigdecimal",
+] }
 async-std = { version = "1", features = ["attributes", "tokio1"] }
 rust-embed = "8.4.0"
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = { version = "1.0.117", features = [
+    "alloc",
+    "preserve_order",
+    "raw_value",
+    "arbitrary_precision",
+    "unbounded_depth",
+] }
 
 [dependencies.sea-orm-migration]
 version = "0.12.0"

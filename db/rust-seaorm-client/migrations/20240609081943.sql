@@ -25,6 +25,7 @@ DELETE FROM "substance_route_of_administration_dosage";
 DELETE FROM "substance_route_of_administration_phase";
 DELETE FROM "substance_route_of_administration";
 DELETE FROM "substance";
+BEGIN;
 INSERT INTO substance VALUES('3ab37fdea136ae2c01e5d7670e7ee0d7ea1c700367f9d4dfb65d4249fc7c0282f6fe70443f2506c6a5de71bda8e220b1c94de53ff0d4e34e697341e2728c4259','1,3-dimethylbutylamine','','',NULL,'4-methylpentan-2-amine',7908,NULL,NULL,'UNBMPKNTYKDYCG-UHFFFAOYSA-N','CC(C)CC(C)N','https://psychonautwiki.org/wiki/1,3-dimethylbutylamine','Stimulants','Amine',NULL);
 INSERT INTO substance VALUES('b10b0c525ff3eb55017b05c7712ee4e60f2212d280b345d2add6b933acdc42436561e933f5205925a9afb91150cf1f48595267726f64116398bccbe327076dba','1,4-Butanediol','1,4-Butanediol,1,4-B,BD,BDO,One Comma Four,One Four Bee,Butylene Glycol,One Four B-D-O','',NULL,'butane-1,4-diol',8064,NULL,NULL,'WERYXYBDKMZEQL-UHFFFAOYSA-N','C(CCO)CO','https://psychonautwiki.org/wiki/1,4-Butanediol','Depressant','Alkanediol,Diol',NULL);
 INSERT INTO substance VALUES('04217f4e5824fd026178269789542ff3fd6c9ea68fea4de88f2c1a92046df006ca9995737700ffff0546967beed6af08a38e33302e61620ae9d11465111eaa4c','1P-ETH-LAD','1P-ETH-LAD,1-Propionyl-6-ethyl-6-nor-lysergic acid diethyamide','',NULL,'(6aR,9R)-N,N,7-triethyl-4-propanoyl-6,6a,8,9-tetrahydroindolo[4,3-fg]quinoline-9-carboxamide',119025859,NULL,NULL,'MLOFCBXSOAYCIF-DYESRHJHSA-N','CCC(=O)N1C=C2C[C@@H]3C(=C[C@H](CN3CC)C(=O)N(CC)CC)C4=C2C1=CC=C4','https://psychonautwiki.org/wiki/1P-ETH-LAD','Psychedelic','Lysergamides',NULL);
@@ -3366,4 +3367,5 @@ INSERT INTO substance_route_of_administration_dosage VALUES('25e17b59aed6ddd03e1
 INSERT INTO substance_route_of_administration_dosage VALUES('b83e9622d6b1c63febf39fee402f9f9c0220cf4c2e705893efe8d1b8bb97e978175ac9e38a04d62b1427ed2436400808ca687d165c2ff2d5140a339e9f7143e0','common',5.0,7.5,'mg','319bdcc6327775a15fbce77e9fc1a3bb22a2a62acca3fe71f00b57c5d1094607047975ae4e88c548a8d6711be13d82c27bb45dba92e061df92feb834aeb3a8b7');
 INSERT INTO substance_route_of_administration_dosage VALUES('4cb27cf1ce3504bcd8c5b28cfb08faf9243adbdd3d2538f011e65fb6af4048f954c0a9805cd12b561b7871978e27511dff6fd3f6427e8073e4a769c58ee68fcc','strong',7.5,15.0,'mg','319bdcc6327775a15fbce77e9fc1a3bb22a2a62acca3fe71f00b57c5d1094607047975ae4e88c548a8d6711be13d82c27bb45dba92e061df92feb834aeb3a8b7');
 INSERT INTO substance_route_of_administration_dosage VALUES('3b54f9aead9bf6a954607ca9314b57461b19ec95a0681499d5acad2547d11122d5cc9e6374c3df018a6c11964f3742d6bdeab47a4051ea354872f3beacee5a10','heavy',15.0,0.0,'mg','319bdcc6327775a15fbce77e9fc1a3bb22a2a62acca3fe71f00b57c5d1094607047975ae4e88c548a8d6711be13d82c27bb45dba92e061df92feb834aeb3a8b7');
+END;
 PRAGMA foreign_keys = on;
