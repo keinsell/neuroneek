@@ -12,7 +12,17 @@ impl EntityName for Entity {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
+#[derive(
+    Clone,
+    Debug,
+    PartialEq,
+    DeriveModel,
+    DeriveActiveModel,
+    Eq,
+    Serialize,
+    Deserialize,
+    async_graphql :: SimpleObject,
+)]
 pub struct Model {
     pub id: String,
     pub substance_id: String,

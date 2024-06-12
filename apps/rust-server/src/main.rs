@@ -5,12 +5,21 @@ extern crate rocket;
 #[macro_use]
 extern crate rocket_db_pools;
 
+mod graphql_schema;
 mod orm;
 #[cfg(test)]
 mod tests;
 
+use async_graphql::{
+    http::{playground_source, GraphQLPlaygroundConfig},
+    EmptyMutation, EmptySubscription, Schema,
+};
+use async_graphql_rocket::*;
+use async_std::task_local;
+use graphql_schema::*;
 use ndb::Migrator;
 use orm::setup_database;
+use response::content;
 use rocket::*;
 use sea_orm::{DatabaseConnection, *};
 use sea_orm_migration::*;
@@ -21,6 +30,18 @@ use utoipa::{
 use utoipa_scalar::{Scalar, Servable};
 
 use crate::serde::json::Json;
+
+type SchemaType = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+
+#[post("/", data = "<request>", format = "application/json")]
+async fn graphql_request(schema: &State<SchemaType>, request: GraphQLRequest) -> GraphQLResponse {
+    request.execute(&**schema).await
+}
+
+#[rocket::get("/")]
+fn graphql_playground() -> content::RawHtml<String> {
+    content::RawHtml(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
+}
 
 #[launch]
 async fn rocket() -> _ {
@@ -63,9 +84,26 @@ async fn rocket() -> _ {
         Err(error) => panic!("Could not migrate database schema: {}", error),
     };
 
+    let db = match setup_database().await {
+        Ok(db) => db,
+        Err(err) => panic!("{}", err),
+    };
+
+    let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
+        .data(db)
+        .finish();
+
+    let db = match setup_database().await {
+        Ok(db) => db,
+        Err(err) => panic!("{}", err),
+    };
+
     rocket::build()
         .manage(db)
+        .manage(schema)
         .mount("/", Scalar::with_url("/", ApiDoc::openapi()))
+        // Setup GraphQL
+        .mount("/graphql", routes![graphql_request, graphql_playground])
         .mount("/", routes![substance_api::list_substances])
 }
 

@@ -6,6 +6,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+async-graphql = { version = "*", features = ["chrono", "chrono-tz"] }
 sea-orm = { version = "0.12", features = [
     "sqlx-sqlite",
     "runtime-async-std-native-tls",
@@ -30,7 +31,6 @@ serde_json = { version = "1.0.117", features = [
     "arbitrary_precision",
     "unbounded_depth",
 ] }
-
 [dependencies.sea-orm-migration]
 version = "0.12.0"
 features = [
