@@ -17,12 +17,11 @@ use async_graphql::{
 use async_graphql_rocket::*;
 use async_std::task_local;
 use graphql_schema::*;
-use ndb::Migrator;
+use ndb::{IntoSchemaManagerConnection, Migrator, MigratorTrait};
 use orm::setup_database;
 use response::content;
 use rocket::*;
 use sea_orm::{DatabaseConnection, *};
-use sea_orm_migration::*;
 use utoipa::{
     openapi::security::{ApiKey, ApiKeyValue, SecurityScheme},
     Modify, OpenApi, ToSchema,
@@ -43,68 +42,54 @@ fn graphql_playground() -> content::RawHtml<String> {
     content::RawHtml(playground_source(GraphQLPlaygroundConfig::new("/graphql")))
 }
 
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        substance_api::list_substances
+    ),
+    components(
+        schemas(
+            substance_api::Substance,
+        )
+    ),
+    tags(
+        (name = "substance", description = "Substance-related operations.")
+    ),
+    modifiers(&SecurityAddon)
+)]
+struct ApiDoc;
+
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {}
+}
+
 #[launch]
 async fn rocket() -> _ {
-    #[derive(OpenApi)]
-    #[openapi(
-        paths(
-            substance_api::list_substances
-        ),
-        components(
-            schemas(
-                substance_api::Substance,
-            )
-        ),
-        tags(
-            (name = "substance", description = "Substance-related operations.")
-        ),
-        modifiers(&SecurityAddon)
-    )]
-    struct ApiDoc;
-
-    struct SecurityAddon;
-
-    impl Modify for SecurityAddon {
-        fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
-            // let components = openapi.components.as_mut().unwrap();
-            // components.add_security_scheme(
-            //     "api_key",
-            //     SecurityScheme::ApiKey(ApiKey::Header(ApiKeyValue::new("
-            // todo_apikey"))), )
-        }
-    }
-
-    let db = match setup_database().await {
-        Ok(db) => db,
-        Err(err) => panic!("{}", err),
-    };
-
-    match Migrator::up(db.into_schema_manager_connection(), None).await {
-        Ok(_) => debug!("Migrations applied"),
-        Err(error) => panic!("Could not migrate database schema: {}", error),
-    };
-
     let db = match setup_database().await {
         Ok(db) => db,
         Err(err) => panic!("{}", err),
     };
 
     let schema = Schema::build(QueryRoot, EmptyMutation, EmptySubscription)
-        .data(db)
+        .data(db.clone())
         .finish();
 
-    let db = match setup_database().await {
-        Ok(db) => db,
-        Err(err) => panic!("{}", err),
-    };
+    println!("{:?}", schema.sdl().clone());
 
     rocket::build()
         .manage(db)
         .manage(schema)
         .mount("/", Scalar::with_url("/", ApiDoc::openapi()))
-        // Setup GraphQL
         .mount("/graphql", routes![graphql_request, graphql_playground])
-        .mount("/", routes![substance_api::list_substances])
+        .mount(
+            "/",
+            routes![
+                substance_api::list_substances,
+                substance_api::get_substance_by_id
+            ],
+        )
 }
 
 mod substance_api {
@@ -174,4 +159,40 @@ mod substance_api {
 
         Json(substances)
     }
+
+    #[utoipa::path(
+        path = "/substance/{id}",
+        responses(
+            (status = 200, description = "Substances retrieved successfully", body = Substance),
+            (status = 500, description = "Internal server error"),
+        ),
+        security()
+    )]
+    #[get("/substance/<id>")]
+    pub(super) async fn get_substance_by_id(
+        db: &State<DatabaseConnection>,
+        id: String,
+    ) -> Json<Substance> {
+        let database_connection = db as &DatabaseConnection;
+        let substance: ndb::substance::Model = ndb::substance::Entity::find_by_id(id)
+            .one(database_connection)
+            .await
+            .unwrap()
+            .unwrap();
+
+        Json(Substance {
+            id: substance.id.to_string(),
+        })
+    }
 }
+
+mod account {}
+mod authentication {}
+mod ingestion {}
+mod route_of_administration {}
+mod dosage {}
+mod phase {}
+mod substance {}
+mod subject {}
+mod experience {}
+mod search {}

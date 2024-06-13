@@ -1,15 +1,42 @@
-application: "Dosage Tracking Application" {
-  Subject
-  Account: Subject's Account
-  Substance: "Substance Information"
-  IngestionStore: "IngestionStore storage"
-  Experince: "Public storage of experiences"
+
+
+experience: "Experience"
+ingestion: "Ingestion"
+
+dosage: "Dosage"
+phase: "Phase"
+
+
+# Account
+account: "Account"
+
+# Subject
+subject: "Subject"
+
+subject -> account
+
+substance_database: {
+    label: "Substance Database"
+
+    # Substance
+    substance: "Substance"
+    route_of_administration: "Route of Administration"
+    route_of_administration_dosage: "Route of Administration Dosage"
+    route_of_administration_phase: "Route of Administration Phase"
+
+    route_of_administration -> substance
+    route_of_administration_dosage -> route_of_administration
+    route_of_administration_phase -> route_of_administration
 }
 
-extenrals: "External Systems" {
-  drugProvider: "Substance Information Provider"
-}
 
-application.Subject -> application.Ingestion: "User ingests substance"
-application.Ingestion -> application.Experince: "IngestionStore produces experience"
-application.Substance -> extenrals.drugProvider: "Aggregates substance information"
+
+# Route of Administration
+
+
+route_of_administration -> substance
+
+
+# Ingestion
+ingestion -> subject
+ingestion -> substance
