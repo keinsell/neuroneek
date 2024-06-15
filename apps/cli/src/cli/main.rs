@@ -3,10 +3,11 @@ use log::*;
 use structopt::clap::Shell;
 use structopt::StructOpt;
 
+use crate::cli::dashboard::handle_show_dashboard;
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
-use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::ingestion::IngestionCommand;
+use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::substance::list_substances::list_substances;
 use crate::orm;
 use crate::orm::migrate_database;
@@ -36,6 +37,7 @@ enum Commands {
         alias = "i"
     )]
     Ingestion(IngestionCommand),
+    Dashboard(DashboardCommand),
 }
 
 #[derive(StructOpt, Debug)]
@@ -53,6 +55,10 @@ enum DataManagementCommand {
         about = "Refreshes local database with cloud datasource"
     )]
     RefreshDatasource {},
+}
+
+#[derive(StructOpt, Debug)]
+enum DashboardCommand {
 }
 
 pub async fn cli() {
@@ -99,5 +105,6 @@ pub async fn cli() {
         Commands::Substance(substance) => match substance {
             SubstanceCommand::ListSubstances {} => list_substances(&db).await,
         },
+        Commands::Dashboard(_) => handle_show_dashboard(&db).await,
     }
 }

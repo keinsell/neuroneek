@@ -1,6 +1,7 @@
-use db::prelude::Ingestion;
-use sea_orm::{DatabaseConnection, EntityTrait};
 use structopt::StructOpt;
+
+use db::prelude::Ingestion;
+use db::sea_orm::{DatabaseConnection, EntityTrait};
 
 #[derive(StructOpt, Debug)]
 pub struct DeleteIngestion {
@@ -9,7 +10,7 @@ pub struct DeleteIngestion {
 }
 
 pub async fn delete_ingestion(db: &DatabaseConnection, ingestion_id: i32) {
-    let res = Ingestion::delete_by_id(ingestion_id.clone()).exec(db).await;
+    let res = Ingestion::delete_by_id(ingestion_id).exec(db).await;
     let delete_response = res.expect("Error deleting ingestion");
 
     assert_eq!(delete_response.rows_affected, 1);

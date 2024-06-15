@@ -1,16 +1,17 @@
-use std::fmt::{Debug};
+use std::fmt::Debug;
 use std::str::FromStr;
 
-use chrono::{DateTime, Local, Utc};
-use chrono_english::{parse_date_string, Dialect};
+use chrono::Utc;
+use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
-use db::ingestion::ActiveModel;
-use sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryTrait};
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
-use crate::core::dosage::Dosage;
-use crate::core::ingestion::{Ingestion};
 
+use db::ingestion::ActiveModel;
+use db::sea_orm::{ActiveValue, DatabaseConnection, EntityTrait, QueryTrait};
+
+use crate::core::dosage::Dosage;
+use crate::core::ingestion::Ingestion;
 use crate::core::mass::deserialize_dosage;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::ingestion_analyzer::{analyze_future_ingestion, analyze_ingestion};
@@ -34,16 +35,16 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
     analyze_future_ingestion(&create_ingestion).await.unwrap();
 
     let ingestion_active_model: ActiveModel = ActiveModel {
-        id: ActiveValue::default(),
+        id: ActiveValue::<i32>::NotSet,
         substance_name: ActiveValue::Set(Option::from(substance.name)),
         administration_route: ActiveValue::Set(Option::from(
             create_ingestion.route_of_administration.to_string().clone(),
         )),
         dosage_unit: ActiveValue::Set(Option::from("kg".to_owned())),
         dosage_amount: ActiveValue::Set(Option::from(
-            parsed_mass.as_kilograms()
+            parsed_mass.as_kilograms() as f32
         )),
-        ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_local())),
+        ingestion_date: ActiveValue::Set(Option::from(parsed_time.to_string())),
         subject_id: ActiveValue::Set(Option::from(String::from("unknown"))),
         stash_id: ActiveValue::NotSet,
     };
@@ -81,7 +82,8 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
         .into_iter()
         .map(|ingestion| {
             let ingestion_date =
-                DateTime::<Local>::from(ingestion.ingestion_date.unwrap().and_utc());
+       parse_date_string(&ingestion.ingestion_date.unwrap(), Utc::now(), Dialect::Us)
+                .unwrap_or_else(|_| Utc::now());
 
             ViewModel {
                 id: ingestion.id.to_string(),
@@ -127,7 +129,7 @@ pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
         id: ingestion.id,
         substance_name: substance.name.clone(),
         administration_route: route_of_administration_classification.clone(),
-        ingested_at: DateTime::<Utc>::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap(), Utc),
+        ingested_at: parse_date_string(&ingestion.ingestion_date.unwrap(), Utc::now(), Dialect::Us).unwrap(),
         dosage: ingestion_mass.clone(),
         phases: Default::default(),
     };

@@ -4,19 +4,21 @@
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
-use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
-use log::{debug};
-use sea_orm::*;
+use fuzzy_matcher::skim::SkimMatcherV2;
+use log::debug;
 
+use db::sea_orm::*;
+use db::sea_orm::{DatabaseConnection, EntityTrait};
+
+use crate::core::dosage::{
+    DosageClassification, DosageRange, RouteOfAdministrationDosage,
+};
 use crate::core::mass::Mass;
 use crate::core::phase::{DurationRange, Phase, PhaseClassification};
 use crate::core::route_of_administration::{
     RouteOfAdministration, RouteOfAdministrationClassification, RouteOfAdministrationDosages,
     RouteOfAdministrationPhases,
-};
-use crate::core::dosage::{
-    DosageClassification, DosageRange, RouteOfAdministrationDosage,
 };
 use crate::core::substance::{RoutesOfAdministration, Substance};
 use crate::orm::DB_CONNECTION;

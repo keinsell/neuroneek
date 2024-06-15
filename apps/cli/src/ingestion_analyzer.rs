@@ -5,6 +5,14 @@
 use std::fmt::{Debug, Display};
 use std::time::Duration;
 
+use chrono::{DateTime, Local, TimeZone};
+use chrono_english::{Dialect, parse_date_string};
+use chrono_humanize::HumanTime;
+use log::{debug, error};
+use measurements::Measurement;
+use serde::{Deserialize, Serialize};
+use termimad::MadSkin;
+
 use crate::core::dosage::DosageClassification;
 use crate::core::ingestion::{Ingestion, IngestionPhase, IngestionPhases};
 use crate::core::mass::{deserialize_dosage, Mass};
@@ -19,13 +27,6 @@ use crate::core::substance::{
 };
 use crate::service::ingestion::CreateIngestion;
 use crate::service::substance::get_substance_by_name;
-use chrono::{DateTime, Local, TimeZone};
-use chrono_english::{parse_date_string, Dialect};
-use chrono_humanize::HumanTime;
-use log::{debug, error};
-use measurements::Measurement;
-use serde::{Deserialize, Serialize};
-use termimad::MadSkin;
 
 // https://docs.rs/indicatif/latest/indicatif/
 
@@ -223,18 +224,26 @@ pub async fn analyze_ingestion(ingestion: &Ingestion) -> Result<IngestionAnalysi
 
 pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
     let mut markdown = String::new();
+    markdown.push_str(&format!("Ingesting {0:.0} of {1:?} using {2:?} route of administration, dosage and will last for about {3:?}.",
+                               ingestion_analysis.dosage,
+                               ingestion_analysis.substance_name,
+                               ingestion_analysis.route_of_administration_classification,
+                               HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap())
+                                   .to_string()
+    ));
     markdown.push_str(&format!("{}", "-".repeat(40) + "\n"));
     markdown.push_str(&format!(
-        "Ingestion Analysis for **{}**\n",
+        "🧪 {}\n",
         ingestion_analysis.substance_name
     ));
+    markdown.push_str(&format!("{}", "-".repeat(3) + "\n"));
     markdown.push_str(&format!(
-        "Route of Administration: **{:?}**\n",
+        "🥤 Route of Administration: **{:?}**\n",
         ingestion_analysis.route_of_administration_classification
     ));
-    markdown.push_str(&format!("Dosage: **{0:.0}**\n", ingestion_analysis.dosage));
+    markdown.push_str(&format!("🧮 Dosage: **{0:.0}**\n", ingestion_analysis.dosage));
     markdown.push_str(&format!(
-        "Dosage Classification: **{:?}**\n",
+        "🧮 Dosage Classification: **{:?}**\n",
         ingestion_analysis.dosage_classification
     ));
     markdown.push_str(&format!(

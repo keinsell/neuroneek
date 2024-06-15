@@ -19,8 +19,6 @@ libsqlite3-sys = { version = "*", features = ["bundled"] }
 log = "0.4.21"
 db = { path = "./../../db/rust-seaorm-client", package = "neuronek-database-client" }
 rust-embed = "8.4.0"
-sea-orm = { version = "0.12", features = ["sqlx-sqlite", "runtime-async-std-native-tls", "macros", "with-chrono", "with-json", "with-time", "with-time", "with-chrono", "with-json", "with-uuid", "with-rust_decimal", "with-bigdecimal"] }
-sea-orm-migration = "^0.12.0"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = { version = "1.0.117", features = ["alloc", "preserve_order", "raw_value", "arbitrary_precision", "unbounded_depth"] }
 structopt = { version = "0.3.26", features = ["suggestions", "color", "wrap_help"] }
@@ -44,6 +42,7 @@ dateless = "0.3.1"
 iso8601-duration = { version = "0.2.0",features = ["serde", "chrono"] }
 measurements = { version = "0.11.0",features = ["serde", "std", "from_str"] }
 termimad = "0.29.2"
+itertools = "0.13.0"
 
 [features]
 default = []

@@ -1,5 +1,5 @@
 use db::prelude::*;
-use sea_orm::*;
+use db::sea_orm::{DatabaseConnection, EntityTrait};
 
 pub async fn list_substances(db: &DatabaseConnection) {
     let substances = Substance::find().all(db).await.unwrap();
