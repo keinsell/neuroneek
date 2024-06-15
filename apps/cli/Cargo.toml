@@ -43,6 +43,8 @@ iso8601-duration = { version = "0.2.0",features = ["serde", "chrono"] }
 measurements = { version = "0.11.0",features = ["serde", "std", "from_str"] }
 termimad = "0.29.2"
 itertools = "0.13.0"
+indicatif = "0.17.8"
+humantime = "2.1.0"
 
 [features]
 default = []

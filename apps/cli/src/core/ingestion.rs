@@ -2,13 +2,12 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, Local, Utc};
 use serde::{Deserialize, Serialize};
-use tabled::Tabled;
+
 use crate::core::dosage::Dosage;
 use crate::core::phase::{DurationRange, PhaseClassification};
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::ingestion_analyzer::IngestionAnalysis;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IngestionPhase {
     pub(crate) phase_classification: PhaseClassification,
     pub(crate) duration: DurationRange,
@@ -18,7 +17,7 @@ pub struct IngestionPhase {
 
 pub type IngestionPhases = HashMap<PhaseClassification, IngestionPhase>;
 
-#[derive( Serialize, Debug, Deserialize)]
+#[derive( Serialize, Debug, Deserialize, Clone)]
 pub struct Ingestion {
     pub(crate) id: i32,
     pub(crate) substance_name: String,

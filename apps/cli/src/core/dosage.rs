@@ -1,7 +1,11 @@
+extern crate measurements;
+
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
+use measurements::*;
 use serde::{Deserialize, Serialize};
+
 pub type Dosage = measurements::Mass;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Eq, Hash, Copy)]
@@ -64,9 +68,6 @@ impl DosageRange {
     }
 }
 
-
-extern crate measurements;
-use measurements::*;
 
 pub fn test_measurements() {
     for power in -12..12 {

@@ -1,42 +1,54 @@
+direction: left
 
+iam: {
+    label: "Identity and Access Management (IAM)"
 
-experience: "Experience"
-ingestion: "Ingestion"
+    account: "Account"
+}
 
-dosage: "Dosage"
-phase: "Phase"
+subject_database: {
+    label: "Subject"
 
+    subject: "Subject"
 
-# Account
-account: "Account"
-
-# Subject
-subject: "Subject"
-
-subject -> account
+    subject -> _.iam.account: (optionally)
+}
 
 substance_database: {
-    label: "Substance Database"
+    label: "Public Substance Information"
 
     # Substance
     substance: "Substance"
     route_of_administration: "Route of Administration"
-    route_of_administration_dosage: "Route of Administration Dosage"
-    route_of_administration_phase: "Route of Administration Phase"
+    dosage: "Dosage"
+    phase: "Phase"
 
     route_of_administration -> substance
-    route_of_administration_dosage -> route_of_administration
-    route_of_administration_phase -> route_of_administration
+    dosage -> route_of_administration
+    phase -> route_of_administration
 }
 
+journal: {
+    label: "Journal"
 
+    ingestion: "Ingestion"
+    ingestion_phase: "Ingestion Phase"
 
-# Route of Administration
+    ingestion -> _.substance_database.substance
+    ingestion -> _.subject_database.subject
 
+    ingestion_phase -> ingestion
+}
 
-route_of_administration -> substance
+experience_db: {
+    label: "Experience Dataset"
 
+    experience: "Expereince"
 
-# Ingestion
-ingestion -> subject
-ingestion -> substance
+    experience -> _.subject_database.subject: {
+        label: "may contain"
+    }
+    experience -> _.journal.ingestion: {
+        label: "may contain"
+    }
+}

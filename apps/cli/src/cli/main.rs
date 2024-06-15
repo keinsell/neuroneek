@@ -58,7 +58,8 @@ enum DataManagementCommand {
 }
 
 #[derive(StructOpt, Debug)]
-enum DashboardCommand {
+#[structopt(name = "dashboard")]
+struct  DashboardCommand {
 }
 
 pub async fn cli() {
