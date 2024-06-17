@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::str::FromStr;
 
 use chrono::{DateTime, Local, Utc};
 use serde::{Deserialize, Serialize};
@@ -17,7 +18,7 @@ pub struct IngestionPhase {
 
 pub type IngestionPhases = HashMap<PhaseClassification, IngestionPhase>;
 
-#[derive( Serialize, Debug, Deserialize, Clone)]
+#[derive(Serialize, Debug, Deserialize, Clone)]
 pub struct Ingestion {
     pub(crate) id: i32,
     pub(crate) substance_name: String,
@@ -43,6 +44,27 @@ impl Ingestion {
             ingested_at,
             dosage,
             phases,
+        }
+    }
+}
+
+impl From<db::ingestion::Model> for Ingestion {
+    fn from(ingestion: db::ingestion::Model) -> Self {
+        Ingestion {
+            id: ingestion.id,
+            substance_name: ingestion.substance_name.unwrap(),
+            administration_route: RouteOfAdministrationClassification::from_str(
+                ingestion.administration_route.unwrap().as_str(),
+            )
+            .unwrap(),
+            ingested_at: ingestion.ingestion_date.unwrap().and_utc(),
+            dosage: Dosage::from_str(&format!(
+                "{} {}",
+                ingestion.dosage_amount.unwrap(),
+                ingestion.dosage_unit.unwrap()
+            ))
+            .unwrap(),
+            phases: HashMap::new(),
         }
     }
 }
