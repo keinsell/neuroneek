@@ -19,12 +19,9 @@ use crate::core::phase::PhaseClassification;
 use crate::service::ingestion::get_ingestion_by_id;
 
 pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
-    println!("Dashboard is not implemented yet.");
-
     // Fetch and map all ingestions from database
-    let ingestions = db::ingestion::Entity::find().all(database_connection).await.unwrap();
-    let ingestions_stream = stream::iter(ingestions.into_iter());
-
+    let ingestion = db::ingestion::Entity::find().all(database_connection).await.unwrap();
+    let ingestions_stream = stream::iter(ingestion.into_iter());
     let ingestions = futures::future::join_all(ingestions_stream
         .map(|ingestion| {
             let ingestion_id = ingestion.id;
@@ -33,8 +30,8 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
             }
         }).collect::<Vec<_>>().await).await;
 
-    // Group ingestions by substance name
-    let ingestions_by_substance = ingestions.clone()
+    // Group ingestion by substance name
+    let ingestion_by_substance = ingestions.clone()
         .into_iter()
         .fold(HashMap::<String, Vec<Ingestion>>::new(), |mut acc, ingestion| {
             let substance_name = ingestion.substance_name.clone();
@@ -43,32 +40,8 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
             acc
         });
 
-    // Calculate average dosage per day per substance
-    let average_dosage_per_substance_for_last_7_days = ingestions_by_substance.clone()
-        .into_iter()
-        .map(|(substance_name, ingestions)| {
-            let total_dosage: Dosage = ingestions
-                .iter()
-                .map(|ingestion| ingestion.dosage)
-                .collect::<Vec<Dosage>>()
-                .into_iter()
-                // Use custom summing implementation
-                .fold(Dosage::from_str(
-                    "0.0 mg"
-                ).unwrap(), |acc, dosage| acc + dosage);
-
-            let average_dosage = total_dosage / ingestions.len() as f64;
-            (substance_name, average_dosage)
-        })
-        .collect::<HashMap<String, Dosage>>();
-
-    println!("Average dosage per substance for last 7 days");
-    for (substance_name, average_dosage) in average_dosage_per_substance_for_last_7_days {
-        println!("{}: {1:.0}", substance_name, average_dosage);
-    }
-
     // Calculate total dosage per substance for last 7 days
-    let total_dosage_per_substance_for_last_7_days = ingestions_by_substance
+    let total_dosage_per_substance_for_last_7_days = ingestion_by_substance.clone()
         .into_iter()
         .map(|(substance_name, ingestions)| {
             let total_dosage: Dosage = ingestions
@@ -85,20 +58,42 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
             (substance_name, total_dosage)
         })
         .collect::<HashMap<String, Dosage>>();
+    
+    let average_dosage_per_day_per_substance_for_last_7_days = ingestion_by_substance.clone()
+        .into_iter()
+        .map(|(substance_name, ingestions)| {
+            let total_dosage: Dosage = ingestions
+                .iter()
+                .filter(|ingestion| ingestion.ingested_at >= Utc::now() - Duration::days(7))
+                .map(|ingestion| ingestion.dosage)
+                .collect::<Vec<Dosage>>()
+                .into_iter()
+                // Use custom summing implementation
+                .fold(Dosage::from_str(
+                    "0.0 mg"
+                ).unwrap(), |acc, dosage| acc + dosage);
 
-    println!("Total dosage per substance for last 7 days");
+            let average_dosage = total_dosage / 7.0;
+            (substance_name, average_dosage)
+        })
+        .collect::<HashMap<String, Dosage>>();
+
+    println!("\n");
+    println!("Substance Name, Total Dosage, Average Dosage per Day");
 
     let table = Table::from_iter(total_dosage_per_substance_for_last_7_days.into_iter()
         .map(|(substance_name, total_dosage)| {
             vec![
-                substance_name,
-                format!("{:.0}", total_dosage).to_string()
+                substance_name.clone(),
+                format!("{:.0}", total_dosage).to_string(),
+                format!("{:.0}", average_dosage_per_day_per_substance_for_last_7_days.get(&substance_name).unwrap()).to_string(),
             ]
         })
         .collect::<Vec<_>>().iter().cloned());
-
+    
     println!("{}", table.to_string());
-
+    println!("\n");
+    
     // Filter all ingestions to find those which are active (onset, comeup, peak, offset)
     let active_ingestions = ingestions
         .into_iter()

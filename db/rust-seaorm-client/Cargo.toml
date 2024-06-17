@@ -6,7 +6,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-seaography = { version = "1.0.0-rc.4", features = [
+seaography = { version = "0.12.0", features = [
     "with-decimal",
     "with-chrono",
 ] }
@@ -16,7 +16,7 @@ async-graphql = { version = "7.0", features = [
     "dataloader",
     "dynamic-schema",
 ] }
-sea-orm = { version = "1.0.0-rc.4", features = [
+sea-orm = { version = "0.12.15", features = [
     "sqlx-sqlite",
     "runtime-async-std-native-tls",
     "macros",
@@ -47,7 +47,7 @@ time = "0.3.36"
 tokio = "1.38.0"
 lazy_static = "1.4.0"
 [dependencies.sea-orm-migration]
-version = "1.0.0-rc.4"
+version = "0.12.15"
 features = [
     "runtime-async-std-native-tls",
     "sqlx-sqlite",
@@ -63,4 +63,4 @@ features = [
 name = "db"
 
 [dev-dependencies]
-sea-orm-cli = "1.0.0-rc.4"
+sea-orm-cli = "0.12.15"

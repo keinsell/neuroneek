@@ -64,12 +64,12 @@ struct  DashboardCommand {
 
 pub async fn cli() {
     // Initialize panic hook
-    setup_panic!();
+    // setup_panic!();
     // Initialize logger
     stderrlog::new()
         // .module(module_path!())
         .show_level(true)
-        .verbosity(0)
+        .verbosity(2)
         .show_module_names(true)
         .init()
         .unwrap();

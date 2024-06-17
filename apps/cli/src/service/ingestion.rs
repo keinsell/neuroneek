@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::str::FromStr;
 
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
 use serde::{Deserialize, Serialize};
@@ -42,9 +42,9 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         )),
         dosage_unit: ActiveValue::Set(Option::from("kg".to_owned())),
         dosage_amount: ActiveValue::Set(Option::from(
-            parsed_mass.as_kilograms() as f32
+            parsed_mass.as_kilograms()
         )),
-        ingestion_date: ActiveValue::Set(Option::from(parsed_time.to_string())),
+        ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_utc())),
         subject_id: ActiveValue::Set(Option::from(String::from("unknown"))),
         stash_id: ActiveValue::NotSet,
     };
@@ -81,9 +81,7 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
     let view_models: Vec<ViewModel> = ingestions
         .into_iter()
         .map(|ingestion| {
-            let ingestion_date =
-       parse_date_string(&ingestion.ingestion_date.unwrap(), Utc::now(), Dialect::Us)
-                .unwrap_or_else(|_| Utc::now());
+            let ingestion_date: DateTime<Utc> = chrono::DateTime::<Utc>::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
 
             ViewModel {
                 id: ingestion.id.to_string(),
@@ -110,27 +108,31 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
     println!("{}", string_table);
 }
 
-/// This function will return a single ingestion (internal application model) by its ID or will throw and 
-/// error if the ingestion is not found or could not be constructed. This is intended to be used for
-/// all the internal analysis and processing of ingestion data. Ingestions should be most likely serializable
-/// and deserializable as this function will be expensive in time and resources it can be memoized to some
+/// This function will return a single ingestion
+/// (internal application model) by its ID or will throw an 
+/// error if the ingestion is not found or could not be constructed.
+/// This is intended to be used for
+/// all the internal analysis and processing of ingestion data.
+/// Ingestion should be most likely serializable
+/// and deserializable
+/// as this function will be expensive in time and resources it can be memoized to some
 /// local cache.
 pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
-    // Find ingestion in database by ID
+    // Find ingestion in a database by ID
     let ingestion = db::ingestion::Entity::find_by_id(_id).one(&DB_CONNECTION as &DatabaseConnection).await.unwrap().unwrap();
     let substance = get_substance_by_name(&ingestion.substance_name.unwrap().clone()).await.unwrap();
-
     let route_of_administration_classification = RouteOfAdministrationClassification::from_str(&ingestion.administration_route.unwrap_or_else(|| panic!("Tried to read route of administration of ingestion but none was found, it's weird as it should be there..."))).unwrap_or_else(|_| panic!("Tried to read route of administration of ingestion but none was found, it's weird as it should be there..."));
-
     let ingestion_mass = Dosage::from_str(format!("{} {}", &ingestion.dosage_amount.unwrap(), &ingestion.dosage_unit.unwrap()).as_str()).unwrap();
+    println!("{:?}", ingestion.ingestion_date);
+    let parsed_ingestion_time = DateTime::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
 
-    // Construct ingestion model
+    // Construct an ingestion model
     let mut ingestion_model = Ingestion {
         id: ingestion.id,
         substance_name: substance.name.clone(),
-        administration_route: route_of_administration_classification.clone(),
-        ingested_at: parse_date_string(&ingestion.ingestion_date.unwrap(), Utc::now(), Dialect::Us).unwrap(),
-        dosage: ingestion_mass.clone(),
+        administration_route: route_of_administration_classification,
+        ingested_at: parsed_ingestion_time,
+        dosage: ingestion_mass,
         phases: Default::default(),
     };
 
