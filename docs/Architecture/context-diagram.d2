@@ -93,15 +93,77 @@ journal: {
     ingestion_phase: "Ingestion Phase"
     ingestion_analytics: "Ingestion Analytics"
 
-    ingestion -> _.substance_index.substance: {
+    substance: {
+        label: "Substance"
         class: ghost_relation
     }
-    ingestion -> _.subject_database.subject: {
+    subject: {
+        label: "Subject"
+        class: ghost_relation
+    }
+
+    subject -- _.subject_database.subject: {
+        class: ghost_relation
+    }
+    substance -- _.substance_index.substance: {
+        class: ghost_relation
+    }
+
+    ingestion -> substance: {
+        class: ghost_relation
+    }
+    ingestion -> subject: {
         class: ghost_relation
     }
 
     ingestion_analytics -> ingestion: "Pre-computed analytics"
     ingestion_phase -> ingestion_analytics
+}
+
+analyzer: {
+    label: "Analyzer"
+
+    # Forgein
+    phase: "Phase"
+    route_of_administration: "Route of Administration"
+    substance: "Substance"
+    dosage: "Dosage"
+
+    phase.class: ghost_relation
+    route_of_administration.class: ghost_relation
+    substance.class: ghost_relation
+    dosage.class: ghost_relation
+
+    # Relations
+    phase -> _.substance_index.phase: {
+        class: ghost_relation
+    }
+    route_of_administration -> _.substance_index.route_of_administration: {
+        class: ghost_relation
+    }
+    substance -> _.substance_index.substance: {
+        class: ghost_relation
+    }
+    dosage -> _.substance_index.dosage: {
+        class: ghost_relation
+    }
+
+    ingestion_analytics: {
+        label: Ingestion Analytics
+    }
+
+    ingestion_analytics -> phase: {
+        class: ghost_relation
+    }
+    ingestion_analytics -> route_of_administration: {
+        class: ghost_relation
+    }
+    ingestion_analytics -> substance: {
+        class: ghost_relation
+    }
+    ingestion_analytics -> dosage: {
+        class: ghost_relation
+    }
 }
 
 experience_db: {
@@ -177,41 +239,41 @@ subject_stash: {
 }
 
 subject_stash: {
-  label: "Possession Tracking"
+    label: "Possession Tracking"
 
-  stash_possesion: "Stash Possession"
-  stash_transaction: "Stash Transaction"
-  substance: {
-    label: "Substance"
-    style.opacity: 0.2
-  }
-  ingestion: {
-    label: "Ingestion"
-    style.opacity: 0.2
-  }
-  subject: {
-    label: "Subject"
-    style.opacity: 0.2
-  }
+    stash_possesion: "Stash Possession"
+    stash_transaction: "Stash Transaction"
+    substance: {
+        label: "Substance"
+        style.opacity: 0.2
+    }
+    ingestion: {
+        label: "Ingestion"
+        style.opacity: 0.2
+    }
+    subject: {
+        label: "Subject"
+        style.opacity: 0.2
+    }
 
-  ingestion -> _.journal.ingestion: {
-    style.opacity: 0.2
-  }
-  substance -> _.substance_index.substance: {
-    style.opacity: 0.2
-  }
-  subject -> _.subject_database.subject: {
-    style.opacity: 0.2
-  }
+    ingestion -> _.journal.ingestion: {
+        style.opacity: 0.2
+    }
+    substance -> _.substance_index.substance: {
+        style.opacity: 0.2
+    }
+    subject -> _.subject_database.subject: {
+        style.opacity: 0.2
+    }
 
-  stash_transaction -> stash_possesion
-  stash_transaction -> ingestion: {
-    style.opacity: 0.2
-  }
-  stash_possesion -> subject: {
-    style.opacity: 0.2
-  }
-  stash_possesion -> substance: {
-    style.opacity: 0.2
-  }
+    stash_transaction -> stash_possesion
+    stash_transaction -> ingestion: {
+        style.opacity: 0.2
+    }
+    stash_possesion -> subject: {
+        style.opacity: 0.2
+    }
+    stash_possesion -> substance: {
+        style.opacity: 0.2
+    }
 }
