@@ -1,109 +1,179 @@
 direction: left
 
 vars: {
-  d2-config: {
-    layout-engine: elk
-    sketch: true
-    theme-id: 301
-  }
+d2-config: {
+layout-engine: elk
+sketch: true
+theme-id: 301
+}
+colors: {
+primary: "#065535"
+command: "#1976D2"
+event: "#F26419"
+aggregate: "#FFB703"
+bounded_context: "#E91E63"
+timeline: "#607D8B"
+actor_role: "#9C27B0"
+read_model: "#4CAF50"
+policy: "#F48FB1"
+external_system: "#757575"
+}
+}
+
+classes: {
+ghost_relation: {
+style.opacity: 0.2
+}
 }
 
 iam: {
-  label: "Identity and Access Management (IAM)"
+    label: "Identity and Access Management (IAM)"
 
-  account: "Account"
+    account: "Account"
 }
 
 subject_database: {
-  label: "Subject"
-  subject: "Subject"
+    label: "Subject"
+    subject: "Subject"
 
-  subject -> _.iam.account: {
-    style.opacity: 0.2
-  }
+    subject -> _.iam.account: {
+        class: ghost_relation
+    }
 }
 
 effect_index: {
-  label: "Effect Index"
-  description: {
-    label: |`md
-      # Effect Index
-    `|
-  }
+    label: "Effect Index"
 
-  effect: "Effect"
-  effect_category: "Effect Category"
+    effect: "Effect"
+    effect_category: "Effect Category"
 
-  effect -> effect_category
+    effect -> effect_category
 }
 
 substance_index: {
-  label: "Substance Index"
+    label: "Substance Index"
 
-  # Substance
-  substance: "Substance"
-  route_of_administration: "Route of Administration"
-  dosage: "Dosage"
-  phase: "Phase"
+    # Substance
+    substance: "Substance"
+    route_of_administration: "Route of Administration"
+    dosage: "Dosage"
+    phase: "Phase"
 
-  route_of_administration -> substance
-  dosage -> route_of_administration
-  phase -> route_of_administration
+    route_of_administration -> substance
+    dosage -> route_of_administration
+    phase -> route_of_administration
 
-  substance -> _.effect_index.effect: {
-    style.opacity: 0.2
-  }
-  dosage -> _.effect_index.effect: {
-    style.opacity: 0.2
-  }
-  phase -> _.effect_index.effect: {
-    style.opacity: 0.2
-  }
-  route_of_administration -> _.effect_index.effect: {
-    style.opacity: 0.2
-  }
+    substance -> _.effect_index.effect: {
+        class: ghost_relation
+    }
+    dosage -> _.effect_index.effect: {
+        class: ghost_relation
+    }
+    phase -> _.effect_index.effect: {
+        class: ghost_relation
+    }
+    route_of_administration -> _.effect_index.effect: {
+        class: ghost_relation
+    }
 }
 
 # Journal data model
 # [DATE], Ingested [SUBSTANCE] at [DOSAGE] [UNIT] via [ROUTE OF ADMINISTRATION] of [SUBSTANCE], [NOTES]
 # Entry will following with each [PHASE] of ingestion to which effect will be correlated.
 journal: {
-  # TODO: Journal should be more in the form of calendar instead of plain storage of entries.
+    # TODO: Journal should be more in the form of calendar instead of plain storage of entries.
 
-  label: "Journal"
+    label: "Journal"
 
-  jounral_entry: "Journal Entry"
-  ingestion: {
-    label: "Ingestion"
-    tooltip: "Ingestion is a single record of ingesting some compound by some route at specific dosage at specific time."
-  }
-  ingestion_phase: "Ingestion Phase"
-  ingestion_analytics: "Ingestion Analytics"
+    jounral_entry: "Journal Entry"
+    ingestion: {
+        label: "Ingestion"
+        tooltip: "Ingestion is a single record of ingesting some compound by some route at specific dosage at specific time."
+    }
+    ingestion_phase: "Ingestion Phase"
+    ingestion_analytics: "Ingestion Analytics"
 
-  ingestion -> _.substance_index.substance: {
-    style.opacity: 0.2
-  }
-  ingestion -> _.subject_database.subject: {
-    style.opacity: 0.2
-  }
+    ingestion -> _.substance_index.substance: {
+        class: ghost_relation
+    }
+    ingestion -> _.subject_database.subject: {
+        class: ghost_relation
+    }
 
-  ingestion_analytics -> ingestion: "Pre-computed analytics"
-  ingestion_phase -> ingestion_analytics
+    ingestion_analytics -> ingestion: "Pre-computed analytics"
+    ingestion_phase -> ingestion_analytics
 }
 
 experience_db: {
-  label: "Experience Dataset"
+    # Metadata
+    label: "Experience Dataset"
 
-  experience: "Expereince"
+    # Core Entities
+    experience: "Expereince"
 
-  experience -> _.subject_database.subject: {
-    label: "may contain"
-    style.opacity: 0.2
-  }
-  experience -> _.journal.ingestion: {
-    label: "may contain"
-    style.opacity: 0.2
-  }
+    # Foreign Entities
+    subject: "Subject"
+    ingestion: "Ingestion"
+
+    subject.class: ghost_relation
+    ingestion.class: ghost_relation
+
+    # Relations
+    experience -> subject: {
+        class: ghost_relation
+    }
+    experience -> ingestion: {
+        class: ghost_relation
+    }
+
+    # Foreign Relations
+    ingestion -> _.journal.ingestion: {
+        class: ghost_relation
+    }
+    subject -> _.subject_database.subject: {
+        class: ghost_relation
+    }
+}
+
+subject_stash: {
+    label: "Possession Tracking"
+
+    stash_possesion: "Stash Possession"
+    stash_transaction: "Stash Transaction"
+    substance: {
+        label: "Substance"
+        class: ghost_relation
+    }
+    ingestion: {
+        label: "Ingestion"
+        class: ghost_relation
+    }
+    subject: {
+        label: "Subject"
+        class: ghost_relation
+    }
+
+    ingestion -> _.journal.ingestion: {
+        class: ghost_relation
+    }
+    substance -> _.substance_index.substance: {
+        class: ghost_relation
+    }
+    subject -> _.subject_database.subject: {
+        class: ghost_relation
+    }
+
+    stash_transaction -> stash_possesion
+
+    stash_transaction -> ingestion: {
+        class: ghost_relation
+    }
+    stash_possesion -> subject: {
+        class: ghost_relation
+    }
+    stash_possesion -> substance: {
+        class: ghost_relation
+    }
 }
 
 subject_stash: {
