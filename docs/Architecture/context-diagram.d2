@@ -105,3 +105,43 @@ experience_db: {
     style.opacity: 0.2
   }
 }
+
+subject_stash: {
+  label: "Possession Tracking"
+
+  stash_possesion: "Stash Possession"
+  stash_transaction: "Stash Transaction"
+  substance: {
+    label: "Substance"
+    style.opacity: 0.2
+  }
+  ingestion: {
+    label: "Ingestion"
+    style.opacity: 0.2
+  }
+  subject: {
+    label: "Subject"
+    style.opacity: 0.2
+  }
+
+  ingestion -> _.journal.ingestion: {
+    style.opacity: 0.2
+  }
+  substance -> _.substance_index.substance: {
+    style.opacity: 0.2
+  }
+  subject -> _.subject_database.subject: {
+    style.opacity: 0.2
+  }
+
+  stash_transaction -> stash_possesion
+  stash_transaction -> ingestion: {
+    style.opacity: 0.2
+  }
+  stash_possesion -> subject: {
+    style.opacity: 0.2
+  }
+  stash_possesion -> substance: {
+    style.opacity: 0.2
+  }
+}
