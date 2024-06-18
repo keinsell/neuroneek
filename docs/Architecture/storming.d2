@@ -11,214 +11,227 @@
 direction: right
 
 vars: {
-  name: Joe
-  colors: {
-    primary: "#065535"
-    command: "#1976D2"
-    event: "#F26419"
-    aggregate: "#FFB703"
-    bounded_context: "#E91E63"
-    timeline: "#607D8B"
-    actor_role: "#9C27B0"
-    read_model: "#4CAF50"
-    policy: "#F48FB1"
-    external_system: "#757575"
-  }
+name: Joe
+colors: {
+primary: "#065535"
+command: "#1976D2"
+event: "#F26419"
+aggregate: "#FFB703"
+bounded_context: "#E91E63"
+timeline: "#607D8B"
+actor_role: "#9C27B0"
+read_model: "#4CAF50"
+policy: "#F48FB1"
+external_system: "#757575"
+}
 }
 
 classes: {
-  base: {
-    style: {
-      border-radius: 4
-      shadow: true
-    }
-  }
-  command: {
-    style.stroke: ${colors.command}
-  }
-  actor: {
-    shape: person
-    style.stroke-dash: 3
-  }
-  event: {
-    style.stroke: ${colors.event}
-  }
-  aggregate: {
-    style.stroke: ${colors.aggregate}
-  }
-  bounded_context: {
-    style.stroke: ${colors.bounded_context}
-  }
-  timeline: {
-    style.stroke: ${colors.timeline}
-  }
-  med: {
-    width: 200
-    height: 200
-    style.font-size: 24
-  }
-  large: {
-    width: 300
-    height: 300
-    style.font-size: 28
-  }
-  xlarge: {
-    width: 400
-    height: 400
-    style.font-size: 32
-  }
-  person: {
-    shape: person
-    style.stroke-dash: 3
-  }
+base: {
+style: {
+border-radius: 4
+shadow: true
+}
+}
+command: {
+style.stroke: ${colors.command}
+}
+actor: {
+shape: person
+style.stroke-dash: 3
+}
+event: {
+style.stroke: ${colors.event}
+}
+aggregate: {
+style.stroke: ${colors.aggregate}
+}
+bounded_context: {
+style.stroke: ${colors.bounded_context}
+}
+timeline: {
+style.stroke: ${colors.timeline}
+}
+med: {
+width: 200
+height: 200
+style.font-size: 24
+}
+large: {
+width: 300
+height: 300
+style.font-size: 28
+}
+xlarge: {
+width: 400
+height: 400
+style.font-size: 32
+}
+person: {
+shape: person
+style.stroke-dash: 3
+}
 }
 
 identity_and_access_management: {
-  label: "Identity and Access Management"
-  style.stroke: "#E91E63"
+label: "Identity and Access Management"
+style.stroke: "#E91E63"
 
-  # Commands
-  create_account: {
-    label: "Create Account"
-    class: command
-  }
+# Commands
+create_account: {
+label: "Create Account"
+class: command
+}
 
-  # Events
-  account_created: {
-    label: "Account Created"
-    style.stroke: "#f4a261"
-  }
+# Events
+account_created: {
+label: "Account Created"
+style.stroke: "#f4a261"
+}
 
-  account_created
-  account_created.style.stroke: "#f4a261"
+account_created
+account_created.style.stroke: "#f4a261"
 
-  create_account
-  create_account.style.stroke: "#1976D2"
+create_account
+create_account.style.stroke: "#1976D2"
 
-  account
-  account.style.stroke: "#FFB703"
+account
+account.style.stroke: "#FFB703"
 
-  account_vm
-  account_vm.style.stroke: "#4CAF50"
+account_vm
+account_vm.style.stroke: "#4CAF50"
 
-  account_registration: {
-    label: "Account Registration"
-    style.stroke: "#E91E63"
+account_registration: {
+label: "Account Registration"
+style.stroke: "#E91E63"
 
-    register_account: {
-      label: "Register Account"
-      class: command
-    }
+register_account: {
+label: "Register Account"
+class: command
+}
 
-    account_registered: {
-      label: "Account Registered"
-      style.stroke: "#f4a261"
-    }
+account_registered: {
+label: "Account Registered"
+style.stroke: "#f4a261"
+}
 
-    account: {
-      label: "Account"
-      class: aggregate
-    }
+account: {
+label: "Account"
+class: aggregate
+}
 
-    unknown_user: {
-      label: "Unknown User"
-      class: actor
-    }
+unknown_user: {
+label: "Unknown User"
+class: actor
+}
 
-    unknown_user -> register_account -> account -> account_registered -> account_vm
-  }
+unknown_user -> register_account -> account -> account_registered -> account_vm
+}
 
-  account_confirmation: {
-    label: "Account Confirmation"
-    style.stroke: "#E91E63"
+account_confirmation: {
+label: "Account Confirmation"
+style.stroke: "#E91E63"
 
-    confirm_account: {
-      label: "Confirm Account"
-      class: command
-    }
+confirm_account: {
+label: "Confirm Account"
+class: command
+}
 
-    account_confirmed: {
-      label: "Account Confirmed"
-      style.stroke: "#f4a261"
-    }
+account_confirmed: {
+label: "Account Confirmed"
+style.stroke: "#f4a261"
+}
 
-    account: {
-      label: "Account"
-      class: aggregate
-    }
+account: {
+label: "Account"
+class: aggregate
+}
 
-    account_view_model: {
-      label: "Account View Model"
-      class: read_model
-    }
+account_view_model: {
+label: "Account View Model"
+class: read_model
+}
 
-    account_registration -> confirm_account -> account -> account_confirmed -> account_view_model
-  }
+account_registration -> confirm_account -> account -> account_confirmed -> account_view_model
+}
 
-  account_deletion: {
-    label: "Account Deletion"
-    style.stroke: "#E91E63"
-  }
+account_deletion: {
+label: "Account Deletion"
+style.stroke: "#E91E63"
+}
 
-  password_reset: {
-    label: "Password Reset"
-    style.stroke: "#E91E63"
-  }
+password_reset: {
+label: "Password Reset"
+style.stroke: "#E91E63"
+}
 
-  account_update: {
-    label: "Account Update"
-    style.stroke: "#E91E63"
+account_update: {
+label: "Account Update"
+style.stroke: "#E91E63"
 
-    update_account: {
-      label: "Update Account"
-      class: command
-    }
+update_account: {
+label: "Update Account"
+class: command
+}
 
-    account_updated: {
-      label: "Account Updated"
-      style.stroke: "#f4a261"
-    }
+account_updated: {
+label: "Account Updated"
+style.stroke: "#f4a261"
+}
 
-    account: {
-      label: "Account"
-      class: aggregate
-    }
+account: {
+label: "Account"
+class: aggregate
+}
 
-    account_view_model: {
-      label: "Account View Model"
-      class: read_model
-    }
+account_view_model: {
+label: "Account View Model"
+class: read_model
+}
 
-    account_registration -> update_account -> account -> account_updated -> account_view_model
-  }
+account_registration -> update_account -> account -> account_updated -> account_view_model
+}
 
-  account_registration -> account_confirmation
-  account_registration -> account_deletion
-  account_confirmation -> password_reset
-  account_registration -> account_update
+account_registration -> account_confirmation
+account_registration -> account_deletion
+account_confirmation -> password_reset
+account_registration -> account_update
+}
+
+ingestion_analyzer: {
+label: "Ingestion Analyzer"
+style.stroke: "#E91E63"
+
+analyze_ingestion: {
+label: "Analyze Ingestion"
+class: query
+}
 }
 
 ingestion_journal: {
-  label: "Ingestion Journal"
-  style.stroke: "#E91E63"
+label: "Ingestion Journal"
+style.stroke: "#E91E63"
 
-  create_ingestion
-  delete_ingestion
-  update_ingestion
-  plan_ingestion
+create_ingestion
+delete_ingestion
+update_ingestion
+plan_ingestion
 
-  plan_ingestion -> ingestion -> ingestions_fetched -> statistics_calculated -> interactions_checked -> duration_calculated -> rules_checked -> ingestion_plan_view_model
+plan_ingestion -> ingestion -> ingestions_fetched -> statistics_calculated -> interactions_checked -> duration_calculated -> rules_checked -> ingestion_plan_view_model
 }
 
 # Ingestion Intelligence is a component dedicated to the analysis of the data
-# contained in the ingestions journals to predict and avoid harm potential.
-# This is also intented to calculate and visualize statistics about the
+# contained in the ingestion's journals to predict and avoid harm potential.
+# This is also intended to calculate and visualize statistics about the
 # interactions between the users and the system.
-ingestion_intelligence: {
-  label: "Ingestion Intelligence"
+analytics: {
+label: "Ingestion Intelligence"
 
-  # TODO: Average ingestions
-  # TODO: Average dosages
-  # TODO: Most common effects
-  # TODO: Most common side-effects
+# TODO: Average ingestions
+# TODO: Average dosages
+# TODO: Most common effects
+# TODO: Most common side-effects
+        # TODO: More research in needed how to design such component, as statistics should be
+        # generated in the way where data frames can be set by users and user can selectively
+        # choose the data to be analyzed.
 }

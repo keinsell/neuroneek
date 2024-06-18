@@ -11,11 +11,22 @@ subject_database: {
 
     subject: "Subject"
 
-    subject -> _.iam.account: (optionally)
+    subject -> _.iam.account: {
+        style.opacity: 0.2
+    }
 }
 
-substance_database: {
-    label: "Public Substance Information"
+effect_index: {
+    label: "Effect Index"
+
+    effect: "Effect"
+    effect_category: "Effect Category"
+
+    effect -> effect_category
+}
+
+substance_index: {
+    label: "Substance Index"
 
     # Substance
     substance: "Substance"
@@ -26,18 +37,46 @@ substance_database: {
     route_of_administration -> substance
     dosage -> route_of_administration
     phase -> route_of_administration
+
+    substance -> _.effect_index.effect: {
+        style.opacity: 0.2
+    }
+    dosage -> _.effect_index.effect: {
+        style.opacity: 0.2
+    }
+    phase -> _.effect_index.effect: {
+        style.opacity: 0.2
+    }
+    route_of_administration -> _.effect_index.effect: {
+        style.opacity: 0.2
+    }
 }
 
+# Journal data model
+# [DATE], Ingested [SUBSTANCE] at [DOSAGE] [UNIT] via [ROUTE OF ADMINISTRATION] of [SUBSTANCE], [NOTES]
+# Entry will following with each [PHASE] of ingestion to which effect will be correlated.
 journal: {
+    # TODO: Journal should be more in the form of calendar instead of plain storage of entries.
+
     label: "Journal"
 
-    ingestion: "Ingestion"
+    jounral_entry: "Journal Entry"
+    ingestion: {
+        label: "Ingestion"
+        tooltip: "Ingestion is a single record of ingesting some compound by some route at specific dosage at specific time."
+    }
     ingestion_phase: "Ingestion Phase"
+    ingestion_analytics: "Ingestion Analytics"
 
-    ingestion -> _.substance_database.substance
-    ingestion -> _.subject_database.subject
+    ingestion -> _.substance_index.substance: {
+        style.opacity: 0.2
+    }
+    ingestion -> _.subject_database.subject: {
+        style.opacity: 0.2
+    }
 
-    ingestion_phase -> ingestion
+    ingestion_analytics -> ingestion: "Pre-computed analytics"
+    ingestion_phase -> ingestion_analytics
 }
 
 experience_db: {
@@ -47,8 +86,10 @@ experience_db: {
 
     experience -> _.subject_database.subject: {
         label: "may contain"
+        style.opacity: 0.2
     }
     experience -> _.journal.ingestion: {
         label: "may contain"
+        style.opacity: 0.2
     }
 }
