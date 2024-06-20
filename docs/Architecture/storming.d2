@@ -1,17 +1,14 @@
-# Event	#F26419
-# Command	#1976D2
-# Aggregate	#FFB703
-# Bounded Context	#E91E63
-# Timeline	#607D8B
-# Actor/Role	#9C27B0
-# Read Model	#4CAF50
-# Policy	#F48FB1
-# External System	#757575
-
-direction: right
+# Checksheet: https://terrastruct-site-assets.s3.us-west-1.amazonaws.com/documents/d2_cheat_sheet.pdf
 
 vars: {
-name: Joe
+d2-config: {
+layout-engine: dagre
+theme-id: 101
+}
+actors: {
+unknown_user: "Unknown User"
+authenticated_user: "Authenticated User"
+}
 colors: {
 primary: "#065535"
 command: "#1976D2"
@@ -26,212 +23,397 @@ external_system: "#757575"
 }
 }
 
-classes: {
-base: {
-style: {
-border-radius: 4
-shadow: true
-}
-}
-command: {
+class: {
+command_step: {
+shape: step
 style.stroke: ${colors.command}
-}
-actor: {
-shape: person
-style.stroke-dash: 3
-}
-event: {
-style.stroke: ${colors.event}
-}
-aggregate: {
-style.stroke: ${colors.aggregate}
-}
-bounded_context: {
-style.stroke: ${colors.bounded_context}
-}
-timeline: {
-style.stroke: ${colors.timeline}
-}
-med: {
-width: 200
-height: 200
-style.font-size: 24
-}
-large: {
-width: 300
-height: 300
-style.font-size: 28
-}
-xlarge: {
-width: 400
-height: 400
-style.font-size: 32
-}
-person: {
-shape: person
-style.stroke-dash: 3
+style.fill: ${colors.command}
 }
 }
+
+explain: |md
+
+# Neuronek
+🧬 Intelligent dosage tracker application with purpose to monitor<br/> supplements, nootropics and psychoactive substances along with their<br/> long-term influence on one's mind and body.
+
+| {
+near: top-center
+}
+
+system: {
+label: "System"
+link: layers.overview
+}
+
+layers: {
+overview: {
+label: "Overview"
+
+neuronek: {
+label: "Neuronek"
+link: layers.containers
+}
+
+layers: {
+containers: {
+label: "Containers"
+
+cli: {
+label: "CLI"
+style.opacity: 1
+_.cli -> _.embdeeded_database
+}
+
+desktop: {
+label: "Desktop Application"
+style.opacity: 0.2
+_.desktop -> _.embdeeded_database: {style.opacity: 0.2}
+}
+
+etl_pipeline: {
+label: "ETL Pipeline"
+_.etl_pipeline -> _.embdeeded_database
+_.etl_pipeline -> _.database_instance: {style.opacity: 0.2}
+}
+
+restful_server: {
+label: "RESTFul Server"
+_.restful_server -> _.database_instance: {style.opacity: 0.1}
+}
+
+graphql_server: {
+label: "GraphQL Server"
+style.opacity: 0.2
+_.graphql_server -> _.database_instance: {style.opacity: 0.2}
+}
+
+web: {
+label: "Web Application"
+style.opacity: 0.5
+_.web -> _.restful_server: {style.opacity: 0.5}
+}
+
+administration_panel: {
+label: "Administration Panel"
+style.opacity: 0.1
+_.administration_panel -> _.graphql_server: {style.opacity: 0.1}
+}
+
+contributor_panel: {
+label: "Contributor Panel"
+style.opacity: 0.1
+_.contributor_panel -> _.restful_server: {style.opacity: 0.1}
+}
+
+embdeeded_database: {
+shape: cylinder
+label: "Embdeedable Storage"
+}
+
+database_instance: {
+# icon: https://icons.terrastruct.com/dev%2Fpostgresql.svg
+shape: cylinder
+label: "Cloud database"
+style.opacity: 0.1
+}
+
+layers: {
+components: {
+label: "Components"
+
+layers: {
+cli: {
+label: "@neuronek/cli"
 
 identity_and_access_management: {
 label: "Identity and Access Management"
-style.stroke: "#E91E63"
-
-# Commands
-create_account: {
-label: "Create Account"
-class: command
+link: .overview.identity_and_access_management
 }
 
-# Events
-account_created: {
-label: "Account Created"
-style.stroke: "#f4a261"
+subject: "Subject"
+subject -> identity_and_access_management
+
+effect_index: "Effect Index"
+
+substance_index: "Substance Index"
+substance_index -> effect_index
+
+experience_index: "Experience Index"
+experience_index -> substance_index
+experience_index -> effect_index
+
+journal: "Journal"
+journal -> subject
+journal -> substance_index
+
+analyzer: "Analyzer"
+analyzer -> journal
+analyzer -> substance_index
+}
+}
+}
+}
 }
 
-account_created
-account_created.style.stroke: "#f4a261"
+test: {
+explanation: |md
 
-create_account
-create_account.style.stroke: "#1976D2"
+          # LLMs
 
-account
-account.style.stroke: "#FFB703"
+          The Large Language Model (LLM) is a powerful AI\
 
-account_vm
-account_vm.style.stroke: "#4CAF50"
+            system that learns from vast amounts of text data.\
 
-account_registration: {
-label: "Account Registration"
-style.stroke: "#E91E63"
+          By analyzing patterns and structures in language,\
+
+          it gains an understanding of grammar, facts,\
+
+          and even some reasoning abilities. As users input text,\
+
+          the LLM predicts the most likely next words or phrases\
+
+          to create coherent responses. The model\
+
+          continuously fine-tunes its output, considering both the\
+
+          user's input and its own vast knowledge base.\
+
+          This cutting-edge technology enables LLM to generate human-like text,\
+
+          making it a valuable tool for various applications.
+
+| {
+near: center-left
+}
+
+ML Platform -> Pre-trained models
+
+ML Platform -> Model registry
+
+ML Platform -> Compiler
+
+ML Platform -> Validation
+
+ML Platform -> Auditing
+
+Model registry -> Server.Batch Predictor
+
+Server.Online Model Server
+}
+
+persistance: {
+identity: {
+shape: sql_table
+id: int {constraint: primary_key}
+username: text
+password: text
+updated_at: timestamp with time zone
+created_at: timestamp with time zone
+}
+session: {
+shape: sql_table
+id: int {constraint: primary_key}
+account_id: int {constraint: foreign_key}
+updated_at: timestamp with time zone
+created_at: timestamp with time zone
+}
+
+session.account_id -> identity.id
+}
+}
+}
+application_process: {
+label: Application Process
+
+direction: left
 
 register_account: {
+shape: page
+label: Register Account
+
+actor: {
+shape: step
+label: "Unauthenticated User"
+}
+
+command: {
+shape: step
 label: "Register Account"
-class: command
-}
-
-account_registered: {
-label: "Account Registered"
-style.stroke: "#f4a261"
+style.fill: "#22f2d3"
+_.command -> _.actor
 }
 
 account: {
+shape: step
 label: "Account"
-class: aggregate
+style.fill: "#e5de29"
+}
+account -> command
+
+account_created: {
+shape: step
+label: "Account Created"
+
+_.account_created -> _.account
+style.fill: "#eab42a"
 }
 
-unknown_user: {
-label: "Unknown User"
-class: actor
-}
-
-unknown_user -> register_account -> account -> account_registered -> account_vm
-}
-
-account_confirmation: {
-label: "Account Confirmation"
-style.stroke: "#E91E63"
-
-confirm_account: {
-label: "Confirm Account"
-class: command
-}
-
-account_confirmed: {
-label: "Account Confirmed"
-style.stroke: "#f4a261"
-}
-
-account: {
-label: "Account"
-class: aggregate
-}
-
-account_view_model: {
+account_view: {
+shape: step
 label: "Account View Model"
-class: read_model
-}
-
-account_registration -> confirm_account -> account -> account_confirmed -> account_view_model
-}
-
-account_deletion: {
-label: "Account Deletion"
-style.stroke: "#E91E63"
-}
-
-password_reset: {
-label: "Password Reset"
-style.stroke: "#E91E63"
-}
-
-account_update: {
-label: "Account Update"
-style.stroke: "#E91E63"
-
-update_account: {
-label: "Update Account"
-class: command
-}
-
-account_updated: {
-label: "Account Updated"
-style.stroke: "#f4a261"
-}
-
-account: {
-label: "Account"
-class: aggregate
-}
-
-account_view_model: {
-label: "Account View Model"
-class: read_model
-}
-
-account_registration -> update_account -> account -> account_updated -> account_view_model
-}
-
-account_registration -> account_confirmation
-account_registration -> account_deletion
-account_confirmation -> password_reset
-account_registration -> account_update
-}
-
-ingestion_analyzer: {
-label: "Ingestion Analyzer"
-style.stroke: "#E91E63"
-
-analyze_ingestion: {
-label: "Analyze Ingestion"
-class: query
+_.account_view -> _.account_created
+style.fill: "#a6ef84"
 }
 }
 
-ingestion_journal: {
-label: "Ingestion Journal"
-style.stroke: "#E91E63"
+basic_authentication: {
+direction: left
+shape: page
+label: Basic Authentication
+_.basic_authentication -> _.register_account
 
-create_ingestion
-delete_ingestion
-update_ingestion
-plan_ingestion
-
-plan_ingestion -> ingestion -> ingestions_fetched -> statistics_calculated -> interactions_checked -> duration_calculated -> rules_checked -> ingestion_plan_view_model
+actor: {
+shape: step
+label: "Unauthenticated User"
 }
 
-# Ingestion Intelligence is a component dedicated to the analysis of the data
-# contained in the ingestion's journals to predict and avoid harm potential.
-# This is also intended to calculate and visualize statistics about the
-# interactions between the users and the system.
-analytics: {
-label: "Ingestion Intelligence"
+command: {
+shape: step
+label: "Authenticate with basic method"
+style.fill: "#22f2d3"
+_.command -> _.actor
+}
 
-# TODO: Average ingestions
-# TODO: Average dosages
-# TODO: Most common effects
-# TODO: Most common side-effects
-        # TODO: More research in needed how to design such component, as statistics should be
-        # generated in the way where data frames can be set by users and user can selectively
-        # choose the data to be analyzed.
+aggregate: {
+shape: step
+label: "Authentication Service"
+style.fill: "#e5de29"
+_.aggregate -> _.command
+}
+
+event: {
+shape: step
+label: "Account Authenticated"
+
+_.event -> _.aggregate
+style.fill: "#eab42a"
+}
+
+event2: {
+shape: step
+label: "Session Initalized"
+
+_.event -> _.event2
+style.fill: "#eab42a"
+}
+
+view: {
+shape: step
+label: "JWT Tokens"
+_.view -> _.event2
+style.fill: "#a6ef84"
+}
+}
+
+delete_account: {
+direction: left
+shape: page
+label: Delete Account
+
+information: {
+shape: step
+label: "JWT Tokens"
+style.fill: "#a6ef84"
+_.information -> _._.basic_authentication.view
+}
+
+actor: {
+shape: step
+label: "Authenticated User"
+_.actor -> _.information
+}
+
+command: {
+shape: step
+label: "Delete account"
+style.fill: "#22f2d3"
+_.command -> _.actor
+}
+
+aggregate: {
+shape: step
+label: "Identity"
+style.fill: "#e5de29"
+_.aggregate -> _.command
+}
+
+event: {
+shape: step
+label: "Account Deleted"
+_.event -> _.aggregate
+style.fill: "#eab42a"
+}
+
+event2: {
+shape: step
+label: "Session Destroyed"
+_.event -> _.event2
+style.fill: "#eab42a"
+}
+
+view: {
+shape: step
+label: "Account Deletion Successful"
+_.view -> _.event2
+style.fill: "#a6ef84"
+}
+}
+
+create_subject: {
+direction: left
+shape: page
+label: Create Subject
+
+information: {
+shape: step
+label: "JWT Tokens"
+style.fill: "#a6ef84"
+_.information -> _._.basic_authentication.view
+}
+
+actor: {
+shape: step
+label: "User"
+_.actor -> _.information
+}
+
+command: {
+shape: step
+label: "Create Subject"
+style.fill: "#22f2d3"
+_.command -> _.actor
+}
+
+aggregate: {
+shape: step
+label: "Subject"
+style.fill: "#e5de29"
+_.aggregate -> _.command
+}
+
+event: {
+shape: step
+label: "Subject Created"
+_.event -> _.aggregate
+style.fill: "#eab42a"
+}
+
+view: {
+shape: step
+label: "Subject"
+_.view -> _.event
+style.fill: "#a6ef84"
+}
+}
+}
 }
