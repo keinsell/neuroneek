@@ -1,8 +1,8 @@
 use log::debug;
 use xdg::BaseDirectories;
 
-use db::{ConnectionTrait, DbErr, IntoSchemaManagerConnection, Migrator, MigratorTrait};
 use db::sea_orm::{Database, DatabaseConnection, DbBackend};
+use db::{ConnectionTrait, DbErr, IntoSchemaManagerConnection, Migrator, MigratorTrait};
 
 use crate::orm;
 

@@ -1,0 +1,4 @@
+[alias]
+start = "run --"
+generate = "diesel print-schema --with-docs -c diesel.toml"
+migration_generate = "diesel migration generate"

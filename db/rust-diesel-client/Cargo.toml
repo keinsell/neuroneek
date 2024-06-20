@@ -1,0 +1,14 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "db-diesel"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+diesel = { version = "2.2.0", features = ["sqlite", "chrono", "serde_json"] }
+dotenvy = "0.15"
+serde = { version = "1.0.203", features = ["derive"] }
+
+[dev-dependencies]
+diesel_cli = { version = "2.2.1", features = ["sqlite"], default-features = false }

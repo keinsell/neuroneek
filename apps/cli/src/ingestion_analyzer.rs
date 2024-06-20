@@ -6,7 +6,7 @@ use std::fmt::{Debug, Display};
 use std::time::Duration;
 
 use chrono::{DateTime, Local, TimeZone};
-use chrono_english::{Dialect, parse_date_string};
+use chrono_english::{parse_date_string, Dialect};
 use chrono_humanize::HumanTime;
 use log::{debug, error};
 use measurements::Measurement;
@@ -232,16 +232,16 @@ pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
                                    .to_string()
     ));
     markdown.push_str(&format!("{}", "-".repeat(40) + "\n"));
-    markdown.push_str(&format!(
-        "🧪 {}\n",
-        ingestion_analysis.substance_name
-    ));
+    markdown.push_str(&format!("🧪 {}\n", ingestion_analysis.substance_name));
     markdown.push_str(&format!("{}", "-".repeat(3) + "\n"));
     markdown.push_str(&format!(
         "🥤 Route of Administration: **{:?}**\n",
         ingestion_analysis.route_of_administration_classification
     ));
-    markdown.push_str(&format!("🧮 Dosage: **{0:.0}**\n", ingestion_analysis.dosage));
+    markdown.push_str(&format!(
+        "🧮 Dosage: **{0:.0}**\n",
+        ingestion_analysis.dosage
+    ));
     markdown.push_str(&format!(
         "🧮 Dosage Classification: **{:?}**\n",
         ingestion_analysis.dosage_classification

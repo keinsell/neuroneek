@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/migration/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/apps/rust-server/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/db/rust-diesel-client/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/.tmp" />
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />

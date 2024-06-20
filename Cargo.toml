@@ -5,5 +5,5 @@ members = [
     "db/rust-seaorm-client",
     "apps/cli",
     "apps/rust-server"
-]
+, "db/rust-diesel-client"]
 resolver = "2"

@@ -4,16 +4,14 @@
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
-use fuzzy_matcher::FuzzyMatcher;
 use fuzzy_matcher::skim::SkimMatcherV2;
+use fuzzy_matcher::FuzzyMatcher;
 use log::debug;
 
 use db::sea_orm::*;
 use db::sea_orm::{DatabaseConnection, EntityTrait};
 
-use crate::core::dosage::{
-    DosageClassification, DosageRange, RouteOfAdministrationDosage,
-};
+use crate::core::dosage::{DosageClassification, DosageRange, RouteOfAdministrationDosage};
 use crate::core::mass::Mass;
 use crate::core::phase::{DurationRange, Phase, PhaseClassification};
 use crate::core::route_of_administration::{
@@ -57,25 +55,29 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                     let dosage_range: DosageRange = match dosage_classification {
                         DosageClassification::Threshold => {
                             let max_mass = Mass::from_str(
-                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit).as_str(),
+                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit)
+                                    .as_str(),
                             )
                             .unwrap();
                             DosageRange::Threshold(RangeTo { end: max_mass })
                         }
                         DosageClassification::Heavy => {
                             let min_mass = Mass::from_str(
-                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit).as_str(),
+                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit)
+                                    .as_str(),
                             )
                             .unwrap();
                             DosageRange::Heavy(RangeFrom { start: min_mass })
                         }
                         _ => {
                             let min_mass = Mass::from_str(
-                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit).as_str(),
+                                format!("{:?} {}", d.lower_bound_amount.unwrap(), mass_unit)
+                                    .as_str(),
                             )
                             .unwrap();
                             let max_mass = Mass::from_str(
-                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit).as_str(),
+                                format!("{:?} {}", d.upper_bound_amount.unwrap(), mass_unit)
+                                    .as_str(),
                             )
                             .unwrap();
                             DosageRange::Inclusive(Range {
@@ -129,11 +131,15 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
 
                 let lower_duration =
                     iso8601_duration::Duration::from_str(&serialized_lower_duration)
-                        .unwrap().to_std().unwrap();
+                        .unwrap()
+                        .to_std()
+                        .unwrap();
 
                 let upper_duration =
                     iso8601_duration::Duration::from_str(&serialized_upper_duration)
-                        .unwrap().to_std().unwrap();
+                        .unwrap()
+                        .to_std()
+                        .unwrap();
 
                 let phase_duration = DurationRange {
                     start: lower_duration,

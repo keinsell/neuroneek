@@ -3,9 +3,9 @@
 mod cli;
 mod core;
 mod ingestion_analyzer;
+mod ingestion_intelligence;
 mod orm;
 mod service;
-mod ingestion_intelligence;
 
 fn main() {
     cli::bin::main()

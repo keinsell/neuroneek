@@ -6,8 +6,8 @@ use structopt::StructOpt;
 use crate::cli::dashboard::handle_show_dashboard;
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
-use crate::cli::ingestion::IngestionCommand;
 use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
+use crate::cli::ingestion::IngestionCommand;
 use crate::cli::substance::list_substances::list_substances;
 use crate::orm;
 use crate::orm::migrate_database;
@@ -59,8 +59,7 @@ enum DataManagementCommand {
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "dashboard")]
-struct  DashboardCommand {
-}
+struct DashboardCommand {}
 
 pub async fn cli() {
     // Initialize panic hook

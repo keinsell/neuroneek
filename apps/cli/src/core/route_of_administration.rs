@@ -1,10 +1,10 @@
+use crate::core::dosage::{Dosage, DosageClassification, RouteOfAdministrationDosage};
+use crate::core::phase::{Phase, PhaseClassification};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
-use crate::core::phase::{Phase, PhaseClassification};
-use crate::core::dosage::{Dosage, DosageClassification, RouteOfAdministrationDosage};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -93,7 +93,7 @@ impl From<RouteOfAdministrationClassification> for String {
             RouteOfAdministrationClassification::Rectal => String::from("rectal"),
             RouteOfAdministrationClassification::Smoked => String::from("smoked"),
             RouteOfAdministrationClassification::Sublingual => String::from("sublingual"),
-            RouteOfAdministrationClassification::Transdermal => String::from("transdermal")
+            RouteOfAdministrationClassification::Transdermal => String::from("transdermal"),
         }
     }
 }
