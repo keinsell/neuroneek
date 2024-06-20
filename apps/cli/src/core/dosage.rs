@@ -57,7 +57,6 @@ pub enum DosageRange {
     Inclusive(Range<Dosage>),
 }
 
-
 impl DosageRange {
     pub fn contains(&self, mass: Dosage) -> bool {
         match self {
@@ -67,7 +66,6 @@ impl DosageRange {
         }
     }
 }
-
 
 pub fn test_measurements() {
     for power in -12..12 {

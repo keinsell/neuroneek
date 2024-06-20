@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
-use structopt::StructOpt;
 use db::sea_orm::DatabaseConnection;
+use structopt::StructOpt;
 
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
 use crate::ingestion_analyzer::analyze_future_ingestion;

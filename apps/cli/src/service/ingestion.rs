@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use chrono_english::{Dialect, parse_date_string};
+use chrono_english::{parse_date_string, Dialect};
 use chrono_humanize::HumanTime;
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
@@ -41,9 +41,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
             create_ingestion.route_of_administration.to_string().clone(),
         )),
         dosage_unit: ActiveValue::Set(Option::from("kg".to_owned())),
-        dosage_amount: ActiveValue::Set(Option::from(
-            parsed_mass.as_kilograms()
-        )),
+        dosage_amount: ActiveValue::Set(Option::from(parsed_mass.as_kilograms())),
         ingestion_date: ActiveValue::Set(Option::from(parsed_time.naive_utc())),
         subject_id: ActiveValue::Set(Option::from(String::from("unknown"))),
         stash_id: ActiveValue::NotSet,
@@ -55,7 +53,10 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
     {
         Ok(ingestion) => ingestion,
         Err(error) => {
-            println!("{:?}", db::ingestion::Entity::insert(ingestion_active_model).query());
+            println!(
+                "{:?}",
+                db::ingestion::Entity::insert(ingestion_active_model).query()
+            );
             panic!("Error inserting ingestion: {}", error)
         }
     };
@@ -81,18 +82,25 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
     let view_models: Vec<ViewModel> = ingestions
         .into_iter()
         .map(|ingestion| {
-            let ingestion_date: DateTime<Utc> = chrono::DateTime::<Utc>::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
+            let ingestion_date: DateTime<Utc> = chrono::DateTime::<Utc>::from_naive_utc_and_offset(
+                ingestion.ingestion_date.unwrap().clone(),
+                Utc,
+            );
 
             ViewModel {
                 id: ingestion.id.to_string(),
                 ingested_at: HumanTime::from(ingestion_date).to_string(),
                 dosage: format!(
                     "{0:.0}",
-                    Dosage::from_str(format!(
-                        "{} {}",
-                        ingestion.dosage_amount.unwrap(),
-                        ingestion.dosage_unit.unwrap()
-                    ).as_str()).unwrap()
+                    Dosage::from_str(
+                        format!(
+                            "{} {}",
+                            ingestion.dosage_amount.unwrap(),
+                            ingestion.dosage_unit.unwrap()
+                        )
+                        .as_str()
+                    )
+                    .unwrap()
                 ),
                 substance_name: ingestion.substance_name.unwrap(),
                 route_of_administration: ingestion.administration_route.unwrap(),
@@ -101,7 +109,9 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
         .collect();
 
     for view_model in &view_models {
-        get_ingestion_by_id(view_model.id.parse::<i32>().unwrap().clone()).await.unwrap();
+        get_ingestion_by_id(view_model.id.parse::<i32>().unwrap().clone())
+            .await
+            .unwrap();
     }
 
     let string_table = Table::new(view_models);
@@ -109,7 +119,7 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
 }
 
 /// This function will return a single ingestion
-/// (internal application model) by its ID or will throw an 
+/// (internal application model) by its ID or will throw an
 /// error if the ingestion is not found or could not be constructed.
 /// This is intended to be used for
 /// all the internal analysis and processing of ingestion data.
@@ -119,12 +129,27 @@ pub async fn list_ingestion(db: &DatabaseConnection) {
 /// local cache.
 pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
     // Find ingestion in a database by ID
-    let ingestion = db::ingestion::Entity::find_by_id(_id).one(&DB_CONNECTION as &DatabaseConnection).await.unwrap().unwrap();
-    let substance = get_substance_by_name(&ingestion.substance_name.unwrap().clone()).await.unwrap();
+    let ingestion = db::ingestion::Entity::find_by_id(_id)
+        .one(&DB_CONNECTION as &DatabaseConnection)
+        .await
+        .unwrap()
+        .unwrap();
+    let substance = get_substance_by_name(&ingestion.substance_name.unwrap().clone())
+        .await
+        .unwrap();
     let route_of_administration_classification = RouteOfAdministrationClassification::from_str(&ingestion.administration_route.unwrap_or_else(|| panic!("Tried to read route of administration of ingestion but none was found, it's weird as it should be there..."))).unwrap_or_else(|_| panic!("Tried to read route of administration of ingestion but none was found, it's weird as it should be there..."));
-    let ingestion_mass = Dosage::from_str(format!("{} {}", &ingestion.dosage_amount.unwrap(), &ingestion.dosage_unit.unwrap()).as_str()).unwrap();
+    let ingestion_mass = Dosage::from_str(
+        format!(
+            "{} {}",
+            &ingestion.dosage_amount.unwrap(),
+            &ingestion.dosage_unit.unwrap()
+        )
+        .as_str(),
+    )
+    .unwrap();
     println!("{:?}", ingestion.ingestion_date);
-    let parsed_ingestion_time = DateTime::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
+    let parsed_ingestion_time =
+        DateTime::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
 
     // Construct an ingestion model
     let mut ingestion_model = Ingestion {

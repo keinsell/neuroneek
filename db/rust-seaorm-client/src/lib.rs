@@ -2,12 +2,12 @@
 pub use sea_orm::prelude::*;
 pub use sea_orm_migration::prelude::*;
 
-pub mod prelude;
-mod migrations;
 pub mod account;
 pub mod chemical_class;
 pub mod effect;
 pub mod ingestion;
+mod migrations;
+pub mod prelude;
 pub mod psychoactive_class;
 pub mod stash;
 pub mod subject;
@@ -18,8 +18,6 @@ pub mod substance_route_of_administration_dosage;
 pub mod substance_route_of_administration_phase;
 pub mod substance_synonym;
 pub mod substance_tolerance;
-
-
 
 #[derive(Debug)]
 pub struct Migrator;
