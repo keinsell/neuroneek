@@ -5,13 +5,14 @@ use std::collections::HashMap;
 use std::str::FromStr;
 
 use chrono::{Duration, Local, Utc};
+use chrono_humanize::Humanize;
 use futures::stream;
 use futures::stream::StreamExt;
-use humantime::format_duration;
+use indicatif::{ProgressBar, ProgressStyle};
 use tabled::Table;
 
-use db::sea_orm::DatabaseConnection;
 use db::sea_orm::*;
+use db::sea_orm::DatabaseConnection;
 
 use crate::core::dosage::Dosage;
 use crate::core::ingestion::Ingestion;
@@ -86,33 +87,39 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
             (substance_name, average_dosage)
         })
         .collect::<HashMap<String, Dosage>>();
+    
+    let headers = vec![
+        "Substance Name".to_string(),
+        "Total Dosage".to_string(),
+        "Average Dosage per Day".to_string(),
+    ];
 
-    println!("\n");
-    println!("Substance Name, Total Dosage, Average Dosage per Day");
-
-    let table = Table::from_iter(
-        total_dosage_per_substance_for_last_7_days
-            .into_iter()
-            .map(|(substance_name, total_dosage)| {
-                vec![
-                    substance_name.clone(),
-                    format!("{:.0}", total_dosage).to_string(),
-                    format!(
-                        "{:.0}",
-                        average_dosage_per_day_per_substance_for_last_7_days
-                            .get(&substance_name)
-                            .unwrap()
-                    )
+    let data_rows: Vec<Vec<String>> = total_dosage_per_substance_for_last_7_days
+        .into_iter()
+        .map(|(substance_name, total_dosage)| {
+            vec![
+                substance_name.clone(),
+                format!("{:.0}", total_dosage).to_string(),
+                format!(
+                    "{:.0}",
+                    average_dosage_per_day_per_substance_for_last_7_days
+                        .get(&substance_name)
+                        .unwrap()
+                )
                     .to_string(),
-                ]
-            })
-            .collect::<Vec<_>>()
-            .iter()
-            .cloned(),
+            ]
+        })
+        .collect();
+
+    // Combine headers and data rows
+    let mut rows = vec![headers];
+    rows.extend(data_rows);
+    
+    let table = Table::from_iter(
+        rows.iter().cloned()
     );
 
     println!("{}", table.to_string());
-    println!("\n");
 
     // Filter all ingestions to find those which are active (onset, comeup, peak, offset)
     let active_ingestions = ingestions
@@ -135,9 +142,8 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
 
     println!("Active ingestions: {:#?}", active_ingestions.len());
 
-    // Iterate through active ingestions to print procentage of completion,
+    // Iterate through active ingestions to print percentage of completion,
     // time left and other useful information such as ingestion id and substance name.
-
     active_ingestions.into_iter().for_each(|ingestion| {
         let ingestion_start = ingestion
             .phases
@@ -154,12 +160,32 @@ pub async fn handle_show_dashboard(database_connection: &DatabaseConnection) {
         let elapsed_duration = now - ingestion_start;
         let remaining_duration = total_duration - elapsed_duration;
 
-        println!(
-            "#{} {} ({:.0}) | {}",
+        let progress = elapsed_duration.num_seconds() as f64 / total_duration.num_seconds() as f64 * 100.0;
+
+        let pb = ProgressBar::new(100);
+        pb.set_style(
+            ProgressStyle::default_bar()
+                .template("[{bar:.white/grey}] {msg}",).unwrap()
+                );
+        pb.set_position(progress as u64);
+        pb.set_message(format!(
+            "#{} {} ({} {:.0}) will come off {} (ingested {})",
             ingestion.id,
             ingestion.substance_name,
+            ingestion.administration_route,
             ingestion.dosage,
-            format_duration(remaining_duration.to_std().unwrap())
-        );
+            &remaining_duration.humanize(),
+                        ingestion.ingested_at.humanize(),
+        ));
+
+        println!()
+
+        // println!(
+        //     "#{} {} ({:.0} mg) | Time left: {}",
+        //     ingestion.id,
+        //     ingestion.substance_name,
+        //     ingestion.dosage,
+        //     format_duration(remaining_duration.to_std().unwrap())
+        // );
     });
 }
