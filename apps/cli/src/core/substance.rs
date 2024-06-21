@@ -10,9 +10,8 @@ pub type RoutesOfAdministration =
 
 #[derive(Debug)]
 pub struct Substance {
-    pub id: String,
+    // pub id: String,
     pub name: String,
-    pub common_names: Vec<String>,
     pub routes_of_administration: RoutesOfAdministration,
 }
 

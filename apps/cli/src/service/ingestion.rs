@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
-use chrono_english::{parse_date_string, Dialect};
+use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
 use serde::{Deserialize, Serialize};
 use tabled::{Table, Tabled};
@@ -147,7 +147,7 @@ pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
         .as_str(),
     )
     .unwrap();
-    println!("{:?}", ingestion.ingestion_date);
+    
     let parsed_ingestion_time =
         DateTime::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
 

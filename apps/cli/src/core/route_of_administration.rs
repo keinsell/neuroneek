@@ -1,10 +1,12 @@
-use crate::core::dosage::{Dosage, DosageClassification, RouteOfAdministrationDosage};
-use crate::core::phase::{Phase, PhaseClassification};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::str::FromStr;
+
+use serde::{Deserialize, Serialize};
 use strsim::normalized_levenshtein;
+
+use crate::core::dosage::{Dosage, DosageClassification, RouteOfAdministrationDosage};
+use crate::core::phase::{Phase, PhaseClassification};
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -105,26 +107,30 @@ fn should_match_insufflated_input_with_insufflated_enum() {
 }
 
 pub type RouteOfAdministrationDosages = HashMap<DosageClassification, RouteOfAdministrationDosage>;
+
+pub trait FindClassificationByDosage {
+    fn find_classification_by_dosage(&self, dosage: &Dosage) -> Result<DosageClassification, String>;
+}
+
+impl FindClassificationByDosage for RouteOfAdministrationDosages {
+     fn find_classification_by_dosage(&self, dosage: &Dosage) -> Result<DosageClassification, String> {
+        for (classification, route_of_administration_dosage) in self {
+            if route_of_administration_dosage.dosage_range.contains(*dosage) {
+                return Ok(*classification);
+            }
+        }
+        Err("Dosage classification not found".to_string())
+    }
+}
+
+
 pub type RouteOfAdministrationPhases = HashMap<PhaseClassification, Phase>;
 
 #[derive(Debug, Clone)]
 pub struct RouteOfAdministration {
-    pub id: String,
-    pub substance_name: String,
+    // pub substance_name: String,
     pub classification: RouteOfAdministrationClassification,
     pub dosages: RouteOfAdministrationDosages,
     pub phases: RouteOfAdministrationPhases,
 }
 
-pub fn get_dosage_classification_by_mass_and_route_of_administration(
-    mass: &Dosage,
-    route_of_administration: &RouteOfAdministration,
-) -> Result<DosageClassification, &'static str> {
-    for (classification, dosage) in route_of_administration.dosages.iter() {
-        let contains = dosage.dosage_range.contains(mass.clone());
-        if contains {
-            return Ok(*classification);
-        }
-    }
-    Err("No classification found for the given mass and route of administration")
-}

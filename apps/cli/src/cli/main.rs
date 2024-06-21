@@ -1,13 +1,11 @@
-use human_panic::setup_panic;
 use log::*;
-use structopt::clap::Shell;
 use structopt::StructOpt;
 
 use crate::cli::dashboard::handle_show_dashboard;
 use crate::cli::ingestion::create_ingestion::handle_create_ingestion;
 use crate::cli::ingestion::delete_ingestion::delete_ingestion;
-use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::ingestion::IngestionCommand;
+use crate::cli::ingestion::plan_ingestion::handle_plan_ingestion;
 use crate::cli::substance::list_substances::list_substances;
 use crate::orm;
 use crate::orm::migrate_database;
@@ -68,12 +66,11 @@ pub async fn cli() {
     stderrlog::new()
         // .module(module_path!())
         .show_level(true)
-        .verbosity(2)
+        .verbosity(0)
         .show_module_names(true)
         .init()
         .unwrap();
 
-    info!("Starting neuronek CLI");
     info!("Version: {}", env!("CARGO_PKG_VERSION"));
 
     let db = match orm::setup_database().await {

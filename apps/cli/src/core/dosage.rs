@@ -3,7 +3,6 @@ extern crate measurements;
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
-use measurements::*;
 use serde::{Deserialize, Serialize};
 
 pub type Dosage = measurements::Mass;
@@ -60,43 +59,32 @@ pub enum DosageRange {
 impl DosageRange {
     pub fn contains(&self, mass: Dosage) -> bool {
         match self {
-            DosageRange::Heavy(range) => range.start <= mass,
-            DosageRange::Threshold(range) => mass <= range.end,
-            DosageRange::Inclusive(range) => range.start <= mass && mass <= range.end,
+            DosageRange::Heavy(range) => range.start < mass,
+            DosageRange::Threshold(range) => mass < range.end,
+            DosageRange::Inclusive(range) => range.start < mass && mass < range.end,
         }
     }
 }
+#[test]
+fn dosage_range_contains_should_correctly_match_ranges() {
+    let heavy_range = DosageRange::Heavy(Dosage::from_kilograms(1.0)..);
+    assert!(heavy_range.contains(Dosage::from_kilograms(1.5)));
 
-pub fn test_measurements() {
-    for power in -12..12 {
-        let val: f64 = 123.456 * (10f64.powf(f64::from(power)));
-        println!("10^{}...", power);
-        println!("Temp of {0:.3} outside", Temperature::from_kelvin(val));
-        println!("Distance of {0:.3}", Length::from_meters(val));
-        println!("Pressure of {0:.3}", Pressure::from_millibars(val));
-        println!("Volume of {0:.3}", Volume::from_litres(val));
-        println!("Mass of {0:.3}", Mass::from_kilograms(val));
-        println!("Speed of {0:.3}", Speed::from_meters_per_second(val));
-        println!(
-            "Acceleration of {0:.3}",
-            Acceleration::from_meters_per_second_per_second(val)
-        );
-        println!("Energy of {0:.3}", Energy::from_joules(val));
-        println!("Power of {0:.3}", Power::from_watts(val));
-        println!("Force of {0:.3}", Force::from_newtons(val));
-        println!("Force of {0:.3}", Torque::from_newton_metres(val));
-        println!(
-            "Force of {0:.3}",
-            AngularVelocity::from_radians_per_second(val)
-        );
-        println!("Data size is {0:.3}", Data::from_octets(val));
-    }
+    let threshold_range = DosageRange::Threshold(..Dosage::from_kilograms(1.0));
+    assert!(threshold_range.contains(Dosage::from_kilograms(0.5)));
+
+    let inclusive_range = DosageRange::Inclusive(Dosage::from_kilograms(1.0)..Dosage::from_kilograms(2.0));
+    assert!(inclusive_range.contains(Dosage::from_kilograms(1.5)));
+    assert!(!inclusive_range.contains(Dosage::from_kilograms(2.5)));
 }
+
+
 
 #[derive(Debug, Clone)]
 pub struct RouteOfAdministrationDosage {
-    pub id: String,
-    pub route_of_administration_id: String,
+    // pub id: String,
+    // pub route_of_administration_id: String,
     pub dosage_classification: DosageClassification,
     pub dosage_range: DosageRange,
 }
+

@@ -2,14 +2,13 @@
 // and try to extract and provide as much information as it's
 // possible. This is a very important part of the application
 
-use std::fmt::{Debug, Display};
+use std::fmt::Debug;
 use std::time::Duration;
 
-use chrono::{DateTime, Local, TimeZone};
-use chrono_english::{parse_date_string, Dialect};
+use chrono::{DateTime, Local};
+use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
 use log::{debug, error};
-use measurements::Measurement;
 use serde::{Deserialize, Serialize};
 use termimad::MadSkin;
 
@@ -17,10 +16,7 @@ use crate::core::dosage::DosageClassification;
 use crate::core::ingestion::{Ingestion, IngestionPhase, IngestionPhases};
 use crate::core::mass::{deserialize_dosage, Mass};
 use crate::core::phase::PhaseClassification;
-use crate::core::route_of_administration::{
-    get_dosage_classification_by_mass_and_route_of_administration,
-    RouteOfAdministrationClassification,
-};
+use crate::core::route_of_administration::{FindClassificationByDosage, RouteOfAdministrationClassification};
 use crate::core::substance::{
     get_phases_by_route_of_administration,
     get_route_of_administration_by_classification_and_substance,
@@ -37,7 +33,7 @@ struct DosageAnalysis {
 
 #[derive(Debug)]
 pub struct IngestionAnalysis {
-    ingestion_id: i32,
+    // ingestion_id: i32,
     substance_name: String,
     route_of_administration_classification: RouteOfAdministrationClassification,
     dosage_classification: DosageClassification,
@@ -70,13 +66,9 @@ pub async fn analyze_future_ingestion(
         panic!("Analysis failed: Invalid mass unit");
     });
 
-    let dosage_classification = get_dosage_classification_by_mass_and_route_of_administration(
-        &ingestion_mass,
-        &route_of_administration,
-    )
-    .unwrap_or_else(|_| {
-        error!("Analysis failed: Dosage classification not found");
-        return DosageClassification::Unknown;
+    let dosage_classification = route_of_administration.dosages.find_classification_by_dosage(&ingestion_mass).unwrap_or_else(|e| {
+        error!("Analysis failed: Dosage classification not found: {}", e);
+        panic!("{}", &e);
     });
 
     // Calculate ingestion plan based on phase information
@@ -126,11 +118,11 @@ pub async fn analyze_future_ingestion(
         .collect();
 
     let ingestion_analysis = IngestionAnalysis {
-        ingestion_id: 0,
+        // ingestion_id: 0,
         substance_name: substance.name.clone(),
         dosage: ingestion_mass.clone(),
         route_of_administration_classification: route_of_administration.classification,
-        dosage_classification,
+        dosage_classification: dosage_classification,
         phases: ingestion_phases,
         total_duration,
     };
@@ -158,15 +150,7 @@ pub async fn analyze_ingestion(ingestion: &Ingestion) -> Result<IngestionAnalysi
 
     let ingestion_mass = ingestion.dosage.clone();
 
-    let dosage_classification = get_dosage_classification_by_mass_and_route_of_administration(
-        &ingestion_mass,
-        &route_of_administration,
-    )
-    .unwrap_or_else(|_| {
-        error!("Analysis failed: Dosage classification not found");
-        return DosageClassification::Unknown;
-    });
-
+    let dosage_classification: DosageClassification = route_of_administration.dosages.find_classification_by_dosage(&ingestion_mass).unwrap_or(DosageClassification::Unknown);
     let phases = get_phases_by_route_of_administration(&route_of_administration);
 
     let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
@@ -210,13 +194,13 @@ pub async fn analyze_ingestion(ingestion: &Ingestion) -> Result<IngestionAnalysi
         .collect();
 
     let ingestion_analysis = IngestionAnalysis {
-        ingestion_id: ingestion.id.clone(),
+        // ingestion_id: ingestion.id,
         substance_name: substance.name.clone(),
         dosage: ingestion_mass,
         route_of_administration_classification: route_of_administration.classification,
         dosage_classification,
         phases: ingestion_phases,
-        total_duration: Duration::from_secs(0),
+        total_duration,
     };
 
     Ok(ingestion_analysis)

@@ -4,8 +4,8 @@
 use std::ops::{Range, RangeFrom, RangeTo};
 use std::str::FromStr;
 
-use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
+use fuzzy_matcher::skim::SkimMatcherV2;
 use log::debug;
 
 use db::sea_orm::*;
@@ -51,7 +51,6 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
                     let dosage_classification =
                         DosageClassification::from_str(&d.intensity).unwrap();
                     let mass_unit = d.unit.clone();
-                    let route_of_administration_id = d.route_of_administration_id.clone().unwrap();
                     let dosage_range: DosageRange = match dosage_classification {
                         DosageClassification::Threshold => {
                             let max_mass = Mass::from_str(
@@ -89,8 +88,8 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
 
                     // Map dosage into into Dosage structure
                     let dosage = RouteOfAdministrationDosage {
-                        id: d.id.clone(),
-                        route_of_administration_id: route_of_administration_id,
+                        // id: d.id.clone(),
+                        // route_of_administration_id: route_of_administration_id,
                         dosage_classification: dosage_classification,
                         dosage_range: dosage_range,
                     };
@@ -164,8 +163,7 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
         }
 
         let route_of_administration = RouteOfAdministration {
-            id: route_of_administration.id.clone(),
-            substance_name: route_of_administration.substance_name.clone(),
+            // substance_name: route_of_administration.substance_name.clone(),
             classification: RouteOfAdministrationClassification::from_str(
                 &route_of_administration.name,
             )
@@ -181,13 +179,7 @@ pub async fn get_substance_by_name(name: &str) -> Option<Substance> {
     }
 
     let ingernal_substance = Substance {
-        id: substance.id.clone(),
         name: substance.name.clone(),
-        common_names: substance
-            .common_names
-            .split(',')
-            .map(|s| s.to_string())
-            .collect(),
         routes_of_administration,
     };
 
