@@ -119,7 +119,8 @@ impl FindClassificationByDosage for RouteOfAdministrationDosages {
                 return Ok(*classification);
             }
         }
-        Err("Dosage classification not found".to_string())
+         
+         return Ok(DosageClassification::Threshold);
     }
 }
 
