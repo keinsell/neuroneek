@@ -1,0 +1,5 @@
+[toolchain]
+  channel = "nightly"
+  components = [ "rustc", "rustfmt", "rustc-dev", "rust-std", "rust-docs", "rust-analyzer", "clippy", "miri", "rust-mingw", "lvm-tools", "cargo", "rust-lldb"  ]
+  targets = [ "wasm32-unknown-unknown" ]
+  profile = "complete"
