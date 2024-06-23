@@ -3717,6 +3717,7 @@ dependencies = [
 name = "neuronek-cli"
 version = "0.0.1-dev.0"
 dependencies = [
+ "anyhow",
  "async-std",
  "bacon",
  "chrono",
@@ -3739,6 +3740,7 @@ dependencies = [
  "log",
  "measurements",
  "neuronek-database-client",
+ "rayon",
  "rust-embed",
  "serde",
  "serde_json",

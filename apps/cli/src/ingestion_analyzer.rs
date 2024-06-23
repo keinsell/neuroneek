@@ -6,22 +6,16 @@ use std::fmt::Debug;
 use std::time::Duration;
 
 use chrono::{DateTime, Local};
-use chrono_english::{Dialect, parse_date_string};
 use chrono_humanize::HumanTime;
-use log::{debug, error};
 use serde::{Deserialize, Serialize};
 use termimad::MadSkin;
 
-use crate::core::dosage::DosageClassification;
-use crate::core::ingestion::{Ingestion, IngestionPhase, IngestionPhases};
-use crate::core::mass::{deserialize_dosage, Mass};
+use crate::core::dosage::{Dosage, DosageClassification};
+use crate::core::ingestion::{Ingestion, IngestionPhase};
+use crate::core::ingestion_analysis::{IngestionAnalysis, IngestionPhases};
 use crate::core::phase::PhaseClassification;
 use crate::core::route_of_administration::{FindClassificationByDosage, RouteOfAdministrationClassification};
-use crate::core::substance::{
-    get_phases_by_route_of_administration,
-    get_route_of_administration_by_classification_and_substance,
-};
-use crate::service::ingestion::CreateIngestion;
+use crate::core::substance::{get_phases_by_route_of_administration, Substance};
 use crate::service::substance::get_substance_by_name;
 
 // https://docs.rs/indicatif/latest/indicatif/
@@ -31,48 +25,36 @@ struct DosageAnalysis {
     dosage_classification: DosageClassification,
 }
 
-#[derive(Debug)]
-pub struct IngestionAnalysis {
-    // ingestion_id: i32,
-    substance_name: String,
-    route_of_administration_classification: RouteOfAdministrationClassification,
-    dosage_classification: DosageClassification,
-    dosage: Mass,
-    pub phases: IngestionPhases,
-    total_duration: Duration,
+pub struct AnalyzeIngestion {
+  pub  id: Option<i32>,
+    pub substance: Substance,
+    pub route_of_administration_classification: RouteOfAdministrationClassification,
+    pub dosage: Dosage,
+    pub ingested_at: DateTime<Local>,
 }
 
-pub async fn analyze_future_ingestion(
-    create_ingestion: &CreateIngestion,
+pub async fn analyze_ingestion_from_ingestion(
+    ingestion: Ingestion,
+) -> Result<AnalyzeIngestion, &'static str> {
+
+    Ok(AnalyzeIngestion {
+        id: Some(ingestion.id),
+        substance: get_substance_by_name(ingestion.clone().substance_name.as_str()).await.unwrap(),
+        ingested_at: ingestion.ingested_at.into(),
+        route_of_administration_classification: ingestion.administration_route,
+        dosage:  ingestion.dosage,
+    })
+}
+
+pub async fn analyze_ingestion(
+    analyze_ingestion: AnalyzeIngestion,
 ) -> Result<IngestionAnalysis, &'static str> {
-    let substance = get_substance_by_name(&create_ingestion.substance_name)
-        .await
-        .ok_or("Analysis failed: Substance not found")?;
-
-    debug!("{:?}", substance);
-
-    let route_of_administration = get_route_of_administration_by_classification_and_substance(
-        &create_ingestion.route_of_administration,
-        &substance,
-    )
-    .unwrap_or_else(|_| {
-        error!("Analysis failed: Route of administration not found");
-        panic!("Analysis failed: Route of administration not found");
-    });
-
-    // Parse mass from input
-    let ingestion_mass = deserialize_dosage(&create_ingestion.dosage).unwrap_or_else(|_| {
-        error!("Analysis failed: Invalid mass");
-        panic!("Analysis failed: Invalid mass unit");
-    });
-
-    let dosage_classification = route_of_administration.dosages.find_classification_by_dosage(&ingestion_mass).unwrap_or_else(|e| {
-        error!("Analysis failed: Dosage classification not found: {}", e);
-        panic!("{}", &e);
-    });
-
-    // Calculate ingestion plan based on phase information
-
+    let substance = analyze_ingestion.substance;
+    let route_of_administration_classification = analyze_ingestion.route_of_administration_classification;
+    let routes_of_administration = substance.routes_of_administration;
+    let dosage = analyze_ingestion.dosage;
+    let route_of_administration = routes_of_administration.clone().get(&route_of_administration_classification).unwrap().clone().unwrap();
+    let dosage_classification = route_of_administration.dosages.find_classification_by_dosage(&dosage).unwrap();
     let phases = get_phases_by_route_of_administration(&route_of_administration);
 
     let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
@@ -86,10 +68,8 @@ pub async fn analyze_future_ingestion(
 
     let route_of_administration_phases = route_of_administration.phases.clone();
 
-    let parsed_time = parse_date_string(&create_ingestion.ingested_at, Local::now(), Dialect::Us)
-        .unwrap_or_else(|_| Local::now());
-
-    let mut end_time = parsed_time;
+    let mut projected_end_time
+        = analyze_ingestion.ingested_at.clone();
 
     let phase_classifications = [
         PhaseClassification::Onset,
@@ -98,6 +78,8 @@ pub async fn analyze_future_ingestion(
         PhaseClassification::Offset,
         PhaseClassification::Afterglow,
     ];
+
+
 
     let ingestion_phases: IngestionPhases = phase_classifications
         .iter()
@@ -108,99 +90,25 @@ pub async fn analyze_future_ingestion(
                     let ingestion_phase = IngestionPhase {
                         phase_classification: classification.clone(),
                         duration: phase.duration_range.clone(),
-                        start_time: end_time,
-                        end_time: end_time + phase.duration_range.end,
+                        start_time: projected_end_time,
+                        end_time: projected_end_time + phase.duration_range.end,
                     };
-                    end_time = end_time + ingestion_phase.duration.end;
+                    projected_end_time = projected_end_time + ingestion_phase.duration.end;
                     (classification.clone(), ingestion_phase)
                 })
         })
         .collect();
 
     let ingestion_analysis = IngestionAnalysis {
-        // ingestion_id: 0,
+        id: analyze_ingestion.id.unwrap_or(0),
+        ingestion_id: analyze_ingestion.id.unwrap_or(0),
         substance_name: substance.name.clone(),
-        dosage: ingestion_mass.clone(),
-        route_of_administration_classification: route_of_administration.classification,
-        dosage_classification: dosage_classification,
-        phases: ingestion_phases,
-        total_duration,
-    };
-
-    pretty_print_ingestion_analysis(&ingestion_analysis);
-
-    Ok(ingestion_analysis)
-}
-
-pub async fn analyze_ingestion(ingestion: &Ingestion) -> Result<IngestionAnalysis, &'static str> {
-    let substance = get_substance_by_name(&ingestion.substance_name)
-        .await
-        .ok_or("Analysis failed: Substance not found")?;
-
-    debug!("{:?}", substance);
-
-    let route_of_administration = get_route_of_administration_by_classification_and_substance(
-        &ingestion.administration_route,
-        &substance,
-    )
-    .unwrap_or_else(|_| {
-        error!("Analysis failed: Route of administration not found");
-        panic!("Analysis failed: Route of administration not found");
-    });
-
-    let ingestion_mass = ingestion.dosage.clone();
-
-    let dosage_classification: DosageClassification = route_of_administration.dosages.find_classification_by_dosage(&ingestion_mass).unwrap_or(DosageClassification::Unknown);
-    let phases = get_phases_by_route_of_administration(&route_of_administration);
-
-    let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
-        return if phase.phase_classification == PhaseClassification::Afterglow {
-            acc
-        } else {
-            let added = acc + phase.duration_range.end;
-            added
-        };
-    });
-
-    let route_of_administration_phases = route_of_administration.phases.clone();
-
-    let parsed_time = ingestion.ingested_at;
-    let mut end_time = DateTime::<Local>::from(parsed_time.clone());
-
-    let phase_classifications = [
-        PhaseClassification::Onset,
-        PhaseClassification::Comeup,
-        PhaseClassification::Peak,
-        PhaseClassification::Offset,
-        PhaseClassification::Afterglow,
-    ];
-
-    let ingestion_phases: IngestionPhases = phase_classifications
-        .iter()
-        .filter_map(|classification| {
-            route_of_administration_phases
-                .get(&classification.clone())
-                .map(|phase| {
-                    let ingestion_phase = IngestionPhase {
-                        phase_classification: classification.clone(),
-                        duration: phase.duration_range.clone(),
-                        start_time: end_time,
-                        end_time: end_time + phase.duration_range.end,
-                    };
-                    end_time = end_time + ingestion_phase.duration.end;
-                    (classification.clone(), ingestion_phase)
-                })
-        })
-        .collect();
-
-    let ingestion_analysis = IngestionAnalysis {
-        // ingestion_id: ingestion.id,
-        substance_name: substance.name.clone(),
-        dosage: ingestion_mass,
+        dosage: analyze_ingestion.dosage.clone(),
         route_of_administration_classification: route_of_administration.classification,
         dosage_classification,
         phases: ingestion_phases,
         total_duration,
+        ingested_at: analyze_ingestion.ingested_at,
     };
 
     Ok(ingestion_analysis)
@@ -265,24 +173,28 @@ pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
     use std::time::Duration;
 
-    use crate::core::dosage::DosageClassification;
+    use chrono::DateTime;
+
+    use crate::core::dosage::{Dosage, DosageClassification};
     use crate::core::phase::PhaseClassification;
     use crate::core::route_of_administration::RouteOfAdministrationClassification;
-    use crate::ingestion_analyzer::analyze_future_ingestion;
-    use crate::service::ingestion::CreateIngestion;
+    use crate::ingestion_analyzer::{analyze_ingestion, AnalyzeIngestion};
+    use crate::service::substance::get_substance_by_name;
 
     #[tokio::test]
     async fn test_analyze_future_ingestion() {
-        let create_ingestion = CreateIngestion {
-            substance_name: String::from("caffeine"),
-            route_of_administration: RouteOfAdministrationClassification::Oral,
-            dosage: String::from("100 mg"),
-            ingested_at: "now".parse().unwrap(),
+        let create_ingestion = AnalyzeIngestion {
+            id: None,
+            substance: get_substance_by_name("Caffeine").await.unwrap(),
+            route_of_administration_classification: RouteOfAdministrationClassification::Oral,
+            dosage: Dosage::from_str("100 mg").unwrap(),
+            ingested_at: DateTime::default()
         };
 
-        let result = analyze_future_ingestion(&create_ingestion).await;
+        let result = analyze_ingestion(create_ingestion).await;
 
         match result {
             Ok(ingestion_analysis) => {

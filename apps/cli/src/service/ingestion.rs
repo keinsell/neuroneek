@@ -14,7 +14,7 @@ use crate::core::dosage::Dosage;
 use crate::core::ingestion::Ingestion;
 use crate::core::mass::deserialize_dosage;
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::ingestion_analyzer::{analyze_future_ingestion, analyze_ingestion};
+use crate::ingestion_analyzer::{analyze_ingestion, analyze_ingestion_from_ingestion};
 use crate::orm::DB_CONNECTION;
 use crate::service::substance::{get_substance_by_name, search_substance};
 
@@ -32,7 +32,7 @@ pub async fn create_ingestion(db: &DatabaseConnection, create_ingestion: CreateI
         }
     };
 
-    analyze_future_ingestion(&create_ingestion).await.unwrap();
+    analyze_ingestion(analyze_ingestion_from_ingestion(create_ingestion.clone().into()).await.unwrap()).await.unwrap();
 
     let ingestion_active_model: ActiveModel = ActiveModel {
         id: ActiveValue::<i32>::NotSet,
@@ -152,18 +152,13 @@ pub async fn get_ingestion_by_id(_id: i32) -> Result<Ingestion, &'static str> {
         DateTime::from_naive_utc_and_offset(ingestion.ingestion_date.unwrap().clone(), Utc);
 
     // Construct an ingestion model
-    let mut ingestion_model = Ingestion {
+    let ingestion_model = Ingestion {
         id: ingestion.id,
         substance_name: substance.name.clone(),
         administration_route: route_of_administration_classification,
         ingested_at: parsed_ingestion_time,
         dosage: ingestion_mass,
-        phases: Default::default(),
     };
-
-    let ingestion_analysis = analyze_ingestion(&ingestion_model).await.unwrap();
-
-    ingestion_model.phases = ingestion_analysis.phases;
 
     Ok(ingestion_model)
 }
@@ -174,6 +169,23 @@ pub struct CreateIngestion {
     pub dosage: String,
     pub route_of_administration: RouteOfAdministrationClassification,
     pub ingested_at: String,
+}
+
+impl Into<Ingestion> for CreateIngestion {
+    fn into(self) -> Ingestion {
+        let parsed_time = parse_date_string(&self.ingested_at, Utc::now(), Dialect::Us)
+          .unwrap_or_else(|_| Utc::now());
+        let parsed_mass = deserialize_dosage(&self.dosage).unwrap();
+        let substance_name = self.substance_name.clone();
+        
+        Ingestion {
+            id: 0,
+            substance_name,
+            administration_route: self.route_of_administration,
+            ingested_at: parsed_time,
+            dosage: parsed_mass,
+        }
+    }
 }
 
 #[derive(Tabled, Serialize, Deserialize, Debug)]

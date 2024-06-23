@@ -45,6 +45,8 @@ termimad = "0.29.2"
 itertools = "0.13.0"
 indicatif = "0.17.8"
 humantime = "2.1.0"
+rayon = "1.10.0"
+anyhow = "1.0.86"
 
 [features]
 default = []

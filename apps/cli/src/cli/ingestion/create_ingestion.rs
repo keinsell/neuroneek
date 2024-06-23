@@ -1,10 +1,11 @@
 use std::str::FromStr;
 
-use db::sea_orm::DatabaseConnection;
 use structopt::StructOpt;
 
+use db::sea_orm::DatabaseConnection;
+
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::ingestion_analyzer::analyze_future_ingestion;
+use crate::ingestion_analyzer::{analyze_ingestion, analyze_ingestion_from_ingestion, pretty_print_ingestion_analysis};
 use crate::service::ingestion::{create_ingestion, CreateIngestion};
 
 #[derive(StructOpt, Debug)]
@@ -45,11 +46,12 @@ pub async fn handle_create_ingestion(
     };
 
     if create_ingestion_command.plan {
-        analyze_future_ingestion(&create_ingestion_payload)
+        pretty_print_ingestion_analysis(&analyze_ingestion(analyze_ingestion_from_ingestion(create_ingestion_payload.into()).await.unwrap())
             .await
-            .unwrap();
+            .unwrap());
         return;
     }
 
     create_ingestion(db, create_ingestion_payload).await;
+    
 }

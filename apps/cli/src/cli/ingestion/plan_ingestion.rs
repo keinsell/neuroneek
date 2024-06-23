@@ -3,7 +3,7 @@ use std::str::FromStr;
 use structopt::StructOpt;
 
 use crate::core::route_of_administration::RouteOfAdministrationClassification;
-use crate::ingestion_analyzer::analyze_future_ingestion;
+use crate::ingestion_analyzer::{analyze_ingestion, analyze_ingestion_from_ingestion, pretty_print_ingestion_analysis};
 use crate::service::ingestion::CreateIngestion;
 
 #[derive(StructOpt, Debug)]
@@ -32,7 +32,7 @@ pub async fn handle_plan_ingestion(plan_ingestion_command: PlanIngestionCommand)
         route_of_administration: roa_class,
     };
 
-    analyze_future_ingestion(&create_ingestion_payload)
+    pretty_print_ingestion_analysis(&analyze_ingestion(analyze_ingestion_from_ingestion(create_ingestion_payload.into()).await.unwrap())
         .await
-        .unwrap();
+        .unwrap());
 }

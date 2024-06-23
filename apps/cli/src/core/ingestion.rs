@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::str::FromStr;
 
 use chrono::{DateTime, Local, Utc};
@@ -16,8 +15,6 @@ pub struct IngestionPhase {
     pub(crate) end_time: DateTime<Local>,
 }
 
-pub type IngestionPhases = HashMap<PhaseClassification, IngestionPhase>;
-
 #[derive(Serialize, Debug, Deserialize, Clone)]
 pub struct Ingestion {
     pub(crate) id: i32,
@@ -25,7 +22,6 @@ pub struct Ingestion {
     pub(crate) administration_route: RouteOfAdministrationClassification,
     pub(crate) ingested_at: DateTime<Utc>,
     pub(crate) dosage: Dosage,
-    pub(crate) phases: IngestionPhases,
 }
 
 impl Ingestion {
@@ -35,7 +31,6 @@ impl Ingestion {
         administration_route: RouteOfAdministrationClassification,
         ingested_at: DateTime<Utc>,
         dosage: Dosage,
-        phases: IngestionPhases,
     ) -> Self {
         Ingestion {
             id,
@@ -43,7 +38,6 @@ impl Ingestion {
             administration_route,
             ingested_at,
             dosage,
-            phases,
         }
     }
 }
@@ -64,7 +58,26 @@ impl From<db::ingestion::Model> for Ingestion {
                 ingestion.dosage_unit.unwrap()
             ))
             .unwrap(),
-            phases: HashMap::new(),
+        }
+    }
+}
+
+impl<'a> From<&'a db::ingestion::Model> for Ingestion {
+    fn from(ingestion: &'a db::ingestion::Model) -> Self {
+        Ingestion {
+            id: ingestion.id,
+            substance_name: ingestion.substance_name.clone().unwrap(),
+            administration_route: RouteOfAdministrationClassification::from_str(
+                ingestion.administration_route.as_ref().unwrap().as_str(),
+            )
+                .unwrap(),
+            ingested_at: ingestion.ingestion_date.as_ref().unwrap().and_utc(),
+            dosage: Dosage::from_str(&format!(
+                "{} {}",
+                ingestion.dosage_amount.unwrap(),
+                ingestion.dosage_unit.as_ref().unwrap()
+            ))
+                .unwrap(),
         }
     }
 }
