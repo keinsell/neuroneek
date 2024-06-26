@@ -121,14 +121,7 @@ pub async fn analyze_ingestion(
 
 pub fn pretty_print_ingestion_analysis(ingestion_analysis: &IngestionAnalysis) {
     let mut markdown = String::new();
-    markdown.push_str(&format!("Ingesting {0:.0} of {1:?} using {2:?} route of administration, dosage and will last for about {3:?}.",
-                               ingestion_analysis.dosage,
-                               ingestion_analysis.substance_name,
-                               ingestion_analysis.route_of_administration_classification,
-                               HumanTime::from(chrono::Duration::from_std(ingestion_analysis.total_duration).unwrap())
-                                   .to_string()
-    ));
-    markdown.push_str(&format!("{}", "-".repeat(40) + "\n"));
+    markdown.push_str(&format!("{}", "-".repeat(3) + "\n"));
     markdown.push_str(&format!("🧪 {}\n", ingestion_analysis.substance_name));
     markdown.push_str(&format!("{}", "-".repeat(3) + "\n"));
     markdown.push_str(&format!(
