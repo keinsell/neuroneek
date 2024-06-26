@@ -1,11 +1,11 @@
+use db::sea_orm::{DatabaseConnection, EntityTrait};
+
 use crate::core::ingestion::Ingestion;
 use crate::orm::DB_CONNECTION;
-use chrono::{DateTime, Local};
-use db::{prelude::*, EntityTrait};
 
 pub(super) async fn list_ingestions() -> Result<Vec<Ingestion>, anyhow::Error> {
     let ingestions = db::ingestion::Entity::find()
-        .all(&DB_CONNECTION as &db::DatabaseConnection)
+        .all(&DB_CONNECTION as &DatabaseConnection)
         .await?;
 
     let result: Vec<Ingestion> = ingestions.into_iter().map(Ingestion::from).collect();
@@ -24,7 +24,7 @@ pub(super) async fn list_ingestions() -> Result<Vec<Ingestion>, anyhow::Error> {
 /// local cache.
 pub(super) async fn get_ingestion_by_id(id: i32) -> Result<Ingestion, anyhow::Error> {
     let ingestion = db::ingestion::Entity::find_by_id(id)
-        .one(&DB_CONNECTION as &db::DatabaseConnection)
+        .one(&DB_CONNECTION as &DatabaseConnection)
         .await?;
 
     if ingestion.is_none() {

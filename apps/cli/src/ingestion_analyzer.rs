@@ -14,7 +14,9 @@ use crate::core::dosage::{Dosage, DosageClassification};
 use crate::core::ingestion::{Ingestion, IngestionPhase};
 use crate::core::ingestion_analysis::{IngestionAnalysis, IngestionPhases};
 use crate::core::phase::PhaseClassification;
-use crate::core::route_of_administration::{FindClassificationByDosage, RouteOfAdministrationClassification};
+use crate::core::route_of_administration::{
+    FindClassificationByDosage, RouteOfAdministrationClassification,
+};
 use crate::core::substance::{get_phases_by_route_of_administration, Substance};
 use crate::service::substance::get_substance_by_name;
 
@@ -26,7 +28,7 @@ struct DosageAnalysis {
 }
 
 pub struct AnalyzeIngestion {
-  pub  id: Option<i32>,
+    pub id: Option<i32>,
     pub substance: Substance,
     pub route_of_administration_classification: RouteOfAdministrationClassification,
     pub dosage: Dosage,
@@ -36,13 +38,14 @@ pub struct AnalyzeIngestion {
 pub async fn analyze_ingestion_from_ingestion(
     ingestion: Ingestion,
 ) -> Result<AnalyzeIngestion, &'static str> {
-
     Ok(AnalyzeIngestion {
         id: Some(ingestion.id),
-        substance: get_substance_by_name(ingestion.clone().substance_name.as_str()).await.unwrap(),
+        substance: get_substance_by_name(ingestion.clone().substance_name.as_str())
+            .await
+            .unwrap(),
         ingested_at: ingestion.ingested_at.into(),
         route_of_administration_classification: ingestion.administration_route,
-        dosage:  ingestion.dosage,
+        dosage: ingestion.dosage,
     })
 }
 
@@ -50,26 +53,30 @@ pub async fn analyze_ingestion(
     analyze_ingestion: AnalyzeIngestion,
 ) -> Result<IngestionAnalysis, &'static str> {
     let substance = analyze_ingestion.substance;
-    let route_of_administration_classification = analyze_ingestion.route_of_administration_classification;
+    let route_of_administration_classification =
+        analyze_ingestion.route_of_administration_classification;
     let routes_of_administration = substance.routes_of_administration;
     let dosage = analyze_ingestion.dosage;
-    let route_of_administration = routes_of_administration.clone().get(&route_of_administration_classification).unwrap().clone().unwrap();
-    let dosage_classification = route_of_administration.dosages.find_classification_by_dosage(&dosage).unwrap();
+    let route_of_administration = routes_of_administration
+        .clone()
+        .get(&route_of_administration_classification)
+        .unwrap()
+        .clone()
+        .unwrap();
+    let dosage_classification = route_of_administration
+        .dosages
+        .find_classification_by_dosage(&dosage)
+        .unwrap();
     let phases = get_phases_by_route_of_administration(&route_of_administration);
 
     let total_duration = phases.iter().fold(Duration::default(), |acc, phase| {
-        return if phase.phase_classification == PhaseClassification::Afterglow {
-            acc
-        } else {
-            let added = acc + phase.duration_range.end;
-            added
-        };
+        let added = acc + phase.duration_range.end;
+        added
     });
 
     let route_of_administration_phases = route_of_administration.phases.clone();
 
-    let mut projected_end_time
-        = analyze_ingestion.ingested_at.clone();
+    let mut projected_end_time = analyze_ingestion.ingested_at.clone();
 
     let phase_classifications = [
         PhaseClassification::Onset,
@@ -78,8 +85,6 @@ pub async fn analyze_ingestion(
         PhaseClassification::Offset,
         PhaseClassification::Afterglow,
     ];
-
-
 
     let ingestion_phases: IngestionPhases = phase_classifications
         .iter()
@@ -191,7 +196,7 @@ mod tests {
             substance: get_substance_by_name("Caffeine").await.unwrap(),
             route_of_administration_classification: RouteOfAdministrationClassification::Oral,
             dosage: Dosage::from_str("100 mg").unwrap(),
-            ingested_at: DateTime::default()
+            ingested_at: DateTime::default(),
         };
 
         let result = analyze_ingestion(create_ingestion).await;

@@ -2,6 +2,7 @@
 
 mod cli;
 mod core;
+mod ingestion;
 mod ingestion_analyzer;
 mod orm;
 mod service;
