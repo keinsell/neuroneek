@@ -3776,6 +3776,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "neuronek-domain"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "measurements",
+ "serde",
+]
+
+[[package]]
 name = "neuronek-server"
 version = "0.1.0-dev"
 dependencies = [
