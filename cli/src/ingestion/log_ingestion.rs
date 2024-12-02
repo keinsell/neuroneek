@@ -1,6 +1,8 @@
 use crate::CommandHandler;
 use crate::database;
 use crate::route_of_administration::RouteOfAdministrationClassification;
+use anyhow::Context;
+use anyhow::Result;
 use chrono::DateTime;
 use chrono::Local;
 use chrono_english::Dialect;
@@ -11,11 +13,11 @@ use sea_orm::ActiveValue;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
 use smol::block_on;
-use tracing::{info, Level};
-use tracing::event;
-use tracing_attributes::instrument;
-use anyhow::{Context, Result};
 use thiserror::Error;
+use tracing::Level;
+use tracing::event;
+use tracing::info;
+use tracing_attributes::instrument;
 
 #[derive(Parser, Debug)]
 #[command(version, about = "Store information about new ingestion", long_about)]
@@ -57,20 +59,16 @@ fn parse_human_date(date_str: &str) -> Result<DateTime<Local>, Error>
 }
 
 #[derive(Error, Debug)]
-pub enum LogIngestionError {
+pub enum LogIngestionError
+{
     #[error("Database error: {0}")]
     DatabaseError(#[from] sea_orm::DbErr),
-    #[error("Failed to log ingestion: {0}")]
-    LogIngestionFailed(String),
 }
 
 impl CommandHandler for LogIngestion
 {
     #[instrument(name = "log_ingestion", level = Level::INFO)]
-    fn handle(
-        &self,
-        database_connection: &DatabaseConnection,
-    ) -> Result<(), String>
+    fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
     {
         let ingestion = block_on(async {
             database::ingestion::Entity::insert(database::ingestion::ActiveModel {
@@ -84,10 +82,10 @@ impl CommandHandler for LogIngestion
                 updated_at: ActiveValue::Set(Local::now().to_utc()),
                 created_at: ActiveValue::Set(Local::now().to_utc()),
             })
-                .exec_with_returning(database_connection)
-                .await
-                .context("Failed to insert ingestion record")
-                .map_err(|e| e.to_string())
+            .exec_with_returning(database_connection)
+            .await
+            .context("Failed to insert ingestion record")
+            .map_err(|e| e.to_string())
         })?;
 
         event!(Level::INFO, "Ingestion Logged {:?}", &ingestion);

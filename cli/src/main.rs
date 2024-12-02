@@ -19,6 +19,7 @@ use crate::ingestion::LogIngestion;
 use neuronek_cli::CommandHandler;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use crate::logging::setup_logging;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[command(
@@ -26,40 +27,40 @@ use crate::logging::setup_logging;
     about = "Dosage journal that knows!",
     long_about = "🧬 Intelligent dosage tracker application with purpose to monitor supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 )]
-struct CommandLineInterface
-{
-    #[arg(short = 'v', long = "verbose", action = clap::ArgAction::Count, default_value_t=0)]
-    verbosity: u8,
-
+struct CommandLineInterface {
     #[command(subcommand)]
-    command: Option<Commands>,
+    command: Commands,
 }
 
 #[derive(Subcommand)]
-enum Commands
-{
+enum Commands {
     Log(LogIngestion),
+    Config {
+        #[arg(short = 'p', long = "path")]
+        config_path: Option<PathBuf>,
+    },
 }
 
-fn main()
-{
+fn main() {
+    // Setup logging first
     setup_logging().expect("failed to setup logging");
-
+    
+    // Parse CLI arguments
     let cli = CommandLineInterface::parse();
+    
+    // Initialize database connection
     let db_connection = &DATABASE_CONNECTION;
 
-
+    // Handle database migrations
     block_on(async {
         let pending_migrations = database::Migrator::get_pending_migrations(
             &db_connection.into_schema_manager_connection(),
         )
-            .await
-            .expect("Failed to read pending migrations");
+        .await
+        .expect("Failed to read pending migrations");
 
-        if !pending_migrations.is_empty()
-        {
+        if !pending_migrations.is_empty() {
             println!("There are {} migrations pending.", pending_migrations.len());
-            // TODO: Do prejudicial backup of data
             println!("Applying migrations...");
             database::Migrator::up(db_connection.into_schema_manager_connection(), None)
                 .await
@@ -67,9 +68,20 @@ fn main()
         }
     });
 
-    match &cli.command
-    {
-        | Some(Commands::Log(log_ingestion)) => log_ingestion.handle(db_connection).unwrap(),
-        | _ => println!("No command provided"),
+    // Handle commands
+    match &cli.command {
+        Some(Commands::Log(log_ingestion)) => {
+            log_ingestion.handle(db_connection).unwrap_or_else(|e| {
+                eprintln!("Error handling log command: {}", e);
+                std::process::exit(1);
+            });
+        }
+        Some(Commands::Config { config_path }) => {
+            // Handle config command if needed
+            println!("Configuration path: {:?}", config_path);
+        }
+        None => {
+            println!("No command provided. Use --help for usage information.");
+        }
     }
 }
