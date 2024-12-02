@@ -39,30 +39,22 @@ pub struct AppConfig
 fn default_database_url() -> String {
     if cfg!(test) {
         "sqlite::memory:".to_string()
-    } else if cfg!(debug_assertions) {
-        ProjectDirs::from("com", "neuronek", "cli")
-            .map(|proj_dirs| {
-                let data_dir = proj_dirs.data_dir().join("dev");
-                std::fs::create_dir_all(&data_dir).unwrap_or_default();
-                let db_path = data_dir.join("database.db");
-                if !db_path.exists() {
-                    std::fs::write(&db_path, "").unwrap_or_default();
-                }
-                format!("sqlite:{}", db_path.display())
-            })
-            .unwrap_or_else(|| "sqlite:dev_database.db".to_string())
     } else {
-        ProjectDirs::from("com", "neuronek", "cli")
-            .map(|proj_dirs| {
-                let data_dir = proj_dirs.data_dir();
-                std::fs::create_dir_all(data_dir).unwrap_or_default();
-                let db_path = data_dir.join("database.db");
-                if !db_path.exists() {
-                    std::fs::write(&db_path, "").unwrap_or_default();
-                }
-                format!("sqlite:{}", db_path.display())
-            })
-            .unwrap_or_else(|| "sqlite:database.db".to_string())
+        let proj_dirs = ProjectDirs::from("com", "neuronek", "cli")
+            .expect("Failed to get project directories");
+        
+        #[cfg(debug_assertions)]
+        let data_dir = proj_dirs.data_dir().join("debug");
+        
+        #[cfg(not(debug_assertions))]
+        let data_dir = proj_dirs.data_dir().join("release");
+
+        std::fs::create_dir_all(&data_dir).unwrap_or_default();
+        let db_path = data_dir.join("database.db");
+        if !db_path.exists() {
+            std::fs::write(&db_path, "").unwrap_or_default();
+        }
+        format!("sqlite:{}", db_path.display())
     }
 }
 

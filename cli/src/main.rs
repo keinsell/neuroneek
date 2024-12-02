@@ -39,8 +39,7 @@ enum Commands {
 }
 
 fn main() {
-    // Setup logging first
-    setup_logging().expect("failed to setup logging");
+    // setup_logging().expect("failed to setup logging");
     
     // Parse CLI arguments
     let cli = CommandLineInterface::parse();
