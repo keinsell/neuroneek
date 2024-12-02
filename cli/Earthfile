@@ -1,0 +1,78 @@
+VERSION --global-cache 0.8
+PROJECT keinsell/neuronek-cli
+IMPORT github.com/earthly/lib/rust:3.0.1 AS rust
+
+install:
+    FROM rustlang/rust:nightly
+    DO rust+INIT --keep_fingerprints=true
+    DO rust+SET_CACHE_MOUNTS_ENV
+    DO rust+CARGO --args="install cargo-binstall"
+    DO rust+CARGO --args="binstall -y cargo-tarpaulin cargo-llvm-cov"
+
+checkout:
+    FROM +install
+    WORKDIR /tmp
+    COPY --keep-ts Cargo.lock Cargo.toml ./
+    COPY --keep-ts --dir src ./
+    COPY --keep-ts --dir tests ./
+
+lint:
+    FROM +checkout
+    RUN rustup component add clippy
+    DO rust+CARGO --args="clippy --all-features --all-targets --offline -- -D warnings"
+
+fmt:
+    FROM +lint
+    RUN rustup component add rustfmt
+    DO rust+CARGO --args="fmt --check"
+
+build:
+    FROM +checkout
+    DO rust+CARGO --args="build --release" --output="release/[^/\.]+"
+    SAVE ARTIFACT ./target/release/neuronek-cli neuronek-cli AS LOCAL dist/neuronek-cli
+
+test:
+    FROM +build
+    DO rust+CARGO --args="test"
+
+coverage:
+    FROM +build
+    RUN rustup component add llvm-tools
+    DO rust+CARGO --args="llvm-cov --lcov --output-path lcov.info"
+    DO rust+CARGO --args="llvm-cov report --lcov"
+    DO rust+CARGO --args="llvm-cov --html --output-dir ./coverage"
+    SAVE ARTIFACT ./lcov.info AS LOCAL lcov.info
+    SAVE ARTIFACT ./coverage AS LOCAL coverage
+
+all:
+    BUILD +lint
+    BUILD +fmt
+    BUILD +build
+    BUILD +test
+
+
+
+# Package Self-Extracting Archive
+# ===============================
+# Archive which will contain application
+# binary, license, documentation and all
+# other files necessary for distribution.
+# Such archive have ability to unpack itself
+# into targeted directory (usually $PATH). 
+package-xar:
+    FROM registry.suse.com/bci/kiwi:9.24
+
+package-flatpak:
+    FROM registry.suse.com/bci/kiwi:9.24
+
+package-nix:
+    FROM registry.suse.com/bci/kiwi:9.24
+
+# Container
+# =========
+# ...
+package-container:
+    FROM registry.suse.com/bci/bci-micro:15.5
+    COPY +build/target/release/neuronek neuronek
+    ENTRYPOINT ["./neuronek"]
+    SAVE IMAGE --push neuronek/cli:dev

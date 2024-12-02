@@ -1,0 +1,3 @@
+# Deployment
+
+Anybody who intend to run their own instance of service should start from `preview` deployment as it is persistent and cut to bare minimum in terms of what's needed to setup application, our production is different than ours and you should not blindly follow our approach or choices where we deploy application. Read more about preview deployment in [Preview Deployment](./preview.md) amd if you do not mind to host instance and just want to see things on you local machine you can use [Local Deployment](./local.md). Development deployments aren't recommended to be touched in other than **LOCAL AND NON-PERSISTENT** environments (which means they will burn your data if you decide to use them as *something* that can be used).
