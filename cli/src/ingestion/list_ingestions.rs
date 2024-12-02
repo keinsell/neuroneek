@@ -7,6 +7,8 @@ use crate::database;
 use crate::database::prelude::Ingestion;
 use tracing::Level;
 use sea_orm_migration::MigratorTrait;
+use cli_table::{print_stdout, Table, WithTitle};
+use crate::ingestion::ViewModel;
 
 #[derive(Parser, Debug)]
 #[command(version, about = "List all ingestions", long_about)]
@@ -23,15 +25,12 @@ impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
                 .map_err(|e| e.to_string())
         })?;
 
-        for ingestion in ingestions {
-            println!("Substance: {} | Dosage: {}{} | Route: {} | Date: {}",
-                     ingestion.substance_name,
-                     ingestion.dosage,
-                     ingestion.dosage_unit,
-                     ingestion.route_of_administration,
-                     ingestion.ingested_at
-            );
-        }
+        let view_models: Vec<ViewModel> = ingestions.into_iter()
+            .take(10)
+            .map(|i| i.into())
+            .collect();
+
+        print_stdout(view_models.with_title()).map_err(|e| e.to_string())?;
 
         Ok(())
     }
