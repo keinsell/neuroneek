@@ -37,26 +37,24 @@ pub struct AppConfig
 }
 
 fn default_database_url() -> String {
-    #[cfg(test)]
-    {
+    if cfg!(test) {
         "sqlite::memory:".to_string()
-    }
-    #[cfg(not(test))]
-    {
-        ProjectDirs::from("com", "neuronek", "cli")
-            .map(|proj_dirs| {
-                let data_dir = proj_dirs.data_dir();
-                std::fs::create_dir_all(data_dir).unwrap_or_default();
-                // If there is no journal.db creae a empty file
-                // This is required for sqlite to work properly
-                
-                if !data_dir.join("database.db").exists() {
-                    std::fs::write(data_dir.join("database.db"), vec![]).unwrap_or_default();
-                }
-              
-                format!("sqlite:{}", data_dir.join("database.db").display())
-            })
-            .unwrap_or_else(|| "sqlite:database.db".to_string())
+    } else {
+        let proj_dirs = ProjectDirs::from("com", "neuronek", "cli")
+            .expect("Failed to get project directories");
+        
+        #[cfg(debug_assertions)]
+        let data_dir = proj_dirs.data_dir().join("debug");
+        
+        #[cfg(not(debug_assertions))]
+        let data_dir = proj_dirs.data_dir().join("release");
+
+        std::fs::create_dir_all(&data_dir).unwrap_or_default();
+        let db_path = data_dir.join("database.db");
+        if !db_path.exists() {
+            std::fs::write(&db_path, "").unwrap_or_default();
+        }
+        format!("sqlite:{}", db_path.display())
     }
 }
 
