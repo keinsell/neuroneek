@@ -1,0 +1,5 @@
+$schema: "https://moonrepo.dev/schemas/toolchain.json"
+rust:
+  syncToolchainConfig: true
+  bins:
+    - "cargo-nextest"

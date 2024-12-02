@@ -1,0 +1,66 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "neuronek-database-client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+seaography = { version = "0.12.0", features = [
+    "with-decimal",
+    "with-chrono",
+] }
+async-graphql = { version = "7.0", features = [
+    "decimal",
+    "chrono",
+    "dataloader",
+    "dynamic-schema",
+] }
+sea-orm = { version = "0.12.15", features = [
+    "sqlx-sqlite",
+    "runtime-async-std-native-tls",
+    "macros",
+    "with-chrono",
+    "with-json",
+    "with-time",
+    "with-time",
+    "with-chrono",
+    "with-json",
+    "with-uuid",
+    "with-rust_decimal",
+    "with-bigdecimal",
+    "sqlx-sqlite",
+    "runtime-async-std-native-tls",
+    "seaography",
+] }
+async-std = { version = "1", features = ["attributes", "tokio1"] }
+rust-embed = "8.4.0"
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = { version = "1.0.117", features = [
+    "alloc",
+    "preserve_order",
+    "raw_value",
+    "arbitrary_precision",
+    "unbounded_depth",
+] }
+time = "0.3.36"
+tokio = "1.38.0"
+lazy_static = "1.4.0"
+[dependencies.sea-orm-migration]
+version = "0.12.15"
+features = [
+    "runtime-async-std-native-tls",
+    "sqlx-sqlite",
+    "with-time",
+    "with-chrono",
+    "with-json",
+    "with-uuid",
+    "with-rust_decimal",
+    "with-bigdecimal",
+]
+
+[lib]
+name = "db"
+
+[dev-dependencies]
+sea-orm-cli = "0.12.15"

@@ -1,0 +1,21 @@
+# Build the project using Earthly
+build:
+    earthly +build
+
+# Generate code coverage report using Earthly
+coverage:
+    earthly +coverage
+
+# Run tests using Earthly
+test:
+    earthly -P +test
+
+# Package the project using Makeself
+package-makeself: build package-compress
+    cp build/bin-install dist/install && chmod +x dist/install
+    makeself -q --tar-quietly dist dist/neuronek.run "neuronek-cli" ./install
+    rm dist/install
+
+# Compress the project binary using UPX
+package-compress: build
+    upx --best dist/neuronek-cli

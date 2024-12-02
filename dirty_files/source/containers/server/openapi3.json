@@ -1,0 +1,1492 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/substance/{substanceId}": {
+      "get": {
+        "operationId": "get-substance-by-id",
+        "summary": "Get Substance By ID",
+        "description": "Get substance by ID or throw 404 if not found.",
+        "parameters": [
+          {
+            "name": "substanceId",
+            "required": true,
+            "in": "path",
+            "description": "The ID of the substance",
+            "example": "clvdzrfzj0000f2ftr6cm3fjr",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstanceResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Substance Warehouse"
+        ]
+      }
+    },
+    "/substance": {
+      "get": {
+        "operationId": "get-all-substances",
+        "summary": "Get All Substances",
+        "description": "Get all substances from the database.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubstanceResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Substance Warehouse"
+        ]
+      }
+    },
+    "/route-of-administration/{id}": {
+      "get": {
+        "operationId": "get-route-of-administration-by-id",
+        "summary": "Get Route of Administration by ID",
+        "description": "Returns a Route of Administration by its ID.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Route of Administration found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteOfAdministration"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Route of Administration"
+        ]
+      }
+    },
+    "/route-of-administration": {
+      "get": {
+        "operationId": "list-routes-of-administration",
+        "summary": "List Routes of Administration",
+        "description": "Returns all Route of Administrations.",
+        "parameters": [
+          {
+            "name": "include",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Route of Administrations found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RouteOfAdministration"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Route of Administration"
+        ]
+      }
+    },
+    "/account/register": {
+      "post": {
+        "operationId": "AccountController_register",
+        "summary": "Register account",
+        "description": "Operation will register a new account in application allowing user to interact with his namespace.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterAccount"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Account Management"
+        ]
+      }
+    },
+    "/account/delete": {
+      "post": {
+        "operationId": "AccountController_deleteAccount",
+        "summary": "Delete account",
+        "description": "Operation will delete account from the system. This operation is irreversible.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Account Management"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/auth/password": {
+      "post": {
+        "operationId": "AuthController_basicAuthentication",
+        "summary": "Password Authentication",
+        "description": "Operation will authenticate user using basic authentication and return JWT token.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordAuthenticaton"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Authentication"
+        ]
+      }
+    },
+    "/auth/whoami": {
+      "post": {
+        "operationId": "whoami",
+        "summary": "Whoami",
+        "description": "Operation will return information about the current user.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/search/substance": {
+      "get": {
+        "operationId": "search-substances",
+        "summary": "Search substances",
+        "description": "Search substances is optimized method for searching for a desired substance in the database, it uses a full-text search algorithm to find the most relevant substances based on the query - the index is built on `name` and `common_names` of the substance.",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "example": "Caffeine",
+            "description": "Query for name of the substance (case-insensitive).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubstanceResults"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Search Engine",
+          "Substance Warehouse"
+        ]
+      }
+    },
+    "/ingestion": {
+      "post": {
+        "operationId": "create-ingestion",
+        "summary": "🚧 Create ingestion",
+        "description": "Create ingestion for a subject.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIngestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "update-ingestion",
+        "summary": "🚧 Update ingestion",
+        "description": "Update ingestion for a subject.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateIngestion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ingestion updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "list-ingestions",
+        "summary": "🚧 List ingestions",
+        "description": "List ingestions for a subject.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Ingestions listed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ingestion"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Ingestion Journal"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/subject": {
+      "post": {
+        "operationId": "create-subject",
+        "summary": "🚧 Create subject",
+        "description": "Creates a new subject for currently authenticated account. We recommend using only one subject profile for now as using multiple ones can lead to unexpected bugs.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubject"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "get-subject",
+        "summary": "🚧 Get subject",
+        "description": "Retrieves the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      },
+      "put": {
+        "operationId": "update-subject",
+        "summary": "🚧 Update subject",
+        "description": "Updates the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      },
+      "delete": {
+        "operationId": "delete-subject",
+        "summary": "🚧 Delete subject",
+        "description": "Deletes the subject profile for currently authenticated account.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Subject Profile"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthcheck",
+        "summary": "Health check endpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "info": {
+    "title": "🧬 Neuronek",
+    "description": "Neuronek is open, community-driven database of psychoactive substances, their interactions and effects with the goal of providing accurate and relevant information to users. And also to provide tools for tracking and managing personal substance usage.\n\n\nPlease note API will be rate limited to 10 req/s and 100 req/hour due to low resources available for this service. With the growth of the service we will be able to provide more resources for the API but for now we have to limit the usage - special thanks to the [Railway](https://railway.app?referralCode=hvVUux) for providing us with free resources to host this service.",
+    "version": "0.0.1-dev",
+    "contact": {
+      "name": "Jakub Olan",
+      "url": "https://github.com/keinsell",
+      "email": "keinsell@protonmail.com"
+    }
+  },
+  "tags": [
+    {
+      "name": "Substance Warehouse",
+      "description": "Substance Warehouse is community-led database of dosages, effects and interactions, currently it is a read-only database of substances from [PsychonautWiki](https://psychonautwiki.org) however in near future data from other resources will be integrated with ability to do changes on data that is available in API."
+    },
+    {
+      "name": "Search Engine",
+      "description": "Search Engine allows user to search substances by name, effects, interactions and other properties. We prepared vectorized full-text search algorithm to provide most relevant results for user query. And in the future we are planning to prepare multiple indexes that will allow for graph-based queries to find the right data you need in record time."
+    },
+    {
+      "name": "Account Management",
+      "description": "Application have set of features that allow users to isolate their data from general data - in order to use user-spaced features of application one is supposed to create account and use authentication.",
+      "externalDocs": {
+        "description": "asdsasad",
+        "url": ""
+      }
+    },
+    {
+      "name": "Subject Profile",
+      "description": "Subject Profiles are fictional characters owned by Account to which we assign ingestion information or other related data"
+    },
+    {
+      "name": "Authentication",
+      "description": ""
+    },
+    {
+      "name": "Ingestion Journal",
+      "description": "Ingestion Journal collects information about historical user ingestion's in order to provide user with insights about his habits and patterns."
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "name": "Bearer Token",
+        "type": "http",
+        "description": "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer <token>\""
+      }
+    },
+    "schemas": {
+      "RouteOfAdministration": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bioavailability": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "bioavailability"
+        ]
+      },
+      "SubstanceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of the substance",
+            "example": "clvdzrfzj0000f2ftr6cm3fjr"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the substance",
+            "example": "1,3-dimethylbutylamine"
+          },
+          "common_names": {
+            "description": "Common names of the substance",
+            "example": [
+              "1,3-dimethylbutylamine",
+              "1,4-Butanediol",
+              "1P-ETH-LAD"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "psychoactive_classes": {
+            "description": "Psychoactive Classes to which substance belong",
+            "example": [
+              "Stimulants",
+              "Depressant",
+              "Psychedelic"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "chemical_classes": {
+            "description": "Chemical Classes to which substance belong",
+            "example": [
+              "Amine",
+              "Alkanediol,Diol",
+              "Lysergamides"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "routes_of_administration": {
+            "description": "Routes of administration that are known for the substance.",
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteOfAdministration"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "common_names",
+          "psychoactive_classes",
+          "chemical_classes",
+          "routes_of_administration"
+        ]
+      },
+      "RegisterAccount": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "elon_musk",
+            "description": "The user's unique username"
+          },
+          "password": {
+            "type": "string",
+            "example": "ISendCarsIntoFuckingSpace",
+            "description": "The user's password"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "PasswordAuthenticaton": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "elon_musk"
+          },
+          "password": {
+            "type": "string",
+            "example": "ISendCarsIntoFuckingSpace"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "password"
+        ]
+      },
+      "TimeMeasurement": {
+        "type": "object",
+        "properties": {
+          "raw": {
+            "type": "number",
+            "example": 517147
+          },
+          "formatted": {
+            "type": "string",
+            "example": "517μs"
+          }
+        },
+        "required": [
+          "raw",
+          "formatted"
+        ]
+      },
+      "SubstanceDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "clvdzrgn6003ef2ftau8csdb0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Caffeine"
+          },
+          "commonNames": {
+            "example": [
+              "Caffeine"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "commonNames"
+        ]
+      },
+      "SubstanceHits": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "clvdzrgn6003ef2ftau8csdb0"
+          },
+          "score": {
+            "type": "number",
+            "example": 14.31518620955737
+          },
+          "document": {
+            "$ref": "#/components/schemas/SubstanceDocument"
+          }
+        },
+        "required": [
+          "id",
+          "score",
+          "document"
+        ]
+      },
+      "SubstanceResults": {
+        "type": "object",
+        "properties": {
+          "elapsed": {
+            "$ref": "#/components/schemas/TimeMeasurement"
+          },
+          "hits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstanceHits"
+            }
+          },
+          "count": {
+            "type": "number",
+            "example": 1
+          }
+        },
+        "required": [
+          "elapsed",
+          "hits",
+          "count"
+        ]
+      },
+      "CreateIngestion": {
+        "type": "object",
+        "properties": {
+          "substanceId": {
+            "type": "string",
+            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          },
+          "ingestionDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of ingestion.",
+            "example": "2024-05-04T18:34:01.253Z"
+          },
+          "routeOfAdministration": {
+            "type": "string",
+            "description": "Route of administration for the substance.",
+            "enum": [
+              "oral",
+              "sublingual",
+              "buccal",
+              "insufflated",
+              "rectal",
+              "transdermal",
+              "subcutaneous",
+              "intramuscular",
+              "interavenous",
+              "smoked"
+            ],
+            "example": "oral"
+          },
+          "dosageAmont": {
+            "type": "number",
+            "description": "Dosage amount.",
+            "example": 10
+          },
+          "dosageUnit": {
+            "type": "string",
+            "description": "Unit of the dosage amount.",
+            "example": "mg"
+          },
+          "dosageEstimated": {
+            "type": "boolean",
+            "description": "If the dosage is estimated.",
+            "default": false,
+            "example": false
+          },
+          "dosageEstimationStandardDeviation": {
+            "type": "number",
+            "description": "If the dosage is estimated, this is the standard deviation of the estimation. This is amount of unit choosen in dosageUnit.",
+            "example": 0.5
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Identifier of the subject that ingested the substance.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          }
+        },
+        "required": [
+          "substanceId",
+          "ingestionDate",
+          "routeOfAdministration",
+          "dosageAmont",
+          "dosageUnit",
+          "dosageEstimated",
+          "dosageEstimationStandardDeviation",
+          "subjectId"
+        ]
+      },
+      "Ingestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceName": {
+            "type": "string"
+          },
+          "routeOfAdministration": {
+            "type": "string"
+          },
+          "dosage_unit": {
+            "type": "string"
+          },
+          "dosage_amount": {
+            "type": "number"
+          },
+          "isEstimatedDosage": {
+            "type": "boolean"
+          },
+          "date": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "stashId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UpdateIngestion": {
+        "type": "object",
+        "properties": {
+          "substanceId": {
+            "type": "string",
+            "description": "Identifier of the substance, that was ingested. Custom substances will be supported in future but actually we're sticking to database information.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          },
+          "ingestionDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of ingestion.",
+            "example": "2024-05-04T18:34:01.253Z"
+          },
+          "routeOfAdministration": {
+            "type": "string",
+            "description": "Route of administration for the substance.",
+            "enum": [
+              "oral",
+              "sublingual",
+              "buccal",
+              "insufflated",
+              "rectal",
+              "transdermal",
+              "subcutaneous",
+              "intramuscular",
+              "interavenous",
+              "smoked"
+            ],
+            "example": "oral"
+          },
+          "dosageAmont": {
+            "type": "number",
+            "description": "Dosage amount.",
+            "example": 10
+          },
+          "dosageUnit": {
+            "type": "string",
+            "description": "Unit of the dosage amount.",
+            "example": "mg"
+          },
+          "dosageEstimated": {
+            "type": "boolean",
+            "description": "If the dosage is estimated.",
+            "default": false,
+            "example": false
+          },
+          "dosageEstimationStandardDeviation": {
+            "type": "number",
+            "description": "If the dosage is estimated, this is the standard deviation of the estimation. This is amount of unit choosen in dosageUnit.",
+            "example": 0.5
+          },
+          "subjectId": {
+            "type": "string",
+            "description": "Identifier of the subject that ingested the substance.",
+            "example": "clvdzrg000003f2ftwlzzelog"
+          }
+        }
+      },
+      "CreateSubject": {
+        "type": "object",
+        "properties": {
+          "givenName": {
+            "type": "string",
+            "description": "Given name of the subject",
+            "example": "Albert"
+          },
+          "familyName": {
+            "type": "string",
+            "description": "Family name of the subject",
+            "example": "Einstein"
+          },
+          "birthDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Birth date of the subject",
+            "example": "1879-03-14T00:00:00.000Z"
+          }
+        }
+      },
+      "Subject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "account_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "AccountRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Subject"
+            }
+          }
+        },
+        "required": [
+          "Subject"
+        ]
+      },
+      "Stash": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "owner_id": {
+            "type": "string"
+          },
+          "substance_id": {
+            "type": "string"
+          },
+          "addedDate": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "expiration": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "price": {
+            "type": "string"
+          },
+          "vendor": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "purity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "owner_id",
+          "substance_id"
+        ]
+      },
+      "SubjectRelations": {
+        "type": "object",
+        "properties": {
+          "account": {
+            "$ref": "#/components/schemas/Account"
+          },
+          "Ingestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          },
+          "Stash": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Stash"
+            }
+          }
+        },
+        "required": [
+          "Ingestions",
+          "Stash"
+        ]
+      },
+      "SubstanceInteraction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "substanceId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "SubstanceRelations": {
+        "type": "object",
+        "properties": {
+          "routes_of_administration": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteOfAdministration"
+            }
+          },
+          "Ingestion": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          },
+          "Stash": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Stash"
+            }
+          },
+          "SubstanceInteraction": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SubstanceInteraction"
+            }
+          }
+        },
+        "required": [
+          "routes_of_administration",
+          "Ingestion",
+          "Stash",
+          "SubstanceInteraction"
+        ]
+      },
+      "Dosage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "intensivity": {
+            "type": "string"
+          },
+          "amount_min": {
+            "type": "number"
+          },
+          "amount_max": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "perKilogram": {
+            "type": "boolean"
+          },
+          "routeOfAdministrationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "intensivity",
+          "amount_min",
+          "amount_max",
+          "unit",
+          "perKilogram"
+        ]
+      },
+      "Phase": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "number"
+          },
+          "to": {
+            "type": "number"
+          },
+          "routeOfAdministrationId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "Substance": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "common_names": {
+            "type": "string",
+            "description": "Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition."
+          },
+          "brand_names": {
+            "type": "string"
+          },
+          "substitutive_name": {
+            "type": "string"
+          },
+          "systematic_name": {
+            "type": "string"
+          },
+          "unii": {
+            "type": "string"
+          },
+          "cas_number": {
+            "type": "string"
+          },
+          "inchi_key": {
+            "type": "string"
+          },
+          "iupac": {
+            "type": "string"
+          },
+          "smiles": {
+            "type": "string"
+          },
+          "psychoactive_class": {
+            "type": "string"
+          },
+          "chemical_class": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "psychoactive_class"
+        ]
+      },
+      "RouteOfAdministrationRelations": {
+        "type": "object",
+        "properties": {
+          "dosage": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Dosage"
+            }
+          },
+          "phases": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phase"
+            }
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          }
+        },
+        "required": [
+          "dosage",
+          "phases"
+        ]
+      },
+      "Effect": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "tags": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "string"
+          },
+          "see_also": {
+            "type": "string"
+          },
+          "effectindex": {
+            "type": "string"
+          },
+          "psychonautwiki": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "tags",
+          "description",
+          "parameters",
+          "see_also"
+        ]
+      },
+      "PhaseRelations": {
+        "type": "object",
+        "properties": {
+          "RouteOfAdministration": {
+            "$ref": "#/components/schemas/RouteOfAdministration"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Effect"
+            }
+          }
+        },
+        "required": [
+          "effects"
+        ]
+      },
+      "DosageRelations": {
+        "type": "object",
+        "properties": {
+          "RouteOfAdministration": {
+            "$ref": "#/components/schemas/RouteOfAdministration"
+          }
+        }
+      },
+      "EffectRelations": {
+        "type": "object",
+        "properties": {
+          "Phase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Phase"
+            }
+          }
+        },
+        "required": [
+          "Phase"
+        ]
+      },
+      "IngestionRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          },
+          "Stash": {
+            "$ref": "#/components/schemas/Stash"
+          }
+        }
+      },
+      "StashRelations": {
+        "type": "object",
+        "properties": {
+          "Subject": {
+            "$ref": "#/components/schemas/Subject"
+          },
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          },
+          "ingestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Ingestion"
+            }
+          }
+        },
+        "required": [
+          "Substance",
+          "ingestions"
+        ]
+      },
+      "SubstanceInteractionRelations": {
+        "type": "object",
+        "properties": {
+          "Substance": {
+            "$ref": "#/components/schemas/Substance"
+          }
+        }
+      }
+    }
+  }
+}

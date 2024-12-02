@@ -1,0 +1,257 @@
+generator client_javascript {
+  provider = "prisma-client-js"
+}
+
+generator client_python {
+  provider             = "prisma-client-py"
+  interface            = "sync"
+  recursive_type_depth = "5"
+}
+
+datasource db {
+  provider     = "sqlite"
+  url          = "file:./../../../db.sqlite"
+  relationMode = "foreignKeys"
+}
+
+model Substance {
+  id                       String                   @id @unique @default(cuid())
+  name                     String                   @unique
+  /// Common names are informal names for chemical compounds that are widely used in everyday language, but not necessarily scientifically accurate or consistent. They often reflect the historical or common usage of a compound, rather than its chemical structure or composition. This field is serialized from Vector<str>, and in this pericular case it's delimited by comma.
+  /// @example "acid,tabs,blotters"
+  common_names             String
+  /// Brand names are the names of a product that are used in the market. They are often used to identify a product, but they may not be the official name of the product. This field is serialized from Vector<str>, and in this pericular case it's delimited by comma.
+  /// @example "adderall"
+  brand_names              String
+  /// Substitutive name is a type of chemical nomenclature used for organic compounds. In this system, the substitutive name of a compound is based on the name of the parent hydrocarbon, with the functional group (such as an alcohol or a carboxylic acid) indicated by a prefix or suffix.
+  substitutive_name        String?                  @unique
+  /// Systematic name is a type of chemical nomenclature used for both inorganic and organic compounds. In this system, the compound is named based on the type and number of atoms present, as well as the chemical bonds between them.
+  ///
+  /// The systematic naming of inorganic compounds follows the guidelines of the International Union of Pure and Applied Chemistry (IUPAC) and usually requires the use of oxidation numbers, prefixes and suffixes to indicate the oxidation state and stoichiometry of the compound.
+  ///
+  /// In the case of organic compounds, the systematic name is based on the parent hydrocarbon chain, with prefixes and suffixes indicating the position and nature of the functional groups present in the compound.
+  ///
+  /// @example "(RS)-1-Phenylpropan-2-amine"
+  systematic_name          String                   @unique
+  /// Pubchem CID is a id of compound used in PubChem.
+  pubchem_cid              Int                      @unique
+  /// UNIIs are generated based on scientific identity characteristics using ISO 11238 data elements. UNII availability does not imply any regulatory review or approval. Synonyms and mappings are based on the best public information available at the time of publication.
+  unii                     String?
+  /// CAS number is a unique numerical identifier assigned to pure substances and mixtures by the Chemical Abstracts Service registry, a division of the American Chemical Society (ACS). The CAS registry number is the de facto standard for the identification of chemical substances in scientific literature.
+  cas_number               String?                  @unique
+  /// InChIKey is a condensed, 27-character representation of a molecule's InChI (International Chemical Identifier)
+  inchi_key                String                   @unique
+  /// SMILES is a chemical notation for describing the structure of chemical compounds using ASCII characters.
+  smiles                   String                   @unique
+  psychonautwiki_url       String?
+  psychoactive_class       String
+  chemical_class           String?
+  description              String?
+  ingestion                Ingestion[]
+  psychoactive_classes     PsychoactiveClass[]
+  stash                    stash[]
+  substance_interactions   substance_interactions[]
+  routes_of_administration RouteOfAdministration[]
+  SubstanceSynonym         SubstanceSynonym[]
+  tolerance                SubstanceTolerance?
+
+  @@map("substance")
+}
+
+model SubstanceSynonym {
+  /// which leads to "lisamphetamine" for drug
+  id          String    @id @default(cuid())
+  substanceId String
+  name        String    @unique
+  Substance   Substance @relation(fields: [substanceId], references: [id])
+
+  @@map("substance_synonym")
+}
+
+model SubstanceTolerance {
+  id                           String    @id @default(cuid())
+  substanceId                  String    @unique
+  /// Pharmacokinetic Tolerance: The body becomes more efficient at metabolizing or eliminating the drug.
+  /// Pharmacodynamic Tolerance: Changes occur at the cellular level, reducing the drug's impact on receptors or neurotransmitters.
+  /// Behavioral Tolerance: Individuals learn to compensate for the effects of the drug, masking its impact. ("One" "learn to" "ignore the drug") - Common in ADHD therapy with stimulants.
+  mechanism                    String
+  /// @example "desensitization of nicotinic acetylcholine receptors"
+  mechanism_desciption         String?
+  /// Acute: Tolerance builds within a single use or very short period.
+  /// Rapid Onset: Tolerance develops quickly over a few days to weeks.
+  /// Gradual Onset: Tolerance develops slowly over weeks to months or longer.
+  /// Continuous: Tolerance continues to build as long as the substance is used.
+  /// Examples:
+  /// Nicotine is a stimulant that is developed tolerance by rapid onset.
+  /// LSD is a psychedelic with "anti-abuse" mechanism out of the box and tolerance is developed in acute way and rapid decline (7-14 days).
+  onset_mechanism              String
+  onset_description            String?
+  /// Rapid decline: The body's ability to metabolize the drug decreases quickly.
+  /// Gradual decline: The body's ability to metabolize the drug decreases over weeks to months or longer. -> Caffeine, Amphetamine (2 weeks - 3 months)
+  /// Continuous decline: The body's ability to metabolize the drug decreases over weeks to months or longer. -> MDMA (1-3 Months)
+  /// Varies/Unknown: Well... Not everything is researched - default fallback.
+  decline_mechanism            String
+  decline_description          String?
+  /// Representation of the time duration how long it takes for a substance to reach full tolerance.
+  /// This field is nullable, and when it is can mean either substance develops tolerance or it doesn't.
+  /// @example "PT1W-PT2W"
+  /// @see "https://en.wikipedia.org/wiki/ISO_8601#Durations"
+  onset_duration               String?
+  decline_to_baseline_duration String?
+  decline_to_half_duration     String?
+  Substance                    Substance @relation(fields: [substanceId], references: [id])
+
+  @@map("substance_tolerance")
+}
+
+model ChemicalClass {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  @@map("chemical_class")
+}
+
+model PsychoactiveClass {
+  /// PsychoactiveClass do not use automatic ID generation
+  /// as names needs to be unique and they can be used as
+  /// identifiers as well.
+  id          String     @id
+  /// Single-word name of the psychoactive class
+  name        String     @unique
+  /// Defines few words that describe the class
+  summary     String?
+  /// Defines the complete description and specification
+  /// related to given psychoactive class
+  description String?
+  substanceId String?
+  Substance   Substance? @relation(fields: [substanceId], references: [id])
+
+  @@map("psychoactive_class")
+}
+
+model RouteOfAdministration {
+  id                                       String    @id @default(cuid())
+  substanceName                            String
+  classification                           String    @map("name")
+  Substance                                Substance @relation(fields: [substanceName], references: [name])
+  substance_route_of_administration_dosage Dosage[]
+  substance_route_of_administration_phase  Phase[]
+
+  @@unique([classification, substanceName])
+  @@map("substance_route_of_administration")
+}
+
+model Account {
+  id       String   @id
+  username String   @unique(map: "Account_username_key")
+  password String
+  subject  subject?
+
+  @@map("account")
+}
+
+model Effect {
+  id                                              String                                            @id
+  name                                            String                                            @unique(map: "Effect_name_key")
+  slug                                            String                                            @unique(map: "Effect_slug_key")
+  category                                        String?
+  type                                            String?
+  tags                                            String
+  summary                                         String?
+  description                                     String
+  parameters                                      String
+  see_also                                        String
+  effectindex                                     String?
+  psychonautwiki                                  String?
+  substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
+
+  @@map("effect")
+}
+
+model Ingestion {
+  id                   Int        @id @default(autoincrement())
+  substance_name       String?
+  administration_route String?
+  dosage_unit          String?
+  dosage_amount        Float?
+  ingestion_date       DateTime?
+  subject_id           String?
+  stash_id             String?
+  subject              subject?   @relation(fields: [subject_id], references: [id])
+  substance            Substance? @relation(fields: [substance_name], references: [name])
+  stash                stash?     @relation(fields: [stash_id], references: [id])
+
+  @@map("ingestion")
+}
+
+model stash {
+  id           String      @id
+  owner_id     String
+  substance_id String
+  addedDate    DateTime?   @default(now())
+  expiration   DateTime?
+  amount       Int?
+  price        String?
+  vendor       String?
+  description  String?
+  purity       Int?        @default(100)
+  ingestion    Ingestion[]
+  subject      subject     @relation(fields: [owner_id], references: [id])
+  substance    Substance   @relation(fields: [substance_id], references: [name])
+}
+
+model subject {
+  id          String      @id
+  firstName   String?
+  lastName    String?
+  dateOfBirth DateTime?
+  weight      Int?
+  height      Int?
+  account_id  String?     @unique(map: "Subject_account_id_key")
+  ingestion   Ingestion[]
+  stash       stash[]
+  account     Account?    @relation(fields: [account_id], references: [id])
+}
+
+model substance_interactions {
+  id          String     @id
+  substanceId String?
+  substance   Substance? @relation(fields: [substanceId], references: [id])
+}
+
+model Dosage {
+  id                                String                 @id
+  intensity                         String
+  lower_bound_amount                Float?
+  upper_bound_amount                Float?
+  unit                              String
+  routeOfAdministrationId           String?
+  substance_route_of_administration RouteOfAdministration? @relation(fields: [routeOfAdministrationId], references: [id])
+
+  @@unique([intensity, routeOfAdministrationId], map: "route_of_administration_dosage_intensivity_routeOfAdministrationId_key")
+  @@map("substance_route_of_administration_dosage")
+}
+
+model Phase {
+  id                                              String                                            @id
+  classification                                  String
+  lower_duration                                  String?
+  upper_duration                                  String?
+  routeOfAdministrationId                         String?
+  substance_route_of_administration               RouteOfAdministration?                            @relation(fields: [routeOfAdministrationId], references: [id])
+  substance_route_of_administration_phase_effects substance_route_of_administration_phase_effects[]
+
+  @@unique([routeOfAdministrationId, classification], map: "route_of_administration_phase_routeOfAdministrationId_classification_key")
+  @@map("substance_route_of_administration_phase")
+}
+
+model substance_route_of_administration_phase_effects {
+  A                                       String
+  B                                       String
+  effect                                  Effect @relation(fields: [A], references: [id], onDelete: Cascade)
+  substance_route_of_administration_phase Phase  @relation(fields: [B], references: [id], onDelete: Cascade)
+
+  @@unique([A, B], map: "_EffectToPhase_AB_unique")
+  @@index([B], map: "_EffectToPhase_B_index")
+}
