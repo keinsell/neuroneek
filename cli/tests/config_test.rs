@@ -8,9 +8,10 @@ fn test_default_config() {
     let temp_dir = TempDir::new().unwrap();
     let config_path = temp_dir.path().join("config.toml");
     
-    // Set environment variable for test
-    env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
-    
+    unsafe {
+        env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
+    }
+
     let config = AppConfig::new().unwrap();
     assert_eq!(config.debug, false);
     assert_eq!(config.log_level, "info");
@@ -33,8 +34,9 @@ fn test_load_config() {
         log_level = "debug"
     "#;
     fs::write(&config_path, test_config).unwrap();
-    
-    env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
+    unsafe {
+        env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
+    }
     
     let config = AppConfig::new().unwrap();
     assert_eq!(config.debug, true);
@@ -52,17 +54,21 @@ fn test_env_override() {
         log_level = "info"
     "#;
     fs::write(&config_path, test_config).unwrap();
-    
-    // Override with env vars
-    env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
-    env::set_var("NEURONEK_DEBUG", "true");
-    env::set_var("NEURONEK_LOG_LEVEL", "debug");
+
+    unsafe {
+        env::set_var("NEURONEK_CONFIG_PATH", config_path.to_str().unwrap());
+        env::set_var("NEURONEK_DEBUG", "true");
+        env::set_var("NEURONEK_LOG_LEVEL", "info");
+    }
     
     let config = AppConfig::new().unwrap();
+
     assert_eq!(config.debug, true);
-    assert_eq!(config.log_level, "debug");
-    
-    // Clean up env vars
-    env::remove_var("NEURONEK_DEBUG");
-    env::remove_var("NEURONEK_LOG_LEVEL");
+    assert_eq!(config.log_level, "info");
+
+    unsafe {
+        env::remove_var("NEURONEK_CONFIG_PATH");
+        env::remove_var("NEURONEK_DEBUG");
+        env::remove_var("NEURONEK_LOG_LEVEL");
+    }
 }

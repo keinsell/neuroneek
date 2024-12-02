@@ -6,8 +6,8 @@ use crate::CommandHandler;
 use crate::database;
 use crate::database::prelude::Ingestion;
 use tracing::Level;
+use tabled::{Table, Tabled};
 use sea_orm_migration::MigratorTrait;
-use cli_table::{print_stdout, Table, WithTitle};
 use crate::ingestion::ViewModel;
 
 #[derive(Parser, Debug)]
@@ -25,12 +25,15 @@ impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
                 .map_err(|e| e.to_string())
         })?;
 
-        let view_models: Vec<ViewModel> = ingestions.into_iter()
-            .take(10)
-            .map(|i| i.into())
-            .collect();
+        if ingestions.is_empty() {
+            println!("No ingestions found.");
+            return Ok(());
+        }
 
-        print_stdout(view_models.with_title()).map_err(|e| e.to_string())?;
+        let table = Table::new(ingestions.iter().map(|i| ViewModel::from(i.clone())))
+            .with(tabled::settings::Style::modern())
+            .to_string();
+        println!("{}", table);
 
         Ok(())
     }
