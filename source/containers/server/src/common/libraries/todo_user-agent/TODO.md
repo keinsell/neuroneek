@@ -1,5 +1,0 @@
-- https://github.com/sanchezzzhak/node-device-detector
-- https://github.com/Kikobeats/top-user-agents
-- https://github.com/samclarke/robots-parser
-- https://github.com/bestiejs/platform.js
-- https://github.com/faisalman/ua-parser-js

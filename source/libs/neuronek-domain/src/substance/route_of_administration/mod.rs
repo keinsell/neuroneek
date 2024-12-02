@@ -1,5 +1,0 @@
-pub use route_of_administration_classification::RouteOfAdministrationClassification;
-
-mod dosages;
-pub mod route_of_administration;
-pub mod route_of_administration_classification;

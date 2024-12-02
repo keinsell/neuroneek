@@ -1,1 +1,0 @@
-export const PRISMA_SERVICE_OPTIONS = Symbol( 'PRISMA_SERVICE_OPTIONS' )

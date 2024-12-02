@@ -1,4 +1,0 @@
-- Add Locking Strategy
-- - pessimistic_read
-- - pessimistic_write
-- - optimistic_read

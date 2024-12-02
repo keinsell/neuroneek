@@ -1,3 +1,0 @@
-[alias]
-start = "run --"
-playground = "run --example playground"

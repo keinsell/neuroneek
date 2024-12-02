@@ -1,3 +1,0 @@
-[alias]
-start = "run --"
-generate = "cargo run -- fresh --database-url sqlite://db.sqlite && sea-orm-cli generate entity --database-url sqlite://db.sqlite --output-dir src --date-time-crate chrono --with-copy-enums --serde-skip-hidden-column --ignore-tables seaql_migrations,substance_route_of_administration_phase_effects --expanded-format --seaography -v --with-serde both"
