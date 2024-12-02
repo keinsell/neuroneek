@@ -6,9 +6,10 @@ use sea_orm::entity::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, ActiveModelTrait, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
 #[sea_orm(table_name = "ingestion")]
-pub struct Model {
+pub struct Model
+{
     #[sea_orm(primary_key)]
     pub id: i32,
     pub substance_name: String,

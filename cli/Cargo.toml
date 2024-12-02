@@ -1,6 +1,45 @@
 [package]
-name = "cli"
-version = "0.1.0"
+name = "neuronek-cli"
+description = "🧬 Intelligent dosage tracker application with purpose to monitor supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
+version = "0.0.0-dev.1"
 edition = "2024"
+path = "src/main.rs"
 
 [dependencies]
+smol = "2.0.2"
+chrono-english = "0.1.7"
+tracing = "0.1.40"
+tracing-attributes = "0.1.27"
+openssl = { version = "0.10", features = ["vendored"] }
+serde = "1.0.213"
+config = "0.14.1"
+serde_json = "1.0.132"
+directories = "5.0.1"
+async-trait = "0.1.83"
+sea-orm-migration = { version = "1.1.0", features = [
+	"runtime-async-std-native-tls",
+	"sqlx-sqlite",
+	"with-chrono",
+	"sea-orm-cli",
+] }
+sea-orm = { version = "1.1.0", features = [
+	"runtime-async-std-native-tls",
+	"sqlx-sqlite",
+	"with-chrono",
+] }
+chrono = "0.4.38"
+lazy_static = "1.5.0"
+clap = { version = "4.5.20", features = ["derive", "cargo"] }
+toml = "0.8.19"
+thiserror = "1.0.65"
+tracing-subscriber = { version = "0.3.16", features = ["chrono", "env-filter"] }
+tracing-futures = "0.2.5"
+tracing-opentelemetry = "0.27.0"
+tracing-appender = "0.2"
+time = { version = "0.3", features = ["formatting"] }
+anyhow = "1.0.93"
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"
+tempfile = "3.13.0"
+assert_cmd = "2.0.11"
