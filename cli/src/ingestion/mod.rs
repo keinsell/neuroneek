@@ -3,7 +3,10 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 mod log_ingestion;
-pub use log_ingestion::LogIngestion;
+mod list_ingestions;
+
+pub use log_ingestion::{LogIngestion};
+pub use list_ingestions::ListIngestions;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ViewModel {

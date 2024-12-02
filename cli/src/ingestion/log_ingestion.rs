@@ -1,5 +1,4 @@
-use crate::CommandHandler;
-use crate::database;
+use crate::{CommandHandler, database::{self, ingestion::Entity as Ingestion}};
 use crate::route_of_administration::RouteOfAdministrationClassification;
 use anyhow::Context;
 use anyhow::Result;
@@ -10,8 +9,7 @@ use chrono_english::parse_date_string;
 use clap::Error;
 use clap::Parser;
 use sea_orm::ActiveValue;
-use sea_orm::DatabaseConnection;
-use sea_orm::EntityTrait;
+use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
 use smol::block_on;
 use thiserror::Error;
 use tracing::Level;
@@ -21,7 +19,7 @@ use tracing_attributes::instrument;
 
 #[derive(Parser, Debug)]
 #[command(version, about = "Store information about new ingestion", long_about)]
-pub struct LogIngestion
+pub struct LogIngestion 
 {
     #[arg(short = 's', long)]
     pub substance_name: String,
@@ -89,7 +87,7 @@ impl CommandHandler for LogIngestion
         })?;
 
         event!(Level::INFO, "Ingestion Logged {:?}", &ingestion);
-        info!("{:?}", ingestion);
+        info!("Ingestion successfully logged. {:?}", ingestion);
 
         Ok(())
     }

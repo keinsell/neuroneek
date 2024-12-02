@@ -44,16 +44,6 @@ coverage:
     SAVE ARTIFACT ./lcov.info AS LOCAL lcov.info
     SAVE ARTIFACT ./coverage AS LOCAL coverage
 
-build-darwin-x86:
-    FROM multiarch/crossbuild
-    # FROM ghcr.io/darwin-containers/darwin-jail/ventura-arm64:latest
-    ENV CROSS_TRIPPLE x86_64-apple-darwin
-    RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain="nightly" -t "x86_64-apple-darwin"
-    DO rust+INIT --keep_fingerprints=true
-    WORKDIR /tmp
-    COPY --keep-ts --dir src packages Cargo.lock Cargo.toml .
-    DO rust+CARGO --args="build --release --target x86_64-apple-darwin"
-
 all:
     BUILD +lint
     BUILD +fmt

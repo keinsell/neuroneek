@@ -1,3 +1,4 @@
+use std::env;
 use config::Config as ConfigBuilder;
 use config::Environment;
 use config::File;
@@ -35,15 +36,28 @@ pub struct AppConfig
     pub config_path: Option<PathBuf>,
 }
 
-fn default_database_url() -> String
-{
-    ProjectDirs::from("com", "neuronek", "cli")
-        .map(|proj_dirs| {
-            let data_dir = proj_dirs.data_dir();
-            std::fs::create_dir_all(data_dir).unwrap_or_default();
-            format!("sqlite:{}", data_dir.join("database.db").display())
-        })
-        .unwrap_or_else(|| "sqlite:database.db".to_string())
+fn default_database_url() -> String {
+    #[cfg(test)]
+    {
+        "sqlite::memory:".to_string()
+    }
+    #[cfg(not(test))]
+    {
+        ProjectDirs::from("com", "neuronek", "cli")
+            .map(|proj_dirs| {
+                let data_dir = proj_dirs.data_dir();
+                std::fs::create_dir_all(data_dir).unwrap_or_default();
+                // If there is no journal.db creae a empty file
+                // This is required for sqlite to work properly
+                
+                if !data_dir.join("database.db").exists() {
+                    std::fs::write(data_dir.join("database.db"), vec![]).unwrap_or_default();
+                }
+              
+                format!("sqlite:{}", data_dir.join("database.db").display())
+            })
+            .unwrap_or_else(|| "sqlite:database.db".to_string())
+    }
 }
 
 fn default_log_level() -> String { "info".to_string() }
@@ -65,9 +79,14 @@ impl AppConfig
 {
     pub fn new() -> Result<Self, ConfigError>
     {
-        let config_path = ProjectDirs::from("com", "neuronek", "cli")
-            .map(|proj_dirs| proj_dirs.config_dir().join("config.toml"))
-            .unwrap_or_else(|| PathBuf::from("config.toml"));
+        // Allow override of config path through env var
+        let config_path = if let Ok(path) = env::var("NEURONEK_CONFIG_PATH") {
+            PathBuf::from(path)
+        } else {
+            ProjectDirs::from("com", "neuronek", "cli")
+                .map(|proj_dirs| proj_dirs.config_dir().join("config.toml"))
+                .unwrap_or_else(|| PathBuf::from("config.toml"))
+        };
 
         let mut builder = ConfigBuilder::builder()
             // Start off with default values
@@ -95,16 +114,16 @@ impl AppConfig
         let mut app_config: AppConfig = config.try_deserialize()?;
 
         // Set config path
-        app_config.config_path = Some(config_path);
+        app_config.config_path = Some(config_path.clone());
 
         // Ensure config directory exists
-        if let Some(parent) = app_config.config_path.as_ref().and_then(|p| p.parent())
-        {
-            std::fs::create_dir_all(parent)?;
+        if let Some(parent) = config_path.parent() {
+            std::fs::create_dir_all(parent)
+                .map_err(|e| ConfigError::DirectoryCreation(e))?;
         }
 
         // Auto-migrate: Save current config if file doesn't exist
-        if !config_path.exists()
+        if !config_path.clone().exists()
         {
             let toml = toml::to_string_pretty(&app_config).map_err(|e| {
                 ConfigError::ConfigurationError(config::ConfigError::Message(e.to_string()))

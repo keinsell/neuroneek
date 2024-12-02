@@ -15,7 +15,7 @@ mod ingestion;
 mod logging;
 mod route_of_administration;
 mod state;
-use crate::ingestion::LogIngestion;
+use crate::ingestion::{LogIngestion, ListIngestions};
 use neuronek_cli::CommandHandler;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use crate::logging::setup_logging;
@@ -29,16 +29,13 @@ use std::path::PathBuf;
 )]
 struct CommandLineInterface {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
     Log(LogIngestion),
-    Config {
-        #[arg(short = 'p', long = "path")]
-        config_path: Option<PathBuf>,
-    },
+    List(ListIngestions),
 }
 
 fn main() {
@@ -76,9 +73,11 @@ fn main() {
                 std::process::exit(1);
             });
         }
-        Some(Commands::Config { config_path }) => {
-            // Handle config command if needed
-            println!("Configuration path: {:?}", config_path);
+        Some(Commands::List(list_ingestions)) => {
+            list_ingestions.handle(db_connection).unwrap_or_else(|e| {
+                eprintln!("Error handling list command: {}", e);
+                std::process::exit(1);
+            });
         }
         None => {
             println!("No command provided. Use --help for usage information.");
