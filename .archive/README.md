@@ -11,13 +11,11 @@
 
 <br>
 
+<p align="center">
 Neuronek is an application that provides essential tools for people who want to use psychoactive
 substances in a safe and healthy way, regardless of their personal goals or usage patterns. The app offers personalized
 dosing recommendations, insights into usage patterns, a comprehensive database of substances, and a community of users
 who are also interested in promoting responsible usage of these substances.
-
-<p align="center">
-Special thanks for current >10 ⭐ stargazzers, somehow this revived project.
 </p>
 
 
