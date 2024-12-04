@@ -1,10 +1,10 @@
-use std::env;
 use config::Config as ConfigBuilder;
 use config::Environment;
 use config::File;
 use directories::ProjectDirs;
 use serde::Deserialize;
 use serde::Serialize;
+use std::env;
 use std::path::PathBuf;
 use thiserror::Error;
 use tracing::Level;
@@ -23,7 +23,6 @@ pub enum ConfigError
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct AppConfig
 {
-    #[serde(default = "default_database_url")]
     pub database_url: String,
 
     #[serde(default)]
@@ -36,26 +35,31 @@ pub struct AppConfig
     pub config_path: Option<PathBuf>,
 }
 
-fn default_database_url() -> String {
-    if cfg!(test) {
-        "sqlite::memory:".to_string()
-    } else {
-        let proj_dirs = ProjectDirs::from("com", "neuronek", "cli")
-            .expect("Failed to get project directories");
-        
-        #[cfg(debug_assertions)]
-        let data_dir = proj_dirs.data_dir().join("debug");
-        
-        #[cfg(not(debug_assertions))]
-        let data_dir = proj_dirs.data_dir().join("release");
-
-        std::fs::create_dir_all(&data_dir).unwrap_or_default();
-        let db_path = data_dir.join("database.db");
-        if !db_path.exists() {
-            std::fs::write(&db_path, "").unwrap_or_default();
-        }
-        format!("sqlite:{}", db_path.display())
+fn default_database_url() -> String
+{
+    let mut database_filename: &str = "journal.db";
+    if cfg!(test)
+    {
+        database_filename = "sqlite::memory:";
     }
+    if cfg!(debug_assertions)
+    {
+        database_filename = "dev.db";
+    }
+
+    let project_dirs =
+        ProjectDirs::from("com", "neuronek", "cli").expect("Failed to get project directories");
+    let data_directory = project_dirs.data_dir();
+
+    let database_path = &data_directory.clone().join(database_filename);
+
+    if !database_path.exists()
+    {
+        std::fs::write(&database_path, "").unwrap_or_default();
+    }
+
+    println!("Database path: {}", database_path.display());
+    format!("sqlite:{}", database_path.display())
 }
 
 fn default_log_level() -> String { "info".to_string() }
@@ -77,57 +81,20 @@ impl AppConfig
 {
     pub fn new() -> Result<Self, ConfigError>
     {
-        // Allow override of config path through env var
-        let config_path = if let Ok(path) = env::var("NEURONEK_CONFIG_PATH") {
-            PathBuf::from(path)
-        } else {
-            ProjectDirs::from("com", "neuronek", "cli")
-                .map(|proj_dirs| proj_dirs.config_dir().join("config.toml"))
-                .unwrap_or_else(|| PathBuf::from("config.toml"))
-        };
-
         let mut builder = ConfigBuilder::builder()
             // Start off with default values
             .set_default("database_url", default_database_url())?
             .set_default("debug", false)?
             .set_default("log_level", default_log_level())?;
 
-        // Layer 1: Add config file if it exists
-        if config_path.exists()
-        {
-            builder = builder.add_source(File::from(config_path.clone()));
-        }
-
-        // Layer 2: Add environment variables with prefix "NEURONEK_"
         builder = builder.add_source(
             Environment::with_prefix("NEURONEK")
                 .separator("_")
                 .try_parsing(true),
         );
 
-        // Build final config
         let config = builder.build()?;
-
-        // Deserialize config
         let mut app_config: AppConfig = config.try_deserialize()?;
-
-        // Set config path
-        app_config.config_path = Some(config_path.clone());
-
-        // Ensure config directory exists
-        if let Some(parent) = config_path.parent() {
-            std::fs::create_dir_all(parent)
-                .map_err(|e| ConfigError::DirectoryCreation(e))?;
-        }
-
-        // Auto-migrate: Save current config if file doesn't exist
-        if !config_path.clone().exists()
-        {
-            let toml = toml::to_string_pretty(&app_config).map_err(|e| {
-                ConfigError::ConfigurationError(config::ConfigError::Message(e.to_string()))
-            })?;
-            std::fs::write(&config_path, toml)?;
-        }
 
         Ok(app_config)
     }
