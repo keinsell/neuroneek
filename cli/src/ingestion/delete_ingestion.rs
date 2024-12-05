@@ -1,11 +1,8 @@
-use crate::CommandHandler;
-use crate::database;
 use crate::database::prelude::Ingestion;
-use crate::ingestion::IngestionError;
+use crate::lib::CommandHandler;
 use clap::Parser;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
-use sea_orm::QueryOrder;
 use smol::block_on;
 
 #[derive(Parser, Debug)]

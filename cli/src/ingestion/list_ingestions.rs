@@ -1,7 +1,7 @@
-use crate::CommandHandler;
 use crate::database;
 use crate::database::prelude::Ingestion;
 use crate::ingestion::ViewModel;
+use crate::lib::CommandHandler;
 use clap::Parser;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
@@ -10,7 +10,6 @@ use sea_orm_migration::MigratorTrait;
 use smol::block_on;
 use tabled::Table;
 use tabled::Tabled;
-use tracing::Level;
 use tracing_attributes::instrument;
 
 #[derive(Parser, Debug)]

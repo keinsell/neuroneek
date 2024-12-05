@@ -12,14 +12,16 @@ use clap::Subcommand;
 
 mod database;
 mod ingestion;
+mod lib;
 mod logging;
 mod route_of_administration;
 mod state;
+
 use crate::ingestion::DeleteIngestion;
 use crate::ingestion::ListIngestions;
 use crate::ingestion::LogIngestion;
 use crate::ingestion::UpdateIngestion;
-use neuronek_cli::CommandHandler;
+use crate::lib::CommandHandler;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use state::*;
 

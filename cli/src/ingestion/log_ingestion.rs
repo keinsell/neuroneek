@@ -1,7 +1,7 @@
-use crate::CommandHandler;
 use crate::database::ingestion::Entity as Ingestion;
 use crate::database::{self};
 use crate::ingestion::ViewModel;
+use crate::lib::CommandHandler;
 use crate::route_of_administration::RouteOfAdministrationClassification;
 use anyhow::Context;
 use anyhow::Result;
