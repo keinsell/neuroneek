@@ -1,22 +1,34 @@
-use clap::Parser;
-use sea_orm::{DatabaseConnection, EntityTrait, QueryOrder};
-use smol::block_on;
-use tracing_attributes::instrument;
 use crate::CommandHandler;
 use crate::database;
 use crate::database::prelude::Ingestion;
-use tracing::Level;
-use tabled::{Table, Tabled};
-use sea_orm_migration::MigratorTrait;
 use crate::ingestion::ViewModel;
+use clap::Parser;
+use sea_orm::DatabaseConnection;
+use sea_orm::EntityTrait;
+use sea_orm::QueryOrder;
+use sea_orm_migration::MigratorTrait;
+use smol::block_on;
+use tabled::Table;
+use tabled::Tabled;
+use tracing::Level;
+use tracing_attributes::instrument;
 
 #[derive(Parser, Debug)]
 #[command(version, about = "List all ingestions", long_about)]
-pub struct ListIngestions;
+pub struct ListIngestions
+{
+    /// Defines the number of ingestions to display
+    #[arg(short = 'l', long, default_value_t = 10)]
+    pub linit: i32,
+    // TODO: Query order by field
+    // TODO: Return format (JSON/Pretty)
+}
 
-impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
+impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions
+{
     #[instrument(name = "list_ingestions", level = Level::INFO)]
-    fn handle(&self, database_connection: &DatabaseConnection) -> anyhow::Result<(), String> {
+    fn handle(&self, database_connection: &DatabaseConnection) -> anyhow::Result<(), String>
+    {
         let ingestions = block_on(async {
             Ingestion::find()
                 .order_by_desc(database::ingestion::Column::IngestedAt)
@@ -25,7 +37,8 @@ impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
                 .map_err(|e| e.to_string())
         })?;
 
-        if ingestions.is_empty() {
+        if ingestions.is_empty()
+        {
             println!("No ingestions found.");
             return Ok(());
         }
@@ -33,6 +46,7 @@ impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
         let table = Table::new(ingestions.iter().map(|i| ViewModel::from(i.clone())))
             .with(tabled::settings::Style::modern())
             .to_string();
+
         println!("{}", table);
 
         Ok(())
@@ -40,19 +54,21 @@ impl CommandHandler for crate::ingestion::list_ingestions::ListIngestions {
 }
 
 #[cfg(test)]
-mod tests {
+mod tests
+{
     use super::*;
-    use chrono::{TimeZone, Utc};
-    use sea_orm::{Database, Set, ActiveModelTrait};
     use crate::database::ingestion::ActiveModel;
-    use tempfile::TempDir;
+    use chrono::TimeZone;
+    use chrono::Utc;
+    use sea_orm::ActiveModelTrait;
+    use sea_orm::Database;
+    use sea_orm::Set;
 
     #[test]
-    fn test_list_ingestions() {
+    fn test_list_ingestions()
+    {
         // Create database connection with in-memory SQLite for testing
-        let conn = block_on(async {
-            Database::connect("sqlite::memory:").await.unwrap()
-        });
+        let conn = block_on(async { Database::connect("sqlite::memory:").await.unwrap() });
 
         // Run migrations
         block_on(async {
@@ -85,12 +101,7 @@ mod tests {
         assert!(result.is_ok());
 
         // Verify the ingestion exists in database
-        let ingestions = block_on(async {
-            Ingestion::find()
-                .all(&conn)
-                .await
-                .unwrap()
-        });
+        let ingestions = block_on(async { Ingestion::find().all(&conn).await.unwrap() });
 
         assert_eq!(ingestions.len(), 1);
         let ingestion = &ingestions[0];

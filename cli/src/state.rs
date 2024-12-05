@@ -1,7 +1,8 @@
 use crate::config::AppConfig;
 use sea_orm::Database;
-use sea_orm::DatabaseConnection;
 use smol::block_on;
+
+pub use sea_orm::prelude::*;
 
 lazy_static::lazy_static! {
 #[derive(Clone, Debug)]

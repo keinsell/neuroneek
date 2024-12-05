@@ -27,10 +27,13 @@ use tracing_attributes::instrument;
 #[command(version, about = "Store information about new ingestion", long_about)]
 pub struct LogIngestion
 {
+    /// Name of the substance ingested.
     #[arg(short = 's', long)]
     pub substance_name: String,
+    /// Unit in which the substance is ingested (default is "mg).
     #[arg(short = 'u', long, default_value_t=String::from("mg"))]
     pub dosage_unit: String,
+    /// Volume of substance ingested.
     #[arg(short = 'v', long)]
     pub dosage_amount: f64,
     /// Date of ingestion, by default current date is used if not provided.

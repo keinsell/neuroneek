@@ -21,6 +21,7 @@ use crate::ingestion::LogIngestion;
 use crate::ingestion::UpdateIngestion;
 use neuronek_cli::CommandHandler;
 use sea_orm_migration::IntoSchemaManagerConnection;
+use state::*;
 
 #[derive(Parser)]
 #[command(

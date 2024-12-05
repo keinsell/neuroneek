@@ -4,6 +4,7 @@ use chrono::Utc;
 use serde::Deserialize;
 use serde::Serialize;
 use tabled::Tabled;
+use thiserror::Error;
 
 mod delete_ingestion;
 mod list_ingestions;
@@ -24,6 +25,13 @@ pub struct ViewModel
     pub amount: String,
     pub notes: String,
     pub taken_at: DateTime<Utc>,
+}
+
+#[derive(Error, Debug)]
+pub enum IngestionError
+{
+    #[error("Ingestion not found")]
+    NotFound(#[from] sea_orm::DbErr),
 }
 
 impl std::fmt::Display for ViewModel
