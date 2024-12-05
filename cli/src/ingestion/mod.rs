@@ -34,6 +34,13 @@ pub enum IngestionError
     NotFound(#[from] sea_orm::DbErr),
 }
 
+pub enum IngestionCommands {
+    LogIngestion(LogIngestion),
+    UpdateIngestion(UpdateIngestion),
+    DeleteIngestion(DeleteIngestion),
+    ListIngestions(ListIngestions),
+}
+
 impl std::fmt::Display for ViewModel
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result

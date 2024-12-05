@@ -30,7 +30,7 @@ pub struct LogIngestion
     /// Name of the substance ingested.
     #[arg(short = 's', long)]
     pub substance_name: String,
-    /// Unit in which the substance is ingested (default is "mg).
+    /// Unit in which the substance is ingested (default is "mg").
     #[arg(short = 'u', long, default_value_t=String::from("mg"))]
     pub dosage_unit: String,
     /// Volume of substance ingested.
