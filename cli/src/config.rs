@@ -82,7 +82,6 @@ impl AppConfig
     pub fn new() -> Result<Self, ConfigError>
     {
         let mut builder = ConfigBuilder::builder()
-            // Start off with default values
             .set_default("database_url", default_database_url())?
             .set_default("debug", false)?
             .set_default("log_level", default_log_level())?;

@@ -1,8 +1,10 @@
 mod dosage;
 
+use async_trait::async_trait;
 use sea_orm::DatabaseConnection;
 
-pub trait CommandHandler
+#[async_trait]
+pub trait CommandHandler: Sync
 {
-    fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>;
+    async fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>;
 }

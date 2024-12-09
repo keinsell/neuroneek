@@ -5,6 +5,7 @@ use crate::lib::CommandHandler;
 use crate::route_of_administration::RouteOfAdministrationClassification;
 use anyhow::Context;
 use anyhow::Result;
+use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Local;
 use chrono_english::Dialect;
@@ -72,10 +73,11 @@ pub enum LogIngestionError
     DatabaseError(#[from] sea_orm::DbErr),
 }
 
+#[async_trait]
 impl CommandHandler for LogIngestion
 {
     #[instrument(name = "log_ingestion", level = Level::INFO)]
-    fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
+    async fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
     {
         let ingestion = block_on(async {
             database::ingestion::Entity::insert(database::ingestion::ActiveModel {

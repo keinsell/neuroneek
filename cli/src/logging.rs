@@ -1,15 +1,24 @@
-use std::fs::OpenOptions;
-use tracing::{Level, Subscriber};
-use tracing_subscriber::{prelude::*, Registry};
-use tracing_subscriber::fmt::format::FmtSpan;
-use anyhow::{Context, Result};
+use anyhow::Context;
+use anyhow::Result;
 use directories::ProjectDirs;
+use std::fs::OpenOptions;
+use tracing::Level;
+use tracing::Subscriber;
+use tracing_subscriber::Registry;
+use tracing_subscriber::fmt::format::FmtSpan;
+use tracing_subscriber::prelude::*;
 
-pub fn setup_logging() -> Result<(), Box<dyn std::error::Error>> {
+pub fn setup_logging() -> Result<(), Box<dyn std::error::Error>>
+{
     let file = OpenOptions::new()
         .create(true)
         .append(true)
-        .open(ProjectDirs::from("com", "neuronek", "cli", ).expect("Failed to get project directories").cache_dir().join("neuronek.log"))
+        .open(
+            ProjectDirs::from("com", "neuronek", "cli")
+                .expect("Failed to get project directories")
+                .cache_dir()
+                .join("neuronek.log"),
+        )
         .context("Failed to open log file")?;
 
     let file_writer = file.with_max_level(Level::ERROR);
@@ -41,12 +50,16 @@ pub fn setup_logging() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[cfg(test)]
-mod tests {
-    use tracing::{error, info, warn};
+mod tests
+{
     use super::*;
+    use tracing::error;
+    use tracing::info;
+    use tracing::warn;
 
     #[test]
-    fn test_logging() {
+    fn test_logging()
+    {
         setup_logging().unwrap();
         info!("Test log message");
         warn!("Test warning message");

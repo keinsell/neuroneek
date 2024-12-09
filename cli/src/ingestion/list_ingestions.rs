@@ -1,12 +1,13 @@
-use tracing::Level;
 use crate::database;
 use crate::database::prelude::Ingestion;
 use crate::ingestion::ViewModel;
 use crate::lib::CommandHandler;
+use async_trait::async_trait;
 use clap::Parser;
-use sea_orm::{DatabaseConnection, QuerySelect};
+use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
 use sea_orm::QueryOrder;
+use sea_orm::QuerySelect;
 use smol::block_on;
 use tabled::Table;
 use tracing_attributes::instrument;
@@ -22,10 +23,12 @@ pub struct ListIngestions
     // TODO: Return format (JSON/Pretty)
 }
 
+
+#[async_trait]
 impl CommandHandler for ListIngestions
 {
-    #[instrument(name = "list_ingestions", level = Level::INFO)]
-    fn handle(&self, database_connection: &DatabaseConnection) -> anyhow::Result<(), String>
+    #[instrument(level = Level::INFO, skip(database_connection), nane = "ListIngestions")]
+    async fn handle(&self, database_connection: &DatabaseConnection) -> anyhow::Result<(), String>
     {
         let ingestions = block_on(async {
             Ingestion::find()

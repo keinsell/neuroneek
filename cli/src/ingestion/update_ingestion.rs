@@ -36,9 +36,10 @@ pub struct UpdateIngestion
     pub route_of_administration: Option<RouteOfAdministrationClassification>,
 }
 
+#[async_trait::async_trait]
 impl CommandHandler for UpdateIngestion
 {
-    fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
+    async fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
     {
         let mut ingestion = block_on(async {
             Ingestion::find_by_id(self.ingestion_id)

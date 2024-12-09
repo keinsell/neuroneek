@@ -2,37 +2,32 @@ VERSION --global-cache 0.8
 PROJECT keinsell/neuronek-cli
 IMPORT github.com/earthly/lib/rust:3.0.1 AS rust
 
-install:
-    FROM rustlang/rust:nightly
-    DO rust+INIT --keep_fingerprints=true
-    DO rust+SET_CACHE_MOUNTS_ENV
-    DO rust+CARGO --args="install cargo-binstall"
-    DO rust+CARGO --args="binstall -y cargo-tarpaulin cargo-llvm-cov"
-
-checkout:
-    FROM +install
-    WORKDIR /tmp
-    COPY --keep-ts Cargo.lock Cargo.toml ./
+CHECKOUT:
+    FUNCTION
+    WORKDIR /tmp/neuronek-cli
+    COPY --keep-ts Cargo.toml ./
     COPY --keep-ts --dir src ./
-    COPY --keep-ts --dir tests ./
 
-lint:
-    FROM +checkout
-    RUN rustup component add clippy
-    DO rust+CARGO --args="clippy --all-features --all-targets --offline -- -D warnings"
+builder:
+#    ARG IMAGE=registry.suse.com/bci/rust:1.82
+    ARG IMAGE=ghcr.io/rust-cross/cargo-zigbuild:latest
+    FROM $IMAGE
+    RUN rustup default nightly
+    DO rust+INIT --keep_fingerprints=true
+    DO +CHECKOUT
 
 fmt:
-    FROM +lint
-    RUN rustup component add rustfmt
+    FROM +builder
+    RUN rustup component add fmt
     DO rust+CARGO --args="fmt --check"
 
-build:
-    FROM +checkout
-    DO rust+CARGO --args="build --release" --output="release/[^/\.]+"
-    SAVE ARTIFACT ./target/release/neuronek-cli neuronek-cli AS LOCAL dist/neuronek-cli
+lint:
+    FROM +fmt
+    RUN rustup component add clippy
+    DO rust+CARGO --args="clippy --all-features --all-targets -- -D warnings"
 
 test:
-    FROM +build
+    FROM +lint
     DO rust+CARGO --args="test"
 
 coverage:
@@ -44,35 +39,25 @@ coverage:
     SAVE ARTIFACT ./lcov.info AS LOCAL lcov.info
     SAVE ARTIFACT ./coverage AS LOCAL coverage
 
+crossbuild:
+    ARG RUST_TARGET
+    ARG BASE_IMAGE=ghcr.io/rust-cross/cargo-zigbuild:latest
+    FROM +builder --IMAGE=$BASE_IMAGE
+    RUN rustup target add $RUST_TARGET
+    RUN cargo zigbuild --release --target $RUST_TARGET
+    SAVE ARTIFACT ./target/$RUST_TARGET/release AS LOCAL ./target/$RUST_TARGET/release
+    SAVE ARTIFACT ./target/$RUST_TARGET/release $RUST_TARGET
+
+build:
+    BUILD +crossbuild \
+        --RUST_TARGET=x86_64-pc-windows-gnu \
+        --RUST_TARGET=x86_64-unknown-linux-gnu \
+        --RUST_TARGET=aarch64-unknown-linux-gnu \
+        --RUST_TARGET=x86_64-apple-darwin \
+        --RUST_TARGET=aarch64-apple-darwin
+
 all:
-    BUILD +lint
-    BUILD +fmt
+	BUILD +fmt
+	BUILD +lint
+	BUILD +test
     BUILD +build
-    BUILD +test
-
-
-
-# Package Self-Extracting Archive
-# ===============================
-# Archive which will contain application
-# binary, license, documentation and all
-# other files necessary for distribution.
-# Such archive have ability to unpack itself
-# into targeted directory (usually $PATH). 
-package-xar:
-    FROM registry.suse.com/bci/kiwi:9.24
-
-package-flatpak:
-    FROM registry.suse.com/bci/kiwi:9.24
-
-package-nix:
-    FROM registry.suse.com/bci/kiwi:9.24
-
-# Container
-# =========
-# ...
-package-container:
-    FROM registry.suse.com/bci/bci-micro:15.5
-    COPY +build/target/release/neuronek neuronek
-    ENTRYPOINT ["./neuronek"]
-    SAVE IMAGE --push neuronek/cli:dev

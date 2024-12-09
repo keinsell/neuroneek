@@ -9,14 +9,15 @@ use smol::block_on;
 #[command(version, about = "Update ingestion", long_about)]
 pub struct DeleteIngestion
 {
-    /// Identificator of the ingestion to be deleted
+    /// Identification of the ingestion to be deleted
     #[arg(short = 'i', long = "id")]
     pub ingestion_id: i32,
 }
 
+#[async_trait::async_trait]
 impl CommandHandler for DeleteIngestion
 {
-    fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
+    async fn handle(&self, database_connection: &DatabaseConnection) -> Result<(), String>
     {
         let rows_affected = block_on(async {
             Ingestion::delete_by_id(self.ingestion_id)
