@@ -4,9 +4,13 @@ cargo-features = ["edition2024"]
 name = "psylog"
 description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
-version = "0.0.0-dev.1"
+version = "0.0.0-dev.2"
 edition = "2024"
 repository = "https://github.com/keinsell/psylog"
+
+[[bin]]
+name = "psylog"
+path = "src/main.rs"
 
 [package.metadata.wix]
 upgrade-guid = "82B4BD62-1152-44E6-B4FA-879648018D6F"
@@ -15,6 +19,37 @@ license = false
 eula = false
 
 [dependencies]
+async-std = { version = "1", features = ["attributes", "tokio1"] }
+clap-nested = "0.4.0"
+directories = { version = "5.0.1" }
+clap = { version = "4.5.23", features = ["derive", "wrap_help", "suggestions", "std", "usage", "error-context", "help", "unstable-styles"] }
+miette = { version = "7.4.0", features = ["fancy", "serde", "syntect-highlighter", "derive"] }
+sea-orm = { version = "1.1.2", features = ["sqlx-sqlite", "runtime-async-std-rustls", "serde_json", "with-chrono"] }
+serde = { version = "1.0.216", features = ["derive", "std", "unstable"] }
+lazy_static = "1.5.0"
+figlet-rs = "0.1.5"
+serde_json = "1.0.133"
+chrono = "0.4.39"
+log = "0.4.22"
+measurements = { version = "0.11.0", features = ["std", "serde", "from_str", "regex"] }
+pubchem = "0.1.1"
+tabled = "0.17.0"
+rust-embed = "8.5.0"
+[dependencies.sea-orm-migration]
+version = "1.1.0"
+features = [
+    "runtime-async-std-rustls",
+    "sqlx-sqlite"
+]
+serde_json = { version = "1" }
+futures = { version = "0.3" }
+async-stream = { version = "0.3" }
+futures-util = { version = "0.3" }
+clap = { version = "4" }
+directories = { version = "5.0.0" }
+[dependencies.rusqlite]
+version = "0.32.0"
+features = ["bundled"]
 
 # The profile that 'dist' will build with
 [profile.dist]
