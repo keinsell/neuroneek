@@ -1,0 +1,23 @@
+cargo-features = ["edition2024"]
+
+[package]
+name = "psylog"
+description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
+authors = ["Jakub Olan <keinsell@protonmail.com>"]
+version = "0.0.0-dev.1"
+edition = "2024"
+repository = "https://github.com/keinsell/psylog"
+
+[package.metadata.wix]
+upgrade-guid = "82B4BD62-1152-44E6-B4FA-879648018D6F"
+path-guid = "8EB7202C-B16A-4E75-900B-8924E701FA76"
+license = false
+eula = false
+
+[dependencies]
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
