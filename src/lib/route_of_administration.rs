@@ -5,7 +5,8 @@ use serde::Serialize;
     clap::ValueEnum, Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize, Eq, Hash,
 )]
 #[serde(rename_all = "snake_case")]
-pub enum RouteOfAdministrationClassification {
+pub enum RouteOfAdministrationClassification
+{
     Buccal,
     Inhaled,
     Insufflated,

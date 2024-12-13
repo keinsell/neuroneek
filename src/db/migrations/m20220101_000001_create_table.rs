@@ -7,8 +7,10 @@ use sea_orm_migration::schema::*;
 pub struct Migration;
 
 #[async_trait::async_trait]
-impl MigrationTrait for Migration {
-    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+impl MigrationTrait for Migration
+{
+    async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr>
+    {
         manager
             .create_table(
                 Table::create()
@@ -26,7 +28,8 @@ impl MigrationTrait for Migration {
             .await
     }
 
-    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
+    async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr>
+    {
         manager
             .drop_table(Table::drop().table(Ingestion::Table).to_owned())
             .await
@@ -34,18 +37,21 @@ impl MigrationTrait for Migration {
 }
 
 #[derive(Iden, EnumIter)]
-enum RouteOfAdministrationClassification {
+enum RouteOfAdministrationClassification
+{
     #[iden = "oral"]
     Oral,
 }
 
 #[derive(DeriveIden)]
-enum Ingestion {
+enum Ingestion
+{
     Table,
     Id,
     SubstanceName,
     RouteOfAdministration,
-    /// Mass of given dosage, it's always represented in base unit which is kilograms.
+    /// Mass of given dosage, it's always represented in base unit which is
+    /// kilograms.
     Dosage,
     /// Timestamp of when the substance was ingested
     IngestedAt,

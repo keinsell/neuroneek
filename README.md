@@ -22,10 +22,13 @@ The Application is distributed to all major package managers and can be installe
 cargo install psylog
 ```
 
+#### Installation from source
+
+Application can be installed with `cargo` and providing url to this repository,
+this may be the most conformable way for users which are looking for a latest version of application.
+
 ```
-git clone https://github.com/keinsell/psylog.git
-cd psylog
-cargo install --path=.
+cargo install --git https://github.com/keinsell/psylog
 ```
 
 ### Usage
