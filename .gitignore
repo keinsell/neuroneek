@@ -209,3 +209,7 @@ devenv.local.nix
 
 # pre-commit
 .pre-commit-config.yaml
+/dev.db
+
+# Enable persistance of database defs
+!.idea/dataSources.xml

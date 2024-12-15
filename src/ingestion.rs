@@ -1,20 +1,21 @@
-use crate::db::ingestion;
-use crate::db::prelude::Ingestion;
 use crate::lib::dosage::parse_dosage;
 use crate::lib::dosage::Dosage;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::orm::ingestion;
+use crate::orm::prelude::Ingestion;
 use async_std::task::block_on;
 use chrono::DateTime;
 use chrono::Local;
-use chrono_humanize::HumanTime;
 use clap::Parser;
 use clap::Subcommand;
 use log::error;
+use log::info;
 use log::warn;
 use measurements::Measurement;
+use miette::miette;
 use miette::IntoDiagnostic;
 use sea_orm::{ActiveModelTrait, ActiveValue};
 use sea_orm::EntityTrait;
@@ -47,8 +48,8 @@ impl From<ingestion::Model> for ViewModel
             .id(model.id)
             .substance_name(model.substance_name)
             .route(model.route_of_administration)
-            .dosage(Dosage::from_base_units(model.dosage).to_string())
-            .ingested_at(HumanTime::from(model.ingested_at.to_utc()).to_string())
+            .dosage(Dosage::from_base_units(model.dosage as f64).to_string())
+            .ingested_at(model.ingested_at.to_string())
             .build()
     }
 }
@@ -62,15 +63,39 @@ impl Display for ViewModel
     }
 }
 
+/**
+# Log Ingestion
+
+The `Log Ingestion` feature is the core functionality of Psylog, enabling users to record information about any substances they consume.
+This feature is designed for tracking supplements, medications, nootropics,
+or any psychoactive substances in a structured and organized way.
+
+By logging ingestion, users can provide details such as the substance name, dosage, and the time of ingestion.
+This data is stored in a low-level database that serves as the foundation for further features,
+such as journaling, analytics, or integrations with external tools.
+While power users may prefer to work directly with this raw data,
+many user-friendly abstractions are planned to make this process seamless,
+such as simplified commands (e.g., `psylog a coffee`) for quicker entries.
+
+Logging ingestions not only serves the purpose of record-keeping
+but also helps users build a personalized database of their consumption habits.
+This database can be used to analyze trends over time,
+providing insights into the long-term effects of different substances on physical and mental well-being.
+*/
 #[derive(Parser, Debug)]
-#[command(version, about = "Store information about new ingestion", long_about)]
+#[command(
+    version,
+    about = "Store information about new ingestion",
+    long_about,
+    aliases = vec!["create", "add"]
+)]
 pub struct LogIngestion
 {
-    /// Name of the substance ingested.
-    #[arg(short = 's', long)]
+    /// Name of substance that is being ingested, e.g. "Paracetamol"
+    #[arg(index = 1, value_name = "SUBSTANCE", required = true)]
     pub substance_name: String,
-    /// Dosage in general
-    #[arg(short = 'd', long, value_parser=parse_dosage)]
+    /// Dosage of given substance provided as string with unit (e.g., 10 mg)
+    #[arg(index = 2, value_name = "DOSAGE", required = true, value_parser=parse_dosage)]
     pub dosage: Dosage,
     /// Date of ingestion, by default current date is used if not provided.
     ///
@@ -85,7 +110,8 @@ pub struct LogIngestion
         value_parser=parse_date_string
     )]
     pub ingestion_date: DateTime<Local>,
-    #[arg(short = 'r', long, default_value = "oral", value_enum)]
+    /// Route of administration related to given ingestion (defaults to "oral")
+    #[arg(short = 'r', long = "roa", default_value = "oral", value_enum)]
     pub route_of_administration: RouteOfAdministrationClassification,
 }
 
@@ -103,10 +129,10 @@ impl CommandHandler for LogIngestion
             route_of_administration: ActiveValue::Set(
                 serde_json::to_string(&self.route_of_administration).unwrap(),
             ),
-            dosage: ActiveValue::Set(self.dosage.as_base_units()),
-            ingested_at: ActiveValue::Set(self.ingestion_date.to_utc()),
-            updated_at: ActiveValue::Set(Local::now().to_utc()),
-            created_at: ActiveValue::Set(Local::now().to_utc()),
+            dosage: ActiveValue::Set(self.dosage.as_base_units() as f32),
+            ingested_at: ActiveValue::Set(self.ingestion_date.to_utc().naive_local()),
+            updated_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
+            created_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
         })
             .exec_with_returning(context.database_connection)
             .await
@@ -212,7 +238,7 @@ impl CommandHandler for UpdateIngestion
         }
 
         // Create an ActiveModel with only the fields to be updated
-        let mut updated_model = ingestion::ActiveModel {
+        let updated_model = ingestion::ActiveModel {
             id: ActiveValue::Set(self.ingestion_identifier), // ID must always be set for updates
             substance_name: self
                 .substance_name
@@ -258,8 +284,12 @@ impl CommandHandler for UpdateIngestion
 #[command(version, about = "Manage ingestions", long_about)]
 pub struct DeleteIngestion
 {
-    #[arg(short, long, help = "ID of the ingestion to delete")]
-    pub id: i32,
+    #[arg(
+        index = 1,
+        value_name = "INGESTION_ID",
+        help = "ID of the ingestion to delete"
+    )]
+    pub ingestion_identifier: i32,
 }
 
 #[async_trait]
@@ -267,10 +297,23 @@ impl CommandHandler for DeleteIngestion
 {
     async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
     {
-        Ingestion::delete_by_id(self.id)
+        let delete_ingestion = Ingestion::delete_by_id(self.ingestion_identifier)
             .exec(context.database_connection)
-            .await
-            .into_diagnostic()?;
+            .await;
+
+        if delete_ingestion.is_err()
+        {
+            return Err(miette!(
+                "Failed to delete ingestion: {}",
+                &delete_ingestion.unwrap_err()
+            ));
+        }
+
+        info!(
+            "Successfully deleted ingestion with ID {}.",
+            self.ingestion_identifier
+        );
+
         Ok(())
     }
 }

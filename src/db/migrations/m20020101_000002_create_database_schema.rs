@@ -9,7 +9,8 @@ impl MigrationTrait for Migration
 {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr>
     {
-        execute_migration_from_file(manager, "20240607182528.sql").await
+        execute_migration_from_file(manager, "1_add_substance_schema.sql").await?;
+        execute_migration_from_file(manager, "2_add_substance_data.sql").await
     }
 
     async fn down(&self, _manager: &SchemaManager) -> Result<(), DbErr> { Ok(()) }

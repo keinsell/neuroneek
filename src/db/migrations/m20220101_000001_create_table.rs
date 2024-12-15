@@ -1,5 +1,4 @@
 use sea_orm::EnumIter;
-use sea_orm::Iterable;
 use sea_orm_migration::prelude::*;
 use sea_orm_migration::schema::*;
 

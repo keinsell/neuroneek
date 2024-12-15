@@ -2,23 +2,26 @@ extern crate chrono;
 extern crate chrono_english;
 extern crate date_time_parser;
 
-use crate::lib::setup_diagnostics;
-use crate::lib::setup_logger;
-use crate::lib::CommandHandler;
-use crate::lib::Context;
-use crate::lib::DATABASE_CONNECTION;
-use clap::command;
 use clap::Parser;
 use clap::Subcommand;
+use clap::command;
 use lazy_static::lazy_static;
+use lib::CommandHandler;
+use lib::Context;
+use lib::DATABASE_CONNECTION;
 use lib::migrate_database;
+use lib::setup_diagnostics;
+use lib::setup_logger;
 use rust_embed::Embed;
 use sea_orm::prelude::async_trait::async_trait;
 use std::string::ToString;
 
+mod command;
 mod db;
 mod ingestion;
-pub mod lib;
+mod lib;
+mod orm;
+mod substance;
 
 #[derive(Embed)]
 #[folder = "resources/"]
@@ -50,7 +53,9 @@ pub struct CLI
 pub enum ApplicationCommands
 {
     Ingestion(ingestion::IngestionCommand),
+    Substance(substance::SubstanceCommand),
 }
+
 
 #[async_trait]
 impl CommandHandler for ApplicationCommands
@@ -63,6 +68,7 @@ impl CommandHandler for ApplicationCommands
             {
                 ingestion_command.handle(context).await
             }
+            | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
         }
     }
 }
@@ -75,6 +81,12 @@ async fn main()
 
     let cli = CLI::parse();
 
+    // TODO: Perform a check of completion scripts existance and update them or
+    // install them https://askubuntu.com/a/1188315
+    // https://github.com/scop/bash-completion#faq
+    // https://apple.github.io/swift-argument-parser/documentation/argumentparser/installingcompletionscripts/
+    // https://unix.stackexchange.com/a/605051
+
     let context = Context {
         database_connection: &DATABASE_CONNECTION,
     };
@@ -82,6 +94,7 @@ async fn main()
     migrate_database(context.database_connection)
         .await
         .expect("Database migration failed!");
+
     cli.command
         .handle(context)
         .await

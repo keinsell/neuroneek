@@ -4,7 +4,7 @@ cargo-features = ["edition2024"]
 name = "psylog"
 description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
-version = "0.0.0-dev.3"
+version = "0.0.0-dev.5"
 edition = "2024"
 repository = "https://github.com/keinsell/psylog"
 
@@ -42,10 +42,9 @@ typed-builder = "0.20.0"
 date_time_parser = "0.2.0"
 chrono-humanize = "0.2.3"
 chrono-english = "0.1.7"
-cargo-markdown = "1.0.3"
-clap-markdown = "0.1.4"
 clap-verbosity-flag = "3.0.1"
 clap_autocomplete = "0.4.2"
+tantivy = "0.22.0"
 [dependencies.sea-orm-migration]
 version = "1.1.0"
 features = [
@@ -63,3 +62,5 @@ directories = { version = "5.0.0" }
 inherits = "release"
 lto = "thin"
 
+# Generate database entities with sea-orm-cli generate entity --database-url "sqlite://dev.db" -o src/orm
+# This should be ran after running CLI in development mode.

@@ -1,26 +1,26 @@
-use crate::db;
 use crate::db::Migrator;
 use async_std::task::block_on;
+use chrono::Local;
+use chrono_english::Dialect;
 use log::debug;
 use log::error;
 use log::info;
-use log::set_logger;
 use log::warn;
 use miette::IntoDiagnostic;
 use miette::Result;
-use sea_orm::Database;
+use sea_orm::{ConnectionTrait, Database};
 use sea_orm_migration::async_trait::async_trait;
-use sea_orm_migration::schema::date_time;
 use sea_orm_migration::sea_orm::DatabaseConnection;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
 use std::env::temp_dir;
+use std::fmt::Debug;
 use std::path::PathBuf;
 
 pub mod dosage;
 pub mod route_of_administration;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Context<'a>
 {
     pub(crate) database_connection: &'a DatabaseConnection,
@@ -48,9 +48,9 @@ impl Default for Config
             .join("journal.db")
             .clone();
 
-        if cfg!(debug_assertions) || cfg!(test)
+        if cfg!(test) || cfg!(debug_assertions)
         {
-            journal_path = temp_dir().join("journal.db");
+            journal_path = temp_dir().join("psylog.sqlite");
         }
 
         info!("Using database file at: {}", journal_path.display());
@@ -67,6 +67,7 @@ lazy_static::lazy_static! {
 
         // Try to open database connection
         debug!("Opening database connection to {}", sqlite_path);
+        println!("Connecting into {}", sqlite_path);
 
         match block_on(async { Database::connect(&sqlite_path).await }) {
             Ok(connection) => {
@@ -90,7 +91,7 @@ lazy_static::lazy_static! {
                         Ok(retry_connection) => {
                             debug!("Database connection established successfully after initialization!");
                             retry_connection
-                        }
+                        },
                         Err(retry_error) => {
                             // Log critical error if connection fails again
                             error!("Failed to connect to the database even after initialization: {}", retry_error);
@@ -140,7 +141,8 @@ pub async fn migrate_database(database_connection: &DatabaseConnection) -> miett
     if !pending_migrations.is_empty()
     {
         println!("There are {} migrations pending.", pending_migrations.len());
-        println!("Applying migrations...");
+        println!("Applying migrations into {:?}", database_connection);
+
         Migrator::up(database_connection.into_schema_manager_connection(), None)
             .await
             .into_diagnostic()?
@@ -149,15 +151,10 @@ pub async fn migrate_database(database_connection: &DatabaseConnection) -> miett
     Ok(())
 }
 
-pub fn setup_diagnostics()
-{
-    bupropion::install(|| bupropion::BupropionHandlerOpts::new())
-        .expect("Failed to install bupropion handler");
-}
+pub fn setup_diagnostics() { miette::set_panic_hook(); }
 
 pub fn setup_logger() { logforth::stdout().apply(); }
 
-use chrono::prelude::*;
 
 pub fn parse_date_string(humanized_input: &str) -> miette::Result<chrono::DateTime<chrono::Local>>
 {
