@@ -2,16 +2,18 @@ extern crate chrono;
 extern crate chrono_english;
 extern crate date_time_parser;
 
+use clap::command;
+use clap::Args;
+use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
-use clap::command;
 use lazy_static::lazy_static;
-use lib::CommandHandler;
-use lib::Context;
-use lib::DATABASE_CONNECTION;
 use lib::migrate_database;
 use lib::setup_diagnostics;
 use lib::setup_logger;
+use lib::CommandHandler;
+use lib::Context;
+use lib::DATABASE_CONNECTION;
 use rust_embed::Embed;
 use sea_orm::prelude::async_trait::async_trait;
 use std::string::ToString;
@@ -49,11 +51,41 @@ pub struct CLI
     verbose: clap_verbosity_flag::Verbosity,
 }
 
+fn default_complete_shell() -> clap_complete::Shell
+{
+    clap_complete::shells::Shell::from_env().unwrap()
+}
+
+#[derive(Debug, Parser)]
+struct GenerateCompletion
+{
+    /// The shell to generate the completions for
+    #[arg(value_enum, default_value_t=default_complete_shell())]
+    shell: clap_complete::Shell,
+}
+
+#[async_trait]
+impl CommandHandler for GenerateCompletion
+{
+    async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
+    {
+        clap_complete::generate(
+            self.shell,
+            &mut CLI::command(),
+            "psylog",
+            &mut std::io::stdout(),
+        );
+        Ok(())
+    }
+}
+
 #[derive(Subcommand)]
 pub enum ApplicationCommands
 {
     Ingestion(ingestion::IngestionCommand),
     Substance(substance::SubstanceCommand),
+    /// Generate shell completions
+    Completions(GenerateCompletion),
 }
 
 
@@ -69,6 +101,7 @@ impl CommandHandler for ApplicationCommands
                 ingestion_command.handle(context).await
             }
             | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
+            | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
         }
     }
 }
@@ -81,8 +114,8 @@ async fn main()
 
     let cli = CLI::parse();
 
-    // TODO: Perform a check of completion scripts existance and update them or
-    // install them https://askubuntu.com/a/1188315
+    // TODO: Perform a check of completion scripts existance and update them or install them
+    // https://askubuntu.com/a/1188315
     // https://github.com/scop/bash-completion#faq
     // https://apple.github.io/swift-argument-parser/documentation/argumentparser/installingcompletionscripts/
     // https://unix.stackexchange.com/a/605051
