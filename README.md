@@ -3,6 +3,8 @@
 🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with
 their long-term influence on one's mind and body.
 
+![preview](docs/assets/log_ingestion_preview.png)
+
 ## About
 
 Psylog is an intelligent dosage tracking application designed to monitor and log the use of supplements, nootropics, and
@@ -14,20 +16,57 @@ the [Neuronek](https://github.com/keinsell/neuronek) project. While Neuronek foc
 Psylog provides a laser-focused solution for personal consumption tracking and journaling, offering a simple yet robust
 interface to build meaningful reports and integrations.
 
-## Usage
+## Getting Started
 
 ### Installation
 
 To install the application, please visit the [GitHub Releases Page](https://github.com/keinsell/psylog/releases) for
-pre-built binaries and installation instructions for your platform.
+pre-built binaries and installation instructions for your platform. Alternatively, you can install the application from
+supported package managers or build it from source.
 
-#### Installation from source
+#### Using a package manager (recommended)
+
+> [!WARNING]
+> Application is in early stage of development and to avoid polluting package managers with application that can be
+> potentially dead in few months I do recommend installing from source or using available pre-build binaries.
+> Application will be available for `homebrew`, `pacman`, `nix`, `scoop`, `dnf` and `apt` when it would be considered
+> production-ready.
+
+[//]: # (| Operating System           | Package Manager | Easy-peasy command                 |)
+
+[//]: # (|----------------------------|-----------------|------------------------------------|)
+
+[//]: # (| **macOS**                  | Homebrew        | `brew install keinsell/tap/psylog` |)
+
+[//]: # (| **Windows**                | Scoop           | `scoop install psylog`             |)
+
+[//]: # (| **Linux &#40;Debian/Ubuntu&#41;**  | APT             | `apt install psylog`               |)
+
+[//]: # (| **Linux &#40;Arch Linux&#41;**     | Pacman          | `pacman -S psylog`                 |)
+
+[//]: # (| **Linux &#40;Fedora/CentOS&#41;**  | DNF             | `dnf install psylog`               |)
+
+[//]: # (| **Linux/NixOS/nix-darwin** | Nix             | `dnf install psylog`               |)
+
+#### Installation from source (Advanced)
 
 Application can be installed with `cargo` and providing url to this repository,
 this may be the most conformable way for users which are looking for the latest version of application.
 
 ```
 cargo install --git https://github.com/keinsell/psylog
+```
+
+**Note:** This method might be best for users who always want the absolute newest version of the application. However,
+it may be less stable than the pre-built binaries.
+
+### Usage
+
+After installation, you can start using the application by running the `psylog` command in your terminal. The
+application provides a command-line interface (CLI) for interacting with its features and functionalities.
+
+```bash
+❯ psylog --help
 ```
 
 ## Features
@@ -60,7 +99,7 @@ providing insights into the long-term effects of different substances on physica
 
 An example usage of the `log ingestion` feature is shown below:
 
-```
+```bash
 ❯ psylog ingestion log caffeine 80mg
 
 +----+----------------+--------+----------------------+-------------------------------+
@@ -83,32 +122,42 @@ ensuring that users stay informed about their habits and their long-term impact 
 
 ##### List Ingestions
 
-```
+```bash
 ❯ psylog ingestion list
 
 +----+----------------+---------------+----------------------+----------------------------+
 | id | substance_name | route         | dosage               | ingested_at                |
 +----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 80 mg               | 2024-12-18 08:14:37.211076 |
+| 36 | caffeine       | "oral"        | 80 mg                | 2024-12-18 08:14:37.211076 |
 +----+----------------+---------------+----------------------+----------------------------+
 ```
 
+###### Future Notes
+
+- [ ] Listing Ingestions should allow for querying and filtering
+- [ ] Listing ingestions should allow for returning data in non-prettified formats (ex. JSON)
+
 ##### Get Ingestion
+
+- [ ] Get ingestion should present complete information about single ingestion
 
 ##### Update ingestion
 
-The `Update Ingestion` feature allows users to modify existing ingestion records after they've been created. All fields except `id` and `created_at` can be updated, providing flexibility in maintaining accurate records. This is particularly useful when correcting data entry errors or adding additional information to an existing record.
+The `Update Ingestion` feature allows users to modify existing ingestion records after they've been created. All fields
+except `id` and `created_at` can be updated, providing flexibility in maintaining accurate records. This is particularly
+useful when correcting data entry errors or adding additional information to an existing record.
 
 Users can update ingestions using the following command structure:
 ```psylog ingestion update <id> [options]```
 
 Available update options:
+
 - `-d, --dosage`: Modify the substance dosage
 - `-r, --route`: Change the route of administration
 - `-s, --substance`: Update the substance name
 - `-t, --time`: Adjust the ingestion timestamp (can be represented in a relative format eg. "now" or "1 hour ago")
 
-```
+```bash
 ❯ psylog ingestion list
 
 +----+----------------+---------------+----------------------+----------------------------+
@@ -128,6 +177,35 @@ Available update options:
 
 ##### Delete Ingestion
 
+The `Delete Ingestion` feature allows you to remove specific ingestion records from your tracking history using their
+unique ID. Here's how it works:
+
+Command syntax:
+
+```
+psylog ingestion delete <id>
+```
+
+Example usage:
+
+```bash
+# View current ingestions
+❯ psylog ingestion list
++----+----------------+--------+----------+----------------------------+
+| id | substance_name | route  | dosage   | ingested_at                |
++----+----------------+--------+----------+----------------------------+
+| 36 | caffeine       | "oral" | 80 mg    | 2024-12-18 08:14:37.211076 |
++----+----------------+--------+----------+----------------------------+
+
+# Delete ingestion with ID 36
+❯ psylog ingestion delete 36
+```
+
+The command removes the specified ingestion record permanently. Verify deletion by running `psylog ingestion list`
+again. This feature is useful for removing incorrect entries or maintaining data accuracy in your tracking history.
+
+Note: Deletion cannot be undone, so verify the correct ID before deleting.
+
 ### Substances
 
 Application comes with pre-bundled database of psychoactive substances built on top
@@ -143,9 +221,33 @@ TODO: Feature should use humanized search index which will allow for typos and w
 TODO: Show all information about substance in way ingest-able for end-user which should be able to learn dosages, routes
 of administration and maybe overall description of substance.
 
-## Development
+### FUTURE: Journal
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+Journal is a feature which aims to compose *ingestion-related* and *substance-related* features of application into
+friendly human interface.
+
+- Usecase: Logging ingestions of capsules and pills which may contain multiple substances.
+- Usecase: Ingestion planning when it's possible - users should be informed how long it takes for substance to get into
+  body and how long it will last.
+
+## Futher Development
+
+*Roadmap is a subject to change and one that is presented here is a high-level overview of direction of the project.*
+
+Psylog is an ongoing project with many planned features and improvements. Some of the key areas of development include:
+
+- **Journaling**: A user-friendly interface for creating and managing journal entries related to ingestions, thoughts,
+  and experiences.
+- **Analytics**: Advanced data analysis tools to help users visualize trends, patterns, and correlations in their
+  consumption habits.
+- **Integrations**: Seamless integration with external tools, APIs, and services to enhance the user experience and
+  provide additional insights.
+- **Customization**: Personalization options for tailoring the application to individual preferences, such as themes,
+  layouts, and data views.
+- **Security**: Enhanced security features to protect user data and ensure privacy, including encryption,
+  authentication, and access controls.
+- **Cloud Sync**: Synchronization capabilities for storing data in the cloud and accessing it across multiple devices or
+  platforms.
 
 ## Contributing
 
@@ -153,6 +255,8 @@ Project do not expect any external contribution. If you want to contribute, plea
 at [keinsell/neuronek](https://github.com/keinsell/neuronek)
 project or contact me directly via [keinsell@protonmail.com]() and we can discuss the project together and move code to
 organization out of my profile.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## License
 
