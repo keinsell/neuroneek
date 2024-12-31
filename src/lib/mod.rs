@@ -16,14 +16,17 @@ use sea_orm_migration::MigratorTrait;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
+use crate::OutputFormat;
 
 pub mod dosage;
 pub mod route_of_administration;
+pub mod output;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Context<'a>
 {
-    pub(crate) database_connection: &'a DatabaseConnection,
+    pub database_connection: &'a sea_orm::DatabaseConnection,
+    pub output_format: OutputFormat,
 }
 
 #[async_trait]
@@ -67,7 +70,6 @@ lazy_static::lazy_static! {
 
         // Try to open database connection
         debug!("Opening database connection to {}", sqlite_path);
-        println!("Connecting into {}", sqlite_path);
 
         match block_on(async { Database::connect(&sqlite_path).await }) {
             Ok(connection) => {

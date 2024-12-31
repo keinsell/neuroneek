@@ -69,15 +69,14 @@ mod tests
     use crate::lib::migrate_database;
     use crate::lib::Context;
     use crate::lib::DATABASE_CONNECTION;
+    use crate::OutputFormat;
 
     #[async_std::test]
     async fn should_return_caffeine()
     {
         migrate_database(&DATABASE_CONNECTION).await.unwrap();
 
-        let context = Context {
-            database_connection: &DATABASE_CONNECTION,
-        };
+        let context = Context {database_connection: &DATABASE_CONNECTION, output_format: OutputFormat::Pretty };
 
 
         let command = GetSubstance {

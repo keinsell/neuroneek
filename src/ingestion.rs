@@ -4,6 +4,7 @@ use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::lib::output::{Formattable, FormattableVec};
 use crate::orm::ingestion;
 use crate::orm::prelude::Ingestion;
 use async_std::task::block_on;
@@ -39,6 +40,8 @@ pub struct ViewModel
     pub dosage: String,
     pub ingested_at: String,
 }
+
+impl Formattable for ViewModel {}
 
 impl From<ingestion::Model> for ViewModel
 {
@@ -182,11 +185,9 @@ impl CommandHandler for ListIngestion
             return Ok(());
         }
 
-        let table = Table::new(ingestions.iter().map(|i| ViewModel::from(i.clone())))
-            .with(tabled::settings::Style::modern())
-            .to_string();
-
-        println!("{}", table);
+        let view_models: Vec<ViewModel> = ingestions.iter().map(|i| ViewModel::from(i.clone())).collect();
+        let formatted = FormattableVec::new(view_models).format(context.output_format);
+        println!("{}", formatted);
 
         Ok(())
     }

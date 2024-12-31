@@ -1,5 +1,6 @@
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::lib::output::{Formattable, FormattableVec};
 use clap::Parser;
 use clap::Subcommand;
 use sea_orm::prelude::async_trait::async_trait;
@@ -18,6 +19,8 @@ pub struct ViewModel
     pub systematic_name: String,
     pub common_names: String,
 }
+
+impl Formattable for ViewModel {}
 
 impl From<SubstanceTable> for ViewModel
 {

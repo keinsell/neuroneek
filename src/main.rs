@@ -17,6 +17,7 @@ use lib::DATABASE_CONNECTION;
 use rust_embed::Embed;
 use sea_orm::prelude::async_trait::async_trait;
 use std::string::ToString;
+use atty::Stream;
 
 mod command;
 mod db;
@@ -37,6 +38,14 @@ lazy_static! {
     static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("psylog").unwrap();
 }
 
+fn default_output_format() -> OutputFormat {
+    if atty::is(Stream::Stdout) {
+        OutputFormat::Pretty
+    } else {
+        OutputFormat::Json
+    }
+}
+
 #[derive(Parser)]
 #[command(
     version = env!("CARGO_PKG_VERSION"),
@@ -47,8 +56,21 @@ pub struct CLI
 {
     #[command(subcommand)]
     pub command: ApplicationCommands,
+    
+    /// Output format for the command results
+    #[arg(short = 'o', long = "output", value_enum, default_value_t = default_output_format())]
+    pub output_format: OutputFormat,
+    
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity,
+}
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+pub enum OutputFormat {
+    /// Pretty printed tables
+    Pretty,
+    /// JSON formatted output
+    Json,
 }
 
 fn default_complete_shell() -> clap_complete::Shell
@@ -122,6 +144,7 @@ async fn main()
 
     let context = Context {
         database_connection: &DATABASE_CONNECTION,
+        output_format: cli.output_format,
     };
 
     migrate_database(context.database_connection)
