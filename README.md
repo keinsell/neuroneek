@@ -1,4 +1,4 @@
-# Psylog
+# Neuronek
 
 🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with
 their long-term influence on one's mind and body.
@@ -7,20 +7,15 @@ their long-term influence on one's mind and body.
 
 ## About
 
-Psylog is an intelligent dosage tracking application designed to monitor and log the use of supplements, nootropics, and
-psychoactive substances. By recording and analyzing ingestions, it helps users better understand the long-term effects
+Neuronek is an intelligent dosage tracking application designed to monitor and log the use of supplements, nootropics, and
+psychoactive substances. By recording and analyzing ingestion, it helps users better understand the long-term effects
 of these compounds on their physical and mental health.
-
-The project originated as a streamlined, minimal viable product (MVP), branching out from
-the [Neuronek](https://github.com/keinsell/neuronek) project. While Neuronek focuses on broader neurological insights,
-Psylog provides a laser-focused solution for personal consumption tracking and journaling, offering a simple yet robust
-interface to build meaningful reports and integrations.
 
 ## Getting Started
 
 ### Installation
 
-To install the application, please visit the [GitHub Releases Page](https://github.com/keinsell/psylog/releases) for
+To install the application, please visit the [GitHub Releases Page](https://github.com/keinsell/neuronek/releases) for
 pre-built binaries and installation instructions for your platform. Alternatively, you can install the application from
 supported package managers or build it from source.
 
@@ -36,17 +31,17 @@ supported package managers or build it from source.
 
 [//]: # (|----------------------------|-----------------|------------------------------------|)
 
-[//]: # (| **macOS**                  | Homebrew        | `brew install keinsell/tap/psylog` |)
+[//]: # (| **macOS**                  | Homebrew        | `brew install keinsell/tap/neuronek` |)
 
-[//]: # (| **Windows**                | Scoop           | `scoop install psylog`             |)
+[//]: # (| **Windows**                | Scoop           | `scoop install neuronek`             |)
 
-[//]: # (| **Linux &#40;Debian/Ubuntu&#41;**  | APT             | `apt install psylog`               |)
+[//]: # (| **Linux &#40;Debian/Ubuntu&#41;**  | APT             | `apt install neuronek`               |)
 
-[//]: # (| **Linux &#40;Arch Linux&#41;**     | Pacman          | `pacman -S psylog`                 |)
+[//]: # (| **Linux &#40;Arch Linux&#41;**     | Pacman          | `pacman -S neuronek`                 |)
 
-[//]: # (| **Linux &#40;Fedora/CentOS&#41;**  | DNF             | `dnf install psylog`               |)
+[//]: # (| **Linux &#40;Fedora/CentOS&#41;**  | DNF             | `dnf install neuronek`               |)
 
-[//]: # (| **Linux/NixOS/nix-darwin** | Nix             | `dnf install psylog`               |)
+[//]: # (| **Linux/NixOS/nix-darwin** | Nix             | `dnf install neuronek`               |)
 
 #### Installation from source (Advanced)
 
@@ -54,7 +49,7 @@ Application can be installed with `cargo` and providing url to this repository,
 this may be the most conformable way for users which are looking for the latest version of application.
 
 ```
-cargo install --git https://github.com/keinsell/psylog
+cargo install --git https://github.com/keinsell/neuronek
 ```
 
 **Note:** This method might be best for users who always want the absolute newest version of the application. However,
@@ -90,7 +85,7 @@ This data is stored in a low-level database that serves as the foundation for fu
 such as journaling, analytics, or integrations with external tools.
 While power users may prefer to work directly with this raw data,
 many user-friendly abstractions are planned to make this process seamless,
-such as simplified commands (e.g., `psylog a coffee`) for quicker entries.
+such as simplified commands (e.g., `neuronek a coffee`) for quicker entries.
 
 Logging ingestions not only serves the purpose of record-keeping
 but also helps users build a personalized database of their consumption habits.
@@ -100,7 +95,7 @@ providing insights into the long-term effects of different substances on physica
 An example usage of the `log ingestion` feature is shown below:
 
 ```bash
-❯ psylog ingestion log caffeine 80mg
+❯ neuronek ingestion log caffeine 80mg
 
 +----+----------------+--------+----------------------+-------------------------------+
 | id | substance_name | route  | dosage               | ingested_at                   |
@@ -123,7 +118,7 @@ ensuring that users stay informed about their habits and their long-term impact 
 ##### List Ingestions
 
 ```bash
-❯ psylog ingestion list
+❯ neuronek ingestion list
 
 +----+----------------+---------------+----------------------+----------------------------+
 | id | substance_name | route         | dosage               | ingested_at                |
@@ -148,7 +143,7 @@ except `id` and `created_at` can be updated, providing flexibility in maintainin
 useful when correcting data entry errors or adding additional information to an existing record.
 
 Users can update ingestions using the following command structure:
-```psylog ingestion update <id> [options]```
+```neuronek ingestion update <id> [options]```
 
 Available update options:
 
@@ -158,7 +153,7 @@ Available update options:
 - `-t, --time`: Adjust the ingestion timestamp (can be represented in a relative format eg. "now" or "1 hour ago")
 
 ```bash
-❯ psylog ingestion list
+❯ neuronek ingestion list
 
 +----+----------------+---------------+----------------------+----------------------------+
 | id | substance_name | route         | dosage               | ingested_at                |
@@ -183,14 +178,14 @@ unique ID. Here's how it works:
 Command syntax:
 
 ```
-psylog ingestion delete <id>
+neuronek ingestion delete <id>
 ```
 
 Example usage:
 
 ```bash
 # View current ingestions
-❯ psylog ingestion list
+❯ neuronek ingestion list
 +----+----------------+--------+----------+----------------------------+
 | id | substance_name | route  | dosage   | ingested_at                |
 +----+----------------+--------+----------+----------------------------+
@@ -198,7 +193,7 @@ Example usage:
 +----+----------------+--------+----------+----------------------------+
 
 # Delete ingestion with ID 36
-❯ psylog ingestion delete 36
+❯ neuronek ingestion delete 36
 ```
 
 The command removes the specified ingestion record permanently. Verify deletion by running `psylog ingestion list`
@@ -234,26 +229,19 @@ friendly human interface.
 
 *Roadmap is a subject to change and one that is presented here is a high-level overview of direction of the project.*
 
-Psylog is an ongoing project with many planned features and improvements. Some of the key areas of development include:
+neuronek is an ongoing project with many planned features and improvements. Some of the key areas of development include:
 
 - **Journaling**: A user-friendly interface for creating and managing journal entries related to ingestions, thoughts,
   and experiences.
-- **Analytics**: Advanced data analysis tools to help users visualize trends, patterns, and correlations in their
-  consumption habits.
-- **Integrations**: Seamless integration with external tools, APIs, and services to enhance the user experience and
-  provide additional insights.
-- **Customization**: Personalization options for tailoring the application to individual preferences, such as themes,
-  layouts, and data views.
-- **Security**: Enhanced security features to protect user data and ensure privacy, including encryption,
-  authentication, and access controls.
-- **Cloud Sync**: Synchronization capabilities for storing data in the cloud and accessing it across multiple devices or
-  platforms.
+- **Terminal User Interface**: Friendly and efficient interactive interface for terminal application.
+- **Web Application**
+- **Desktop/Mobile Application**
+- **Cloud Sync**
+
 
 ## Contributing
 
-Project do not expect any external contribution. If you want to contribute, please take a look
-at [keinsell/neuronek](https://github.com/keinsell/neuronek)
-project or contact me directly via [keinsell@protonmail.com]() and we can discuss the project together and move code to
+Project do not expect any external contribution. If you want to contribute, please contact me directly via [keinsell@protonmail.com]() and we can discuss the project together and move code to
 organization out of my profile.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.

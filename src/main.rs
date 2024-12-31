@@ -35,7 +35,7 @@ lazy_static! {
         std::str::from_utf8(&Resources::get("small.flf").unwrap().data).unwrap()
     )
     .unwrap();
-    static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("psylog").unwrap();
+    static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("neuronek").unwrap();
 }
 
 fn default_output_format() -> OutputFormat {
@@ -75,7 +75,7 @@ pub enum OutputFormat {
 
 fn default_complete_shell() -> clap_complete::Shell
 {
-    clap_complete::shells::Shell::from_env().unwrap()
+    clap_complete::shells::Shell::from_env().unwrap_or(clap_complete::Shell::Bash)
 }
 
 #[derive(Debug, Parser)]
@@ -129,12 +129,14 @@ impl CommandHandler for ApplicationCommands
 }
 
 #[async_std::main]
-async fn main()
+async fn main() -> miette::Result<()>
 {
     setup_diagnostics();
     setup_logger();
 
     let cli = CLI::parse();
+
+    migrate_database(&DATABASE_CONNECTION).await?;
 
     // TODO: Perform a check of completion scripts existance and update them or install them
     // https://askubuntu.com/a/1188315
@@ -147,12 +149,9 @@ async fn main()
         output_format: cli.output_format,
     };
 
-    migrate_database(context.database_connection)
-        .await
-        .expect("Database migration failed!");
-
     cli.command
         .handle(context)
-        .await
-        .expect("Failed to execute command!");
+        .await?;
+
+    Ok(())
 }

@@ -1,15 +1,15 @@
 cargo-features = ["edition2024"]
 
 [package]
-name = "psylog"
+name = "neuronek"
 description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
 version = "0.0.0-dev.5"
 edition = "2024"
-repository = "https://github.com/keinsell/psylog"
+repository = "https://github.com/keinsell/neuronek"
 
 [[bin]]
-name = "psylog"
+name = "neuronek"
 path = "src/main.rs"
 
 [package.metadata.wix]

@@ -53,7 +53,7 @@ impl Default for Config
 
         if cfg!(test) || cfg!(debug_assertions)
         {
-            journal_path = temp_dir().join("psylog.sqlite");
+            journal_path = temp_dir().join("neuronek.sqlite");
         }
 
         info!("Using database file at: {}", journal_path.display());
