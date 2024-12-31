@@ -8,7 +8,7 @@ pub struct Migrator;
 use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "src/db/migrations/sql"]
+#[folder = "src/lib/migration/sql"]
 pub struct Migrations;
 
 pub async fn execute_migration_from_file(

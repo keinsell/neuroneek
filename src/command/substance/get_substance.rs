@@ -1,19 +1,19 @@
 use crate::command;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
-use crate::orm::substance;
-use crate::substance::ViewModel;
+use crate::lib::orm::substance;
+use crate::view_model::substance::ViewModel;
 use clap::Parser;
 use log::info;
 use log::warn;
 use miette::IntoDiagnostic;
-use sea_orm::prelude::async_trait::async_trait;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::QueryOrder;
-use tabled::settings::Style;
+use sea_orm::prelude::async_trait::async_trait;
 use tabled::Table;
+use tabled::settings::Style;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -44,7 +44,9 @@ impl CommandHandler for GetSubstance
         {
             warn!("No substances found for query '{}'.", self.substance_name);
             println!("No substances found for '{}'.", self.substance_name);
-        } else {
+        }
+        else
+        {
             let table = Table::new(substances.into_iter().map(ViewModel::from))
                 .with(Style::modern())
                 .to_string();
@@ -65,18 +67,21 @@ impl CommandHandler for GetSubstance
 mod tests
 {
     use super::*;
+    use crate::OutputFormat;
     use crate::command::GetSubstance;
-    use crate::lib::migrate_database;
     use crate::lib::Context;
     use crate::lib::DATABASE_CONNECTION;
-    use crate::OutputFormat;
+    use crate::lib::migrate_database;
 
     #[async_std::test]
     async fn should_return_caffeine()
     {
         migrate_database(&DATABASE_CONNECTION).await.unwrap();
 
-        let context = Context {database_connection: &DATABASE_CONNECTION, output_format: OutputFormat::Pretty };
+        let context = Context {
+            database_connection: &DATABASE_CONNECTION,
+            output_format: OutputFormat::Pretty,
+        };
 
 
         let command = GetSubstance {
@@ -100,20 +105,20 @@ mod tests
         );
     }
 
-
     // #[async_std::test]
     // async fn should_find_substance_by_alias_name()
     // {
     //     migrate_database(&DATABASE_CONNECTION).await.unwrap();
-    //     let ctx = Context::from(Context { database_connection: &DATABASE_CONNECTION });
+    //     let ctx = Context::from(Context { database_connection:
+    // &DATABASE_CONNECTION });
     //
     //     let command = GetSubstance {
     //         substance_name: "vitamin d3".to_string(),
     //     };
     //
-    //     // TODO: Define series of tests for substances that are known like "D3 Vitamin"
-    //     // We currently do not have them in database but pubchem seems to provide information
-    //     // about all of those.
+    //     // TODO: Define series of tests for substances that are known like
+    // "D3 Vitamin"     // We currently do not have them in database but
+    // pubchem seems to provide information     // about all of those.
     //
     //     todo!();
     //
@@ -136,4 +141,3 @@ mod tests
     //     );
     // }
 }
-

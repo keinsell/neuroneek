@@ -12,6 +12,7 @@ format:
     just --fmt --unstable
 
 fix:
+    @just format
     cargo fix
 
 build:

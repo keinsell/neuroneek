@@ -11,6 +11,10 @@ Neuronek is an intelligent dosage tracking application designed to monitor and l
 psychoactive substances. By recording and analyzing ingestion, it helps users better understand the long-term effects
 of these compounds on their physical and mental health.
 
+### Motivation
+
+As pretty irresponsible autist I do not count times when I was literally forgetting to take a meds, skipped days, took twice, took too late and so on.
+
 ## Getting Started
 
 ### Installation

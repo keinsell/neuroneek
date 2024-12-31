@@ -1,3 +1,6 @@
-mod get_substance;
+mod ingestion;
+mod substance;
 
-pub use get_substance::GetSubstance as GetSubstance;
+pub use ingestion::IngestionCommand;
+pub use substance::GetSubstance;
+pub use substance::SubstanceCommand;

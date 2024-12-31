@@ -2,29 +2,25 @@ extern crate chrono;
 extern crate chrono_english;
 extern crate date_time_parser;
 
-use clap::command;
-use clap::Args;
+use atty::Stream;
 use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
+use clap::command;
 use lazy_static::lazy_static;
-use lib::migrate_database;
-use lib::setup_diagnostics;
-use lib::setup_logger;
 use lib::CommandHandler;
 use lib::Context;
 use lib::DATABASE_CONNECTION;
+use lib::migrate_database;
+use lib::setup_diagnostics;
+use lib::setup_logger;
 use rust_embed::Embed;
 use sea_orm::prelude::async_trait::async_trait;
 use std::string::ToString;
-use atty::Stream;
 
 mod command;
-mod db;
-mod ingestion;
 mod lib;
-mod orm;
-mod substance;
+mod view_model;
 
 #[derive(Embed)]
 #[folder = "resources/"]
@@ -38,10 +34,14 @@ lazy_static! {
     static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("neuronek").unwrap();
 }
 
-fn default_output_format() -> OutputFormat {
-    if atty::is(Stream::Stdout) {
+fn default_output_format() -> OutputFormat
+{
+    if atty::is(Stream::Stdout)
+    {
         OutputFormat::Pretty
-    } else {
+    }
+    else
+    {
         OutputFormat::Json
     }
 }
@@ -56,17 +56,18 @@ pub struct CLI
 {
     #[command(subcommand)]
     pub command: ApplicationCommands,
-    
+
     /// Output format for the command results
     #[arg(short = 'o', long = "output", value_enum, default_value_t = default_output_format())]
     pub output_format: OutputFormat,
-    
+
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity,
 }
 
 #[derive(clap::ValueEnum, Clone, Debug)]
-pub enum OutputFormat {
+pub enum OutputFormat
+{
     /// Pretty printed tables
     Pretty,
     /// JSON formatted output
@@ -104,8 +105,8 @@ impl CommandHandler for GenerateCompletion
 #[derive(Subcommand)]
 pub enum ApplicationCommands
 {
-    Ingestion(ingestion::IngestionCommand),
-    Substance(substance::SubstanceCommand),
+    Ingestion(command::IngestionCommand),
+    Substance(command::SubstanceCommand),
     /// Generate shell completions
     Completions(GenerateCompletion),
 }
@@ -138,8 +139,8 @@ async fn main() -> miette::Result<()>
 
     migrate_database(&DATABASE_CONNECTION).await?;
 
-    // TODO: Perform a check of completion scripts existance and update them or install them
-    // https://askubuntu.com/a/1188315
+    // TODO: Perform a check of completion scripts existance and update them or
+    // install them https://askubuntu.com/a/1188315
     // https://github.com/scop/bash-completion#faq
     // https://apple.github.io/swift-argument-parser/documentation/argumentparser/installingcompletionscripts/
     // https://unix.stackexchange.com/a/605051
@@ -149,9 +150,7 @@ async fn main() -> miette::Result<()>
         output_format: cli.output_format,
     };
 
-    cli.command
-        .handle(context)
-        .await?;
+    cli.command.handle(context).await?;
 
     Ok(())
 }

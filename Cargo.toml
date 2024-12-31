@@ -64,7 +64,4 @@ atty = "0.2"
 
 [profile.dist]
 inherits = "release"
-lto = "thin"
-
-# Generate database entities with sea-orm-cli generate entity --database-url "sqlite://dev.db" -o src/orm
-# This should be ran after running CLI in development mode.
+lto = "fat"
