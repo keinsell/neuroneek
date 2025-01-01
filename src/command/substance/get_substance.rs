@@ -35,7 +35,7 @@ impl CommandHandler for GetSubstance
     {
         let substances = substance::Entity::find()
             .filter(substance::Column::CommonNames.contains(&self.substance_name.to_lowercase()))
-            .order_by_asc(substance::Column::SystematicName)
+            .order_by_asc(substance::Column::Name)
             .all(context.database_connection)
             .await
             .into_diagnostic()?;

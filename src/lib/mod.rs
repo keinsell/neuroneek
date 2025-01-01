@@ -4,16 +4,15 @@ use chrono::Local;
 use chrono_english::Dialect;
 use log::debug;
 use log::error;
-use log::info;
 use log::warn;
 use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
 use sea_orm::Database;
-use sea_orm_migration::IntoSchemaManagerConnection;
-use sea_orm_migration::MigratorTrait;
 use sea_orm_migration::async_trait::async_trait;
 use sea_orm_migration::sea_orm::DatabaseConnection;
+use sea_orm_migration::IntoSchemaManagerConnection;
+use sea_orm_migration::MigratorTrait;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
@@ -58,7 +57,7 @@ impl Default for Config
             journal_path = temp_dir().join("neuronek.sqlite");
         }
 
-        info!("Using database file at: {}", journal_path.display());
+        println!("Using database file at: {}", journal_path.display());
 
         Config { journal_path }
     }

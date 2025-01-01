@@ -1,4 +1,10 @@
-# Running Migrator CLI
+# Database Management
+
+This directory introduces you to management of database schema in application.
+
+```bash
+curl -sSf https://atlasgo.sh | sh -s -- --community
+```
 
 - Generate a new migration file
     ```sh

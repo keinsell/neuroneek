@@ -4,7 +4,7 @@ cargo-features = ["edition2024"]
 name = "neuronek"
 description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
-version = "0.0.0-dev.5"
+version = "0.0.0-dev.6"
 edition = "2024"
 repository = "https://github.com/keinsell/neuronek"
 
@@ -28,25 +28,19 @@ serde = { version = "1.0.216", features = ["derive", "std", "unstable"] }
 lazy_static = "1.5.0"
 figlet-rs = "0.1.5"
 serde_json = "1.0.133"
-chrono ={version = "0.4.39", features = ["std", "serde", "iana-time-zone"]}
+chrono = { version = "0.4.39", features = ["std", "serde", "iana-time-zone"] }
 log = { version = "0.4.22", features = ["serde", "kv"] }
 measurements = { version = "0.11.0", features = ["std", "serde", "from_str", "regex"] }
 pubchem = "0.1.1"
 tabled = "0.17.0"
 rust-embed = "8.5.0"
-predicates = "3.1.2"
 assert_cmd = "2.0.16"
 logforth = "0.19.0"
-bupropion = "0.0.20"
 typed-builder = "0.20.0"
 date_time_parser = "0.2.0"
-chrono-humanize = "0.2.3"
 chrono-english = "0.1.7"
 clap-verbosity-flag = "3.0.1"
-clap_autocomplete = "0.4.2"
-tantivy = "0.22.0"
 clap_complete = "4.5.40"
-clap_complete_command = "0.6.1"
 atty = "0.2.14"
 [dependencies.sea-orm-migration]
 version = "1.1.0"

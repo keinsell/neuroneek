@@ -7,13 +7,10 @@ their long-term influence on one's mind and body.
 
 ## About
 
-Neuronek is an intelligent dosage tracking application designed to monitor and log the use of supplements, nootropics, and
+Neuronek is an intelligent dosage tracking application designed to monitor and log the use of supplements, nootropics,
+and
 psychoactive substances. By recording and analyzing ingestion, it helps users better understand the long-term effects
 of these compounds on their physical and mental health.
-
-### Motivation
-
-As pretty irresponsible autist I do not count times when I was literally forgetting to take a meds, skipped days, took twice, took too late and so on.
 
 ## Getting Started
 
@@ -65,7 +62,7 @@ After installation, you can start using the application by running the `psylog` 
 application provides a command-line interface (CLI) for interacting with its features and functionalities.
 
 ```bash
-❯ psylog --help
+❯ neuronek --help
 ```
 
 ## Features
@@ -233,7 +230,8 @@ friendly human interface.
 
 *Roadmap is a subject to change and one that is presented here is a high-level overview of direction of the project.*
 
-neuronek is an ongoing project with many planned features and improvements. Some of the key areas of development include:
+neuronek is an ongoing project with many planned features and improvements. Some of the key areas of development
+include:
 
 - **Journaling**: A user-friendly interface for creating and managing journal entries related to ingestions, thoughts,
   and experiences.
@@ -242,10 +240,10 @@ neuronek is an ongoing project with many planned features and improvements. Some
 - **Desktop/Mobile Application**
 - **Cloud Sync**
 
-
 ## Contributing
 
-Project do not expect any external contribution. If you want to contribute, please contact me directly via [keinsell@protonmail.com]() and we can discuss the project together and move code to
+Project do not expect any external contribution. If you want to contribute, please contact me directly
+via [keinsell@protonmail.com]() and we can discuss the project together and move code to
 organization out of my profile.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.

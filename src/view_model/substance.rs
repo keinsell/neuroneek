@@ -10,7 +10,7 @@ type SubstanceTable = crate::lib::orm::substance::Model;
 pub struct ViewModel
 {
     pub id: String,
-    pub systematic_name: String,
+    pub name: String,
     pub common_names: String,
 }
 
@@ -22,8 +22,8 @@ impl From<SubstanceTable> for ViewModel
     {
         ViewModel {
             id: model.id.clone().chars().take(6).collect(),
+            name: model.name,
             common_names: model.common_names.clone(),
-            systematic_name: model.systematic_name.clone(),
         }
     }
 }

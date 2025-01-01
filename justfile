@@ -1,6 +1,9 @@
 default:
     @just --list
 
+install-requirements:
+    cargo install cargo-machete sccache
+
 lint:
     cargo lint
 
@@ -14,6 +17,7 @@ format:
 fix:
     @just format
     cargo fix
+    cargo-machete --fix
 
 build:
     cargo build
