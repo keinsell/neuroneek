@@ -1,7 +1,8 @@
 use crate::lib::dosage::Dosage;
+use crate::lib::formatter::Formatter;
 use crate::lib::orm::ingestion;
-use crate::lib::output::Formatter;
-use measurements::Measurement;
+use crate::lib::route_of_administration::RouteOfAdministrationClassification;
+use core::convert::From;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt::Debug;
@@ -26,11 +27,15 @@ impl From<ingestion::Model> for ViewModel
 {
     fn from(model: ingestion::Model) -> Self
     {
+        let dosage = Dosage::from_base_units(model.dosage.into());
+        let route_enum: RouteOfAdministrationClassification =
+            model.route_of_administration.parse().unwrap_or_default();
+
         Self::builder()
             .id(model.id)
             .substance_name(model.substance_name)
-            .route(model.route_of_administration)
-            .dosage(Dosage::from_base_units(model.dosage as f64).to_string())
+            .route(route_enum.to_string())
+            .dosage(dosage.to_string())
             .ingested_at(model.ingested_at.to_string())
             .build()
     }

@@ -80,7 +80,8 @@ mod tests
 
         let context = Context {
             database_connection: &DATABASE_CONNECTION,
-            output_format: OutputFormat::Pretty,
+            stdout_format: OutputFormat::Pretty,
+            is_interactive: false,
         };
 
 

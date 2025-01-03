@@ -8,7 +8,6 @@ use rust_embed::Embed;
 pub struct Migrations;
 
 
-
 macro_rules! sql_migration {
     ($name:ident, $migration_name:expr, $filename:expr) => {
         pub struct $name;

@@ -1,5 +1,7 @@
 use serde::Deserialize;
 use serde::Serialize;
+use std::fmt;
+use std::str::FromStr;
 
 #[derive(
     clap::ValueEnum, Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize, Eq, Hash,
@@ -24,4 +26,49 @@ pub enum RouteOfAdministrationClassification
     Smoked,
     Sublingual,
     Transdermal,
+}
+
+impl fmt::Display for RouteOfAdministrationClassification
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    {
+        let name = match self
+        {
+            | RouteOfAdministrationClassification::Buccal => "Buccal",
+            | RouteOfAdministrationClassification::Inhaled => "Inhaled",
+            | RouteOfAdministrationClassification::Insufflated => "Insufflated",
+            | RouteOfAdministrationClassification::Intramuscular => "Intramuscular",
+            | RouteOfAdministrationClassification::Intravenous => "Intravenous",
+            | RouteOfAdministrationClassification::Oral => "Oral",
+            | RouteOfAdministrationClassification::Rectal => "Rectal",
+            | RouteOfAdministrationClassification::Smoked => "Smoked",
+            | RouteOfAdministrationClassification::Sublingual => "Sublingual",
+            | RouteOfAdministrationClassification::Transdermal => "Transdermal",
+        };
+
+        write!(f, "{}", name)
+    }
+}
+
+impl FromStr for RouteOfAdministrationClassification
+{
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err>
+    {
+        match input
+        {
+            | "buccal" => Ok(Self::Buccal),
+            | "inhaled" => Ok(Self::Inhaled),
+            | "insufflated" => Ok(Self::Insufflated),
+            | "intramuscular" => Ok(Self::Intramuscular),
+            | "intravenous" => Ok(Self::Intravenous),
+            | "oral" => Ok(Self::Oral),
+            | "rectal" => Ok(Self::Rectal),
+            | "smoked" => Ok(Self::Smoked),
+            | "sublingual" => Ok(Self::Sublingual),
+            | "transdermal" => Ok(Self::Transdermal),
+            | _ => Err(()),
+        }
+    }
 }

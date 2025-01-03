@@ -4,30 +4,32 @@ use chrono::Local;
 use chrono_english::Dialect;
 use log::debug;
 use log::error;
+use log::info;
 use log::warn;
 use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
 use sea_orm::Database;
-use sea_orm_migration::async_trait::async_trait;
-use sea_orm_migration::sea_orm::DatabaseConnection;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
+use sea_orm_migration::async_trait::async_trait;
+use sea_orm_migration::sea_orm::DatabaseConnection;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
 
 pub mod dosage;
+pub mod formatter;
 mod migration;
 pub mod orm;
-pub mod output;
 pub mod route_of_administration;
 
 #[derive(Debug, Clone)]
 pub struct Context<'a>
 {
     pub database_connection: &'a sea_orm::DatabaseConnection,
-    pub output_format: OutputFormat,
+    pub stdout_format: OutputFormat,
+    pub is_interactive: bool,
 }
 
 #[async_trait]
@@ -143,8 +145,8 @@ pub async fn migrate_database(database_connection: &DatabaseConnection) -> miett
 
     if !pending_migrations.is_empty()
     {
-        println!("There are {} migration pending.", pending_migrations.len());
-        println!("Applying migration into {:?}", database_connection);
+        info!("There are {} migration pending.", pending_migrations.len());
+        info!("Applying migration into {:?}", database_connection);
 
         Migrator::up(database_connection.into_schema_manager_connection(), None)
             .await
