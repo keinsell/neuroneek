@@ -1,6 +1,8 @@
+use crate::lib::dosage::format_dosage;
 use crate::lib::dosage::Dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::output::Formatter;
+use core::convert::From;
 use measurements::Measurement;
 use serde::Deserialize;
 use serde::Serialize;
@@ -26,11 +28,13 @@ impl From<ingestion::Model> for ViewModel
 {
     fn from(model: ingestion::Model) -> Self
     {
+        let dosage = Dosage::from_base_units(model.dosage.into());
+
         Self::builder()
             .id(model.id)
             .substance_name(model.substance_name)
             .route(model.route_of_administration)
-            .dosage(Dosage::from_base_units(model.dosage as f64).to_string())
+            .dosage(format_dosage(&dosage).unwrap())
             .ingested_at(model.ingested_at.to_string())
             .build()
     }
