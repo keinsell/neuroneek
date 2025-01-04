@@ -6,8 +6,9 @@ use measurements::Measurement;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
+use std::ops::RangeBounds;
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Derivative)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Derivative, Eq, PartialOrd)]
 pub struct Dosage(Mass);
 
 impl std::str::FromStr for Dosage

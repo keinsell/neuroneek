@@ -27,7 +27,7 @@ impl CommandHandler for SubstanceCommand
     {
         match &self.commands
         {
-            | SubstanceCommands::Get(command) => command.handle(context).await,
+            | SubstanceCommands::Get(command) => command.handle(context).await.map(|_| ()),
         }
     }
 }
