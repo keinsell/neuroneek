@@ -1,4 +1,4 @@
-name: CI
+name: main
 
 on:
   pull_request:
@@ -27,6 +27,16 @@ on:
       - prereleased
 
 jobs:
+  cargo_lint:
+    name: "lint"
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          target: x86_64-unknown-linux-gnu
+          override: true
   cargo_build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -60,3 +70,25 @@ jobs:
           path: |
             target/${{ matrix.target }}/release/neuronek-cli
             target/${{ matrix.target }}/release/neuronek-cli.exe
+
+
+# Disabled until automatic versioning will be configured
+#  cargo_release:
+#    name: "release"
+#    runs-on: "ubuntu-latest"
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions-rs/toolchain@v1
+#        with:
+#          toolchain: nightly
+#          target: "x86_64-unknown-linux-gnu"
+#          override: true
+#      - name: Install cargo plugins
+#        run: >
+#          cargo install cargo-quickinstall
+#          cargo-quickinstall cargo-release
+#
+#      - name: Run cargo-release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        run: cargo release alpha

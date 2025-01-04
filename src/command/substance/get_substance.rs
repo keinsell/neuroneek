@@ -14,7 +14,6 @@ use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::ModelTrait;
 use sea_orm::QueryFilter;
-use sea_orm::QueryOrder;
 use sea_orm::prelude::async_trait::async_trait;
 use std::str::FromStr;
 
