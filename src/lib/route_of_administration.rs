@@ -4,7 +4,16 @@ use std::fmt;
 use std::str::FromStr;
 
 #[derive(
-    clap::ValueEnum, Debug, Clone, Copy, Default, PartialEq, Serialize, Deserialize, Eq, Hash,
+    clap::ValueEnum,
+    Debug,
+    Clone,
+    Copy,
+    Default,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    Eq,
+    Hash,
 )]
 #[serde(rename_all = "snake_case")]
 pub enum RouteOfAdministrationClassification

@@ -35,7 +35,7 @@ macro_rules! sql_migration {
                 Ok(())
             }
 
-            async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr>
+            async fn down(&self, _manager: &SchemaManager) -> Result<(), DbErr>
             {
                 panic!("Down migrations aren't supported before official release")
             }
@@ -71,6 +71,11 @@ impl MigratorTrait for Migrator
                 M20250101235153DropUnrelatedData,
                 "20250101235153_drop_unrelated_data",
                 "20250101235153_drop_unrelated_data"
+            ),
+            import_migration!(
+                M20250104060831UpdateDosageBounds,
+                "20250104060831_update_dosage_bounds",
+                "20250104060831_update_dosage_bounds"
             ),
         ]
     }

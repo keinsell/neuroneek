@@ -11,6 +11,7 @@ pub trait Formatter: Serialize + Tabled + Sized
         {
             | OutputFormat::Pretty => Table::new(std::iter::once(self))
                 .with(tabled::settings::Style::modern())
+                .with(tabled::settings::Alignment::center())
                 .to_string(),
             | OutputFormat::Json => serde_json::to_string_pretty(self)
                 .unwrap_or_else(|_| "Error serializing to JSON".to_string()),
@@ -28,16 +29,9 @@ impl<T: Formatter> FormatterVector<T>
     {
         match format
         {
-            | OutputFormat::Pretty =>
-            {
-                if self.0.is_empty()
-                {
-                    return "No items found.".to_string();
-                }
-                Table::new(&self.0)
-                    .with(tabled::settings::Style::modern())
-                    .to_string()
-            }
+            | OutputFormat::Pretty => Table::new(&self.0)
+                .with(tabled::settings::Style::modern())
+                .to_string(),
             | OutputFormat::Json => serde_json::to_string_pretty(&self.0)
                 .unwrap_or_else(|_| "Error serializing to JSON".to_string()),
         }

@@ -23,6 +23,7 @@ pub mod formatter;
 mod migration;
 pub mod orm;
 pub mod route_of_administration;
+pub(crate) mod substance;
 
 #[derive(Debug, Clone)]
 pub struct Context<'a>
@@ -33,9 +34,9 @@ pub struct Context<'a>
 }
 
 #[async_trait]
-pub trait CommandHandler: Sync
+pub trait CommandHandler<Output = ()>: Sync
 {
-    async fn handle<'a>(&self, context: Context<'a>) -> Result<()>;
+    async fn handle<'context>(&self, ctx: Context<'context>) -> Result<Output>;
 }
 
 #[derive(Debug, Clone)]
@@ -58,8 +59,6 @@ impl Default for Config
         {
             journal_path = temp_dir().join("neuronek.sqlite");
         }
-
-        println!("Using database file at: {}", journal_path.display());
 
         Config { journal_path }
     }

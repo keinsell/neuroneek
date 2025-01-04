@@ -27,7 +27,7 @@ mod view_model;
 pub struct Resources;
 
 lazy_static! {
-    static ref FIGFONT: figlet_rs::FIGfont = figlet_rs::FIGfont::from_content(
+    pub static ref FIGFONT: figlet_rs::FIGfont = figlet_rs::FIGfont::from_content(
         std::str::from_utf8(&Resources::get("small.flf").unwrap().data).unwrap()
     )
     .unwrap();
