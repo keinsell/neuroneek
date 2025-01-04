@@ -1,7 +1,6 @@
 use crate::lib::CommandHandler;
 use crate::lib::Context;
 use crate::lib::dosage::Dosage;
-use crate::lib::dosage::parse_dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
@@ -18,6 +17,7 @@ use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
 use sea_orm::prelude::async_trait::async_trait;
+use std::str::FromStr;
 
 
 #[derive(Parser, Debug)]
@@ -33,7 +33,7 @@ pub struct UpdateIngestion
     pub substance_name: Option<String>,
 
     /// New dosage (optional, e.g., 20 mg)
-    #[arg(short = 'd', long = "dosage", value_name = "DOSAGE", value_parser=parse_dosage)]
+    #[arg(short = 'd', long = "dosage", value_name = "DOSAGE", value_parser=Dosage::from_str)]
     pub dosage: Option<Dosage>,
 
     /// New ingestion date (optional, e.g., "today 10:00")

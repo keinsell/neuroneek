@@ -1,7 +1,6 @@
 use crate::lib::CommandHandler;
 use crate::lib::Context;
 use crate::lib::dosage::Dosage;
-use crate::lib::dosage::parse_dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
@@ -18,6 +17,7 @@ use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
 use sea_orm_migration::async_trait::async_trait;
 use std::fmt::Debug;
+use std::str::FromStr;
 
 /**
 # Log Ingestion
@@ -51,7 +51,12 @@ pub struct LogIngestion
     #[arg(index = 1, value_name = "SUBSTANCE", required = true)]
     pub substance_name: String,
     /// Dosage of given substance provided as string with unit (e.g., 10 mg)
-    #[arg(index = 2, value_name = "DOSAGE", required = true, value_parser=parse_dosage)]
+    #[arg(
+        index = 2,
+        value_name = "DOSAGE",
+        required = true,
+        value_parser = Dosage::from_str
+    )]
     pub dosage: Dosage,
     /// Date of ingestion, by default current date is used if not provided.
     ///

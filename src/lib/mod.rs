@@ -2,25 +2,26 @@ use crate::OutputFormat;
 use async_std::task::block_on;
 use chrono::Local;
 use chrono_english::Dialect;
+use log::debug;
 use log::error;
+use log::info;
 use log::warn;
-use log::{debug, info};
 use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
 use sea_orm::Database;
-use sea_orm_migration::async_trait::async_trait;
-use sea_orm_migration::sea_orm::DatabaseConnection;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
+use sea_orm_migration::async_trait::async_trait;
+use sea_orm_migration::sea_orm::DatabaseConnection;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
 
 pub mod dosage;
+pub mod formatter;
 mod migration;
 pub mod orm;
-pub mod formatter;
 pub mod route_of_administration;
 
 #[derive(Debug, Clone)]

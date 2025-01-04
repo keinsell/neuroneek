@@ -34,19 +34,36 @@ lazy_static! {
     static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("neuronek").unwrap();
 }
 
-fn is_interactive() -> bool {
-    atty::is(Stream::Stdout)
-}
+fn is_interactive() -> bool { atty::is(Stream::Stdout) }
 
 fn default_output_format() -> OutputFormat
 {
     if is_interactive()
     {
         OutputFormat::Pretty
-    } else {
+    }
+    else
+    {
         OutputFormat::Json
     }
 }
+
+#[derive(clap::ValueEnum, Clone, Debug)]
+/// The output format specifies how application data is presented:
+///
+/// - `Pretty`: Used in interactive shells to display data in a visually
+///   appealing table format.
+/// - `Json`: Used in non-interactive shells (e.g., scripts or when data is
+///   piped) to provide raw JSON for automated parsing.
+pub enum OutputFormat
+{
+    /// Pretty printed tables
+    Pretty,
+    /// JSON formatted output
+    Json,
+    // TODO: Application may support custom templates like liquidless or smth
+}
+
 
 #[derive(Parser)]
 #[command(
@@ -59,11 +76,7 @@ pub struct CLI
     #[command(subcommand)]
     pub command: ApplicationCommands,
 
-    /// Specifies the output format for the application's data.
-    ///
-    /// - `Pretty`: When the shell is interactive, data will be presented in a human-readable table format.
-    /// - `Json`: When the shell is non-interactive (e.g., when piping data or running in a script), 
-    ///   data will be returned in raw JSON format for easier parsing.
+    /// Pretty-print or return raw version of data in JSON
     #[arg(short, long = "format", value_enum, default_value_t = default_output_format())]
     pub format: OutputFormat,
 
@@ -71,15 +84,6 @@ pub struct CLI
     verbose: clap_verbosity_flag::Verbosity,
 }
 
-#[derive(clap::ValueEnum, Clone, Debug)]
-pub enum OutputFormat
-{
-    /// Pretty printed tables
-    Pretty,
-    /// JSON formatted output
-    Json,
-    // TODO: Application may support custom templates like liquidless or smth
-}
 
 fn default_complete_shell() -> clap_complete::Shell
 {
@@ -127,9 +131,9 @@ impl CommandHandler for ApplicationCommands
         match self
         {
             | ApplicationCommands::Ingestion(ingestion_command) =>
-                {
-                    ingestion_command.handle(context).await
-                }
+            {
+                ingestion_command.handle(context).await
+            }
             | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
         }

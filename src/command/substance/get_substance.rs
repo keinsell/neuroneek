@@ -1,19 +1,19 @@
 use crate::command;
-use crate::lib::orm::substance;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::lib::orm::substance;
 use crate::view_model::substance::ViewModel;
 use clap::Parser;
 use log::info;
 use log::warn;
 use miette::IntoDiagnostic;
-use sea_orm::prelude::async_trait::async_trait;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::QueryOrder;
-use tabled::settings::Style;
+use sea_orm::prelude::async_trait::async_trait;
 use tabled::Table;
+use tabled::settings::Style;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -67,11 +67,11 @@ impl CommandHandler for GetSubstance
 mod tests
 {
     use super::*;
+    use crate::OutputFormat;
     use crate::command::GetSubstance;
-    use crate::lib::migrate_database;
     use crate::lib::Context;
     use crate::lib::DATABASE_CONNECTION;
-    use crate::OutputFormat;
+    use crate::lib::migrate_database;
 
     #[async_std::test]
     async fn should_return_caffeine()
