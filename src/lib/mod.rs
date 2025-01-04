@@ -2,9 +2,9 @@ use crate::OutputFormat;
 use async_std::task::block_on;
 use chrono::Local;
 use chrono_english::Dialect;
-use log::debug;
 use log::error;
 use log::warn;
+use log::{debug, info};
 use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
@@ -20,14 +20,15 @@ use std::path::PathBuf;
 pub mod dosage;
 mod migration;
 pub mod orm;
-pub mod output;
+pub mod formatter;
 pub mod route_of_administration;
 
 #[derive(Debug, Clone)]
 pub struct Context<'a>
 {
     pub database_connection: &'a sea_orm::DatabaseConnection,
-    pub output_format: OutputFormat,
+    pub stdout_format: OutputFormat,
+    pub is_interactive: bool,
 }
 
 #[async_trait]
@@ -143,8 +144,8 @@ pub async fn migrate_database(database_connection: &DatabaseConnection) -> miett
 
     if !pending_migrations.is_empty()
     {
-        println!("There are {} migration pending.", pending_migrations.len());
-        println!("Applying migration into {:?}", database_connection);
+        info!("There are {} migration pending.", pending_migrations.len());
+        info!("Applying migration into {:?}", database_connection);
 
         Migrator::up(database_connection.into_schema_manager_connection(), None)
             .await

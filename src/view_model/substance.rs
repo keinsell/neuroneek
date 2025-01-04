@@ -1,4 +1,4 @@
-use crate::lib::output::Formatter;
+use crate::lib::formatter::Formatter;
 use serde::Deserialize;
 use serde::Serialize;
 use tabled::Tabled;

@@ -34,14 +34,16 @@ lazy_static! {
     static ref FIGURE: figlet_rs::FIGure<'static> = FIGFONT.convert("neuronek").unwrap();
 }
 
+fn is_interactive() -> bool {
+    atty::is(Stream::Stdout)
+}
+
 fn default_output_format() -> OutputFormat
 {
-    if atty::is(Stream::Stdout)
+    if is_interactive()
     {
         OutputFormat::Pretty
-    }
-    else
-    {
+    } else {
         OutputFormat::Json
     }
 }
@@ -57,9 +59,13 @@ pub struct CLI
     #[command(subcommand)]
     pub command: ApplicationCommands,
 
-    /// Output format for the command results
-    #[arg(short = 'o', long = "output", value_enum, default_value_t = default_output_format())]
-    pub output_format: OutputFormat,
+    /// Specifies the output format for the application's data.
+    ///
+    /// - `Pretty`: When the shell is interactive, data will be presented in a human-readable table format.
+    /// - `Json`: When the shell is non-interactive (e.g., when piping data or running in a script), 
+    ///   data will be returned in raw JSON format for easier parsing.
+    #[arg(short, long = "format", value_enum, default_value_t = default_output_format())]
+    pub format: OutputFormat,
 
     #[command(flatten)]
     verbose: clap_verbosity_flag::Verbosity,
@@ -72,6 +78,7 @@ pub enum OutputFormat
     Pretty,
     /// JSON formatted output
     Json,
+    // TODO: Application may support custom templates like liquidless or smth
 }
 
 fn default_complete_shell() -> clap_complete::Shell
@@ -95,7 +102,7 @@ impl CommandHandler for GenerateCompletion
         clap_complete::generate(
             self.shell,
             &mut CLI::command(),
-            "psylog",
+            env!("CARGO_BIN_NAME"),
             &mut std::io::stdout(),
         );
         Ok(())
@@ -120,9 +127,9 @@ impl CommandHandler for ApplicationCommands
         match self
         {
             | ApplicationCommands::Ingestion(ingestion_command) =>
-            {
-                ingestion_command.handle(context).await
-            }
+                {
+                    ingestion_command.handle(context).await
+                }
             | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
         }
@@ -147,7 +154,8 @@ async fn main() -> miette::Result<()>
 
     let context = Context {
         database_connection: &DATABASE_CONNECTION,
-        output_format: cli.output_format,
+        stdout_format: cli.format,
+        is_interactive: is_interactive(),
     };
 
     cli.command.handle(context).await?;
