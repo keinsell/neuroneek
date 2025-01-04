@@ -1,19 +1,19 @@
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use colored::*;
 use hashbrown::HashMap;
 use iso8601_duration::Duration;
 use miette::miette;
 use serde::Deserialize;
 use serde::Serialize;
-use tabled::settings::Format;
 use std::fmt;
 use std::ops::Range;
 use std::str::FromStr;
 use tabled::settings::Alignment;
-use tabled::settings::Extract;
+use tabled::settings::Modify;
 use tabled::settings::Panel;
-use tabled::settings::{ Modify, Style, Width};
-use tabled::settings::object::{Columns, Rows};
+use tabled::settings::Style;
+use tabled::settings::Width;
+use tabled::settings::object::Columns;
+use tabled::settings::object::Rows;
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum PhaseClassification
@@ -136,7 +136,8 @@ impl fmt::Display for Substance
         for (route, admin) in &self.routes_of_administration
         {
             // Format dosages in a clean, structured way
-            let dosages = admin.dosages
+            let dosages = admin
+                .dosages
                 .iter()
                 .map(|(classification, range)| {
                     format!(
@@ -150,10 +151,12 @@ impl fmt::Display for Substance
                 .join("\n");
 
             // Format phases in a clean, structured way
-            let phases = admin.phases
+            let phases = admin
+                .phases
                 .iter()
                 .map(|(phase, duration)| {
-                    format!("{:<9} {:>7} - {:<7}", 
+                    format!(
+                        "{:<9} {:>7} - {:<7}",
                         format!("{}:", phase),
                         duration.start.to_string(),
                         duration.end.to_string()
@@ -163,11 +166,7 @@ impl fmt::Display for Substance
                 .join("\n");
 
             // Add route and split information into two columns
-            table_builder.push_record(vec![
-                route.to_string(),
-                dosages,
-                phases,
-            ]);
+            table_builder.push_record(vec![route.to_string(), dosages, phases]);
         }
 
         let mut built_table = table_builder.build();
