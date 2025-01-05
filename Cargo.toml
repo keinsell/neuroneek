@@ -1,4 +1,4 @@
-cargo-features = ["edition2024"]
+cargo-features = ["edition2024", "metabuild", "profile-rustflags"]
 
 [package]
 name = "neuronek"
