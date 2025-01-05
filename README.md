@@ -28,22 +28,6 @@ supported package managers or build it from source.
 > Application will be available for `homebrew`, `pacman`, `nix`, `scoop`, `dnf` and `apt` when it would be considered
 > production-ready.
 
-[//]: # (| Operating System           | Package Manager | Easy-peasy command                 |)
-
-[//]: # (|----------------------------|-----------------|------------------------------------|)
-
-[//]: # (| **macOS**                  | Homebrew        | `brew install keinsell/tap/neuronek` |)
-
-[//]: # (| **Windows**                | Scoop           | `scoop install neuronek`             |)
-
-[//]: # (| **Linux &#40;Debian/Ubuntu&#41;**  | APT             | `apt install neuronek`               |)
-
-[//]: # (| **Linux &#40;Arch Linux&#41;**     | Pacman          | `pacman -S neuronek`                 |)
-
-[//]: # (| **Linux &#40;Fedora/CentOS&#41;**  | DNF             | `dnf install neuronek`               |)
-
-[//]: # (| **Linux/NixOS/nix-darwin** | Nix             | `dnf install neuronek`               |)
-
 #### Installation from source (Advanced)
 
 Application can be installed with `cargo` and providing url to this repository,
@@ -69,31 +53,10 @@ application provides a command-line interface (CLI) for interacting with its fea
 
 ### Ingestions
 
-Ingestions are "low-level" database of ingested compounds, it may seem raw for users however they will be abstracted to
-different interfaces, for example user would be able to use command like `psylog a coffee` which will automatically add
-necessary ingestions, there will be also human-friendly journal and information-oriented journal with JSON interface to
-integrate it with other tools.
+Ingestions are fundamental area of application, they represent human interaction with chemical compound of choice.
+Ingestion explains what compound was ingested, how it was ingested and when it was ingested.
 
-#### Log Ingestion
-
-The `Log Ingestion` feature is the core functionality of Psylog,
-enabling users to record information about any substances they consume.
-This feature is designed for tracking supplements, medications, nootropics,
-or any psychoactive substances in a structured and organized way.
-
-By logging ingestion, users can provide details such as the substance name, dosage, and the time of ingestion.
-This data is stored in a low-level database that serves as the foundation for further features,
-such as journaling, analytics, or integrations with external tools.
-While power users may prefer to work directly with this raw data,
-many user-friendly abstractions are planned to make this process seamless,
-such as simplified commands (e.g., `neuronek a coffee`) for quicker entries.
-
-Logging ingestions not only serves the purpose of record-keeping
-but also helps users build a personalized database of their consumption habits.
-This database can be used to analyze trends over time,
-providing insights into the long-term effects of different substances on physical and mental well-being.
-
-An example usage of the `log ingestion` feature is shown below:
+#### [🗎 Log Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-3)
 
 ```bash
 ❯ neuronek ingestion log caffeine 80mg
@@ -101,22 +64,11 @@ An example usage of the `log ingestion` feature is shown below:
 +----+----------------+--------+----------------------+-------------------------------+
 | id | substance_name | route  | dosage               | ingested_at                   |
 +----+----------------+--------+----------------------+-------------------------------+
-| 1  | caffeine       | "oral" | 79.99999797903001 mg | 2024-12-16 00:02:48.977457    |
+| 1  | caffeine       | "oral" | 80 mg                | 2024-12-16 00:02:48.977457    |
 +----+----------------+--------+----------------------+-------------------------------+
 ```
 
-In this example:
-
-- The user logs ingestion of 80 mg of caffeine.
-- The system automatically calculates and records a precise dosage, time of ingestion, and assigns a unique entry ID.
-- Data saved in this format can be easily retrieved, updated, or removed as needed.
-
-Ultimately, the `Log Ingestion` feature provides a powerful way to centralize all ingestion data,
-which can be accessed programmatically (e.g., via JSON) or through additional human-friendly journal views.
-Psylog aims to make tracking consumption efficient,
-ensuring that users stay informed about their habits and their long-term impact on health.
-
-##### List Ingestions
+#### [🗎 List Ingestions](https://keinsell.youtrack.cloud/articles/NEU-A-7)
 
 ```bash
 ❯ neuronek ingestion list
@@ -128,30 +80,7 @@ ensuring that users stay informed about their habits and their long-term impact 
 +----+----------------+---------------+----------------------+----------------------------+
 ```
 
-###### Future Notes
-
-- [ ] Listing Ingestions should allow for querying and filtering
-- [ ] Listing ingestions should allow for returning data in non-prettified formats (ex. JSON)
-
-##### Get Ingestion
-
-- [ ] Get ingestion should present complete information about single ingestion
-
-##### Update ingestion
-
-The `Update Ingestion` feature allows users to modify existing ingestion records after they've been created. All fields
-except `id` and `created_at` can be updated, providing flexibility in maintaining accurate records. This is particularly
-useful when correcting data entry errors or adding additional information to an existing record.
-
-Users can update ingestions using the following command structure:
-```neuronek ingestion update <id> [options]```
-
-Available update options:
-
-- `-d, --dosage`: Modify the substance dosage
-- `-r, --route`: Change the route of administration
-- `-s, --substance`: Update the substance name
-- `-t, --time`: Adjust the ingestion timestamp (can be represented in a relative format eg. "now" or "1 hour ago")
+#### [🗎 Update ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-6)
 
 ```bash
 ❯ neuronek ingestion list
@@ -159,48 +88,34 @@ Available update options:
 +----+----------------+---------------+----------------------+----------------------------+
 | id | substance_name | route         | dosage               | ingested_at                |
 +----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 80 mg               | 2024-12-18 08:14:37.211076 |
+| 36 | caffeine       | "oral"        | 80  mg               | 2024-12-18 08:14:37.211076 |
 +----+----------------+---------------+----------------------+----------------------------+
 
-❯ psylog ingestion update 36 -d 200mg
+❯ neuronek ingestion update 36 -d 200mg
 
 +----+----------------+---------------+----------------------+----------------------------+
 | id | substance_name | route         | dosage               | ingested_at                |
 +----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 200 mg               | 2024-12-18 08:14:37.211076 |
+| 36 | caffeine       | "oral"        | 200 mg               | 2024-12-18 08:14:37.211076 |
 +----+----------------+---------------+----------------------+----------------------------+
 ```
 
-##### Delete Ingestion
+#### [🗎 Delete Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-4)
 
-The `Delete Ingestion` feature allows you to remove specific ingestion records from your tracking history using their
-unique ID. Here's how it works:
-
-Command syntax:
-
-```
-neuronek ingestion delete <id>
-```
-
-Example usage:
+> [!CAUTION]
+> Deletion cannot be undone, so verify the correct ID before deleting.
 
 ```bash
-# View current ingestions
 ❯ neuronek ingestion list
+ 
 +----+----------------+--------+----------+----------------------------+
 | id | substance_name | route  | dosage   | ingested_at                |
 +----+----------------+--------+----------+----------------------------+
 | 36 | caffeine       | "oral" | 80 mg    | 2024-12-18 08:14:37.211076 |
 +----+----------------+--------+----------+----------------------------+
 
-# Delete ingestion with ID 36
 ❯ neuronek ingestion delete 36
 ```
-
-The command removes the specified ingestion record permanently. Verify deletion by running `psylog ingestion list`
-again. This feature is useful for removing incorrect entries or maintaining data accuracy in your tracking history.
-
-Note: Deletion cannot be undone, so verify the correct ID before deleting.
 
 ### Substances
 
