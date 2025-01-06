@@ -1,3 +1,5 @@
+pub mod repository;
+
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
 use hashbrown::HashMap;
 use iso8601_duration::Duration;
@@ -7,13 +9,14 @@ use serde::Serialize;
 use std::fmt;
 use std::ops::Range;
 use std::str::FromStr;
+use tabled::settings::object::Columns;
+use tabled::settings::object::Rows;
 use tabled::settings::Alignment;
 use tabled::settings::Modify;
 use tabled::settings::Panel;
 use tabled::settings::Style;
 use tabled::settings::Width;
-use tabled::settings::object::Columns;
-use tabled::settings::object::Rows;
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum PhaseClassification
@@ -58,7 +61,6 @@ impl fmt::Display for PhaseClassification
             | PhaseClassification::Peak => write!(f, "Peak"),
             | PhaseClassification::Comedown => write!(f, "Comedown"),
             | PhaseClassification::Afterglow => write!(f, "Afterglow"),
-            // Add other variants of PhaseClassification here, if applicable.
         }
     }
 }
@@ -66,15 +68,10 @@ impl fmt::Display for PhaseClassification
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum DosageClassification
 {
-    // From infinity to x Range
     Threshold,
-    // From x to y
     Light,
-    // From x to y
     Medium,
-    // From x to y
     Strong,
-    // From x to infinity Range
     Heavy,
 }
 
@@ -135,7 +132,6 @@ impl fmt::Display for Substance
 
         for (route, admin) in &self.routes_of_administration
         {
-            // Format dosages in a clean, structured way
             let dosages = admin
                 .dosages
                 .iter()
@@ -150,7 +146,6 @@ impl fmt::Display for Substance
                 .collect::<Vec<String>>()
                 .join("\n");
 
-            // Format phases in a clean, structured way
             let phases = admin
                 .phases
                 .iter()
@@ -165,7 +160,6 @@ impl fmt::Display for Substance
                 .collect::<Vec<String>>()
                 .join("\n");
 
-            // Add route and split information into two columns
             table_builder.push_record(vec![route.to_string(), dosages, phases]);
         }
 

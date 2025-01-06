@@ -18,8 +18,11 @@ use rust_embed::Embed;
 use sea_orm::prelude::async_trait::async_trait;
 use std::string::ToString;
 
+mod analyzer;
 mod command;
+mod ingestion;
 mod lib;
+pub(crate) mod substance;
 mod view_model;
 
 #[derive(Embed)]
@@ -118,6 +121,7 @@ pub enum ApplicationCommands
 {
     Ingestion(command::IngestionCommand),
     Substance(command::SubstanceCommand),
+    Analyze(command::AnalyzeIngestion),
     /// Generate shell completions
     Completions(GenerateCompletion),
 }
@@ -136,6 +140,8 @@ impl CommandHandler for ApplicationCommands
             }
             | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
+            | ApplicationCommands::Analyze(cmd) => cmd.handle(context).await,
+            | _ => Ok(()),
         }
     }
 }

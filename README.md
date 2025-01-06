@@ -12,9 +12,12 @@ and
 psychoactive substances. By recording and analyzing ingestion, it helps users better understand the long-term effects
 of these compounds on their physical and mental health.
 
-## Getting Started
+Features offered by application include:
 
-### Installation
+- **Ingestion journaling** with set of commands which allows for inserting, updating, retrieving and deleting all of the
+  data stored as `Ingestion` model.
+
+## Installation
 
 To install the application, please visit the [GitHub Releases Page](https://github.com/keinsell/neuronek/releases) for
 pre-built binaries and installation instructions for your platform. Alternatively, you can install the application from
@@ -40,21 +43,17 @@ cargo install --git https://github.com/keinsell/neuronek
 **Note:** This method might be best for users who always want the absolute newest version of the application. However,
 it may be less stable than the pre-built binaries.
 
-### Usage
-
-After installation, you can start using the application by running the `psylog` command in your terminal. The
-application provides a command-line interface (CLI) for interacting with its features and functionalities.
-
 ```bash
 ❯ neuronek --help
 ```
 
-## Features
+## Usage
 
-### Ingestions
+### Ingestion Journaling
 
 Ingestions are fundamental area of application, they represent human interaction with chemical compound of choice.
-Ingestion explains what compound was ingested, how it was ingested and when it was ingested.
+Ingestion explains what compound was ingested, how it was ingested and when it was ingested. Application expose simple,
+scriptable interface which allows for storage and retrieval of structured data.
 
 #### [🗎 Log Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-3)
 

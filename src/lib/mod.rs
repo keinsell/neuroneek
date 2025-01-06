@@ -10,10 +10,10 @@ use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
 use sea_orm::Database;
-use sea_orm_migration::IntoSchemaManagerConnection;
-use sea_orm_migration::MigratorTrait;
 use sea_orm_migration::async_trait::async_trait;
 use sea_orm_migration::sea_orm::DatabaseConnection;
+use sea_orm_migration::IntoSchemaManagerConnection;
+use sea_orm_migration::MigratorTrait;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
@@ -23,7 +23,6 @@ pub mod formatter;
 mod migration;
 pub mod orm;
 pub mod route_of_administration;
-pub(crate) mod substance;
 
 #[derive(Debug, Clone)]
 pub struct Context<'a>
@@ -70,7 +69,6 @@ lazy_static::lazy_static! {
         let config = Config::default();
         let sqlite_path = format!("sqlite://{}", config.journal_path.clone().to_str().unwrap());
 
-        // Try to open database connection
         debug!("Opening database connection to {}", sqlite_path);
 
         match block_on(async { Database::connect(&sqlite_path).await }) {
@@ -79,31 +77,25 @@ lazy_static::lazy_static! {
                 connection
             }
             Err(error) => {
-                // If error was about being unable to open a database file, handle it
                 if error.to_string().contains("unable to open database file") {
                     warn!("Database file not found or inaccessible at {}, attempting to initialize...", sqlite_path);
 
-                    // Try to initialize the database
                     if let Err(init_error) = initialize_database(&config) {
-                        // Log critical error if initialization fails
                         error!("Failed to initialize the database: {}", init_error);
                         panic!("Critical: Unable to initialize the database file at {}. Error: {}", sqlite_path, init_error);
                     }
-
-                    // Retry connection after initialization
+                    
                     match block_on(async { Database::connect(&sqlite_path).await }) {
                         Ok(retry_connection) => {
                             debug!("Database connection established successfully after initialization!");
                             retry_connection
                         },
                         Err(retry_error) => {
-                            // Log critical error if connection fails again
                             error!("Failed to connect to the database even after initialization: {}", retry_error);
                             panic!("Critical: Unable to establish database connection at {}. Error: {}", sqlite_path, retry_error);
                         }
                     }
                 } else {
-                    // Handle other database-related errors
                     error!("Unexpected database connection error: {}", error);
                     panic!("Critical: Unable to establish database connection. Error: {}", error);
                 }
