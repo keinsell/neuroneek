@@ -7,10 +7,14 @@ use clap::Parser;
 use clap::Subcommand;
 use sea_orm::prelude::async_trait::async_trait;
 
+mod analyzer;
 pub mod formatter;
 mod ingestion;
+pub mod journal;
 mod substance;
 
+use crate::cli::analyzer::AnalyzeIngestion;
+use crate::cli::journal::Journal;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
 pub use substance::get_substance::GetSubstance;
@@ -91,6 +95,8 @@ impl CommandHandler for ApplicationCommands
             }
             | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
+            | ApplicationCommands::Analyzer(cmd) => cmd.handle(context).await,
+            | ApplicationCommands::Journal(cmd) => cmd.handle(context).await,
         }
     }
 }
@@ -99,9 +105,16 @@ impl CommandHandler for ApplicationCommands
 #[derive(Subcommand)]
 pub enum ApplicationCommands
 {
+    /// Manage ingestion entries
     Ingestion(IngestionCommand),
+    /// Query substance information
     Substance(SubstanceCommand),
+    /// Analyze ingestion details
+    Analyzer(AnalyzeIngestion),
+    /// Generate shell completions
     Completions(GenerateCompletion),
+    /// View journal of ingestions
+    Journal(Journal),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor

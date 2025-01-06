@@ -14,7 +14,7 @@ use lib::setup_logger;
 
 mod cli;
 mod lib;
-
+pub mod orm;
 
 #[async_std::main]
 async fn main() -> miette::Result<()>

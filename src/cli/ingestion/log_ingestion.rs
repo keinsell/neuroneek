@@ -2,17 +2,17 @@ use crate::cli::formatter::Formatter;
 use crate::cli::ingestion::IngestionViewModel;
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::lib::analyzer::IngestionAnalysis;
 use crate::lib::dosage::Dosage;
-use crate::lib::orm::ingestion;
-use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
+use crate::lib::substance::repository::get_substance_by_name;
+use crate::orm::ingestion;
+use crate::orm::prelude::Ingestion;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
-use measurements::Measurement;
 use miette::IntoDiagnostic;
-use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
 use sea_orm_migration::async_trait::async_trait;
@@ -22,7 +22,8 @@ use std::str::FromStr;
 /**
 # Log Ingestion
 
-The `Log Ingestion` feature is the core functionality of Psylog, enabling users to record information about any substances they consume.
+The `Log Ingestion` feature is the core functionality of neuronek, enabling users to record
+information about any substances they consume.
 This feature is designed for tracking supplements, medications, nootropics,
 or any psychoactive substances in a structured and organized way.
 
@@ -31,7 +32,7 @@ This data is stored in a low-level database that serves as the foundation for fu
 such as journaling, analytics, or integrations with external tools.
 While power users may prefer to work directly with this raw data,
 many user-friendly abstractions are planned to make this process seamless,
-such as simplified commands (e.g., `psylog a coffee`) for quicker entries.
+such as simplified commands (e.g., `neuronek a coffee`) for quicker entries.
 
 Logging ingestions not only serves the purpose of record-keeping
 but also helps users build a personalized database of their consumption habits.
@@ -67,7 +68,6 @@ pub struct LogIngestion
         short='t',
         long="date",
         default_value = "now",
-        default_value_t=Local::now(),
         value_parser=parse_date_string
     )]
     pub ingestion_date: DateTime<Local>,
@@ -85,27 +85,40 @@ impl CommandHandler for LogIngestion
             .title()
             .into_diagnostic()?;
 
-        let ingestion: IngestionViewModel = Ingestion::insert(ingestion::ActiveModel {
-            id: ActiveValue::default(),
-            substance_name: ActiveValue::Set(pubchem.to_lowercase()),
-            route_of_administration: ActiveValue::Set(
-                serde_json::to_value(&self.route_of_administration)
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
-            ),
-            dosage: ActiveValue::Set(self.dosage.as_base_units() as f32),
-            ingested_at: ActiveValue::Set(self.ingestion_date.to_utc().naive_local()),
-            updated_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
-            created_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
-        })
-        .exec_with_returning(context.database_connection)
-        .await
-        .into_diagnostic()?
-        .into();
+        let ingestion: crate::lib::ingestion::Ingestion =
+            Ingestion::insert(ingestion::ActiveModel {
+                id: ActiveValue::default(),
+                substance_name: ActiveValue::Set(pubchem.to_lowercase()),
+                route_of_administration: ActiveValue::Set(
+                    serde_json::to_value(&self.route_of_administration)
+                        .unwrap()
+                        .as_str()
+                        .unwrap()
+                        .to_string(),
+                ),
+                dosage: ActiveValue::Set(self.dosage.as_base_units() as f32),
+                ingested_at: ActiveValue::Set(self.ingestion_date.to_utc().naive_local()),
+                updated_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
+                created_at: ActiveValue::Set(Local::now().to_utc().naive_local()),
+            })
+            .exec_with_returning(context.database_connection)
+            .await
+            .into_diagnostic()?
+            .into();
 
-        println!("{}", ingestion.format(context.stdout_format));
+        let substance = get_substance_by_name(&ingestion.substance, context.database_connection)
+            .await
+            .map_err(|e| miette::miette!(e))?;
+
+        let analysis = IngestionAnalysis::analyze(ingestion.clone(), substance)
+            .await
+            .map_err(|e| miette::miette!(e))?;
+
+        println!(
+            "{}\n",
+            IngestionViewModel::from(ingestion.clone()).format(context.stdout_format)
+        );
+        println!("{analysis}");
 
         Ok(())
     }

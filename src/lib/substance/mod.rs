@@ -1,3 +1,7 @@
+pub mod repository;
+pub mod route_of_administration;
+
+use crate::lib::dosage::Dosage;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
 use hashbrown::HashMap;
 use iso8601_duration::Duration;
@@ -14,6 +18,7 @@ use tabled::settings::Style;
 use tabled::settings::Width;
 use tabled::settings::object::Columns;
 use tabled::settings::object::Rows;
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum PhaseClassification
@@ -58,7 +63,6 @@ impl fmt::Display for PhaseClassification
             | PhaseClassification::Peak => write!(f, "Peak"),
             | PhaseClassification::Comedown => write!(f, "Comedown"),
             | PhaseClassification::Afterglow => write!(f, "Afterglow"),
-            // Add other variants of PhaseClassification here, if applicable.
         }
     }
 }
@@ -66,15 +70,10 @@ impl fmt::Display for PhaseClassification
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum DosageClassification
 {
-    // From infinity to x Range
     Threshold,
-    // From x to y
     Light,
-    // From x to y
     Medium,
-    // From x to y
     Strong,
-    // From x to infinity Range
     Heavy,
 }
 
@@ -135,22 +134,28 @@ impl fmt::Display for Substance
 
         for (route, admin) in &self.routes_of_administration
         {
-            // Format dosages in a clean, structured way
             let dosages = admin
                 .dosages
                 .iter()
                 .map(|(classification, range)| {
+                    let start_str = range
+                        .start
+                        .as_ref()
+                        .map_or("-∞".to_string(), |d| d.to_string());
+                    let end_str = range
+                        .end
+                        .as_ref()
+                        .map_or("∞".to_string(), |d| d.to_string());
                     format!(
                         "{:<9} {:>7} - {:<7}",
                         format!("{}:", classification),
-                        crate::lib::dosage::Dosage::from_base_units(range.start).to_string(),
-                        crate::lib::dosage::Dosage::from_base_units(range.end).to_string(),
+                        start_str,
+                        end_str,
                     )
                 })
                 .collect::<Vec<String>>()
                 .join("\n");
 
-            // Format phases in a clean, structured way
             let phases = admin
                 .phases
                 .iter()
@@ -165,7 +170,6 @@ impl fmt::Display for Substance
                 .collect::<Vec<String>>()
                 .join("\n");
 
-            // Add route and split information into two columns
             table_builder.push_record(vec![route.to_string(), dosages, phases]);
         }
 
@@ -186,7 +190,32 @@ impl fmt::Display for Substance
 // 1. **Inclusive range**
 // 1. **Half-open range (starting at zero)**:
 // 1. **Open-ended range**:
-pub type DosageRange = Range<f64>;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DosageRange
+{
+    pub start: Option<Dosage>,
+    pub end: Option<Dosage>,
+}
+
+impl DosageRange
+{
+    pub fn contains(&self, dosage: &Dosage) -> bool
+    {
+        let after_start = match &self.start
+        {
+            | Some(start) => dosage >= start,
+            | None => true,
+        };
+        let before_end = match &self.end
+        {
+            | Some(end) => dosage <= end,
+            | None => true,
+        };
+        after_start && before_end
+    }
+
+    pub fn from_bounds(start: Option<Dosage>, end: Option<Dosage>) -> Self { Self { start, end } }
+}
 pub type DurationRange = Range<Duration>;
 
 pub type Dosages = HashMap<DosageClassification, DosageRange>;

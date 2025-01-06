@@ -37,7 +37,7 @@ use serde::Serialize;
 use tabled::Tabled;
 use typed_builder::TypedBuilder;
 
-type SubstanceTable = crate::lib::orm::substance::Model;
+type SubstanceTable = crate::orm::substance::Model;
 
 #[derive(Debug, Serialize, Deserialize, Tabled, TypedBuilder)]
 pub struct ViewModel

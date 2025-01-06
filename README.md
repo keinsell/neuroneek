@@ -12,9 +12,12 @@ and
 psychoactive substances. By recording and analyzing ingestion, it helps users better understand the long-term effects
 of these compounds on their physical and mental health.
 
-## Getting Started
+Features offered by application include:
 
-### Installation
+- **Ingestion journaling** with set of commands which allows for inserting, updating, retrieving and deleting all of the
+  data stored as `Ingestion` model.
+
+## Installation
 
 To install the application, please visit the [GitHub Releases Page](https://github.com/keinsell/neuronek/releases) for
 pre-built binaries and installation instructions for your platform. Alternatively, you can install the application from
@@ -40,21 +43,17 @@ cargo install --git https://github.com/keinsell/neuronek
 **Note:** This method might be best for users who always want the absolute newest version of the application. However,
 it may be less stable than the pre-built binaries.
 
-### Usage
-
-After installation, you can start using the application by running the `psylog` command in your terminal. The
-application provides a command-line interface (CLI) for interacting with its features and functionalities.
-
 ```bash
 ❯ neuronek --help
 ```
 
-## Features
+## Usage
 
-### Ingestions
+### Ingestion Journaling
 
 Ingestions are fundamental area of application, they represent human interaction with chemical compound of choice.
-Ingestion explains what compound was ingested, how it was ingested and when it was ingested.
+Ingestion explains what compound was ingested, how it was ingested and when it was ingested. Application expose simple,
+scriptable interface which allows for storage and retrieval of structured data.
 
 #### [🗎 Log Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-3)
 
@@ -123,23 +122,73 @@ Application comes with pre-bundled database of psychoactive substances built on 
 of [PsychonautWiki](https://psychonautwiki.org), such information are easily queryable through CLI and are foundation
 for further analysis of user's ingestions to provide insight on harm-reduction and predicting subjective effects.
 
-#### Find Substance
-
-TODO: Feature should use humanized search index which will allow for typos and words with same meaning (common names).
 
 #### Get Substance
 
-TODO: Show all information about substance in way ingest-able for end-user which should be able to learn dosages, routes
-of administration and maybe overall description of substance.
+Application can preview information about compounds from initally provided dataset, however human-interface is a subject to change.
 
-### FUTURE: Journal
+```bash
+neuronek substance get caffeine
+```
 
-Journal is a feature which aims to compose *ingestion-related* and *substance-related* features of application into
-friendly human interface.
+```
+┌─────────────┬──────────────────────────────┬──────────────────────────────┐
+│                            Substance: Caffeine                            │
+├─────────────┼──────────────────────────────┼──────────────────────────────┤
+│ Route       │ Dosage Information           │ Duration Information         │
+├─────────────┼──────────────────────────────┼──────────────────────────────┤
+│ Oral        │ Light:    20.0 mg - 50.0 mg  │ Comeup:     PT10M - PT30M    │
+│             │ Medium:   50.0 mg - 150 mg   │ Peak:       PT45M - PT1H30M  │
+│             │ Threshold:      -∞ - 10.0 mg │ Comedown:    PT1H - PT2H     │
+│             │ Strong:    150 mg - 500 mg   │ Onset:       PT5M - PT10M    │
+│             │ Heavy:     500 mg - ∞        │ Afterglow:    PT4H - PT12H   │
+├─────────────┼──────────────────────────────┼──────────────────────────────┤
+│ Insufflated │ Light:    10.0 mg - 25.0 mg  │ Peak:       PT30M - PT1H     │
+│             │ Medium:   25.0 mg - 40.0 mg  │ Comeup:     PT30S - PT2M     │
+│             │ Heavy:    80.0 mg - ∞        │ Comedown:    PT6H - PT10H    │
+│             │ Threshold:      -∞ - 2.50 mg │ Afterglow:    PT6H - P1D     │
+│             │ Strong:   40.0 mg - 80.0 mg  │ Onset:      PT30S - PT2M     │
+└─────────────┴──────────────────────────────┴──────────────────────────────┘
+```
 
-- Usecase: Logging ingestions of capsules and pills which may contain multiple substances.
-- Usecase: Ingestion planning when it's possible - users should be informed how long it takes for substance to get into
-  body and how long it will last.
+### Ingestion Analyzer
+
+```bash
+neuronek analyzer -s caffeine -d 60mg
+```
+
+```
+Ingestion Analysis: Caffeine 60.0 mg
+
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.00%
+
+○ Ingested: in an hour
+○ Onset starts in an hour
+○ Comeup starts in an hour
+○ Peak starts in an hour
+○ Comedown starts in 2 hours
+○ Afterglow starts in 2 hours
+Dosage Classification: Medium
+```
+
+### Journal
+
+Journal is a experimental feature which composes human-friendly interface for showing time-sensetive events by combining major application features (analyzer, ingestions, substances). UI is subject to change.
+
+```bash
+neuronek journal
+```
+
+```
+│
+● 30 seconds ago ingestion 136 (40.0 mg caffeine via oral) [0%]
+│
+● 2 hours ago ingestion 135 (40.0 mg caffeine via oral) [63%]
+│
+● 4 hours ago ingestion 134 (40.0 mg caffeine via oral) [74%]
+│
+│ 6 past ingestions collapsed
+```
 
 ## Futher Development
 
