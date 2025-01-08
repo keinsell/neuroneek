@@ -8,7 +8,8 @@ use sea_orm::EntityTrait;
 use sea_orm::prelude::async_trait::async_trait;
 
 #[derive(Parser, Debug)]
-#[command(version, about = "Manage ingestions", long_about)]
+#[command(version, about = "Delete selected ingestion", long_about, aliases = vec!["rm", "del",
+                                                                                   "remove"])]
 pub struct DeleteIngestion
 {
     #[arg(
@@ -16,7 +17,7 @@ pub struct DeleteIngestion
         value_name = "INGESTION_ID",
         help = "ID of the ingestion to delete"
     )]
-    pub ingestion_identifier: i32,
+    pub ingestion_id: i32,
 }
 
 #[async_trait]
@@ -24,7 +25,7 @@ impl CommandHandler for DeleteIngestion
 {
     async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
     {
-        let delete_ingestion = Ingestion::delete_by_id(self.ingestion_identifier)
+        let delete_ingestion = Ingestion::delete_by_id(self.ingestion_id)
             .exec(context.database_connection)
             .await;
 
@@ -38,7 +39,7 @@ impl CommandHandler for DeleteIngestion
 
         info!(
             "Successfully deleted ingestion with ID {}.",
-            self.ingestion_identifier
+            self.ingestion_id
         );
 
         Ok(())

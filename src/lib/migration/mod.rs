@@ -81,7 +81,7 @@ impl MigratorTrait for Migrator
                 M20250108183655UpdateRouteOfAdministrationClassificationValues,
                 "20250108183655_update_route_of_administration_classification_values",
                 "20250108183655_update_route_of_administration_classification_values"
-            )
+            ),
         ]
     }
 }
