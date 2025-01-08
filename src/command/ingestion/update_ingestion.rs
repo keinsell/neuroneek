@@ -1,22 +1,22 @@
-use crate::lib::CommandHandler;
-use crate::lib::Context;
 use crate::lib::dosage::Dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::view_model::ingestion::ViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
+use crate::view_model::ingestion::IngestionViewModel;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
 use log::info;
 use measurements::Measurement;
-use miette::IntoDiagnostic;
 use miette::miette;
+use miette::IntoDiagnostic;
+use sea_orm::prelude::async_trait::async_trait;
 use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
-use sea_orm::prelude::async_trait::async_trait;
 use std::str::FromStr;
 
 
@@ -102,7 +102,7 @@ impl CommandHandler for UpdateIngestion
             self.ingestion_identifier
         );
 
-        println!("{}", ViewModel::from(updated_record));
+        println!("{}", IngestionViewModel::from(updated_record));
 
         Ok(())
     }

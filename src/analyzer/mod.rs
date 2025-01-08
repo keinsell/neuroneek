@@ -13,9 +13,9 @@ pub struct IngestionAnalysis
 {
     ingestion: Option<Box<crate::ingestion::Ingestion>>,
     substance: Option<Box<crate::substance::Substance>>,
-    dosage_classification: Option<DosageClassification>,
-    phase_classification: Option<crate::substance::PhaseClassification>,
-    ingestion_dates: Range<IngestionDate>,
+    dosage: Option<DosageClassification>,
+    current_phase: Option<crate::substance::PhaseClassification>,
+    ingestion_start_and_end: Range<IngestionDate>,
     phases: Vec<IngestionPhase>,
 }
 
@@ -104,9 +104,9 @@ impl IngestionAnalysis
         Ok(Self {
             ingestion: Some(Box::new(ingestion)),
             substance: Some(Box::new(substance)),
-            dosage_classification: Some(dosage_classification),
-            phase_classification: current_phase,
-            ingestion_dates: total_range,
+            dosage: Some(dosage_classification),
+            current_phase: current_phase,
+            ingestion_start_and_end: total_range,
             phases,
         })
     }
@@ -155,7 +155,7 @@ impl fmt::Display for IngestionAnalysis {
 
         writeln!(f, "{}", table)?;
 
-        if let Some(phase_classification) = self.phase_classification {
+        if let Some(phase_classification) = self.current_phase {
             writeln!(f, "\nOverall Phase Classification: {}", phase_classification)?;
         }
 

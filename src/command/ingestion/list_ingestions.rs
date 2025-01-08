@@ -1,16 +1,16 @@
-use crate::lib::CommandHandler;
-use crate::lib::Context;
 use crate::lib::formatter::FormatterVector;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
-use crate::view_model::ingestion::ViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
+use crate::view_model::ingestion::IngestionViewModel;
 use async_std::task::block_on;
 use clap::Parser;
 use log::warn;
+use sea_orm::prelude::async_trait::async_trait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryOrder;
 use sea_orm::QuerySelect;
-use sea_orm::prelude::async_trait::async_trait;
 
 #[derive(Parser, Debug)]
 #[command(version, about = "List all ingestions", long_about)]
@@ -44,9 +44,9 @@ impl CommandHandler for ListIngestion
             return Ok(());
         }
 
-        let view_models: Vec<ViewModel> = ingestions
+        let view_models: Vec<IngestionViewModel> = ingestions
             .iter()
-            .map(|i| ViewModel::from(i.clone()))
+            .map(|i| IngestionViewModel::from(i.clone()))
             .collect();
 
         let formatted = FormatterVector::new(view_models).format(context.stdout_format);

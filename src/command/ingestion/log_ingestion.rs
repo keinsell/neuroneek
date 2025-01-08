@@ -1,11 +1,11 @@
-use crate::lib::CommandHandler;
-use crate::lib::Context;
 use crate::lib::dosage::Dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::view_model::ingestion::ViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
+use crate::view_model::ingestion::IngestionViewModel;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
@@ -22,7 +22,8 @@ use std::str::FromStr;
 /**
 # Log Ingestion
 
-The `Log Ingestion` feature is the core functionality of Psylog, enabling users to record information about any substances they consume.
+The `Log Ingestion` feature is the core functionality of neuronek, enabling users to record
+information about any substances they consume.
 This feature is designed for tracking supplements, medications, nootropics,
 or any psychoactive substances in a structured and organized way.
 
@@ -31,7 +32,7 @@ This data is stored in a low-level database that serves as the foundation for fu
 such as journaling, analytics, or integrations with external tools.
 While power users may prefer to work directly with this raw data,
 many user-friendly abstractions are planned to make this process seamless,
-such as simplified commands (e.g., `psylog a coffee`) for quicker entries.
+such as simplified commands (e.g., `neuronek a coffee`) for quicker entries.
 
 Logging ingestions not only serves the purpose of record-keeping
 but also helps users build a personalized database of their consumption habits.
@@ -105,7 +106,7 @@ impl CommandHandler for LogIngestion
             return Err(e);
         }
 
-        println!("{}", ViewModel::from(created_ingestion?).to_string());
+        println!("{}", IngestionViewModel::from(created_ingestion?).to_string());
 
         Ok(())
     }
