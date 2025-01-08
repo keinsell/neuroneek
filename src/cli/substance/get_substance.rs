@@ -39,34 +39,29 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
 {
     async fn handle<'a>(&self, context: Context<'a>) -> Result<crate::lib::substance::Substance>
     {
-        // Step 1: Fetch the substance from the database
         let db_substance = substance::Entity::find()
             .filter(substance::Column::Name.contains(self.substance_name.to_lowercase()))
             .one(context.database_connection)
             .await
             .into_diagnostic()?;
 
-        // Return an error if substance is not found
         let db_substance = match db_substance
         {
             | Some(substance) => substance,
             | None => return Err(miette!("Error: Substance not found.")),
         };
 
-        // Step 2: Fetch routes of administration
         let routes_of_administration = db_substance
             .find_related(orm::substance_route_of_administration::Entity)
             .all(context.database_connection)
             .await
             .into_diagnostic()?;
 
-        // Create an empty Substance struct
         let mut substance = crate::lib::substance::Substance {
             name: db_substance.name,
             routes_of_administration: crate::lib::substance::RoutesOfAdministration::new(),
         };
 
-        // Step 3: Resolve detailed data for each route concurrently
         let db_connection = context.database_connection.clone();
         let route_futures = routes_of_administration.into_iter().map(|route| {
             let db = db_connection.clone();
@@ -80,7 +75,6 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
                     phases: Default::default(),
                 };
 
-                // Fetch dosages for the route
                 let dosages = route
                     .find_related(orm::substance_route_of_administration_dosage::Entity)
                     .all(&db)
@@ -109,7 +103,6 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
                     );
                 }
 
-                // Fetch phases for the route
                 let phases = route
                     .find_related(orm::substance_route_of_administration_phase::Entity)
                     .all(&db)
@@ -138,7 +131,6 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
             }
         });
 
-        // Use `FuturesUnordered` to manage multiple concurrent tasks efficiently
         let mut route_stream = FuturesUnordered::from_iter(route_futures);
 
         while let Some(result) = route_stream.next().await
@@ -151,11 +143,10 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
                         .routes_of_administration
                         .insert(classification, roa);
                 }
-                | Err(e) => return Err(e), // Return early on error
+                | Err(e) => return Err(e),
             }
         }
 
-        // Print or return the final substance
         print!("{}", &substance.to_string());
         Ok(substance)
     }
@@ -165,8 +156,8 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
 mod tests
 {
     use super::*;
-    use crate::OutputFormat;
-    use crate::command::GetSubstance;
+    use crate::cli::GetSubstance;
+    use crate::cli::OutputFormat;
     use crate::lib::Context;
     use crate::lib::DATABASE_CONNECTION;
     use crate::lib::migrate_database;
@@ -179,7 +170,6 @@ mod tests
         let context = Context {
             database_connection: &DATABASE_CONNECTION,
             stdout_format: OutputFormat::Pretty,
-            is_interactive: false,
         };
 
 
