@@ -10,7 +10,7 @@ pub trait Formatter: Serialize + Tabled + Sized
         match format
         {
             | OutputFormat::Pretty => Table::new(std::iter::once(self))
-                .with(tabled::settings::Style::modern())
+                .with(tabled::settings::Style::modern_rounded())
                 .with(tabled::settings::Alignment::center())
                 .to_string(),
             | OutputFormat::Json => serde_json::to_string_pretty(self)

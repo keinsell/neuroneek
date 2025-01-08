@@ -1,11 +1,13 @@
-use crate::lib::CommandHandler;
-use crate::lib::Context;
 use crate::lib::dosage::Dosage;
+use crate::lib::formatter::Formatter;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::view_model::ingestion::ViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
+use crate::view_model::ingestion::IngestionViewModel;
+use crate::OutputFormat;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
@@ -105,7 +107,7 @@ impl CommandHandler for LogIngestion
             return Err(e);
         }
 
-        println!("{}", ViewModel::from(created_ingestion?).to_string());
+        println!("{}", IngestionViewModel::from(created_ingestion?).format(context.stdout_format));
 
         Ok(())
     }
