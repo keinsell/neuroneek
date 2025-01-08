@@ -90,7 +90,7 @@ impl CommandHandler for LogIngestion
             id: ActiveValue::default(),
             substance_name: ActiveValue::Set(pubchem.to_lowercase()),
             route_of_administration: ActiveValue::Set(
-                serde_json::to_string(&self.route_of_administration).unwrap(),
+                serde_json::to_value(&self.route_of_administration).unwrap().as_str().unwrap().to_string(),
             ),
             dosage: ActiveValue::Set(self.dosage.as_base_units() as f32),
             ingested_at: ActiveValue::Set(self.ingestion_date.to_utc().naive_local()),
