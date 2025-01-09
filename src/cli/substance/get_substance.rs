@@ -1,8 +1,21 @@
 use crate::lib::CommandHandler;
 use crate::lib::Context;
+use crate::lib::dosage::Dosage;
+use crate::lib::route_of_administration::RouteOfAdministrationClassification;
+use crate::lib::substance::DosageClassification;
+use crate::lib::substance::PhaseClassification;
 use clap::Parser;
+use iso8601_duration::Duration;
+use miette::IntoDiagnostic;
+use miette::miette;
+use sea_orm::ColumnTrait;
+use sea_orm::EntityTrait;
+use sea_orm::ModelTrait;
+use sea_orm::QueryFilter;
 use sea_orm::prelude::async_trait::async_trait;
-
+use std::str::FromStr;
+use crate::lib::substance::repository::get_substance_by_name;
+use miette::Result;
 #[derive(Parser, Debug)]
 #[command(
     version,
@@ -16,8 +29,9 @@ pub struct GetSubstance
     pub substance_name: String,
 }
 
-use crate::lib::substance::repository::get_substance_by_name;
-use miette::Result;
+
+use futures::stream::FuturesUnordered;
+use futures::stream::StreamExt;
 
 #[async_trait]
 impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
@@ -27,7 +41,7 @@ impl CommandHandler<crate::lib::substance::Substance> for GetSubstance
         let substance =
             get_substance_by_name(&self.substance_name, context.database_connection).await?;
 
-        print!("{}", &substance.to_string());
+        println!("{}", &substance.to_string());
         Ok(substance)
     }
 }
@@ -56,6 +70,7 @@ mod tests
             database_connection: &DATABASE_CONNECTION,
             stdout_format: OutputFormat::Pretty,
         };
+
 
         let command = GetSubstance {
             substance_name: "caffeine".to_string(),
