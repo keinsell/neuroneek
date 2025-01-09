@@ -4,7 +4,7 @@ cargo-features = ["edition2024"]
 name = "neuronek"
 description = "🧬 Intelligent dosage tracker application for monitoring supplements, nootropics and psychoactive substances along with their long-term influence on one's mind and body."
 authors = ["Jakub Olan <keinsell@protonmail.com>"]
-version = "0.0.1-alpha.1"
+version = "0.0.1-alpha.2"
 edition = "2024"
 repository = "https://github.com/keinsell/neuronek"
 license-file = "LICENSE"
@@ -32,7 +32,6 @@ date_time_parser = "0.2.0"
 delegate = "0.13.1"
 derivative = "2.2.0"
 directories = { version = "5.0.1" }
-figlet-rs = "0.1.5"
 float-pretty-print = "0.1.1"
 futures = "0.3.31"
 hashbrown = "0.15.2"

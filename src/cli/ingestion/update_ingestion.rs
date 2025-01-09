@@ -1,27 +1,27 @@
+use crate::cli::formatter::Formatter;
+use crate::cli::ingestion::IngestionViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
 use crate::lib::dosage::Dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::lib::CommandHandler;
-use crate::lib::Context;
-use crate::view_model::ingestion::IngestionViewModel;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
 use log::info;
 use measurements::Measurement;
-use miette::miette;
 use miette::IntoDiagnostic;
-use sea_orm::prelude::async_trait::async_trait;
+use miette::miette;
 use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
+use sea_orm::prelude::async_trait::async_trait;
 use std::str::FromStr;
 
-
 #[derive(Parser, Debug)]
-#[command(version, about = "Update an existing ingestion")]
+#[command(version, about = "Update an existing ingestion", aliases = vec![ "edit"])]
 pub struct UpdateIngestion
 {
     /// ID of the ingestion to update
@@ -52,7 +52,6 @@ impl CommandHandler for UpdateIngestion
 {
     async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
     {
-        // Attempt to fetch the record by ID
         if Ingestion::find_by_id(self.ingestion_identifier)
             .one(context.database_connection)
             .await
@@ -65,9 +64,8 @@ impl CommandHandler for UpdateIngestion
             ));
         }
 
-        // Create an ActiveModel with only the fields to be updated
         let updated_model = ingestion::ActiveModel {
-            id: ActiveValue::Set(self.ingestion_identifier), // ID must always be set for updates
+            id: ActiveValue::Set(self.ingestion_identifier),
             substance_name: self
                 .substance_name
                 .as_ref()
@@ -102,7 +100,10 @@ impl CommandHandler for UpdateIngestion
             self.ingestion_identifier
         );
 
-        println!("{}", IngestionViewModel::from(updated_record));
+        println!(
+            "{}",
+            IngestionViewModel::from(updated_record).format(context.stdout_format)
+        );
 
         Ok(())
     }

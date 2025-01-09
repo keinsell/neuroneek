@@ -77,6 +77,11 @@ impl MigratorTrait for Migrator
                 "20250104060831_update_dosage_bounds",
                 "20250104060831_update_dosage_bounds"
             ),
+            import_migration!(
+                M20250108183655UpdateRouteOfAdministrationClassificationValues,
+                "20250108183655_update_route_of_administration_classification_values",
+                "20250108183655_update_route_of_administration_classification_values"
+            ),
         ]
     }
 }

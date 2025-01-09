@@ -1,4 +1,4 @@
-use crate::OutputFormat;
+use crate::cli::OutputFormat;
 use async_std::task::block_on;
 use chrono::Local;
 use chrono_english::Dialect;
@@ -19,7 +19,6 @@ use std::fmt::Debug;
 use std::path::PathBuf;
 
 pub mod dosage;
-pub mod formatter;
 mod migration;
 pub mod orm;
 pub mod route_of_administration;
@@ -29,7 +28,6 @@ pub struct Context<'a>
 {
     pub database_connection: &'a sea_orm::DatabaseConnection,
     pub stdout_format: OutputFormat,
-    pub is_interactive: bool,
 }
 
 #[async_trait]

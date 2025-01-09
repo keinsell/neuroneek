@@ -1,15 +1,15 @@
+use crate::cli::formatter::Formatter;
+use crate::cli::ingestion::IngestionViewModel;
+use crate::lib::CommandHandler;
+use crate::lib::Context;
 use crate::lib::dosage::Dosage;
 use crate::lib::orm::ingestion;
 use crate::lib::orm::prelude::Ingestion;
 use crate::lib::parse_date_string;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::lib::CommandHandler;
-use crate::lib::Context;
-use crate::view_model::ingestion::IngestionViewModel;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
-use log::error;
 use measurements::Measurement;
 use miette::IntoDiagnostic;
 use sea_orm::ActiveModelTrait;
@@ -22,8 +22,7 @@ use std::str::FromStr;
 /**
 # Log Ingestion
 
-The `Log Ingestion` feature is the core functionality of neuronek, enabling users to record
-information about any substances they consume.
+The `Log Ingestion` feature is the core functionality of Psylog, enabling users to record information about any substances they consume.
 This feature is designed for tracking supplements, medications, nootropics,
 or any psychoactive substances in a structured and organized way.
 
@@ -32,7 +31,7 @@ This data is stored in a low-level database that serves as the foundation for fu
 such as journaling, analytics, or integrations with external tools.
 While power users may prefer to work directly with this raw data,
 many user-friendly abstractions are planned to make this process seamless,
-such as simplified commands (e.g., `neuronek a coffee`) for quicker entries.
+such as simplified commands (e.g., `psylog a coffee`) for quicker entries.
 
 Logging ingestions not only serves the purpose of record-keeping
 but also helps users build a personalized database of their consumption habits.
@@ -42,9 +41,9 @@ providing insights into the long-term effects of different substances on physica
 #[derive(Parser, Debug)]
 #[command(
     version,
-    about = "Store information about new ingestion",
+    about = "Create a new ingestion record",
     long_about,
-    aliases = vec!["create", "add"]
+    aliases = vec!["create", "add", "make", "new", "mk"]
 )]
 pub struct LogIngestion
 {
@@ -85,11 +84,16 @@ impl CommandHandler for LogIngestion
         let pubchem = pubchem::Compound::with_name(&self.substance_name)
             .title()
             .into_diagnostic()?;
-        let created_ingestion = Ingestion::insert(ingestion::ActiveModel {
+
+        let ingestion: IngestionViewModel = Ingestion::insert(ingestion::ActiveModel {
             id: ActiveValue::default(),
             substance_name: ActiveValue::Set(pubchem.to_lowercase()),
             route_of_administration: ActiveValue::Set(
-                serde_json::to_string(&self.route_of_administration).unwrap(),
+                serde_json::to_value(&self.route_of_administration)
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
             ),
             dosage: ActiveValue::Set(self.dosage.as_base_units() as f32),
             ingested_at: ActiveValue::Set(self.ingestion_date.to_utc().naive_local()),
@@ -98,15 +102,10 @@ impl CommandHandler for LogIngestion
         })
         .exec_with_returning(context.database_connection)
         .await
-        .into_diagnostic();
+        .into_diagnostic()?
+        .into();
 
-        if let Err(e) = created_ingestion
-        {
-            error!("Failed to create ingestion: {}", e);
-            return Err(e);
-        }
-
-        println!("{}", IngestionViewModel::from(created_ingestion?).to_string());
+        println!("{}", ingestion.format(context.stdout_format));
 
         Ok(())
     }
