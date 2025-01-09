@@ -1,15 +1,16 @@
 use crate::lib::dosage::Dosage;
-use crate::lib::orm;
-use crate::lib::orm::substance;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::substance::DosageClassification;
-use crate::substance::PhaseClassification;
-use crate::substance::Substance;
-use futures::stream::FuturesUnordered;
+use crate::lib::substance::DosageClassification;
+use crate::lib::substance::DosageRange;
+use crate::lib::substance::PhaseClassification;
+use crate::lib::substance::Substance;
+use crate::orm;
+use crate::orm::substance;
 use futures::StreamExt;
+use futures::stream::FuturesUnordered;
 use iso8601_duration::Duration;
-use miette::miette;
 use miette::IntoDiagnostic;
+use miette::miette;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::ModelTrait;
@@ -39,9 +40,9 @@ pub async fn get_substance_by_name(
         .await
         .into_diagnostic()?;
 
-    let mut substance = crate::substance::Substance {
+    let mut substance = crate::lib::substance::Substance {
         name: db_substance.name,
-        routes_of_administration: crate::substance::RoutesOfAdministration::new(),
+        routes_of_administration: crate::lib::substance::RoutesOfAdministration::new(),
     };
 
     let db_connection = db.clone();
@@ -50,7 +51,7 @@ pub async fn get_substance_by_name(
         async move {
             let classification = RouteOfAdministrationClassification::from_str(&route.name)
                 .map_err(|e| miette!(format!("{:?}", e)))?;
-            let mut roa = crate::substance::RouteOfAdministration {
+            let mut roa = crate::lib::substance::RouteOfAdministration {
                 classification,
                 dosages: Default::default(),
                 phases: Default::default(),
@@ -67,20 +68,25 @@ pub async fn get_substance_by_name(
                 let dosage_classification = DosageClassification::from_str(&dosage.intensity)
                     .map_err(|_| miette!("Failed to parse dosage classification"))?;
 
-                let lower_bound = dosage.lower_bound_amount.map_or(0.0, |amount| {
-                    Dosage::from_str(&format!("{:?} {}", amount, dosage.unit))
-                        .unwrap()
-                        .as_base_units()
-                });
-                let upper_bound = dosage.upper_bound_amount.map_or(f64::INFINITY, |amount| {
-                    Dosage::from_str(&format!("{:?} {}", amount, dosage.unit))
-                        .unwrap()
-                        .as_base_units()
-                });
+                let lower_bound = dosage
+                    .lower_bound_amount
+                    .map(|amount| Dosage::from_str(&format!("{} {}", amount, dosage.unit)))
+                    .transpose()
+                    .map_err(|e| {
+                        miette!("Failed to parse lower_bound_amount into Dosage: {}", e)
+                    })?;
+
+                let upper_bound = dosage
+                    .upper_bound_amount
+                    .map(|amount| Dosage::from_str(&format!("{} {}", amount, dosage.unit)))
+                    .transpose()
+                    .map_err(|e| {
+                        miette!("Failed to parse upper_bound_amount into Dosage: {}", e)
+                    })?;
 
                 roa.dosages.insert(
                     dosage_classification,
-                    crate::substance::DosageRange::from(lower_bound..upper_bound),
+                    DosageRange::from_bounds(lower_bound, upper_bound),
                 );
             }
 
@@ -102,7 +108,7 @@ pub async fn get_substance_by_name(
 
                 roa.phases.insert(
                     classification,
-                    crate::substance::DurationRange::from(lower_duration..upper_duration),
+                    crate::lib::substance::DurationRange::from(lower_duration..upper_duration),
                 );
             }
 

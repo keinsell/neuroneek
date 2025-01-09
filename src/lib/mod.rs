@@ -10,18 +10,20 @@ use miette::IntoDiagnostic;
 use miette::Result;
 use migration::Migrator;
 use sea_orm::Database;
-use sea_orm_migration::async_trait::async_trait;
-use sea_orm_migration::sea_orm::DatabaseConnection;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
+use sea_orm_migration::async_trait::async_trait;
+use sea_orm_migration::sea_orm::DatabaseConnection;
 use std::env::temp_dir;
 use std::fmt::Debug;
 use std::path::PathBuf;
 
+pub mod analyzer;
 pub mod dosage;
+pub mod ingestion;
 mod migration;
-pub mod orm;
 pub mod route_of_administration;
+pub mod substance;
 
 #[derive(Debug, Clone)]
 pub struct Context<'a>
@@ -82,7 +84,7 @@ lazy_static::lazy_static! {
                         error!("Failed to initialize the database: {}", init_error);
                         panic!("Critical: Unable to initialize the database file at {}. Error: {}", sqlite_path, init_error);
                     }
-                    
+
                     match block_on(async { Database::connect(&sqlite_path).await }) {
                         Ok(retry_connection) => {
                             debug!("Database connection established successfully after initialization!");
@@ -125,7 +127,7 @@ fn initialize_database(config: &Config) -> std::result::Result<(), String>
     Ok(())
 }
 
-pub async fn migrate_database(database_connection: &DatabaseConnection) -> miette::Result<()>
+pub async fn migrate_database(database_connection: &DATABASE_CONNECTION) -> miette::Result<()>
 {
     let pending_migrations =
         Migrator::get_pending_migrations(&database_connection.into_schema_manager_connection())

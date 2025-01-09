@@ -1,6 +1,6 @@
 use crate::lib::CommandHandler;
 use crate::lib::Context;
-use crate::lib::orm::prelude::Ingestion;
+use crate::orm::prelude::Ingestion;
 use clap::Parser;
 use log::info;
 use miette::miette;

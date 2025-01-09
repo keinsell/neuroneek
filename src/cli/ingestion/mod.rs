@@ -42,8 +42,8 @@ impl CommandHandler for IngestionCommand
 
 use crate::cli::formatter::Formatter;
 use crate::lib::dosage::Dosage;
-use crate::lib::orm::ingestion;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
+use crate::orm::ingestion;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::TimeZone;
@@ -95,6 +95,25 @@ impl From<ingestion::Model> for IngestionViewModel
             .route(RouteOfAdministrationClassification::to_string(&route_enum))
             .dosage(dosage.to_string())
             .ingested_at(local_ingestion_date)
+            .build()
+    }
+}
+
+// TODO: Rethink need for view models
+// Direct implementation of display functions
+// can be added to domain model which would replace
+// view model completely
+impl From<crate::lib::ingestion::Ingestion> for IngestionViewModel
+{
+    fn from(model: crate::lib::ingestion::Ingestion) -> Self
+    {
+        let dosage = model.dosage;
+        Self::builder()
+            .id(model.id.unwrap_or(0))
+            .substance_name(model.substance)
+            .route(RouteOfAdministrationClassification::to_string(&model.route))
+            .dosage(dosage.to_string())
+            .ingested_at(model.ingestion_date)
             .build()
     }
 }

@@ -1,13 +1,13 @@
 use crate::lib;
+use crate::lib::CommandHandler;
 use crate::lib::dosage::Dosage;
 use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::lib::CommandHandler;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
 use miette::IntoDiagnostic;
-use sea_orm::prelude::async_trait::async_trait;
 use sea_orm::EntityTrait;
+use sea_orm::prelude::async_trait::async_trait;
 use std::str::FromStr;
 
 /// Analyze a previously logged ingestion activity.
@@ -84,14 +84,14 @@ impl CommandHandler for AnalyzeIngestion
 {
     async fn handle<'a>(&self, context: lib::Context<'a>) -> miette::Result<()>
     {
-        let ingestion: lib::orm::ingestion::Model = match self.ingestion_id
+        let ingestion: crate::orm::ingestion::Model = match self.ingestion_id
         {
-            | Some(..) => lib::orm::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
+            | Some(..) => crate::orm::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
                 .one(context.database_connection)
                 .await
                 .into_diagnostic()?
                 .unwrap_or_else(|| panic!("Ingestion not found")),
-            | None => lib::orm::ingestion::Model {
+            | None => crate::orm::ingestion::Model {
                 id: 0,
                 substance_name: self.substance.clone().unwrap(),
                 dosage: self.dosage.clone().unwrap().as_base_units() as f32,
@@ -101,20 +101,30 @@ impl CommandHandler for AnalyzeIngestion
                 created_at: Default::default(),
             },
         };
-        
-        let substance = crate::substance::repository::get_substance_by_name(
+
+        let substance = crate::lib::substance::repository::get_substance_by_name(
             &ingestion.substance_name,
             context.database_connection,
         )
         .await?;
 
-        let analysis = crate::analyzer::IngestionAnalysis::analyze(
-            crate::ingestion::Ingestion::from(ingestion),
+        let analysis = crate::lib::analyzer::IngestionAnalysis::analyze(
+            crate::lib::ingestion::Ingestion::from(ingestion),
             substance,
         )
         .await?;
 
-        println!("{}", analysis.to_string());
+        match context.stdout_format
+        {
+            | crate::cli::OutputFormat::Pretty => println!("{}", analysis),
+            | crate::cli::OutputFormat::Json =>
+            {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&analysis).into_diagnostic()?
+                );
+            }
+        }
 
         Ok(())
     }
