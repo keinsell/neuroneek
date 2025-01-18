@@ -16,6 +16,7 @@ use crate::utils::CommandHandler;
 use analyze::AnalyzeIngestion;
 mod analyze;
 mod ingestion;
+mod stats;
 pub mod substance;
 
 fn is_interactive() -> bool { atty::is(Stream::Stdout) }
@@ -96,6 +97,7 @@ impl CommandHandler for ApplicationCommands
             | ApplicationCommands::Substance(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Analyzer(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Stats(cmd) => cmd.handle(ctx).await,
         }
     }
 }
@@ -112,6 +114,7 @@ pub enum ApplicationCommands
     Analyzer(AnalyzeIngestion),
     /// Generate shell completions
     Completions(GenerateCompletion),
+    Stats(stats::GetStatistics),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor
