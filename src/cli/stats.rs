@@ -22,6 +22,7 @@ use sea_orm::ColumnTrait;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityOrSelect;
 use sea_orm::EntityTrait;
+use sea_orm::PaginatorTrait;
 use sea_orm::QueryFilter;
 use sea_orm::QueryOrder;
 use sea_orm::QuerySelect;
@@ -29,6 +30,7 @@ use serde::Serialize;
 use tabled::Table;
 use tabled::Tabled;
 use textplots::Chart;
+use textplots::LabelBuilder;
 use textplots::Plot;
 use textplots::Shape;
 
@@ -48,6 +50,16 @@ async fn days_since_first_ingestion(connection: &DatabaseConnection) -> Result<O
             let days_since_first_ingestion = (now.date_naive() - created_at.date()).num_days();
             days_since_first_ingestion as i32
         }))
+}
+
+async fn ingestion_count(connection: &DatabaseConnection) -> Result<i32>
+{
+    let query = ingestion::Entity::find()
+        .count(connection)
+        .await
+        .into_diagnostic()?;
+
+    Ok(query as i32)
 }
 
 /// Will query database for ingestions and will build up statistics grouped by
@@ -173,6 +185,59 @@ async fn totals(connection: &DatabaseConnection) -> Result<Vec<TotalDosageOverPe
     Ok(totals)
 }
 
+/// Fetch ingestion counts for the last 30 days and render a histogram
+async fn ingestion_histogram(connection: &DatabaseConnection) -> Result<()>
+{
+    #[derive(Debug, sea_orm::FromQueryResult)]
+    struct DailyIngestion
+    {
+        ingestion_date: NaiveDate,
+        ingestion_count: i64,
+    }
+
+    let today = Utc::now().date_naive();
+    let thirty_days_ago = today - chrono::Duration::days(30);
+
+    // Fetch ingestion counts grouped by day
+    let results = ingestion::Entity::find()
+        .select_only()
+        .column_as(
+            sea_orm::prelude::Expr::cust("DATE(ingested_at)"),
+            "ingestion_date",
+        )
+        .column_as(
+            sea_orm::prelude::Expr::col(ingestion::Column::Id).count(),
+            "ingestion_count",
+        )
+        .filter(ingestion::Column::IngestedAt.gte(thirty_days_ago.and_hms_opt(0, 0, 0).unwrap()))
+        .group_by(sea_orm::prelude::Expr::cust("DATE(ingested_at)"))
+        .into_model::<DailyIngestion>()
+        .all(connection)
+        .await
+        .into_diagnostic()?;
+
+    // Map ingestion data by date for the last 30 days
+    let mut ingestion_data: HashMap<NaiveDate, i64> = HashMap::new();
+    for entry in results
+    {
+        ingestion_data.insert(entry.ingestion_date, entry.ingestion_count);
+    }
+
+    let histogram_data: Vec<(f32, f32)> = (0..=30)
+        .map(|offset| {
+            let date = thirty_days_ago + chrono::Duration::days(offset);
+            let count = ingestion_data.get(&date).cloned().unwrap_or(0) as f32;
+            (offset as f32, count)
+        })
+        .collect();
+
+    Chart::new(80, 20, 0.0, 30.0)
+        .lineplot(&Shape::Bars(&histogram_data))
+        .display();
+
+    Ok(())
+}
+
 #[derive(Parser, Debug)]
 #[command(version, about = "View enhanced ingestion statistics")]
 pub struct GetStatistics;
@@ -195,6 +260,13 @@ impl CommandHandler for GetStatistics
             totals_df.len().to_string().yellow()
         );
         println!(
+            "{}: {}",
+            "Ingestions".green(),
+            ingestion_count(&connection).await?.to_string().yellow()
+        );
+
+
+        println!(
             "{}\n{}",
             "Substance Statistics Table".bold().underline().blue(),
             FormatterVector::new(totals_df).format(OutputFormat::Pretty)
@@ -204,6 +276,10 @@ impl CommandHandler for GetStatistics
             "Average Daily Dosage Table".bold().underline().blue(),
             FormatterVector::new(avg_daily_df).format(OutputFormat::Pretty)
         );
+
+        println!("\n{}", "Ingestion Histogram".bold().underline().blue());
+        ingestion_histogram(connection).await?;
+
         println!("\n{}", "End of Statistics Report".dimmed());
 
         Ok(())
