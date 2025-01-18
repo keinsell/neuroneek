@@ -12,6 +12,9 @@ use polars::prelude::*;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
 use sea_orm::QuerySelect;
+use textplots::Chart;
+use textplots::Plot;
+use textplots::Shape;
 
 async fn dataframe(connection: &DatabaseConnection) -> Result<DataFrame>
 {
