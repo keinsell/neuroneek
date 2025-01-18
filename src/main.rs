@@ -1,10 +1,6 @@
 #![allow(unused_imports)]
-extern crate chrono;
-extern crate chrono_english;
-extern crate date_time_parser;
 #[macro_use] extern crate log;
-use prelude::*;
-
+#[macro_use] extern crate serde_derive;
 use crate::cli::Cli;
 use crate::utils::AppContext;
 use crate::utils::CommandHandler;
@@ -14,7 +10,9 @@ use crate::utils::setup_diagnostics;
 use crate::utils::setup_logger;
 use atty::Stream;
 use clap::Parser;
+use prelude::*;
 use std::env;
+
 
 mod analyzer;
 mod cli;
