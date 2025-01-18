@@ -1,23 +1,18 @@
 use crate::orm::ingestion;
-use crate::substance::dosage::Dosage;
 use crate::utils::AppContext;
 use crate::utils::CommandHandler;
 use async_trait::async_trait;
 use clap::Parser;
-use itertools::Itertools;
 use miette::IntoDiagnostic;
+use miette::Report;
 use miette::Result;
 use owo_colors::OwoColorize;
-use sea_orm::ColumnTrait;
+use polars::lazy::dsl::*;
+use polars::prelude::*;
 use sea_orm::DatabaseConnection;
 use sea_orm::EntityTrait;
-use sea_orm::PaginatorTrait;
 use sea_orm::QuerySelect;
-use sea_orm::prelude::Expr;
-use tabled::Table;
-use tabled::Tabled;
 
-/// CLI command to view enhanced ingestion statistics
 #[derive(Parser, Debug)]
 #[command(version, about = "View enhanced ingestion statistics")]
 pub struct GetStatistics {}
@@ -27,97 +22,106 @@ impl CommandHandler for GetStatistics
 {
     async fn handle<'a>(&self, context: AppContext<'a>) -> Result<()>
     {
-        // Query ingestion data
         let connection: &DatabaseConnection = context.database_connection;
 
-        // Total ingestions
-        let total_ingestions = ingestion::Entity::find()
-            .count(connection)
-            .await
-            .into_diagnostic()?;
-        println!("\n{}", "Statistics Overview".bold().underline().blue());
-        println!(
-            "{}: {}",
-            "Total Ingestions".green(),
-            total_ingestions.yellow()
-        );
-
-        // Total substance data
-        let stats = ingestion::Entity::find()
+        // Step 1: Fetch ingestion data using SeaORM
+        let ingestions = ingestion::Entity::find()
             .select_only()
             .column(ingestion::Column::SubstanceName)
-            .column_as(Expr::col(ingestion::Column::Dosage).sum(), "total_amount")
-            .group_by(ingestion::Column::SubstanceName)
-            .into_model::<SubstanceStatistics>()
+            .column(ingestion::Column::Dosage)
+            .into_model::<RawIngestion>()
             .all(connection)
             .await
             .into_diagnostic()?;
 
-        // Transform data
-        let formatted_stats: Vec<_> = stats
-            .into_iter()
-            .map(|s| {
-                let total_dosage = s.total_amount.unwrap_or(0.0);
-                FormattedStatistics {
-                    substance_name: s.substance_name,
-                    formatted_dosage: Dosage::from_base_units(total_dosage).to_string(),
-                    raw_dosage: total_dosage,
-                }
-            })
-            .sorted_by(|a, b| b.raw_dosage.partial_cmp(&a.raw_dosage).unwrap())
+        // Ensure there is data to process
+        if ingestions.is_empty()
+        {
+            println!("{}", "No ingestion data found.".red());
+            return Ok(());
+        }
+
+        // Step 2: Load the data into Polars DataFrame
+        let substance_names: Vec<_> = ingestions
+            .iter()
+            .map(|entry| entry.substance_name.clone())
+            .collect();
+        let dosages: Vec<f64> = ingestions
+            .iter()
+            .map(|entry| entry.dosage.unwrap_or(0.0))
             .collect();
 
-        // Calculate additional statistics
-        let total_substances = formatted_stats.len();
-        let top_substance = formatted_stats
-            .first()
-            .map(|s| s.substance_name.clone())
-            .unwrap_or("None".to_string());
-        let avg_dosage = formatted_stats.iter().map(|s| s.raw_dosage).sum::<f64>()
-            / total_substances.max(1) as f64;
+        let df = DataFrame::new(vec![
+            Series::new("Substance Name".into(), substance_names).into(),
+            Series::new("Dosage".into(), dosages).into(),
+        ])
+        .into_diagnostic()?;
 
-        // Print summary statistics
+        // Step 3: Analytics using Polars
+        let summary_df = df.clone().lazy()
+            .group_by([col("Substance Name")]) // Corrected groupby usage
+            .agg([
+                col("Dosage").sum().alias("Total Dosage"),
+                col("Dosage").mean().alias("Avg Dosage"),
+            ])
+            .sort(["Total Dosage"], SortMultipleOptions { // Adjusted sort behavior
+                descending: vec![true],
+                nulls_last: vec![true],
+                multithreaded: false,
+                maintain_order: false,
+                limit: None,
+            })
+            .collect().into_diagnostic()?;
+
+        // Step 4: Derive statistics
+        println!("\n{}", "Statistics Overview".bold().underline().blue());
+
+        // Total number of ingestions
+        let total_ingestions_count = df.clone().height();
+        println!(
+            "{}: {}",
+            "Total Ingestions".green(),
+            total_ingestions_count.to_string().yellow()
+        );
+
+        // Total unique substances
+        let total_unique_substances = summary_df.height();
         println!(
             "{}: {}",
             "Total Unique Substances".green(),
-            total_substances.yellow()
+            total_unique_substances.to_string().yellow()
         );
+
+        // Most ingested substance
+        let top_substance = summary_df
+            .column("Substance Name")
+            .into_diagnostic()?
+            .get(0)
+            .into_diagnostic()?;
+
         println!(
             "{}: {}",
             "Most Ingested Substance".green(),
             top_substance.cyan()
         );
-        println!(
-            "{}: {:.2}",
-            "Average Dosage per Substance".green(),
-            avg_dosage.magenta()
-        );
 
-        // Print substance table
-        let table = Table::new(&formatted_stats).to_string();
-        println!("\nSubstance Statistics Table:\n{}", table);
+        // Print the analytics DataFrame
+        println!(
+            "\n{}",
+            "Substance Statistics Table:".bold().underline().blue()
+        );
+        println!("{}", summary_df);
 
         println!("\n{}", "End of Statistics Report".dimmed());
+
         Ok(())
     }
 }
 
-/// Struct for database result mapping
-#[derive(sea_orm::FromQueryResult)]
-struct SubstanceStatistics
+/// Struct to map raw ingestion data from the database using SeaORM
+#[derive(Debug, sea_orm::FromQueryResult)]
+struct RawIngestion
 {
     substance_name: String,
-    total_amount: Option<f64>,
-}
-
-/// Struct for formatted display
-#[derive(Tabled)]
-struct FormattedStatistics
-{
-    #[tabled(rename = "Substance Name")]
-    substance_name: String,
-    #[tabled(rename = "Formatted Dosage")]
-    formatted_dosage: String,
-    #[tabled(skip)]
-    raw_dosage: f64, // Used for internal calculations
+    dosage: Option<f64>,
 }
