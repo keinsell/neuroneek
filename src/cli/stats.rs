@@ -9,6 +9,8 @@ use crate::utils::CommandHandler;
 use async_trait::async_trait;
 use chrono::Days;
 use chrono::NaiveDate;
+use chrono::NaiveDateTime;
+use chrono::Utc;
 use clap::Parser;
 use futures::TryFutureExt;
 use itertools::Itertools;
@@ -17,6 +19,7 @@ use miette::Result;
 use owo_colors::OwoColorize;
 use sea_orm::ColumnTrait;
 use sea_orm::DatabaseConnection;
+use sea_orm::EntityOrSelect;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
 use sea_orm::QuerySelect;
@@ -27,7 +30,7 @@ use textplots::Chart;
 use textplots::Plot;
 use textplots::Shape;
 
-/// Will query database for ingestions and will build up statistics groupped by
+/// Will query database for ingestions and will build up statistics grouped by
 /// substance with average dosage that was administrated since date of first
 /// ingestion or rolling window of 90 days.
 async fn get_average_daily_dosage_for_rolling_window(
@@ -39,44 +42,67 @@ async fn get_average_daily_dosage_for_rolling_window(
     {
         substance_name: String,
         daily_dosage: f64,
+        ingested_at: NaiveDate,
     }
 
     let rolling_window_start_date = chrono::Local::now().date_naive() - Days::new(90);
 
     let results = ingestion::Entity::find()
-        .select_only()
+        .select()
         .column(ingestion::Column::SubstanceName)
         .column_as(
             sea_orm::prelude::Expr::col(ingestion::Column::Dosage).sum(),
             "daily_dosage",
         )
         .column_as(
-            sea_orm::prelude::Expr::col(ingestion::Column::IngestedAt),
-            "ingestion_date",
+            sea_orm::prelude::Expr::cust("DATE(ingested_at)"),
+            "ingested_at",
         )
-        .filter(ingestion::Column::IngestedAt.gt(rolling_window_start_date.and_hms(0, 0, 0)))
+        .filter(
+            ingestion::Column::IngestedAt
+                .gte(rolling_window_start_date.and_hms_opt(0, 0, 0).unwrap()),
+        )
         .group_by(ingestion::Column::SubstanceName)
-        .group_by(ingestion::Column::IngestedAt)
+        .group_by(sea_orm::prelude::Expr::cust("DATE(ingested_at)"))
         .into_model::<DailyDosage>()
         .all(connection)
         .await
         .into_diagnostic()?;
 
-    let mut substance_map: std::collections::HashMap<String, Vec<f64>> =
-        std::collections::HashMap::new();
+    let mut substance_map: std::collections::HashMap<
+        String,
+        std::collections::HashMap<NaiveDate, f64>,
+    > = std::collections::HashMap::new();
 
     for entry in results
     {
         substance_map
             .entry(entry.substance_name)
-            .or_insert_with(Vec::new)
-            .push(entry.daily_dosage);
+            .or_insert_with(std::collections::HashMap::new)
+            .insert(entry.ingested_at, entry.daily_dosage);
     }
+
+    let rolling_window_dates: Vec<NaiveDate> =
+        (0..=90) // Generate all days in the rolling window
+            .map(|offset| rolling_window_start_date + Days::new(offset))
+            .collect();
 
     let daily_dosage: Vec<_> = substance_map
         .into_iter()
-        .map(|(substance_name, dosages)| {
-            let avg_daily_dosage = dosages.iter().copied().sum::<f64>() / dosages.len() as f64;
+        .map(|(substance_name, dosages_by_date)| {
+            let filled_dosages_by_date: std::collections::HashMap<NaiveDate, f64> =
+                rolling_window_dates
+                    .iter()
+                    .map(|&date| {
+                        // Fill missing dates with 0 dosage
+                        (date, *dosages_by_date.get(&date).unwrap_or(&0.0))
+                    })
+                    .collect();
+
+            let total_days = rolling_window_dates.len() as f64;
+            let total_dosage: f64 = filled_dosages_by_date.values().copied().sum();
+            let avg_daily_dosage = total_dosage / total_days;
+
             AverageDailyDosage {
                 substance_name,
                 avg_daily_dosage: Dosage::from_base_units(avg_daily_dosage),
