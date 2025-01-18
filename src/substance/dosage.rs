@@ -48,6 +48,22 @@ impl Dosage
     }
 }
 
+impl TryInto<Dosage> for Option<f64>
+{
+    type Error = sea_orm::error::DbErr;
+
+    fn try_into(self) -> Result<Dosage, Self::Error>
+    {
+        self.map(Dosage::from_base_units)
+            .ok_or_else(|| sea_orm::error::DbErr::Custom("Dosage is NULL".to_string()))
+    }
+}
+
+impl Default for Dosage
+{
+    fn default() -> Self { Dosage(Mass::from_base_units(0.0)) }
+}
+
 
 #[cfg(test)]
 mod tests
