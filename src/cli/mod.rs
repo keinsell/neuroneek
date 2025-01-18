@@ -1,23 +1,18 @@
-use crate::cli::ingestion::IngestionCommand;
-use crate::cli::substance::SubstanceCommand;
 use atty::Stream;
 use clap::ColorChoice;
 use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
+use ingestion::IngestionCommand;
 use sea_orm::prelude::async_trait::async_trait;
+use substance::SubstanceCommand;
 
-mod analyzer;
-pub mod formatter;
+use crate::utils::AppContext;
+use crate::utils::CommandHandler;
+use analyze::AnalyzeIngestion;
+mod analyze;
 mod ingestion;
-pub mod journal;
-mod substance;
-
-use crate::cli::analyzer::AnalyzeIngestion;
-use crate::cli::journal::Journal;
-use crate::lib::CommandHandler;
-use crate::lib::Context;
-pub use substance::get_substance::GetSubstance;
+pub mod substance;
 
 fn is_interactive() -> bool { atty::is(Stream::Stdout) }
 
@@ -69,11 +64,11 @@ struct GenerateCompletion
 #[async_trait]
 impl CommandHandler for GenerateCompletion
 {
-    async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
+    async fn handle<'a>(&self, _ctx: AppContext<'a>) -> miette::Result<()>
     {
         clap_complete::generate(
             self.shell,
-            &mut CLI::command(),
+            &mut Cli::command(),
             env!("CARGO_BIN_NAME"),
             &mut std::io::stdout(),
         );
@@ -85,18 +80,17 @@ impl CommandHandler for GenerateCompletion
 #[async_trait]
 impl CommandHandler for ApplicationCommands
 {
-    async fn handle<'a>(&self, context: Context<'a>) -> miette::Result<()>
+    async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<()>
     {
         match self
         {
             | ApplicationCommands::Ingestion(ingestion_command) =>
             {
-                ingestion_command.handle(context).await
+                ingestion_command.handle(ctx).await
             }
-            | ApplicationCommands::Substance(cmd) => cmd.handle(context).await,
-            | ApplicationCommands::Completions(cmd) => cmd.handle(context).await,
-            | ApplicationCommands::Analyzer(cmd) => cmd.handle(context).await,
-            | ApplicationCommands::Journal(cmd) => cmd.handle(context).await,
+            | ApplicationCommands::Substance(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Completions(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Analyzer(cmd) => cmd.handle(ctx).await,
         }
     }
 }
@@ -107,14 +101,12 @@ pub enum ApplicationCommands
 {
     /// Manage ingestion entries
     Ingestion(IngestionCommand),
-    /// Query substance information
+    /// Query substance.rs information
     Substance(SubstanceCommand),
-    /// Analyze ingestion details
+    /// Analyze existing or non-existing ingestion
     Analyzer(AnalyzeIngestion),
     /// Generate shell completions
     Completions(GenerateCompletion),
-    /// View journal of ingestions
-    Journal(Journal),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor
@@ -127,7 +119,7 @@ pub enum ApplicationCommands
     long_about,
     color = ColorChoice::Auto,
 )]
-pub struct CLI
+pub struct Cli
 {
     #[command(subcommand)]
     pub command: ApplicationCommands,

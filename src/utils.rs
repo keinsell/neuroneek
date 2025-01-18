@@ -1,5 +1,7 @@
 use crate::cli::OutputFormat;
+use crate::migration::Migrator;
 use async_std::task::block_on;
+use atty::Stream;
 use chrono::Local;
 use chrono_english::Dialect;
 use log::debug;
@@ -7,35 +9,25 @@ use log::error;
 use log::info;
 use log::warn;
 use miette::IntoDiagnostic;
-use miette::Result;
-use migration::Migrator;
 use sea_orm::Database;
+use sea_orm::DatabaseConnection;
+use sea_orm::prelude::async_trait;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
-use sea_orm_migration::async_trait::async_trait;
-use sea_orm_migration::sea_orm::DatabaseConnection;
 use std::env::temp_dir;
-use std::fmt::Debug;
 use std::path::PathBuf;
 
-pub mod analyzer;
-pub mod dosage;
-pub mod ingestion;
-mod migration;
-pub mod route_of_administration;
-pub mod substance;
-
 #[derive(Debug, Clone)]
-pub struct Context<'a>
+pub struct AppContext<'a>
 {
     pub database_connection: &'a sea_orm::DatabaseConnection,
     pub stdout_format: OutputFormat,
 }
 
-#[async_trait]
-pub trait CommandHandler<Output = ()>: Sync
+#[async_trait::async_trait]
+pub trait CommandHandler<O = ()>
 {
-    async fn handle<'context>(&self, ctx: Context<'context>) -> Result<Output>;
+    async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<O>;
 }
 
 #[derive(Debug, Clone)]
@@ -106,20 +98,17 @@ lazy_static::lazy_static! {
 
 fn initialize_database(config: &Config) -> std::result::Result<(), String>
 {
-    // Create the database file if it doesn't exist
     let journal_path = config.journal_path.clone();
     if let Some(parent_dir) = journal_path.parent()
     {
         if !parent_dir.exists()
         {
-            // Create parent directory
             std::fs::create_dir_all(parent_dir)
                 .map_err(|e| format!("Failed to create database directory: {}", e))?;
             debug!("Created database directory at {}", parent_dir.display());
         }
     }
 
-    // Attempt to create the database file
     std::fs::File::create(&journal_path)
         .map_err(|e| format!("Failed to create database file: {}", e))?;
     debug!("Created database file at {}", journal_path.display());
@@ -127,8 +116,20 @@ fn initialize_database(config: &Config) -> std::result::Result<(), String>
     Ok(())
 }
 
-pub async fn migrate_database(database_connection: &DATABASE_CONNECTION) -> miette::Result<()>
+pub async fn migrate_database(database_connection: &DatabaseConnection) -> miette::Result<()>
 {
+    let is_interactive_terminal = atty::is(Stream::Stdout);
+    let spinner = if is_interactive_terminal
+    {
+        let s = indicatif::ProgressBar::new_spinner();
+        s.enable_steady_tick(std::time::Duration::from_millis(100));
+        Some(s)
+    }
+    else
+    {
+        None
+    };
+
     let pending_migrations =
         Migrator::get_pending_migrations(&database_connection.into_schema_manager_connection())
             .await
@@ -139,9 +140,19 @@ pub async fn migrate_database(database_connection: &DATABASE_CONNECTION) -> miet
         info!("There are {} migration pending.", pending_migrations.len());
         info!("Applying migration into {:?}", database_connection);
 
+        if let Some(spinner) = &spinner
+        {
+            spinner.set_message("Applying migrations...");
+        }
+
         Migrator::up(database_connection.into_schema_manager_connection(), None)
             .await
-            .into_diagnostic()?
+            .into_diagnostic()?;
+
+        if let Some(spinner) = spinner
+        {
+            spinner.finish_with_message("Migrations applied successfully.");
+        }
     }
 
     Ok(())
@@ -149,7 +160,8 @@ pub async fn migrate_database(database_connection: &DATABASE_CONNECTION) -> miet
 
 pub fn setup_diagnostics() { miette::set_panic_hook(); }
 
-pub fn setup_logger() { logforth::stdout().apply(); }
+// TODO: Implement logging
+pub fn setup_logger() {}
 
 
 pub fn parse_date_string(humanized_input: &str) -> miette::Result<chrono::DateTime<chrono::Local>>

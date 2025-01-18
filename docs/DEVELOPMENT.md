@@ -10,6 +10,6 @@ https://docs.determinate.systems/getting-started
 
 ```
 
-## Database chnges
+## Database changes
 
-- Database was initalized with `sea-orm-cli migrate init -d ./src/db/migrations`
+- Database was initialized with `sea-orm-cli migrate init -d ./src/db/migrations`

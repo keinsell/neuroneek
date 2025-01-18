@@ -1,11 +1,14 @@
-use crate::lib::dosage::Dosage;
-use crate::lib::route_of_administration::RouteOfAdministrationClassification;
-use crate::lib::substance::DosageClassification;
-use crate::lib::substance::DosageRange;
-use crate::lib::substance::PhaseClassification;
-use crate::lib::substance::Substance;
 use crate::orm;
 use crate::orm::substance;
+use crate::substance::DosageClassification;
+use crate::substance::DosageRange;
+use crate::substance::DurationRange;
+use crate::substance::PhaseClassification;
+use crate::substance::RouteOfAdministration;
+use crate::substance::RoutesOfAdministration;
+use crate::substance::Substance;
+use crate::substance::dosage::Dosage;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use futures::StreamExt;
 use futures::stream::FuturesUnordered;
 use iso8601_duration::Duration;
@@ -17,10 +20,10 @@ use sea_orm::ModelTrait;
 use sea_orm::QueryFilter;
 use std::str::FromStr;
 
-pub async fn get_substance_by_name(
+pub async fn get_substance(
     name: &str,
     db: &sea_orm::DatabaseConnection,
-) -> miette::Result<Substance>
+) -> miette::Result<Option<Substance>>
 {
     let db_substance = substance::Entity::find()
         .filter(substance::Column::Name.contains(name.to_lowercase()))
@@ -31,7 +34,7 @@ pub async fn get_substance_by_name(
     let db_substance = match db_substance
     {
         | Some(substance) => substance,
-        | None => return Err(miette!("Error: Substance not found.")),
+        | None => return Ok(None),
     };
 
     let routes_of_administration = db_substance
@@ -40,9 +43,9 @@ pub async fn get_substance_by_name(
         .await
         .into_diagnostic()?;
 
-    let mut substance = crate::lib::substance::Substance {
+    let mut substance = Substance {
         name: db_substance.name,
-        routes_of_administration: crate::lib::substance::RoutesOfAdministration::new(),
+        routes_of_administration: RoutesOfAdministration::new(),
     };
 
     let db_connection = db.clone();
@@ -51,7 +54,7 @@ pub async fn get_substance_by_name(
         async move {
             let classification = RouteOfAdministrationClassification::from_str(&route.name)
                 .map_err(|e| miette!(format!("{:?}", e)))?;
-            let mut roa = crate::lib::substance::RouteOfAdministration {
+            let mut roa = RouteOfAdministration {
                 classification,
                 dosages: Default::default(),
                 phases: Default::default(),
@@ -98,7 +101,7 @@ pub async fn get_substance_by_name(
 
             for phase in phases
             {
-                let classification = PhaseClassification::from_str(&*phase.classification)
+                let classification = PhaseClassification::from_str(&phase.classification)
                     .map_err(|_| miette!("Failed to parse phase classification"))?;
 
                 let lower_duration = Duration::from_str(&phase.lower_duration.unwrap_or_default())
@@ -108,7 +111,7 @@ pub async fn get_substance_by_name(
 
                 roa.phases.insert(
                     classification,
-                    crate::lib::substance::DurationRange::from(lower_duration..upper_duration),
+                    DurationRange::from(lower_duration..upper_duration),
                 );
             }
 
@@ -132,5 +135,5 @@ pub async fn get_substance_by_name(
         }
     }
 
-    Ok(substance)
+    Ok(Some(substance))
 }

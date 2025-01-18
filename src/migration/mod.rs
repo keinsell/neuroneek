@@ -4,7 +4,7 @@ pub use sea_orm_migration::prelude::*;
 use rust_embed::Embed;
 
 #[derive(Embed)]
-#[folder = "src/lib/migration/migrations"]
+#[folder = "src/migration/migrations"]
 pub struct Migrations;
 
 

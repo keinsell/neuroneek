@@ -42,7 +42,7 @@ logforth = "0.19.0"
 measurements = { version = "0.11.0", features = ["std", "serde", "from_str", "regex"] }
 miette = { version = "7.4.0", features = ["fancy", "serde", "syntect-highlighter", "derive"] }
 pubchem = "0.1.1"
-rust-embed = "8.5.0"
+rust-embed = "8.2.0"
 sea-orm = { version = "1.1.2", features = ["sqlx-sqlite", "runtime-async-std-rustls", "serde_json", "with-chrono"] }
 serde = { version = "1.0.216", features = ["derive", "std", "unstable"] }
 tabled = { version = "0.17.0", features = ["std", "macros", "ansi", "derive", "tabled_derive"] }
@@ -55,6 +55,10 @@ serde_json = "1.0.134"
 rstest = "0.24.0"
 owo-colors = "4.1.0"
 chrono-humanize = "0.2.3"
+ratatui = { version = "0.26.0", features = ["all-widgets", "macros", "serde"] }
+crossterm = "0.27.0"
+async-trait = "0.1.85"
+indicatif = "0.17.9"
 
 [expand]
 color = "always"

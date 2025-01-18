@@ -1,6 +1,4 @@
-use crate::lib::ingestion::IngestionDate;
-use crate::lib::substance::DosageClassification;
-use crate::lib::substance::Dosages;
+use crate::substance::Substance;
 use chrono::TimeDelta;
 use chrono_humanize::HumanTime;
 use miette::miette;
@@ -11,8 +9,8 @@ use std::ops::Range;
 
 /// `IngestionAnalysis` is a struct that represents the analysis of an ingestion
 /// event. It contains various fields to store information about the ingestion,
-/// the substance ingested, the dosage classification, the current phase of the
-/// ingestion, the start and end times of the ingestion, the phases of the
+/// the substance.rs ingested, the dosage classification, the current phase of
+/// the ingestion, the start and end times of the ingestion, the phases of the
 /// ingestion, the total duration excluding the afterglow phase, and the
 /// progress of the ingestion.
 #[derive(Debug, Serialize)]
@@ -22,13 +20,13 @@ pub struct IngestionAnalysis
     /// This field is wrapped in an `Option` and a `Box` to allow for optional
     /// ownership.
     #[serde(skip_serializing)]
-    ingestion: Option<Box<crate::lib::ingestion::Ingestion>>,
+    ingestion: Option<Box<crate::ingestion::Ingestion>>,
 
-    /// The substance ingested in this event.
+    /// The substance.rs ingested in this event.
     /// This field is wrapped in an `Option` and a `Box` to allow for optional
     /// ownership.
     #[serde(skip_serializing)]
-    substance: Option<Box<crate::lib::substance::Substance>>,
+    substance: Option<Box<crate::substance::Substance>>,
 
     /// The classification of the dosage for this ingestion.
     /// This field is an `Option` to allow for cases where the dosage
@@ -38,7 +36,7 @@ pub struct IngestionAnalysis
     /// The current phase of the ingestion, if it can be determined.
     /// This field is an `Option` to allow for cases where the current phase
     /// cannot be determined.
-    pub(crate) current_phase: Option<crate::lib::substance::PhaseClassification>,
+    pub(crate) current_phase: Option<crate::substance::PhaseClassification>,
 
     /// The start time of the ingestion event (copy of ingestion.ingestion_date)
     ingestion_start: IngestionDate,
@@ -62,7 +60,7 @@ pub struct IngestionAnalysis
 #[derive(Debug, Clone, Serialize)]
 pub struct IngestionPhase
 {
-    pub(crate) class: crate::lib::substance::PhaseClassification,
+    pub(crate) class: crate::substance::PhaseClassification,
     pub(crate) duration_range: Range<IngestionDate>,
     pub(crate) prev: Option<Box<IngestionPhase>>,
     pub(crate) next: Option<Box<IngestionPhase>>,
@@ -80,14 +78,14 @@ pub fn progress_bar(progress: f64, width: usize) -> String
 impl IngestionAnalysis
 {
     pub async fn analyze(
-        ingestion: crate::lib::ingestion::Ingestion,
-        substance: crate::lib::substance::Substance,
+        ingestion: crate::ingestion::Ingestion,
+        substance: crate::substance::Substance,
     ) -> miette::Result<Self>
     {
         let roa = substance
             .routes_of_administration
             .get(&ingestion.route)
-            .ok_or_else(|| miette!("Failed to find route of administration for substance"))?
+            .ok_or_else(|| miette!("Failed to find route of administration for substance.rs"))?
             .clone();
 
         let mut phases = Vec::new();
@@ -118,7 +116,7 @@ impl IngestionAnalysis
                     total_end_time.map_or(Some(end_time_range), |e| Some(e.max(end_time_range)));
 
                 // Update total_end_time_excl_afterglow
-                if phase_type != crate::lib::substance::PhaseClassification::Afterglow
+                if phase_type != crate::substance::PhaseClassification::Afterglow
                 {
                     total_end_time_excl_afterglow = total_end_time_excl_afterglow
                         .map_or(Some(end_time_range), |e| Some(e.max(end_time_range)));
@@ -165,7 +163,7 @@ impl IngestionAnalysis
         let roa_dosages = roa.dosages;
         let dosage_classification = classify_dosage(ingestion.dosage.clone(), &roa_dosages)?;
 
-        // Calculate progress
+
         let now = chrono::Local::now();
         let total_duration = total_range_excl_afterglow.end - total_range_excl_afterglow.start;
         let elapsed_time = if now < total_range_excl_afterglow.start
@@ -194,7 +192,11 @@ impl IngestionAnalysis
     }
 }
 
-use crate::lib::substance::route_of_administration::phase::PHASE_ORDER;
+
+use crate::ingestion::IngestionDate;
+use crate::substance::DosageClassification;
+use crate::substance::Dosages;
+use crate::substance::route_of_administration::phase::PHASE_ORDER;
 use chrono::Utc;
 use owo_colors::OwoColorize;
 
@@ -322,15 +324,15 @@ impl fmt::Display for IngestionAnalysis
 }
 
 pub fn classify_dosage(
-    dosage: crate::lib::dosage::Dosage,
+    dosage: crate::substance::dosage::Dosage,
     roa_dosages: &Dosages,
 ) -> Result<DosageClassification, miette::Report>
 {
-    for (classification, range) in roa_dosages
+    for (_classification, range) in roa_dosages
     {
         if range.contains(&dosage)
         {
-            return Ok(*classification);
+            return Ok(*_classification);
         }
     }
 
@@ -365,12 +367,14 @@ pub fn classify_dosage(
 mod tests
 {
     use super::*;
-    use crate::lib::DATABASE_CONNECTION;
-    use crate::lib::dosage::Dosage;
-    use crate::lib::migrate_database;
+    use crate::DATABASE_CONNECTION;
+    use crate::migrate_database;
+    use crate::substance::dosage::Dosage;
 
+    use crate::substance::DosageClassification;
     use rstest::rstest;
     use std::str::FromStr;
+
 
     #[rstest]
     #[case("10mg", DosageClassification::Threshold)]
@@ -383,12 +387,12 @@ mod tests
     {
         let db = &DATABASE_CONNECTION;
         migrate_database(db).await.unwrap();
-        let caffeine = crate::lib::substance::repository::get_substance_by_name("caffeine", db)
+        let caffeine = crate::substance::repository::get_substance("caffeine", db)
             .await
             .unwrap();
         let oral_caffeine_roa = caffeine
-            .routes_of_administration
-            .get(&crate::lib::route_of_administration::RouteOfAdministrationClassification::Oral)
+            .unwrap().routes_of_administration
+            .get(&crate::substance::route_of_administration::RouteOfAdministrationClassification::Oral)
             .unwrap()
             .clone()
             .dosages;

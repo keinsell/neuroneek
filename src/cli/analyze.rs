@@ -1,18 +1,19 @@
-use crate::lib;
-use crate::lib::CommandHandler;
-use crate::lib::dosage::Dosage;
-use crate::lib::route_of_administration::RouteOfAdministrationClassification;
+use crate::ingestion::Ingestion;
+use crate::substance::dosage::Dosage;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::utils::AppContext;
+use crate::utils::CommandHandler;
+use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Local;
 use clap::Parser;
 use miette::IntoDiagnostic;
 use sea_orm::EntityTrait;
-use sea_orm::prelude::async_trait::async_trait;
 use std::str::FromStr;
 
 /// Analyze a previously logged ingestion activity.
 ///
-/// Either the `ingestion_id` **or** the combination of `substance` and
+/// Either the `ingestion_id` **or** the combination of `substance.rs` and
 /// `dosage` must be provided, but not both at the same time. If
 /// `ingestion_id` is provided, all other arguments are ignored.
 #[derive(Parser, Debug)]
@@ -63,7 +64,7 @@ pub struct AnalyzeIngestion
         short = 't',
         long = "date",
         default_value = "now",
-        value_parser = crate::lib::parse_date_string,
+        value_parser = crate::utils::parse_date_string,
         conflicts_with = "ingestion_id"
     )]
     pub date: Option<DateTime<Local>>,
@@ -82,47 +83,47 @@ pub struct AnalyzeIngestion
 #[async_trait]
 impl CommandHandler for AnalyzeIngestion
 {
-    async fn handle<'a>(&self, context: lib::Context<'a>) -> miette::Result<()>
+    async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<()>
     {
-        let ingestion: crate::orm::ingestion::Model = match self.ingestion_id
+        let ingestion: Ingestion = match self.ingestion_id
         {
             | Some(..) => crate::orm::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
-                .one(context.database_connection)
+                .one(ctx.database_connection)
                 .await
                 .into_diagnostic()?
-                .unwrap_or_else(|| panic!("Ingestion not found")),
-            | None => crate::orm::ingestion::Model {
-                id: 0,
-                substance_name: self.substance.clone().unwrap(),
-                dosage: self.dosage.clone().unwrap().as_base_units() as f32,
-                ingested_at: self.date.unwrap().naive_local(),
-                updated_at: Default::default(),
-                route_of_administration: self.roa.unwrap().to_string(),
-                created_at: Default::default(),
+                .unwrap_or_else(|| panic!("Ingestion not found"))
+                .into(),
+            | None => Ingestion {
+                id: Default::default(),
+                dosage: self.dosage.clone().expect("Dosage not provided"),
+                route: self.roa.unwrap(),
+                substance: self.substance.clone().expect("Substance not provided"),
+                ingestion_date: self.date.unwrap_or_else(Local::now),
             },
         };
 
-        let substance = crate::lib::substance::repository::get_substance_by_name(
-            &ingestion.substance_name,
-            context.database_connection,
+        let substance = crate::substance::repository::get_substance(
+            self.substance.as_ref().unwrap(),
+            ctx.database_connection,
         )
         .await?;
 
-        let analysis = crate::lib::analyzer::IngestionAnalysis::analyze(
-            crate::lib::ingestion::Ingestion::from(ingestion),
-            substance,
-        )
-        .await?;
-
-        match context.stdout_format
+        if substance.is_some()
         {
-            | crate::cli::OutputFormat::Pretty => println!("{}", analysis),
-            | crate::cli::OutputFormat::Json =>
+            let substance = substance.unwrap();
+            let analysis =
+                crate::analyzer::IngestionAnalysis::analyze(ingestion, substance).await?;
+
+            match ctx.stdout_format
             {
-                println!(
-                    "{}",
-                    serde_json::to_string_pretty(&analysis).into_diagnostic()?
-                );
+                | crate::cli::OutputFormat::Pretty => println!("{}", analysis),
+                | crate::cli::OutputFormat::Json =>
+                {
+                    println!(
+                        "{}",
+                        serde_json::to_string_pretty(&analysis).into_diagnostic()?
+                    );
+                }
             }
         }
 
