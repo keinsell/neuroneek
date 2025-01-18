@@ -13,6 +13,7 @@ use chrono::NaiveDateTime;
 use chrono::Utc;
 use clap::Parser;
 use futures::TryFutureExt;
+use hashbrown::HashMap;
 use itertools::Itertools;
 use miette::IntoDiagnostic;
 use miette::Result;
@@ -22,6 +23,7 @@ use sea_orm::DatabaseConnection;
 use sea_orm::EntityOrSelect;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
+use sea_orm::QueryOrder;
 use sea_orm::QuerySelect;
 use serde::Serialize;
 use tabled::Table;
@@ -29,6 +31,24 @@ use tabled::Tabled;
 use textplots::Chart;
 use textplots::Plot;
 use textplots::Shape;
+
+
+async fn days_since_first_ingestion(connection: &DatabaseConnection) -> Result<Option<i32>>
+{
+    let query = ingestion::Entity::find()
+        .order_by_asc(ingestion::Column::CreatedAt)
+        .one(connection)
+        .await
+        .into_diagnostic()?;
+
+    Ok(query
+        .map(|ingestion| ingestion.created_at)
+        .map(|created_at| {
+            let now = Utc::now();
+            let days_since_first_ingestion = (now.date_naive() - created_at.date()).num_days();
+            days_since_first_ingestion as i32
+        }))
+}
 
 /// Will query database for ingestions and will build up statistics grouped by
 /// substance with average dosage that was administrated since date of first
@@ -45,7 +65,25 @@ async fn get_average_daily_dosage_for_rolling_window(
         ingested_at: NaiveDate,
     }
 
-    let rolling_window_start_date = chrono::Local::now().date_naive() - Days::new(90);
+    let days_since_first_ingestion = days_since_first_ingestion(connection).await?;
+
+    let rolling_window_start_date = match days_since_first_ingestion
+    {
+        | Some(days) =>
+        {
+            if days > 90
+            {
+                chrono::Local::now().date_naive() - Days::new(90)
+            }
+            else
+            {
+                chrono::Local::now().date_naive() - Days::new(days as u64)
+            }
+        }
+        | None => return Ok(Vec::new()),
+    };
+
+    let rolling_days = (chrono::Local::now().date_naive() - rolling_window_start_date).num_days();
 
     let results = ingestion::Entity::find()
         .select()
@@ -69,43 +107,32 @@ async fn get_average_daily_dosage_for_rolling_window(
         .await
         .into_diagnostic()?;
 
-    let mut substance_map: std::collections::HashMap<
-        String,
-        std::collections::HashMap<NaiveDate, f64>,
-    > = std::collections::HashMap::new();
-
+    let mut substance_map: HashMap<String, HashMap<NaiveDate, f64>> = HashMap::new();
     for entry in results
     {
         substance_map
             .entry(entry.substance_name)
-            .or_insert_with(std::collections::HashMap::new)
+            .or_default()
             .insert(entry.ingested_at, entry.daily_dosage);
     }
 
-    let rolling_window_dates: Vec<NaiveDate> =
-        (0..=90) // Generate all days in the rolling window
-            .map(|offset| rolling_window_start_date + Days::new(offset))
-            .collect();
+    let rolling_window_dates: Vec<NaiveDate> = (0..=rolling_days)
+        .map(|offset| rolling_window_start_date + Days::new(offset as u64))
+        .collect();
 
     let daily_dosage: Vec<_> = substance_map
         .into_iter()
         .map(|(substance_name, dosages_by_date)| {
-            let filled_dosages_by_date: std::collections::HashMap<NaiveDate, f64> =
-                rolling_window_dates
-                    .iter()
-                    .map(|&date| {
-                        // Fill missing dates with 0 dosage
-                        (date, *dosages_by_date.get(&date).unwrap_or(&0.0))
-                    })
-                    .collect();
-
             let total_days = rolling_window_dates.len() as f64;
-            let total_dosage: f64 = filled_dosages_by_date.values().copied().sum();
-            let avg_daily_dosage = total_dosage / total_days;
+
+            let total_dosage: f64 = rolling_window_dates
+                .iter()
+                .map(|&date| dosages_by_date.get(&date).cloned().unwrap_or(0.0))
+                .sum();
 
             AverageDailyDosage {
                 substance_name,
-                avg_daily_dosage: Dosage::from_base_units(avg_daily_dosage),
+                avg_daily_dosage: Dosage::from_base_units(total_dosage / total_days),
             }
         })
         .collect();
