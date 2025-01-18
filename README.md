@@ -14,7 +14,7 @@ of these compounds on their physical and mental health.
 
 Features offered by application include:
 
-- **Ingestion journaling** with set of commands which allows for inserting, updating, retrieving and deleting all of the
+- **Ingestion journaling** with set of commands which allows for inserting, updating, retrieving and deleting all the
   data stored as `Ingestion` model.
 
 ## Installation
@@ -59,44 +59,57 @@ scriptable interface which allows for storage and retrieval of structured data.
 
 ```bash
 ❯ neuronek ingestion log caffeine 80mg
-
-+----+----------------+--------+----------------------+-------------------------------+
-| id | substance_name | route  | dosage               | ingested_at                   |
-+----+----------------+--------+----------------------+-------------------------------+
-| 1  | caffeine       | "oral" | 80 mg                | 2024-12-16 00:02:48.977457    |
-+----+----------------+--------+----------------------+-------------------------------+
+╭────┬───────────┬──────┬─────────┬────────────────╮
+│ ID │ Substance │ ROA  │ Dosage  │ Ingestion Date │
+├────┼───────────┼──────┼─────────┼────────────────┤
+│ 14 │ caffeine  │ Oral │ 80.0 mg │      now       │
+╰────┴───────────┴──────┴─────────┴────────────────╯
 ```
 
 #### [🗎 List Ingestions](https://keinsell.youtrack.cloud/articles/NEU-A-7)
 
 ```bash
 ❯ neuronek ingestion list
-
-+----+----------------+---------------+----------------------+----------------------------+
-| id | substance_name | route         | dosage               | ingested_at                |
-+----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 80 mg                | 2024-12-18 08:14:37.211076 |
-+----+----------------+---------------+----------------------+----------------------------+
+┌────┬─────────────────────┬──────┬─────────┬────────────────┐
+│ ID │ Substance           │ ROA  │ Dosage  │ Ingestion Date │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 14 │ caffeine            │ Oral │ 80.0 mg │ 20 seconds ago │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 13 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 12 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 11 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 10 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 9  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 8  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 7  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 6  │ caffeine            │ Oral │ 100 mg  │ 6 hours ago    │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 5  │ caffeine            │ Oral │ 100 mg  │ 6 hours ago    │
+└────┴─────────────────────┴──────┴─────────┴────────────────┘
 ```
 
 #### [🗎 Update ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-6)
 
 ```bash
-❯ neuronek ingestion list
-
-+----+----------------+---------------+----------------------+----------------------------+
-| id | substance_name | route         | dosage               | ingested_at                |
-+----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 80  mg               | 2024-12-18 08:14:37.211076 |
-+----+----------------+---------------+----------------------+----------------------------+
-
-❯ neuronek ingestion update 36 -d 200mg
-
-+----+----------------+---------------+----------------------+----------------------------+
-| id | substance_name | route         | dosage               | ingested_at                |
-+----+----------------+---------------+----------------------+----------------------------+
-| 36 | caffeine       | "oral"        | 200 mg               | 2024-12-18 08:14:37.211076 |
-+----+----------------+---------------+----------------------+----------------------------+
+❯ neuronek ingestion list -l 1
+┌────┬───────────┬──────┬─────────┬────────────────┐
+│ ID │ Substance │ ROA  │ Dosage  │ Ingestion Date │
+├────┼───────────┼──────┼─────────┼────────────────┤
+│ 14 │ caffeine  │ Oral │ 80.0 mg │ a minute ago   │
+└────┴───────────┴──────┴─────────┴────────────────┘
+❯ neuronek ingestion update 14 -d 200mg
+╭────┬───────────┬──────┬────────┬────────────────╮
+│ ID │ Substance │ ROA  │ Dosage │ Ingestion Date │
+├────┼───────────┼──────┼────────┼────────────────┤
+│ 14 │ caffeine  │ Oral │ 200 mg │  a minute ago  │
+╰────┴───────────┴──────┴────────┴────────────────╯
 ```
 
 #### [🗎 Delete Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-4)
@@ -105,15 +118,19 @@ scriptable interface which allows for storage and retrieval of structured data.
 > Deletion cannot be undone, so verify the correct ID before deleting.
 
 ```bash
-❯ neuronek ingestion list
- 
-+----+----------------+--------+----------+----------------------------+
-| id | substance_name | route  | dosage   | ingested_at                |
-+----+----------------+--------+----------+----------------------------+
-| 36 | caffeine       | "oral" | 80 mg    | 2024-12-18 08:14:37.211076 |
-+----+----------------+--------+----------+----------------------------+
-
-❯ neuronek ingestion delete 36
+❯ neuronek ingestion list -l 1
+┌────┬───────────┬──────┬────────┬────────────────┐
+│ ID │ Substance │ ROA  │ Dosage │ Ingestion Date │
+├────┼───────────┼──────┼────────┼────────────────┤
+│ 14 │ caffeine  │ Oral │ 200 mg │ 2 minutes ago  │
+└────┴───────────┴──────┴────────┴────────────────┘
+❯ neuronek ingestion delete 14
+❯ neuronek ingestion list -l 1
+┌────┬─────────────────────┬──────┬─────────┬────────────────┐
+│ ID │ Substance           │ ROA  │ Dosage  │ Ingestion Date │
+├────┼─────────────────────┼──────┼─────────┼────────────────┤
+│ 13 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
+└────┴─────────────────────┴──────┴─────────┴────────────────┘
 ```
 
 ### Substances
@@ -122,87 +139,139 @@ Application comes with pre-bundled database of psychoactive substances built on 
 of [PsychonautWiki](https://psychonautwiki.org), such information are easily queryable through CLI and are foundation
 for further analysis of user's ingestions to provide insight on harm-reduction and predicting subjective effects.
 
+#### Get Substance [Under Development]
 
-#### Get Substance
-
-Application can preview information about compounds from initally provided dataset, however human-interface is a subject to change.
+Application can preview information about compounds from initially provided dataset, however due to highly nested nature
+of information the clean and human-friendly interface is needed to be designed and developed and implementation of such
+to this application by its nature is questionable.
 
 ```bash
 neuronek substance get caffeine
 ```
 
+```json
+{
+  "name": "Caffeine",
+  "common_names": "",
+  "routes_of_administration": [
+    {
+      "name": "Insufflated",
+      "dosages": [
+        {
+          "classification": "Heavy",
+          "dosage_min": "80.0 mg",
+          "dosage_max": "N/A"
+        },
+        {
+          "classification": "Strong",
+          "dosage_min": "40.0 mg",
+          "dosage_max": "80.0 mg"
+        },
+        {
+          "classification": "Light",
+          "dosage_min": "10.0 mg",
+          "dosage_max": "25.0 mg"
+        },
+        {
+          "classification": "Threshold",
+          "dosage_min": "N/A",
+          "dosage_max": "2.50 mg"
+        },
+        {
+          "classification": "Medium",
+          "dosage_min": "25.0 mg",
+          "dosage_max": "40.0 mg"
+        }
+      ],
+      "phases": [
+        {
+          "name": "Onset",
+          "duration_min": "PT30S",
+          "duration_max": "PT2M"
+        },
+        {
+          "name": "Afterglow",
+          "duration_min": "PT6H",
+          "duration_max": "P1D"
+        },
+        {
+          "name": "Comeup",
+          "duration_min": "PT30S",
+          "duration_max": "PT2M"
+        },
+        {
+          "name": "Comedown",
+          "duration_min": "PT6H",
+          "duration_max": "PT10H"
+        },
+        {
+          "name": "Peak",
+          "duration_min": "PT30M",
+          "duration_max": "PT1H"
+        }
+      ]
+    },
+    {
+      "name": "Oral",
+      "dosages": [
+        {
+          "classification": "Medium",
+          "dosage_min": "50.0 mg",
+          "dosage_max": "150 mg"
+        },
+        {
+          "classification": "Heavy",
+          "dosage_min": "500 mg",
+          "dosage_max": "N/A"
+        },
+        {
+          "classification": "Threshold",
+          "dosage_min": "N/A",
+          "dosage_max": "10.0 mg"
+        },
+        {
+          "classification": "Strong",
+          "dosage_min": "150 mg",
+          "dosage_max": "500 mg"
+        },
+        {
+          "classification": "Light",
+          "dosage_min": "20.0 mg",
+          "dosage_max": "50.0 mg"
+        }
+      ],
+      "phases": [
+        {
+          "name": "Comeup",
+          "duration_min": "PT10M",
+          "duration_max": "PT30M"
+        },
+        {
+          "name": "Comedown",
+          "duration_min": "PT1H",
+          "duration_max": "PT2H"
+        },
+        {
+          "name": "Afterglow",
+          "duration_min": "PT4H",
+          "duration_max": "PT12H"
+        },
+        {
+          "name": "Peak",
+          "duration_min": "PT45M",
+          "duration_max": "PT1H30M"
+        },
+        {
+          "name": "Onset",
+          "duration_min": "PT5M",
+          "duration_max": "PT10M"
+        }
+      ]
+    }
+  ]
+}
+
 ```
-┌─────────────┬──────────────────────────────┬──────────────────────────────┐
-│                            Substance: Caffeine                            │
-├─────────────┼──────────────────────────────┼──────────────────────────────┤
-│ Route       │ Dosage Information           │ Duration Information         │
-├─────────────┼──────────────────────────────┼──────────────────────────────┤
-│ Oral        │ Light:    20.0 mg - 50.0 mg  │ Comeup:     PT10M - PT30M    │
-│             │ Medium:   50.0 mg - 150 mg   │ Peak:       PT45M - PT1H30M  │
-│             │ Threshold:      -∞ - 10.0 mg │ Comedown:    PT1H - PT2H     │
-│             │ Strong:    150 mg - 500 mg   │ Onset:       PT5M - PT10M    │
-│             │ Heavy:     500 mg - ∞        │ Afterglow:    PT4H - PT12H   │
-├─────────────┼──────────────────────────────┼──────────────────────────────┤
-│ Insufflated │ Light:    10.0 mg - 25.0 mg  │ Peak:       PT30M - PT1H     │
-│             │ Medium:   25.0 mg - 40.0 mg  │ Comeup:     PT30S - PT2M     │
-│             │ Heavy:    80.0 mg - ∞        │ Comedown:    PT6H - PT10H    │
-│             │ Threshold:      -∞ - 2.50 mg │ Afterglow:    PT6H - P1D     │
-│             │ Strong:   40.0 mg - 80.0 mg  │ Onset:      PT30S - PT2M     │
-└─────────────┴──────────────────────────────┴──────────────────────────────┘
-```
-
-### Ingestion Analyzer
-
-```bash
-neuronek analyzer -s caffeine -d 60mg
-```
-
-```
-Ingestion Analysis: Caffeine 60.0 mg
-
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0.00%
-
-○ Ingested: in an hour
-○ Onset starts in an hour
-○ Comeup starts in an hour
-○ Peak starts in an hour
-○ Comedown starts in 2 hours
-○ Afterglow starts in 2 hours
-Dosage Classification: Medium
-```
-
-### Journal
-
-Journal is a experimental feature which composes human-friendly interface for showing time-sensetive events by combining major application features (analyzer, ingestions, substances). UI is subject to change.
-
-```bash
-neuronek journal
-```
-
-```
-│
-● 30 seconds ago ingestion 136 (40.0 mg caffeine via oral) [0%]
-│
-● 2 hours ago ingestion 135 (40.0 mg caffeine via oral) [63%]
-│
-● 4 hours ago ingestion 134 (40.0 mg caffeine via oral) [74%]
-│
-│ 6 past ingestions collapsed
-```
-
-## Futher Development
-
-*Roadmap is a subject to change and one that is presented here is a high-level overview of direction of the project.*
-
-neuronek is an ongoing project with many planned features and improvements. Some of the key areas of development
-include:
-
-- **Journaling**: A user-friendly interface for creating and managing journal entries related to ingestions, thoughts,
-  and experiences.
-- **Terminal User Interface**: Friendly and efficient interactive interface for terminal application.
-- **Web Application**
-- **Desktop/Mobile Application**
-- **Cloud Sync**
 
 ## Contributing
 

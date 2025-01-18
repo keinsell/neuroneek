@@ -1,15 +1,125 @@
+use crate::analyzer::IngestionAnalysis;
+use crate::analyzer::IngestionPhase;
+use crate::cli::OutputFormat;
+use crate::formatter::Formatter;
 use crate::ingestion::Ingestion;
+use crate::substance::DosageClassification;
 use crate::substance::dosage::Dosage;
 use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::substance::route_of_administration::phase::PhaseClassification;
 use crate::utils::AppContext;
 use crate::utils::CommandHandler;
 use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Local;
+use chrono_humanize::HumanTime;
 use clap::Parser;
 use miette::IntoDiagnostic;
+use owo_colors::OwoColorize;
 use sea_orm::EntityTrait;
+use std::borrow::Cow;
 use std::str::FromStr;
+use tabled::Table;
+use tabled::Tabled;
+use tabled::settings::Style;
+
+fn display_date(date: &DateTime<Local>) -> String { HumanTime::from(*date).to_string() }
+
+#[derive(Debug, serde::Serialize, Tabled)]
+struct AnalyzerReportPhaseViewModel
+{
+    #[tabled(rename = "Phase")]
+    phase: PhaseClassification,
+
+    #[tabled(rename = "Start Time")]
+    #[tabled(display_with = "display_date")]
+    from: DateTime<Local>,
+
+    #[tabled(rename = "End Time")]
+    #[tabled(display_with = "display_date")]
+    to: DateTime<Local>,
+}
+
+#[derive(Debug, serde::Serialize)]
+struct AnalyzerReportViewModel
+{
+    ingestion_id: Option<i32>,
+    substance_name: String,
+    dosage: String,
+    #[serde(rename = "dosage_classification")]
+    classification: Option<DosageClassification>,
+    phases: Vec<AnalyzerReportPhaseViewModel>,
+}
+
+impl Tabled for AnalyzerReportViewModel
+{
+    const LENGTH: usize = 5;
+
+    fn fields(&self) -> Vec<Cow<'_, str>>
+    {
+        let nested_phases_table = Table::new(&self.phases)
+            .with(Style::modern_rounded())
+            .to_string();
+        vec![
+            Cow::Owned(
+                self.ingestion_id
+                    .map_or("N/A".to_string(), |id| id.to_string()),
+            ),
+            Cow::Borrowed(self.substance_name.as_str()),
+            Cow::Borrowed(self.dosage.as_str()),
+            Cow::Owned(
+                self.classification
+                    .as_ref()
+                    .map_or("N/A".to_string(), |c| c.to_string()),
+            ),
+            Cow::Owned(nested_phases_table.to_string()),
+        ]
+    }
+
+    fn headers() -> Vec<Cow<'static, str>>
+    {
+        vec![
+            Cow::Borrowed("Ingestion ID"),
+            Cow::Borrowed("Substance"),
+            Cow::Borrowed("Dosage"),
+            Cow::Borrowed("Dosage Classification"),
+            Cow::Borrowed("Phase Details"),
+        ]
+    }
+}
+
+impl Formatter for AnalyzerReportViewModel {}
+
+impl From<&IngestionPhase> for AnalyzerReportPhaseViewModel
+{
+    fn from(value: &IngestionPhase) -> Self
+    {
+        AnalyzerReportPhaseViewModel {
+            phase: value.class.clone(),
+            from: value.duration_range.start,
+            to: value.duration_range.end,
+        }
+    }
+}
+
+impl From<IngestionAnalysis> for AnalyzerReportViewModel
+{
+    fn from(value: IngestionAnalysis) -> Self
+    {
+        AnalyzerReportViewModel {
+            ingestion_id: None,
+            substance_name: value.ingestion.as_ref().unwrap().substance.clone(),
+            dosage: value.ingestion.as_ref().unwrap().dosage.to_string(),
+            classification: value.dosage_classification,
+            phases: value
+                .phases
+                .iter()
+                .map(AnalyzerReportPhaseViewModel::from)
+                .collect(),
+        }
+    }
+}
+
 
 /// Analyze a previously logged ingestion activity.
 ///
@@ -103,7 +213,7 @@ impl CommandHandler for AnalyzeIngestion
         };
 
         let substance = crate::substance::repository::get_substance(
-            self.substance.as_ref().unwrap(),
+            &ingestion.substance.clone(),
             ctx.database_connection,
         )
         .await?;
@@ -111,20 +221,11 @@ impl CommandHandler for AnalyzeIngestion
         if substance.is_some()
         {
             let substance = substance.unwrap();
-            let analysis =
-                crate::analyzer::IngestionAnalysis::analyze(ingestion, substance).await?;
-
-            match ctx.stdout_format
-            {
-                | crate::cli::OutputFormat::Pretty => println!("{}", analysis),
-                | crate::cli::OutputFormat::Json =>
-                {
-                    println!(
-                        "{}",
-                        serde_json::to_string_pretty(&analysis).into_diagnostic()?
-                    );
-                }
-            }
+            let analysis: AnalyzerReportViewModel =
+                crate::analyzer::IngestionAnalysis::analyze(ingestion, substance)
+                    .await?
+                    .into();
+            println!("{}", analysis.format(ctx.stdout_format));
         }
 
         Ok(())

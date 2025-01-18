@@ -1,3 +1,6 @@
+use crate::orm::ingestion;
+use crate::orm::prelude::Ingestion;
+use crate::utils::DATABASE_CONNECTION;
 use crossterm::event::Event;
 use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
@@ -7,6 +10,7 @@ use crossterm::terminal::EnterAlternateScreen;
 use crossterm::terminal::LeaveAlternateScreen;
 use crossterm::terminal::disable_raw_mode;
 use crossterm::terminal::enable_raw_mode;
+use futures::executor::block_on;
 use miette::IntoDiagnostic;
 use miette::Result;
 use ratatui::Frame;
@@ -21,7 +25,11 @@ use ratatui::style::Color;
 use ratatui::style::Style;
 use ratatui::widgets::Block;
 use ratatui::widgets::Borders;
+use ratatui::widgets::List;
+use ratatui::widgets::ListItem;
 use ratatui::widgets::block::Title;
+use sea_orm::EntityTrait;
+use sea_orm::QueryOrder;
 use std::io;
 use std::io::Stdout;
 

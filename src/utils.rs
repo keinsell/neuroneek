@@ -16,6 +16,12 @@ use sea_orm_migration::IntoSchemaManagerConnection;
 use sea_orm_migration::MigratorTrait;
 use std::env::temp_dir;
 use std::path::PathBuf;
+use std::thread::sleep;
+use tracing::instrument;
+use tracing_indicatif::IndicatifLayer;
+use tracing_subscriber::Layer;
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 #[derive(Debug, Clone)]
 pub struct AppContext<'a>
@@ -116,13 +122,14 @@ fn initialize_database(config: &Config) -> std::result::Result<(), String>
     Ok(())
 }
 
+#[instrument]
 pub async fn migrate_database(database_connection: &DatabaseConnection) -> miette::Result<()>
 {
     let is_interactive_terminal = atty::is(Stream::Stdout);
     let spinner = if is_interactive_terminal
     {
         let s = indicatif::ProgressBar::new_spinner();
-        s.enable_steady_tick(std::time::Duration::from_millis(100));
+        s.enable_steady_tick(std::time::Duration::from_millis(10));
         Some(s)
     }
     else
@@ -161,7 +168,19 @@ pub async fn migrate_database(database_connection: &DatabaseConnection) -> miett
 pub fn setup_diagnostics() { miette::set_panic_hook(); }
 
 // TODO: Implement logging
-pub fn setup_logger() {}
+pub fn setup_logger()
+{
+    // let indicatif_layer = IndicatifLayer::new();
+    //
+    // if atty::is(Stream::Stdout) && cfg!(debug_assertions)
+    // {
+    //     tracing_subscriber::registry()
+    //         .with(tracing_subscriber::fmt::layer().
+    // with_writer(indicatif_layer.get_stderr_writer()))
+    //         .with(indicatif_layer)
+    //         .init();
+    // }
+}
 
 
 pub fn parse_date_string(humanized_input: &str) -> miette::Result<chrono::DateTime<chrono::Local>>

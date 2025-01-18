@@ -43,6 +43,7 @@ impl Dosage
     delegate! {
         to self.0 {
             pub fn as_base_units(&self) -> f64;
+
         }
     }
 }

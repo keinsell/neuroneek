@@ -3,8 +3,12 @@ use clap::ColorChoice;
 use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
+use clap_complete::Shell;
 use ingestion::IngestionCommand;
+use miette::IntoDiagnostic;
 use sea_orm::prelude::async_trait::async_trait;
+use std::fs;
+use std::fs::create_dir_all;
 use substance::SubstanceCommand;
 
 use crate::utils::AppContext;
@@ -60,6 +64,7 @@ struct GenerateCompletion
     #[arg(value_enum, default_value_t=default_complete_shell())]
     shell: clap_complete::Shell,
 }
+
 
 #[async_trait]
 impl CommandHandler for GenerateCompletion

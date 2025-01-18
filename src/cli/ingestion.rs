@@ -28,6 +28,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::str::FromStr;
 use tabled::Tabled;
+use tracing::Level;
+use tracing::event;
 use typed_builder::TypedBuilder;
 
 /**
@@ -91,15 +93,17 @@ impl CommandHandler for LogIngestion
 {
     async fn handle<'a>(&self, context: AppContext<'a>) -> miette::Result<()>
     {
-        let pubchem = pubchem::Compound::with_name(&self.substance_name)
+        // Substance name powered by PubChem API, fallback to user input
+        let substance_name = pubchem::Compound::with_name(&self.substance_name)
             .title()
-            .into_diagnostic()?;
+            .into_diagnostic()
+            .unwrap_or(self.substance_name.clone());
 
-        let ingestion: crate::ingestion::Ingestion = Ingestion::insert(ingestion::ActiveModel {
+        let ingestion = Ingestion::insert(ingestion::ActiveModel {
             id: ActiveValue::default(),
-            substance_name: ActiveValue::Set(pubchem.to_lowercase()),
+            substance_name: ActiveValue::Set(substance_name.to_lowercase()),
             route_of_administration: ActiveValue::Set(
-                serde_json::to_value(&self.route_of_administration)
+                serde_json::to_value(self.route_of_administration)
                     .unwrap()
                     .as_str()
                     .unwrap()
@@ -112,10 +116,14 @@ impl CommandHandler for LogIngestion
         })
         .exec_with_returning(context.database_connection)
         .await
-        .into_diagnostic()?
-        .into();
+        .into_diagnostic()?;
 
-        info!("Ingestion logged. {:#?}", ingestion);
+        event!(Level::INFO, "Ingestion logged | {:#?}", ingestion.clone());
+
+        println!(
+            "{}",
+            IngestionViewModel::from(ingestion).format(context.stdout_format)
+        );
 
         Ok(())
     }
@@ -333,22 +341,7 @@ pub struct IngestionViewModel
     pub ingested_at: DateTime<Local>,
 }
 
-impl Formatter for IngestionViewModel
-{
-    fn format(&self, format: OutputFormat) -> String
-    {
-        match format
-        {
-            | OutputFormat::Json => serde_json::to_string_pretty(self).unwrap(),
-            | OutputFormat::Pretty =>
-            {
-                let table = tabled::Table::new([self]).to_string();
-                table
-            }
-        }
-    }
-}
-
+impl Formatter for IngestionViewModel {}
 impl From<Model> for IngestionViewModel
 {
     fn from(model: Model) -> Self
