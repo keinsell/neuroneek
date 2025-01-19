@@ -3,20 +3,19 @@ use clap::ColorChoice;
 use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
-use clap_complete::Shell;
 use ingestion::IngestionCommand;
 use miette::IntoDiagnostic;
 use sea_orm::prelude::async_trait::async_trait;
-use std::fs;
-use std::fs::create_dir_all;
 use substance::SubstanceCommand;
 
+use crate::core::CommandHandler;
 use crate::utils::AppContext;
-use crate::utils::CommandHandler;
 use analyze::AnalyzeIngestion;
 mod analyze;
 mod ingestion;
+mod stats;
 pub mod substance;
+pub mod formatter;
 
 fn is_interactive() -> bool { atty::is(Stream::Stdout) }
 
@@ -96,6 +95,7 @@ impl CommandHandler for ApplicationCommands
             | ApplicationCommands::Substance(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Completions(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Analyzer(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Stats(cmd) => cmd.handle(ctx).await,
         }
     }
 }
@@ -112,6 +112,7 @@ pub enum ApplicationCommands
     Analyzer(AnalyzeIngestion),
     /// Generate shell completions
     Completions(GenerateCompletion),
+    Stats(stats::GetStatistics),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor

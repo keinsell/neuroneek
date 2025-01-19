@@ -1,27 +1,21 @@
 pub mod route_of_administration;
 
-use crate::utils::CommandHandler;
+use crate::core::CommandHandler;
 use clap::Parser;
 use clap::Subcommand;
-pub mod dosage;
+pub mod error;
 pub mod repository;
 
 use crate::substance::route_of_administration::RouteOfAdministrationClassification;
-use dosage::Dosage;
 use hashbrown::HashMap;
 use iso8601_duration::Duration;
+use route_of_administration::dosage::Dosage;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
 use std::ops::Range;
 use std::str::FromStr;
-use tabled::settings::Alignment;
-use tabled::settings::Modify;
-use tabled::settings::Panel;
-use tabled::settings::Style;
-use tabled::settings::Width;
-use tabled::settings::object::Columns;
-use tabled::settings::object::Rows;
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
 pub enum DosageClassification
@@ -118,8 +112,8 @@ pub struct RouteOfAdministration
     pub phases: Phases,
 }
 
-use crate::formatter::Formatter;
+use crate::cli::formatter::Formatter;
 use route_of_administration::phase::Phases;
 use tabled::Tabled;
 
-pub(crate) type SubstanceTable = crate::orm::substance::Model;
+pub(crate) type SubstanceTable = crate::database::entities::substance::Model;

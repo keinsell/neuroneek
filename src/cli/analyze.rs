@@ -1,14 +1,13 @@
-use crate::analyzer::IngestionAnalysis;
-use crate::analyzer::IngestionPhase;
-use crate::cli::OutputFormat;
-use crate::formatter::Formatter;
-use crate::ingestion::Ingestion;
-use crate::substance::DosageClassification;
-use crate::substance::dosage::Dosage;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::analyzer::model::IngestionAnalysis;
+use crate::analyzer::model::IngestionPhase;
+use crate::core::CommandHandler;
+use crate::cli::formatter::Formatter;
+use crate::ingestion::model::Ingestion;
+use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::phase::PhaseClassification;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::substance::DosageClassification;
 use crate::utils::AppContext;
-use crate::utils::CommandHandler;
 use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Local;
@@ -19,9 +18,9 @@ use owo_colors::OwoColorize;
 use sea_orm::EntityTrait;
 use std::borrow::Cow;
 use std::str::FromStr;
+use tabled::settings::Style;
 use tabled::Table;
 use tabled::Tabled;
-use tabled::settings::Style;
 
 fn display_date(date: &DateTime<Local>) -> String { HumanTime::from(*date).to_string() }
 
@@ -197,12 +196,15 @@ impl CommandHandler for AnalyzeIngestion
     {
         let ingestion: Ingestion = match self.ingestion_id
         {
-            | Some(..) => crate::orm::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
-                .one(ctx.database_connection)
-                .await
-                .into_diagnostic()?
-                .unwrap_or_else(|| panic!("Ingestion not found"))
-                .into(),
+            | Some(..) =>
+            {
+                crate::database::entities::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
+                    .one(ctx.database_connection)
+                    .await
+                    .into_diagnostic()?
+                    .unwrap_or_else(|| panic!("Ingestion not found"))
+                    .into()
+            }
             | None => Ingestion {
                 id: Default::default(),
                 dosage: self.dosage.clone().expect("Dosage not provided"),
@@ -222,7 +224,7 @@ impl CommandHandler for AnalyzeIngestion
         {
             let substance = substance.unwrap();
             let analysis: AnalyzerReportViewModel =
-                crate::analyzer::IngestionAnalysis::analyze(ingestion, substance)
+                IngestionAnalysis::analyze(ingestion, substance)
                     .await?
                     .into();
             println!("{}", analysis.format(ctx.stdout_format));

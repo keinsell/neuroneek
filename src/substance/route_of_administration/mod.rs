@@ -1,4 +1,6 @@
+pub mod dosage;
 pub mod phase;
+
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;

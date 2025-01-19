@@ -1,42 +1,40 @@
 #![allow(unused_imports)]
-extern crate chrono;
-extern crate chrono_english;
-extern crate date_time_parser;
 #[macro_use] extern crate log;
-use prelude::*;
+#[macro_use] extern crate serde_derive;
+use self::core::error_handling::setup_diagnostics;
+use self::core::logging::setup_logger;
 
 use crate::cli::Cli;
-use crate::utils::AppContext;
-use crate::utils::CommandHandler;
-use crate::utils::DATABASE_CONNECTION;
 use crate::utils::migrate_database;
-use crate::utils::setup_diagnostics;
-use crate::utils::setup_logger;
+use crate::utils::AppContext;
+use crate::utils::DATABASE_CONNECTION;
+
 use atty::Stream;
 use clap::Parser;
+use core::CommandHandler;
+use miette::Result;
 use std::env;
 
 mod analyzer;
 mod cli;
-pub mod formatter;
-mod ingestion;
+mod core;
+mod database;
+pub mod ingestion;
 mod journal;
-mod migration;
-pub mod orm;
 mod prelude;
 mod substance;
 mod tui;
 mod utils;
 
 #[async_std::main]
-async fn main() -> miette::Result<()>
+async fn main() -> Result<()>
 {
     setup_diagnostics();
     setup_logger();
 
     migrate_database(&DATABASE_CONNECTION)
         .await
-        .expect("Database migration failed");
+        .expect("Database database failed");
 
     // TODO: Perform a check of completion scripts existence and update them or
     // install them https://askubuntu.com/a/1188315
@@ -47,22 +45,17 @@ async fn main() -> miette::Result<()>
     let no_args_provided = env::args().len() == 1;
     let is_interactive_terminal = atty::is(Stream::Stdout);
 
-    // By default, application should use TUI if no arguments are provided
-    // and the output is a terminal, otherwise it should use CLI.
-    if no_args_provided && is_interactive_terminal && cfg!(feature = "experimental-tui")
+    if no_args_provided && is_interactive_terminal
     {
-        tui::tui()?;
-        Ok(())
+        return tui::run().await.map_err(|e| miette::miette!(e.to_string()));
     }
-    else
-    {
-        let cli = Cli::parse();
 
-        let context = AppContext {
-            database_connection: &DATABASE_CONNECTION,
-            stdout_format: cli.format,
-        };
+    let cli = Cli::parse();
 
-        cli.command.handle(context).await
-    }
+    let context = AppContext {
+        database_connection: &DATABASE_CONNECTION,
+        stdout_format: cli.format,
+    };
+
+    cli.command.handle(context).await
 }

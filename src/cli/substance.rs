@@ -1,8 +1,9 @@
-use crate::formatter::Formatter;
-use crate::migration::async_trait::async_trait;
+use async_trait::async_trait;
+use crate::core::CommandHandler;
+use crate::cli::formatter::Formatter;
+use crate::substance::error::SubstanceError;
 use crate::substance::SubstanceTable;
 use crate::utils::AppContext;
-use crate::utils::CommandHandler;
 use clap::Args;
 use clap::Parser;
 use clap::Subcommand;
@@ -107,9 +108,8 @@ impl CommandHandler<Substance> for GetSubstance
         let substance: Substance =
             crate::substance::repository::get_substance(&self.name, ctx.database_connection)
                 .await?
-                .unwrap()
+                .unwrap_or_else(|| panic!("{}", SubstanceError::NotFound))
                 .into();
-
 
         println!("{}", serde_json::to_string_pretty(&substance).unwrap());
 

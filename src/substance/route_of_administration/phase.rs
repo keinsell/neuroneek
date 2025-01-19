@@ -22,6 +22,7 @@ pub enum PhaseClassification
     Peak,
     Comedown,
     Afterglow,
+    Unknown,
 }
 
 impl FromStr for PhaseClassification
@@ -57,8 +58,14 @@ impl fmt::Display for PhaseClassification
             | PhaseClassification::Peak => write!(f, "Peak"),
             | PhaseClassification::Comedown => write!(f, "Comedown"),
             | PhaseClassification::Afterglow => write!(f, "Afterglow"),
+            | PhaseClassification::Unknown => write!(f, "Unknown"),
         }
     }
+}
+
+impl Default for PhaseClassification
+{
+    fn default() -> Self { Self::Unknown }
 }
 
 pub type Phases = HashMap<PhaseClassification, DurationRange>;

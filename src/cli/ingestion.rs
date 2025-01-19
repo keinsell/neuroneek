@@ -1,15 +1,15 @@
 use crate::cli::OutputFormat;
-use crate::formatter::Formatter;
-use crate::formatter::FormatterVector;
-use crate::migration::async_trait::async_trait;
-use crate::orm::ingestion;
-use crate::orm::ingestion::Entity as Ingestion;
-use crate::orm::ingestion::Model;
-use crate::substance::dosage::Dosage;
+use crate::core::CommandHandler;
+use async_trait::async_trait;
+use crate::database::entities::ingestion;
+use crate::database::entities::ingestion::Entity as Ingestion;
+use crate::database::entities::ingestion::Model;
+use crate::cli::formatter::Formatter;
+use crate::cli::formatter::FormatterVector;
+use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::RouteOfAdministrationClassification;
-use crate::utils::AppContext;
-use crate::utils::CommandHandler;
 use crate::utils::parse_date_string;
+use crate::utils::AppContext;
 use chrono::DateTime;
 use chrono::Local;
 use chrono::TimeZone;
@@ -17,8 +17,8 @@ use chrono_humanize::HumanTime;
 use clap::Parser;
 use clap::Subcommand;
 use log::info;
-use miette::IntoDiagnostic;
 use miette::miette;
+use miette::IntoDiagnostic;
 use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::EntityTrait;
@@ -28,8 +28,8 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::str::FromStr;
 use tabled::Tabled;
-use tracing::Level;
 use tracing::event;
+use tracing::Level;
 use typed_builder::TypedBuilder;
 
 /**
@@ -361,9 +361,9 @@ impl From<Model> for IngestionViewModel
     }
 }
 
-impl From<crate::ingestion::Ingestion> for IngestionViewModel
+impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
 {
-    fn from(model: crate::ingestion::Ingestion) -> Self
+    fn from(model: crate::ingestion::model::Ingestion) -> Self
     {
         let dosage = model.dosage;
         Self::builder()

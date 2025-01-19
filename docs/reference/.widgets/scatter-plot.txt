@@ -1,0 +1,10 @@
+Ingestion: Caffeine (Oral) - 200 mg - Started: 17:21 UTC
+
+Intensity
+ High   ^
+        |       *
+        |
+Medium  +   *
+        |
+ Low    +-----------> Time
+      Onset Come-up Peak Comedown Afterglow

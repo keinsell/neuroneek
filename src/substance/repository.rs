@@ -1,32 +1,54 @@
-use crate::orm;
-use crate::orm::substance;
+use crate::database::entities;
+use crate::database::entities::substance;
+use crate::substance::error::SubstanceError;
+use crate::substance::route_of_administration::dosage::Dosage;
+use crate::substance::route_of_administration::phase::PhaseClassification;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::substance::DosageClassification;
 use crate::substance::DosageRange;
 use crate::substance::DurationRange;
 use crate::substance::RouteOfAdministration;
 use crate::substance::RoutesOfAdministration;
 use crate::substance::Substance;
-use crate::substance::dosage::Dosage;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
-use crate::substance::route_of_administration::phase::PhaseClassification;
-use futures::StreamExt;
+use cached::proc_macro::io_cached;
 use futures::stream::FuturesUnordered;
+use futures::StreamExt;
 use iso8601_duration::Duration;
-use miette::IntoDiagnostic;
 use miette::miette;
+use miette::IntoDiagnostic;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::ModelTrait;
 use sea_orm::QueryFilter;
 use std::str::FromStr;
 
+#[io_cached(
+    disk = true,
+    sync_to_disk_on_cache_change = true,
+    map_error = r##"|e| SubstanceError::DiskError"##,
+    time = 2592000000
+)]
+async fn enrich_substance_name_query(name: &str) -> Result<String, SubstanceError>
+{
+    Ok(pubchem::Compound::with_name(name)
+        .title()
+        .into_diagnostic()
+        .unwrap_or(name.to_string()))
+}
+
 pub async fn get_substance(
     name: &str,
     db: &sea_orm::DatabaseConnection,
 ) -> miette::Result<Option<Substance>>
 {
+    let substance_name = enrich_substance_name_query(name).await?;
+
     let db_substance = substance::Entity::find()
-        .filter(substance::Column::Name.contains(name.to_lowercase()))
+        .filter(
+            substance::Column::Name
+                .eq(substance_name.to_lowercase())
+                .or(substance::Column::CommonNames.contains(name.to_lowercase())),
+        )
         .one(db)
         .await
         .into_diagnostic()?;
@@ -38,7 +60,7 @@ pub async fn get_substance(
     };
 
     let routes_of_administration = db_substance
-        .find_related(orm::substance_route_of_administration::Entity)
+        .find_related(entities::substance_route_of_administration::Entity)
         .all(db)
         .await
         .into_diagnostic()?;
@@ -61,7 +83,7 @@ pub async fn get_substance(
             };
 
             let dosages = route
-                .find_related(orm::substance_route_of_administration_dosage::Entity)
+                .find_related(entities::substance_route_of_administration_dosage::Entity)
                 .all(&db)
                 .await
                 .into_diagnostic()?;
@@ -94,7 +116,7 @@ pub async fn get_substance(
             }
 
             let phases = route
-                .find_related(orm::substance_route_of_administration_phase::Entity)
+                .find_related(entities::substance_route_of_administration_phase::Entity)
                 .all(&db)
                 .await
                 .into_diagnostic()?;
