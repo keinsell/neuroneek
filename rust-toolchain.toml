@@ -1,3 +1,4 @@
 [toolchain]
 channel = "nightly"
-profile = "complete"
+components = ["rust-src", "llvm-tools-preview", "miri", "rust-analysis"]
+profile = "default"

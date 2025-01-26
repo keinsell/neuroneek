@@ -20,6 +20,13 @@ path-guid = "8EB7202C-B16A-4E75-900B-8924E701FA76"
 license = false
 eula = false
 
+[profile.release]
+codegen-units = 1
+lto = "fat"
+strip = true
+opt-level = 3
+panic = "abort"
+
 [dependencies]
 async-std = { version = "1.12.0", features = ["attributes", "async-global-executor", "async-process"] }
 assert_cmd = "2.0.16"
