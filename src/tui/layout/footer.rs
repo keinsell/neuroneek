@@ -136,6 +136,19 @@ impl Footer
         let help_spans = match self.current_screen
         {
             | Screen::Welcome => vec![
+                Span::styled("h", Style::default().fg(Theme::OVERLAY0)),
+                Span::styled(" Home ", Style::default().fg(Theme::TEXT)),
+                Span::styled("│", Style::default().fg(Theme::OVERLAY1)),
+                Span::styled("?", Style::default().fg(Theme::OVERLAY0)),
+                Span::styled(" Help ", Style::default().fg(Theme::TEXT)),
+                Span::styled("│", Style::default().fg(Theme::OVERLAY1)),
+                Span::styled("q", Style::default().fg(Theme::OVERLAY0)),
+                Span::styled(" Quit ", Style::default().fg(Theme::TEXT)),
+            ],
+            | Screen::Home => vec![
+                Span::styled("2", Style::default().fg(Theme::OVERLAY0)),
+                Span::styled(" Ingestions ", Style::default().fg(Theme::TEXT)),
+                Span::styled("│", Style::default().fg(Theme::OVERLAY1)),
                 Span::styled("?", Style::default().fg(Theme::OVERLAY0)),
                 Span::styled(" Help ", Style::default().fg(Theme::TEXT)),
                 Span::styled("│", Style::default().fg(Theme::OVERLAY1)),
@@ -210,6 +223,7 @@ impl Footer
         match self.current_screen
         {
             | Screen::Welcome => "Welcome",
+            | Screen::Home => "Home",
             | Screen::ListIngestions => "Ingestions",
             | Screen::CreateIngestion => "Create Ingestion",
             | Screen::ViewIngestion => "Ingestion",

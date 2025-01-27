@@ -49,6 +49,7 @@ pub enum Screen
 {
     #[default]
     Welcome,
+    Home,
     ListIngestions,
     Loading,
     CreateIngestion,

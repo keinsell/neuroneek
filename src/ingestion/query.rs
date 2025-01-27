@@ -4,11 +4,11 @@ use crate::utils::DATABASE_CONNECTION;
 use async_trait::async_trait;
 use clap::Parser;
 use miette::IntoDiagnostic;
-use sea_orm::prelude::async_trait;
-use sea_orm::prelude::*;
 use sea_orm::EntityTrait;
 use sea_orm::QueryOrder;
 use sea_orm::QuerySelect;
+use sea_orm::prelude::async_trait;
+use sea_orm::prelude::*;
 use sea_orm_migration::IntoSchemaManagerConnection;
 use typed_builder::TypedBuilder;
 

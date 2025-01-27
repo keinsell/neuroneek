@@ -3,8 +3,17 @@ use miette::Result;
 use ratatui::prelude::*;
 
 use super::core::Renderable;
-
+pub mod active_ingestions;
+pub mod dashboard_charts;
 pub mod dosage;
+pub mod journal_summary;
+pub mod timeline_sidebar;
+
+pub use active_ingestions::ActiveIngestionPanel;
+pub use dashboard_charts::DashboardCharts;
+pub use dosage::dosage_dots;
+pub use journal_summary::JournalSummary;
+pub use timeline_sidebar::TimelineSidebar;
 
 pub trait EventHandler
 {

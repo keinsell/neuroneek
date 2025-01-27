@@ -1,3 +1,8 @@
+use crate::analyzer::model::IngestionAnalysis;
+use crate::core::QueryHandler;
+use crate::ingestion::ListIngestions;
+use crate::ingestion::model::Ingestion;
+use crate::substance::repository;
 use crate::tui::core::Renderable;
 use crate::tui::events::AppEvent;
 use crate::tui::events::AppMessage;
@@ -9,15 +14,20 @@ use crate::tui::layout::header::Header;
 use crate::tui::layout::header::Message;
 use crate::tui::layout::help::Help;
 use crate::tui::theme::Theme;
+use crate::tui::views::Home;
+use crate::tui::views::Welcome;
 use crate::tui::views::ingestion::create_ingestion::CreateIngestionState;
 use crate::tui::views::ingestion::get_ingestion::IngestionViewState;
 use crate::tui::views::ingestion::list_ingestion::IngestionListState;
 use crate::tui::views::loading::LoadingScreen;
-use crate::tui::views::Welcome;
 use crate::tui::widgets::EventHandler as WidgetEventHandler;
 use crate::tui::widgets::Focusable;
 use crate::tui::widgets::Navigable;
 use crate::tui::widgets::Stateful;
+use crate::tui::widgets::active_ingestions::ActiveIngestionPanel;
+use crate::tui::widgets::dashboard_charts::DashboardCharts;
+use crate::tui::widgets::timeline_sidebar::TimelineSidebar;
+use crate::utils::DATABASE_CONNECTION;
 use async_std::task;
 use async_std::task::JoinHandle;
 use crossterm::event as crossterm_event;
@@ -26,26 +36,26 @@ use crossterm::event::KeyCode;
 use crossterm::event::KeyEvent;
 use crossterm::event::MouseEvent;
 use crossterm::execute;
-use crossterm::terminal::disable_raw_mode;
-use crossterm::terminal::enable_raw_mode;
 use crossterm::terminal::EnterAlternateScreen;
 use crossterm::terminal::LeaveAlternateScreen;
+use crossterm::terminal::disable_raw_mode;
+use crossterm::terminal::enable_raw_mode;
 use futures::executor::block_on;
 use futures::future::Future;
 use futures::future::FutureExt;
 use miette::IntoDiagnostic;
 use miette::Result;
 use ratatui::prelude::*;
-use ratatui::widgets::block::Title;
 use ratatui::widgets::Block;
 use ratatui::widgets::BorderType;
 use ratatui::widgets::Borders;
 use ratatui::widgets::Clear;
 use ratatui::widgets::Gauge;
 use ratatui::widgets::Paragraph;
+use ratatui::widgets::block::Title;
 use std::collections::HashMap;
-use std::io::stdout;
 use std::io::Stdout;
+use std::io::stdout;
 use std::time::Duration;
 use std::time::Instant;
 use tracing::debug;
@@ -68,6 +78,9 @@ pub struct Application
     loading_screen: Option<LoadingScreen>,
     background_tasks: HashMap<String, (JoinHandle<Result<()>>, bool)>,
     data_cache: HashMap<String, Instant>,
+    active_ingestions: Vec<(Ingestion, Option<IngestionAnalysis>)>,
+    welcome_ticks: u8,
+    dashboard_charts: DashboardCharts,
 }
 
 impl Application
@@ -80,7 +93,7 @@ impl Application
         let mut app = Self {
             terminal,
             event_handler: EventHandler::new(),
-            current_screen: Screen::Welcome,
+            current_screen: Screen::Welcome, // Start with Welcome
             last_tick: Instant::now(),
             ingestion_details: IngestionViewState::new(),
             ingestion_list: IngestionListState::new(),
@@ -89,13 +102,18 @@ impl Application
             status_bar: Footer::new(),
             help_page: Help::new(),
             show_help: false,
-            target_screen: None,
+            target_screen: Some(Screen::Home), // Set Home as target
             loading_screen: None,
             background_tasks: HashMap::new(),
             data_cache: HashMap::new(),
+            active_ingestions: Vec::new(),
+            welcome_ticks: 0,
+            dashboard_charts: DashboardCharts::new(),
         };
 
-        app.update_screen(app.current_screen).await?;
+        app.update_active_ingestions().await?;
+        app.update_screen(Screen::Welcome).await?;
+
         Ok(app)
     }
 
@@ -219,7 +237,7 @@ impl Application
                     .constraints([
                         Constraint::Length(3),
                         Constraint::Min(10),
-                        Constraint::Length(3),
+                        Constraint::Max(3),
                     ])
                     .split(area);
 
@@ -239,14 +257,44 @@ impl Application
                         | Screen::Welcome =>
                         {
                             let block = Block::default()
-                                .title("Home")
+                                .title("Welcome")
                                 .borders(Borders::ALL)
+                                .border_type(BorderType::Rounded)
+                                .style(Style::default().bg(Theme::SURFACE0));
+
+                            let welcome_area = block.inner(chunks[1]);
+                            frame.render_widget(block, chunks[1]);
+                            Welcome::default().render(welcome_area, frame).unwrap();
+                        }
+                        | Screen::Home =>
+                        {
+                            let block = Block::default()
+                                .title("Dashboard")
                                 .border_type(BorderType::Rounded)
                                 .style(Style::default().bg(Theme::SURFACE0));
 
                             let home_area = block.inner(chunks[1]);
                             frame.render_widget(block, chunks[1]);
-                            Welcome::default().render(home_area, frame).unwrap();
+
+                            let content_chunks = Layout::default()
+                                .direction(Direction::Horizontal)
+                                .constraints([
+                                    Constraint::Percentage(70),
+                                    Constraint::Percentage(30),
+                                ])
+                                .spacing(1)
+                                .split(home_area);
+
+                            // Update dashboard charts with current data
+                            self.dashboard_charts
+                                .set_active_ingestions(self.active_ingestions.iter()
+                                    .filter_map(|(_, analysis)| analysis.clone())
+                                    .collect());
+
+                            // Render timeline with full ingestion data
+                            let mut timeline = TimelineSidebar::new();
+                            timeline.update(self.active_ingestions.clone());
+                            let _ = timeline.render(content_chunks[1], frame);
                         }
                         | Screen::CreateIngestion =>
                         {
@@ -336,6 +384,54 @@ impl Application
         Ok(())
     }
 
+    async fn update_active_ingestions(&mut self) -> Result<()>
+    {
+        if !self.should_refresh_data("active_ingestions")
+        {
+            return Ok(());
+        }
+
+        let ingestions = ListIngestions::default().query().await?;
+        let mut analyzed_ingestions = Vec::new();
+        let mut active_analyses = Vec::new();
+        let window_start = chrono::Local::now() - chrono::Duration::hours(12);
+        let window_end = chrono::Local::now() + chrono::Duration::hours(12);
+
+        for ingestion in ingestions
+        {
+            let substance =
+                repository::get_substance(&ingestion.substance, &DATABASE_CONNECTION).await?;
+
+            if let Some(substance_data) = substance
+            {
+                if let Ok(analysis) =
+                    IngestionAnalysis::analyze(ingestion.clone(), substance_data).await
+                {
+                    if analysis.ingestion_end >= window_start && analysis.ingestion_start <= window_end
+                    {
+                        analyzed_ingestions.push((ingestion, Some(analysis.clone())));
+                        active_analyses.push(analysis);
+                    }
+                }
+            }
+        }
+
+        self.active_ingestions = analyzed_ingestions;
+        self.dashboard_charts
+            .set_active_ingestions(active_analyses.clone());
+
+        self.data_cache
+            .insert("active_ingestions".to_string(), Instant::now());
+
+        // Also update the header and status bar
+        self.header
+            .update(Message::SetScreen(self.current_screen))?;
+        self.status_bar
+            .update(StatusBarMsg::UpdateScreen(self.current_screen))?;
+
+        Ok(())
+    }
+
     async fn check_background_tasks(&mut self) -> Result<()>
     {
         let task_keys: Vec<String> = self.background_tasks.keys().cloned().collect();
@@ -383,6 +479,9 @@ impl Application
         self.background_tasks
             .retain(|_, (_, completed)| !*completed);
 
+        // Update active ingestions
+        self.update_active_ingestions().await?;
+
         Ok(())
     }
 
@@ -396,6 +495,17 @@ impl Application
             self.render()?;
             self.check_background_tasks().await?;
 
+            // Handle Welcome screen transition
+            if self.current_screen == Screen::Welcome
+            {
+                self.welcome_ticks += 1;
+                if self.welcome_ticks >= 4
+                {
+                    // About 1 second with 250ms tick rate
+                    self.update_screen(Screen::Home).await?;
+                }
+            }
+
             if crossterm_event::poll(Duration::from_millis(250)).into_diagnostic()?
             {
                 let event = crossterm_event::read().into_diagnostic()?;
@@ -403,6 +513,12 @@ impl Application
                 // Handle quit key, but not when editing in the create ingestion form
                 if let Event::Key(key_event) = event
                 {
+                    // Prevent navigation to Welcome screen
+                    if key_event.code == KeyCode::Char('1')
+                        && self.current_screen == Screen::Welcome
+                    {
+                        continue;
+                    }
                     if key_event.code == KeyCode::Char('q')
                     {
                         match self.current_screen
@@ -509,51 +625,9 @@ impl Application
                                     {
                                         if let Some(id) = ingestion.id
                                         {
-                                            block_on(async {
-                                                self.ingestion_details
-                                                    .load_ingestion(id.to_string())
-                                                    .await
-                                                    .map_err(|e| {
-                                                        miette::miette!(
-                                                            "Failed to load ingestion: {}",
-                                                            e
-                                                        )
-                                                    })
-                                            })?;
-                                            self.update_screen(Screen::ViewIngestion).await?;
-                                        }
-                                    }
-                                }
-                                | KeyCode::Char('n') =>
-                                {
-                                    self.update_screen(Screen::CreateIngestion).await?;
-                                }
-                                | _ =>
-                                {}
-                                | KeyCode::Char('j') | KeyCode::Down =>
-                                {
-                                    self.ingestion_list.next();
-                                }
-                                | KeyCode::Char('k') | KeyCode::Up =>
-                                {
-                                    self.ingestion_list.previous();
-                                }
-                                | KeyCode::Char('l') | KeyCode::Right | KeyCode::Enter =>
-                                {
-                                    if let Some(ingestion) =
-                                        self.ingestion_list.selected_ingestion()
-                                    {
-                                        if let Some(id) = ingestion.id
-                                        {
                                             self.ingestion_details
                                                 .load_ingestion(id.to_string())
-                                                .await
-                                                .map_err(|e| {
-                                                    miette::miette!(
-                                                        "Failed to load ingestion: {}",
-                                                        e
-                                                    )
-                                                })?;
+                                                .await?;
                                             self.update_screen(Screen::ViewIngestion).await?;
                                         }
                                     }
@@ -576,25 +650,6 @@ impl Application
                             },
                             | Screen::CreateIngestion =>
                             {
-                                // Handle create ingestion form events
-                                if let Some(msg) =
-                                    self.create_ingestion.handle_event(AppEvent::Key(key))?
-                                {
-                                    self.update(msg).await?;
-                                }
-                            }
-                            | Screen::ViewIngestion => match key.code
-                            {
-                                | KeyCode::Char('h') | KeyCode::Left | KeyCode::Esc =>
-                                {
-                                    self.update_screen(Screen::ListIngestions).await?;
-                                }
-                                | _ =>
-                                {}
-                            },
-                            | Screen::CreateIngestion =>
-                            {
-                                // Handle create ingestion form events
                                 if let Some(msg) =
                                     self.create_ingestion.handle_event(AppEvent::Key(key))?
                                 {
@@ -631,11 +686,9 @@ impl Application
             {}
             | AppMessage::NavigateToPage(screen) =>
             {
-                // After creating an ingestion, we want to refresh the list
                 if screen == Screen::ListIngestions
                     && self.current_screen == Screen::CreateIngestion
                 {
-                    // Force a refresh by removing from cache
                     self.data_cache.remove("ingestion_list");
                 }
                 self.update_screen(screen).await?;
@@ -652,21 +705,8 @@ impl Application
                 | _ =>
                 {}
             },
-            | AppMessage::SelectNext => match self.current_screen
-            {
-                | Screen::ListIngestions => self.ingestion_list.next(),
-                | _ =>
-                {}
-            },
-            | AppMessage::SelectPrevious => match self.current_screen
-            {
-                | Screen::ListIngestions => self.ingestion_list.previous(),
-                | _ =>
-                {}
-            },
             | AppMessage::LoadData =>
             {
-                // Force a refresh by removing from cache
                 self.data_cache.remove("ingestion_list");
                 self.update_screen(Screen::ListIngestions).await?;
             }
@@ -674,12 +714,16 @@ impl Application
             {
                 self.update_screen(Screen::CreateIngestion).await?;
             }
-            | AppMessage::CreateIngestion =>
+            | AppMessage::Refresh =>
             {
-                self.update_screen(Screen::CreateIngestion).await?;
+                self.data_cache.clear();
+                self.update_active_ingestions().await?;
+                self.update_screen(self.current_screen).await?;
             }
-            | _ =>
-            {}
+            | AppMessage::ListIngestions =>
+            {
+                self.update_screen(Screen::ListIngestions).await?;
+            }
         }
 
         Ok(())

@@ -73,7 +73,7 @@ impl Renderable for Header
 
         let nav_items = Line::from(vec![
             Span::raw(" "),
-            if matches!(self.current_screen, Screen::Welcome)
+            if matches!(self.current_screen, Screen::Home)
             {
                 Span::styled("Home", Style::default().fg(Theme::BASE).bg(Theme::TEXT))
             }
@@ -81,7 +81,7 @@ impl Renderable for Header
             {
                 Span::styled("1", Style::default().fg(Theme::OVERLAY0))
             },
-            if !matches!(self.current_screen, Screen::Welcome)
+            if !matches!(self.current_screen, Screen::Home)
             {
                 Span::styled(" Home", Style::default().fg(Theme::TEXT))
             }
@@ -158,7 +158,9 @@ impl EventHandler for Header
             {
                 | KeyCode::Char('1') =>
                 {
-                    return Ok(Some(Message::SetScreen(Screen::Welcome)));
+                    if self.current_screen != Screen::Welcome {
+                        return Ok(Some(Message::SetScreen(Screen::Home)));
+                    }
                 }
                 | KeyCode::Char('2') =>
                 {

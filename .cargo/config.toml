@@ -1,0 +1,7 @@
+[profile.test]
+opt-level = 1
+debug = true
+debug-assertions = true
+
+[term]
+verbose = true
