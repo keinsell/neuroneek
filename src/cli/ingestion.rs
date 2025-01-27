@@ -8,7 +8,7 @@ use crate::cli::formatter::Formatter;
 use crate::cli::formatter::FormatterVector;
 use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::RouteOfAdministrationClassification;
-use crate::utils::parse_date_string;
+use crate::utils::{parse_date_string, DATABASE_CONNECTION};
 use crate::utils::AppContext;
 use chrono::DateTime;
 use chrono::Local;
@@ -27,10 +27,14 @@ use sea_orm::QuerySelect;
 use serde::Deserialize;
 use serde::Serialize;
 use std::str::FromStr;
+use sea_orm_migration::IntoSchemaManagerConnection;
 use tabled::Tabled;
 use tracing::event;
 use tracing::Level;
 use typed_builder::TypedBuilder;
+use crate::analyzer::model::IngestionAnalysis;
+use crate::analyzer::repository::save_ingestion_analysis;
+use crate::substance::repository::get_substance;
 
 /**
 # Log Ingestion
@@ -122,8 +126,19 @@ impl CommandHandler for LogIngestion
 
         println!(
             "{}",
-            IngestionViewModel::from(ingestion).format(context.stdout_format)
+            IngestionViewModel::from(ingestion.clone()).format(context.stdout_format)
         );
+
+        let substance = crate::substance::repository::get_substance(substance_name.as_str(), context.database_connection).await?;
+
+        if substance.is_some() {
+            let ingestion: crate::ingestion::model::Ingestion = ingestion.into();
+            let substance = substance.unwrap();
+            let analysis = IngestionAnalysis::analyze(ingestion, substance).await;
+            if analysis.is_ok() {
+                save_ingestion_analysis(analysis.unwrap()).await?;
+            }
+        }
 
         Ok(())
     }

@@ -53,7 +53,7 @@ generate:
     sea-orm-cli generate entity \
         --compact-format \
         --ignore-tables=seaql_migrations,atlas_schema_revisions \
-        --output-dir="./../orm" \
+        --output-dir="./entities" \
         -u="{{ DEFAULT_DATABASE_CONNECTION_URI }}" \
         --with-serde=both \
         --with-copy-enums

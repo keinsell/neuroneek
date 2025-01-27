@@ -78,6 +78,8 @@ cached = {version = "0.54.0", features = ["disk_store", "async"]}
 derive_more = {version = "1.0.0", features = ["full"]}
 strum = "0.26.3"
 human-panic = "2.0.2"
+crossbeam = { version = "0.8.4", features = ["crossbeam-channel"] }
+uuid = { version = "1.12.1", features = ["v4"] }
 
 [features]
 default = ["tui"]
@@ -140,3 +142,6 @@ assets = [
         "644",
     ],
 ]
+
+[dev-dependencies]
+tokio = { version = "1.38.0", features = ["full", "test-util"] }

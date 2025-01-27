@@ -223,13 +223,75 @@ impl CommandHandler for AnalyzeIngestion
         if substance.is_some()
         {
             let substance = substance.unwrap();
-            let analysis: AnalyzerReportViewModel =
-                IngestionAnalysis::analyze(ingestion, substance)
-                    .await?
-                    .into();
-            println!("{}", analysis.format(ctx.stdout_format));
+            let analysis = IngestionAnalysis::analyze(ingestion, substance)
+                .await?;
+            let view_model: AnalyzerReportViewModel = analysis.into();
+            println!("{}", view_model.format(ctx.stdout_format));
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+    use crate::substance::route_of_administration::dosage::Dosage;
+    use crate::utils::{migrate_database, AppContext, DATABASE_CONNECTION};
+    use chrono::Local;
+    use std::str::FromStr;
+
+    #[async_std::test]
+    async fn test_analyze_ingestion_basic_flow() {
+        let db_conn = &DATABASE_CONNECTION;
+        migrate_database(db_conn).await.unwrap();
+
+        // Prepare test data
+        let analyze_command = AnalyzeIngestion {
+            ingestion_id: None,
+            substance: Some("Caffeine".to_string()),
+            dosage: Some(Dosage::from_str("80 mg").unwrap()),
+            date: Some(Local::now()),
+            roa: Some(RouteOfAdministrationClassification::Oral),
+        };
+
+        // Create a mock app concleartext
+        let ctx = AppContext {
+            database_connection: &db_conn,
+            stdout_format: crate::cli::OutputFormat::default(),
+        };
+
+        // Execute the analyze command
+        let result = analyze_command.handle(ctx).await.unwrap();
+    }
+
+    #[async_std::test]
+    async fn test_analyze_ingestion_handles_missing_substance() {
+        // Prepare test data with a substance that might not exist
+        let analyze_command = AnalyzeIngestion {
+            ingestion_id: None,
+            substance: Some("NonExistentSubstance".to_string()),
+            dosage: Some(Dosage::from_str("100 mg").unwrap()),
+            date: Some(Local::now()),
+            roa: Some(RouteOfAdministrationClassification::Oral),
+        };
+
+        // Create a mock database connection
+        let database_connection = sea_orm::Database::connect("sqlite::memory:")
+            .await
+            .expect("Failed to create in-memory database");
+
+        // Create a mock app context
+        let ctx = AppContext {
+            database_connection: &database_connection,
+            stdout_format: crate::cli::OutputFormat::default(),
+        };
+
+        // Execute the analyze command
+        let result = analyze_command.handle(ctx).await;
+
+        // Assert that the command handles missing substance gracefully
+        assert!(result.is_err(), "AnalyzeIngestion should return an error for non-existent substance");
     }
 }

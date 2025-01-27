@@ -8,6 +8,14 @@ use crate::substance::Substance;
 use chrono::TimeDelta;
 use miette::miette;
 use std::ops::Add;
+use sea_orm::DatabaseConnection;
+use sea_orm::ActiveValue;
+use crate::database::entities::ingestion_phase;
+use sea_orm::EntityTrait;
+use sea_orm::ActiveModelTrait;
+use chrono::Local;
+use futures::future::ok;
+use crate::utils::DATABASE_CONNECTION;
 
 impl IngestionAnalysis
 {
@@ -16,7 +24,7 @@ impl IngestionAnalysis
         let roa = substance
             .routes_of_administration
             .get(&ingestion.route)
-            .ok_or_else(|| miette!("Failed to find route of administration for substance.rs"))?
+            .ok_or_else(|| miette!("Failed to find route of administration for substance"))?
             .clone();
 
         let mut phases = Vec::new();
@@ -115,4 +123,6 @@ impl IngestionAnalysis
 
         (elapsed_time.num_seconds() as f64 / total_duration.num_seconds() as f64).clamp(0.0, 1.0)
     }
+
+
 }

@@ -82,6 +82,11 @@ impl MigratorTrait for Migrator
                 "20250108183655_update_route_of_administration_classification_values",
                 "20250108183655_update_route_of_administration_classification_values"
             ),
+            import_migration!(
+                M20250127045746AddIngestionPhase,
+                "20250127045746_add_ingestion_phase",
+                "20250127045746_add_ingestion_phase"
+            )
         ]
     }
 }
