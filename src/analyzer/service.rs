@@ -104,25 +104,4 @@ impl IngestionAnalysis
             phases,
         })
     }
-
-    /// The progress of the ingestion event, represented as a float between 0.0
-    /// and 1.0. This value represents the fraction of the total duration
-    /// (excluding the afterglow phase) that has elapsed.
-    pub fn progress(&self) -> f64
-    {
-        let now = chrono::Local::now();
-        let total_duration = self.ingestion_end - self.ingestion_start;
-        let elapsed_time = if now < self.ingestion_start
-        {
-            chrono::Duration::zero()
-        }
-        else
-        {
-            (now - self.ingestion_start).min(total_duration)
-        };
-
-        (elapsed_time.num_seconds() as f64 / total_duration.num_seconds() as f64).clamp(0.0, 1.0)
-    }
-
-
 }

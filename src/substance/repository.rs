@@ -24,7 +24,7 @@ use std::str::FromStr;
 
 #[io_cached(
     disk = true,
-    sync_to_disk_on_cache_change = true,
+    sync_to_disk_on_cache_change = false,
     map_error = r##"|e| SubstanceError::DiskError"##,
     time = 2592000000
 )]

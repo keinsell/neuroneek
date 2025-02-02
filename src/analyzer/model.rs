@@ -56,11 +56,3 @@ pub struct IngestionPhase
     pub(crate) prev: Option<Box<IngestionPhase>>,
     pub(crate) next: Option<Box<IngestionPhase>>,
 }
-
-/// !TODO
-/// `JournalAnalysis` is a struct that represents the analytics of a complete
-/// user's ingestion history it contains a various aspects of information, such
-/// as classification by psychoactive groups, peeking into recommended dosages
-/// and history of usage, pattern recognition and statically defined rule engine
-/// to inform user again stupid decisions they are about to make.
-pub struct JournalAnalysis {}
