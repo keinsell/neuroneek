@@ -196,43 +196,40 @@ impl CommandHandler for AnalyzeIngestion
     {
         let ingestion: Ingestion = match self.ingestion_id
         {
-            | Some(..) =>
-            {
-                crate::database::entities::ingestion::Entity::find_by_id(self.ingestion_id.unwrap())
-                    .one(ctx.database_connection)
-                    .await
-                    .into_diagnostic()?
-                    .unwrap_or_else(|| panic!("Ingestion not found"))
-                    .into()
-            }
+            | Some(id) =>
+                {
+                    crate::database::entities::ingestion::Entity::find_by_id(id)
+                        .one(ctx.database_connection)
+                        .await
+                        .into_diagnostic()?
+                        .ok_or_else(|| miette::miette!("Ingestion not found"))?
+                        .into()
+                }
             | None => Ingestion {
                 id: Default::default(),
-                dosage: self.dosage.clone().expect("Dosage not provided"),
-                route: self.roa.unwrap(),
-                substance: self.substance.clone().expect("Substance not provided"),
+                dosage: self.dosage.clone().ok_or_else(|| miette::miette!("Dosage not provided"))?,
+                route: self.roa.ok_or_else(|| miette::miette!("Route of administration not provided"))?,
+                substance: self.substance.clone().ok_or_else(|| miette::miette!("Substance not provided"))?,
                 ingestion_date: self.date.unwrap_or_else(Local::now),
             },
         };
 
         let substance = crate::substance::repository::get_substance(
-            &ingestion.substance.clone(),
+            &ingestion.substance,
             ctx.database_connection,
         )
-        .await?;
+            .await?;
 
-        if substance.is_some()
-        {
-            let substance = substance.unwrap();
-            let analysis = IngestionAnalysis::analyze(ingestion, substance)
-                .await?;
-            let view_model: AnalyzerReportViewModel = analysis.into();
-            println!("{}", view_model.format(ctx.stdout_format));
-        }
+        let substance = substance.ok_or_else(|| miette::miette!("Substance not found"))?;
+
+        let analysis = IngestionAnalysis::analyze(ingestion, substance)
+            .await?;
+        let view_model: AnalyzerReportViewModel = analysis.into();
+        println!("{}", view_model.format(ctx.stdout_format));
 
         Ok(())
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
