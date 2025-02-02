@@ -64,7 +64,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: neuronek-cli-${{ matrix.target }}
           path: |
@@ -84,7 +84,7 @@ jobs:
         run: nix build
         
       - name: Upload build result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nix-build-result
           path: ./result
