@@ -1,4 +1,5 @@
 flake.lock linguist-generated=true
-src/lib/migration/migrations/*.sql linguist-detectable linguist-language=sql
-src/lib/migration/migrations/20250101000002_import_substance.sql binary linguist-vendored
+src/database/migrations/*.sql linguist-detectable linguist-language=sql
+src/database/migrations/20250101000002_import_substance.sql binary linguist-vendored
+src/database/entities/*.rs linguist-generated=true
 docs/*.md linguist-detectable
