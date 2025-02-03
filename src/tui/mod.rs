@@ -6,10 +6,10 @@ use crate::substance::route_of_administration::phase::{PhaseClassification, PHAS
 use crate::substance::DurationRange;
 use chrono::{DateTime, Duration, Local, Timelike, Utc};
 use ratatui::backend::Backend;
-use ratatui::layout::{Constraint, Direction, Layout, Rect};
+use ratatui::layout::{Constraint, Direction, Layout, Rect, Alignment};
 use ratatui::style::{Color, Modifier, Style};
 use ratatui::text::{Line, Span, Text};
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::widgets::{Block, Borders, Paragraph, List, ListItem};
 use ratatui::Terminal;
 use std::io;
 use std::time::Duration as StdDuration;
@@ -34,8 +34,8 @@ impl IngestionTui {
     fn ui(&self, frame: &mut Frame) {
         let size = frame.size();
 
-        // Create main layout
-        let chunks = Layout::default()
+        // Create main vertical layout
+        let main_chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
                 Constraint::Length(3),  // Title
@@ -54,11 +54,46 @@ impl IngestionTui {
         .block(Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(Color::Cyan)));
-        frame.render_widget(title, chunks[0]);
+        frame.render_widget(title, main_chunks[0]);
 
-        // Render intensity plot
-        let plot = IntensityPlot::new(&self.ingestions);
-        frame.render_widget(plot.render(), chunks[1]);
+        // Split main content into left and right sections
+        let content_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([
+                Constraint::Percentage(50), // Left side - Ingestion list
+                Constraint::Percentage(50), // Right side - Charts
+            ])
+            .split(main_chunks[1]);
+
+        // Split right section into upper and lower parts
+        let right_chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Percentage(50), // Upper chart
+                Constraint::Percentage(50), // Lower chart (intensity plot)
+            ])
+            .split(content_chunks[1]);
+
+        // Render ingestion list (left)
+        let ingestion_list = List::new(vec![
+            ListItem::new("Ingestion List Placeholder")
+        ])
+        .block(Block::default()
+            .title("Active Ingestions")
+            .borders(Borders::ALL));
+        frame.render_widget(ingestion_list, content_chunks[0]);
+
+        // Render upper right placeholder
+        let placeholder_upper = Paragraph::new("Upper Chart Placeholder")
+            .alignment(Alignment::Center)
+            .block(Block::default()
+                .title("Statistics")
+                .borders(Borders::ALL));
+        frame.render_widget(placeholder_upper, right_chunks[0]);
+
+        // Render intensity plot (lower right)
+        let mut plot = IntensityPlot::new(&self.ingestions);
+        frame.render_widget(plot.render(), right_chunks[1]);
 
         // Render footer
         let footer = Paragraph::new(Text::from(vec![
@@ -67,9 +102,9 @@ impl IngestionTui {
                 Span::raw(" to quit")
             ])
         ]))
-        .alignment(ratatui::layout::Alignment::Center)
+        .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL));
-        frame.render_widget(footer, chunks[2]);
+        frame.render_widget(footer, main_chunks[2]);
     }
 
     pub fn run(&mut self) -> std::io::Result<()> {
