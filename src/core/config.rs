@@ -1,42 +1,61 @@
-use lazy_static::lazy_static;
+use serde::{Deserialize, Serialize};
+use std::env;
 use std::env::temp_dir;
-use std::path::Path;
 use std::path::PathBuf;
+use directories::ProjectDirs;
+use lazy_static::lazy_static;
+use crate::cli::Cli;
 
 pub const NAME: &str = env!("CARGO_PKG_NAME");
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-lazy_static::lazy_static! {
-    pub static ref CONFIG: Config = Config::default();
-    /// Returns the path to the project's data directory.
-   pub static ref DATA_DIR: Box<Path> = directories::ProjectDirs::from("com", "keinsell", NAME).unwrap_or_else(|| panic!("project data directory not found")).data_dir().into();
-    /// Returns the path to the project's cache directory.
-  pub  static ref CACHE_DIR: Box<Path> = directories::ProjectDirs::from("com", "keinsell", NAME).unwrap_or_else(|| panic!("project data directory not found")).cache_dir().into();
-    /// Returns the path to the project's config directory.
-  pub   static ref CONFIG_DIR: Box<Path> = directories::ProjectDirs::from("com", "keinsell", NAME).unwrap_or_else(|| panic!("project data directory not found")).config_dir().into();
+lazy_static! {
+    pub static ref DATA_DIR: PathBuf = {
+        ProjectDirs::from("com", "keinsell", NAME)
+            .expect("project data directory not found")
+            .data_dir()
+            .to_path_buf()
+    };
+    pub static ref CACHE_DIR: PathBuf = {
+        ProjectDirs::from("com", "keinsell", NAME)
+            .expect("project cache directory not found")
+            .cache_dir()
+            .to_path_buf()
+    };
+    pub static ref CONFIG_DIR: PathBuf = {
+        ProjectDirs::from("com", "keinsell", NAME)
+            .expect("project config directory not found")
+            .config_dir()
+            .to_path_buf()
+    };
 }
 
-
-// TODO(NEU-1): Implement
-#[derive(Debug, Clone)]
-pub struct Config
-{
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Config {
     pub sqlite_path: PathBuf,
+    pub version: Option<u32>,
 }
 
-impl Default for Config
-{
-    fn default() -> Self
-    {
-        let mut journal_path = DATA_DIR.join("journal.db").clone();
-
-        if cfg!(test) || cfg!(debug_assertions)
-        {
-            journal_path = temp_dir().join("neuronek.sqlite");
-        }
-
+impl Default for Config {
+    fn default() -> Self {
+        let default_db = if cfg!(test) || cfg!(debug_assertions) {
+            temp_dir().join("neuronek.sqlite")
+        } else {
+            DATA_DIR.join("journal.db")
+        };
         Config {
-            sqlite_path: journal_path,
+            sqlite_path: default_db,
+            version: Some(1),
         }
     }
+}
+
+impl Config {
+    pub fn load() -> Self {
+        confy::load(NAME, None).unwrap_or_default()
+    }
+}
+
+lazy_static! {
+    pub static ref CONFIG: Config = Config::load();
 }

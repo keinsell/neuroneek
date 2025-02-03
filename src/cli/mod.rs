@@ -7,6 +7,7 @@ use ingestion::IngestionCommand;
 use miette::IntoDiagnostic;
 use sea_orm::prelude::async_trait::async_trait;
 use substance::SubstanceCommand;
+use std::path::PathBuf;
 
 use crate::core::CommandHandler;
 use crate::utils::AppContext;

@@ -24,18 +24,18 @@ pub fn setup_logger() -> Result<WorkerGuard, Box<dyn std::error::Error>> {
         .with_writer(non_blocking_appender);
 
 
-   #[cfg(debug_assertions)]
-    let console_layer = {
-        fmt::layer()
-            .with_target(false)
-            .with_thread_ids(false)
-            .with_file(false)
-            .with_line_number(false)
-            .with_ansi(true)
-            .compact()
-            .pretty()
-            .with_writer(std::io::stderr)
-    };
+   // #[cfg(debug_assertions)]
+    // let console_layer = {
+    //     fmt::layer()
+    //         .with_target(false)
+    //         .with_thread_ids(false)
+    //         .with_file(false)
+    //         .with_line_number(false)
+    //         .with_ansi(true)
+    //         .compact()
+    //         .pretty()
+    //         .with_writer(std::io::stderr)
+    // };
 
     let registry = tracing_subscriber::registry()
         .with(
@@ -43,9 +43,9 @@ pub fn setup_logger() -> Result<WorkerGuard, Box<dyn std::error::Error>> {
                 .add_directive(tracing::Level::INFO.into())
         )
         .with(file_layer);
-
-    #[cfg(debug_assertions)]
-    let registry = registry.with(console_layer);
+    
+    // #[cfg(debug_assertions)]
+    // let registry = registry.with(console_layer);
 
     registry.init();
 
