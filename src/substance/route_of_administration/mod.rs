@@ -1,6 +1,11 @@
 pub mod dosage;
 pub mod phase;
 
+use crate::substance::route_of_administration::dosage::DosageClassification;
+use crate::substance::route_of_administration::dosage::DosageRange;
+use crate::substance::route_of_administration::phase::DurationRange;
+use crate::substance::route_of_administration::phase::PhaseClassification;
+use hashbrown::HashMap;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
@@ -75,3 +80,14 @@ impl FromStr for RouteOfAdministrationClassification
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct RouteOfAdministration
+{
+    pub classification: RouteOfAdministrationClassification,
+    pub dosages: Dosages,
+    pub phases: Phases,
+}
+
+pub type Dosages = HashMap<DosageClassification, DosageRange>;
+pub type Phases = HashMap<PhaseClassification, DurationRange>;

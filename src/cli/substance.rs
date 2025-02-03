@@ -1,9 +1,8 @@
-use async_trait::async_trait;
 use crate::core::CommandHandler;
-use crate::cli::formatter::Formatter;
-use crate::substance::error::SubstanceError;
 use crate::substance::SubstanceTable;
+use crate::substance::error::SubstanceError;
 use crate::utils::AppContext;
+use async_trait::async_trait;
 use clap::Args;
 use clap::Parser;
 use clap::Subcommand;
@@ -149,8 +148,6 @@ pub struct ViewModel
     pub name: String,
     pub common_names: String,
 }
-
-impl Formatter for ViewModel {}
 
 impl From<SubstanceTable> for ViewModel
 {

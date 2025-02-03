@@ -86,7 +86,27 @@ impl MigratorTrait for Migrator
                 M20250127045746AddIngestionPhase,
                 "20250127045746_add_ingestion_phase",
                 "20250127045746_add_ingestion_phase"
-            )
+            ),
+            import_migration!(
+                M20250208131330UpdateIngestionModel,
+                "20250208131330_update_ingestion_model",
+                "20250208131330_update_ingestion_model"
+            ),
+            import_migration!(
+                M20250210165025IngestionPhaseAddBounds,
+                "20250210165025_ingestion_phase_add_bounds",
+                "20250210165025_ingestion_phase_add_bounds"
+            ),
+            import_migration!(
+                M20250210175314IngestionPhaseUseDatetime,
+                "20250210175314_ingestion_phase_use_datetime",
+                "20250210175314_ingestion_phase_use_datetime"
+            ),
+            import_migration!(
+                M20250211000000FixDosageClassification,
+                "20250211000000_fix_dosage_classification",
+                "20250211000000_fix_dosage_classification"
+            ),
         ]
     }
 }

@@ -1,5 +1,3 @@
-use crate::substance::DosageClassification;
-use crate::substance::Dosages;
 use delegate::delegate;
 use derivative::Derivative;
 use float_pretty_print::PrettyPrintFloat;
@@ -8,6 +6,7 @@ use measurements::Measurement;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Derivative, Eq, PartialOrd, Copy)]
 pub struct Dosage(Mass);
@@ -98,23 +97,72 @@ mod tests
     }
 }
 
-pub(crate) fn classify_dosage(dosage: Dosage, dosages: &Dosages) -> Option<DosageClassification>
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub enum DosageClassification
 {
-    dosages
-        .iter()
-        .find(|(_, range)| range.contains(&dosage))
-        .map(|(classification, _)| *classification)
-        .or_else(|| {
-            dosages
-                .iter()
-                .filter_map(|(_classification, range)| {
-                    match (range.start.as_ref(), range.end.as_ref())
-                    {
-                        | (Some(start), _) if &dosage >= start => Some(DosageClassification::Heavy),
-                        | (_, Some(end)) if &dosage <= end => Some(DosageClassification::Threshold),
-                        | _ => None,
-                    }
-                })
-                .next()
-        })
+    Threshold,
+    Light,
+    Common,
+    Strong,
+    Heavy,
+}
+
+impl FromStr for DosageClassification
+{
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err>
+    {
+        match input
+        {
+            | "threshold" => Ok(Self::Threshold),
+            | "light" => Ok(Self::Light),
+            | "common" => Ok(Self::Common),
+            | "strong" => Ok(Self::Strong),
+            | "heavy" => Ok(Self::Heavy),
+            | _ => Err(()),
+        }
+    }
+}
+
+impl fmt::Display for DosageClassification
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    {
+        match self
+        {
+            | DosageClassification::Threshold => write!(f, "Threshold"),
+            | DosageClassification::Light => write!(f, "Light"),
+            | DosageClassification::Common => write!(f, "Common"),
+            | DosageClassification::Strong => write!(f, "Strong"),
+            | DosageClassification::Heavy => write!(f, "Heavy"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DosageRange
+{
+    pub start: Option<Dosage>,
+    pub end: Option<Dosage>,
+}
+
+impl DosageRange
+{
+    pub fn contains(&self, dosage: &Dosage) -> bool
+    {
+        let after_start = match &self.start
+        {
+            | Some(start) => dosage >= start,
+            | None => true,
+        };
+        let before_end = match &self.end
+        {
+            | Some(end) => dosage <= end,
+            | None => true,
+        };
+        after_start && before_end
+    }
+
+    pub fn from_bounds(start: Option<Dosage>, end: Option<Dosage>) -> Self { Self { start, end } }
 }

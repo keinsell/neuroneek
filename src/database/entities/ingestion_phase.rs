@@ -5,42 +5,104 @@ use sea_orm::entity::prelude::*;
 use serde::Deserialize;
 use serde::Serialize;
 
-#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
-#[sea_orm(table_name = "ingestion_phase")]
-pub struct Model
+#[derive(Copy, Clone, Default, Debug, DeriveEntity)]
+pub struct Entity;
+
+impl EntityName for Entity
 {
-    #[sea_orm(primary_key, auto_increment = false, column_type = "Text", unique)]
-    pub id: String,
-    pub ingestion_id: i32,
-    #[sea_orm(column_type = "Text")]
-    pub classification: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub description: Option<String>,
-    pub start_time: DateTime,
-    pub end_time: DateTime,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub duration_lower: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub duration_upper: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub intensity: Option<String>,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub notes: Option<String>,
-    pub created_at: DateTime,
-    pub updated_at: DateTime,
+    fn table_name(&self) -> &str { "ingestion_phase" }
 }
 
-#[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
+#[derive(Clone, Debug, PartialEq, DeriveModel, DeriveActiveModel, Eq, Serialize, Deserialize)]
+pub struct Model
+{
+    pub id: String,
+    pub ingestion_id: i32,
+    pub classification: String,
+    pub start_date_min: DateTime,
+    pub start_date_max: DateTime,
+    pub end_date_min: DateTime,
+    pub end_date_max: DateTime,
+    pub common_dosage_weight: i32,
+    pub duration_min: i32,
+    pub duration_max: i32,
+    pub notes: Option<String>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveColumn)]
+pub enum Column
+{
+    Id,
+    IngestionId,
+    Classification,
+    StartDateMin,
+    StartDateMax,
+    EndDateMin,
+    EndDateMax,
+    CommonDosageWeight,
+    DurationMin,
+    DurationMax,
+    Notes,
+    CreatedAt,
+    UpdatedAt,
+}
+
+#[derive(Copy, Clone, Debug, EnumIter, DerivePrimaryKey)]
+pub enum PrimaryKey
+{
+    Id,
+}
+
+impl PrimaryKeyTrait for PrimaryKey
+{
+    type ValueType = String;
+    fn auto_increment() -> bool { false }
+}
+
+#[derive(Copy, Clone, Debug, EnumIter)]
 pub enum Relation
 {
-    #[sea_orm(
-        belongs_to = "super::ingestion::Entity",
-        from = "Column::IngestionId",
-        to = "super::ingestion::Column::Id",
-        on_update = "Cascade",
-        on_delete = "Cascade"
-    )]
     Ingestion,
+}
+
+impl ColumnTrait for Column
+{
+    type EntityName = Entity;
+    fn def(&self) -> ColumnDef
+    {
+        match self
+        {
+            | Self::Id => ColumnType::Text.def().unique(),
+            | Self::IngestionId => ColumnType::Integer.def(),
+            | Self::Classification => ColumnType::Text.def(),
+            | Self::StartDateMin => ColumnType::DateTime.def(),
+            | Self::StartDateMax => ColumnType::DateTime.def(),
+            | Self::EndDateMin => ColumnType::DateTime.def(),
+            | Self::EndDateMax => ColumnType::DateTime.def(),
+            | Self::CommonDosageWeight => ColumnType::Integer.def(),
+            | Self::DurationMin => ColumnType::Integer.def(),
+            | Self::DurationMax => ColumnType::Integer.def(),
+            | Self::Notes => ColumnType::Text.def().null(),
+            | Self::CreatedAt => ColumnType::Text.def(),
+            | Self::UpdatedAt => ColumnType::Text.def(),
+        }
+    }
+}
+
+impl RelationTrait for Relation
+{
+    fn def(&self) -> RelationDef
+    {
+        match self
+        {
+            | Self::Ingestion => Entity::belongs_to(super::ingestion::Entity)
+                .from(Column::IngestionId)
+                .to(super::ingestion::Column::Id)
+                .into(),
+        }
+    }
 }
 
 impl Related<super::ingestion::Entity> for Entity

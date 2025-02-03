@@ -1,9 +1,8 @@
-use crate::substance::DurationRange;
-use hashbrown::HashMap;
-use miette::miette;
+use iso8601_duration::Duration;
 use serde::Deserialize;
 use serde::Serialize;
 use std::fmt;
+use std::ops::Range;
 use std::str::FromStr;
 
 pub const PHASE_ORDER: [PhaseClassification; 5] = [
@@ -14,7 +13,7 @@ pub const PHASE_ORDER: [PhaseClassification; 5] = [
     PhaseClassification::Afterglow,
 ];
 
-#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PhaseClassification
 {
     Onset,
@@ -27,7 +26,7 @@ pub enum PhaseClassification
 
 impl FromStr for PhaseClassification
 {
-    type Err = miette::Report;
+    type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err>
     {
@@ -39,10 +38,7 @@ impl FromStr for PhaseClassification
             | "comedown" => Ok(Self::Comedown),
             | "offset" => Ok(Self::Comedown),
             | "afterglow" => Ok(Self::Afterglow),
-            | _ => Err(miette!(
-                "Could not parse phase classification {} from string",
-                &s
-            )),
+            | _ => Err(format!("Unknown phase classification: {}", s)),
         }
     }
 }
@@ -68,4 +64,4 @@ impl Default for PhaseClassification
     fn default() -> Self { Self::Unknown }
 }
 
-pub type Phases = HashMap<PhaseClassification, DurationRange>;
+pub type DurationRange = Range<Duration>;

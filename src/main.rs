@@ -5,17 +5,17 @@ use self::core::error_handling::setup_diagnostics;
 use self::core::logging::setup_logger;
 
 use crate::cli::Cli;
-use crate::utils::migrate_database;
 use crate::utils::AppContext;
 use crate::utils::DATABASE_CONNECTION;
+use crate::utils::migrate_database;
 
 use atty::Stream;
 use clap::Parser;
 use core::CommandHandler;
 use miette::Result;
 use std::env;
+use tracing_subscriber::util::SubscriberInitExt;
 
-mod analyzer;
 mod cli;
 mod core;
 mod database;
@@ -29,7 +29,7 @@ mod utils;
 async fn main() -> Result<()>
 {
     setup_diagnostics();
-    setup_logger();
+    let _guard = setup_logger().unwrap();
 
     migrate_database(&DATABASE_CONNECTION)
         .await
@@ -41,13 +41,13 @@ async fn main() -> Result<()>
     // https://apple.github.io/swift-argument-parser/documentation/argumentparser/installingcompletionscripts/
     // https://unix.stackexchange.com/a/605051
 
-    let no_args_provided = env::args().len() == 1;
-    let is_interactive_terminal = atty::is(Stream::Stdout);
-
-    if no_args_provided && is_interactive_terminal
-    {
-        return tui::run().await.map_err(|e| miette::miette!(e.to_string()));
-    }
+    // let no_args_provided = env::args().len() == 1;
+    // let is_interactive_terminal = atty::is(Stream::Stdout);
+    //
+    // if no_args_provided && is_interactive_terminal
+    // {
+    //     return tui::run();
+    // }
 
     let cli = Cli::parse();
 

@@ -14,7 +14,7 @@ of these compounds on their physical and mental health.
 
 Features offered by application include:
 
-- **Ingestion journaling** with set of commands which allows for inserting, updating, retrieving and deleting all the
+- **Ingestion journaling** with a set of commands which allows for inserting, updating, retrieving and deleting all the
   data stored as `Ingestion` model.
 
 ## Installation
@@ -51,14 +51,18 @@ it may be less stable than the pre-built binaries.
 
 ### Ingestion Journaling
 
-Ingestions are fundamental area of application, they represent human interaction with chemical compound of choice.
-Ingestion explains what compound was ingested, how it was ingested and when it was ingested. Application expose simple,
+Ingestions are a fundamental area of application, they represent human interaction with the chemical compound of choice.
+Ingestion explains what compound was ingested, how it was ingested and when it was ingested. Applications expose a
+simple,
 scriptable interface which allows for storage and retrieval of structured data.
 
-#### [🗎 Log Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-3)
+#### Log Ingestion
 
 ```bash
-❯ neuronek ingestion log caffeine 80mg
+neuronek ingestion log -s caffeine -d 80mg
+```
+
+```
 ╭────┬───────────┬──────┬─────────┬────────────────╮
 │ ID │ Substance │ ROA  │ Dosage  │ Ingestion Date │
 ├────┼───────────┼──────┼─────────┼────────────────┤
@@ -66,82 +70,56 @@ scriptable interface which allows for storage and retrieval of structured data.
 ╰────┴───────────┴──────┴─────────┴────────────────╯
 ```
 
-#### [🗎 List Ingestions](https://keinsell.youtrack.cloud/articles/NEU-A-7)
+#### List Ingestions
 
 ```bash
-❯ neuronek ingestion list
+neuronek ingestion list
+```
+
+```
 ┌────┬─────────────────────┬──────┬─────────┬────────────────┐
 │ ID │ Substance           │ ROA  │ Dosage  │ Ingestion Date │
 ├────┼─────────────────────┼──────┼─────────┼────────────────┤
 │ 14 │ caffeine            │ Oral │ 80.0 mg │ 20 seconds ago │
 ├────┼─────────────────────┼──────┼─────────┼────────────────┤
 │ 13 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 12 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 11 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 10 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 9  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 8  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 7  │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 6  │ caffeine            │ Oral │ 100 mg  │ 6 hours ago    │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 5  │ caffeine            │ Oral │ 100 mg  │ 6 hours ago    │
 └────┴─────────────────────┴──────┴─────────┴────────────────┘
 ```
 
-#### [🗎 Update ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-6)
+#### Update ingestion
 
 ```bash
-❯ neuronek ingestion list -l 1
-┌────┬───────────┬──────┬─────────┬────────────────┐
+neuronek ingestion update 14 -d 90mg
+```
+
+```
+╭────┬───────────┬──────┬─────────┬────────────────╮
 │ ID │ Substance │ ROA  │ Dosage  │ Ingestion Date │
 ├────┼───────────┼──────┼─────────┼────────────────┤
-│ 14 │ caffeine  │ Oral │ 80.0 mg │ a minute ago   │
-└────┴───────────┴──────┴─────────┴────────────────┘
-❯ neuronek ingestion update 14 -d 200mg
-╭────┬───────────┬──────┬────────┬────────────────╮
-│ ID │ Substance │ ROA  │ Dosage │ Ingestion Date │
-├────┼───────────┼──────┼────────┼────────────────┤
-│ 14 │ caffeine  │ Oral │ 200 mg │  a minute ago  │
-╰────┴───────────┴──────┴────────┴────────────────╯
+│ 14 │ caffeine  │ Oral │ 90.0 mg │      now       │
+╰────┴───────────┴──────┴─────────┴────────────────╯
 ```
 
-#### [🗎 Delete Ingestion](https://keinsell.youtrack.cloud/articles/NEU-A-4)
-
-> [!CAUTION]
-> Deletion cannot be undone, so verify the correct ID before deleting.
+#### Delete Ingestion
 
 ```bash
-❯ neuronek ingestion list -l 1
-┌────┬───────────┬──────┬────────┬────────────────┐
-│ ID │ Substance │ ROA  │ Dosage │ Ingestion Date │
-├────┼───────────┼──────┼────────┼────────────────┤
-│ 14 │ caffeine  │ Oral │ 200 mg │ 2 minutes ago  │
-└────┴───────────┴──────┴────────┴────────────────┘
-❯ neuronek ingestion delete 14
-❯ neuronek ingestion list -l 1
-┌────┬─────────────────────┬──────┬─────────┬────────────────┐
-│ ID │ Substance           │ ROA  │ Dosage  │ Ingestion Date │
-├────┼─────────────────────┼──────┼─────────┼────────────────┤
-│ 13 │ caffeine            │ Oral │ 10.0 mg │ 2 hours ago    │
-└────┴─────────────────────┴──────┴─────────┴────────────────┘
+neuronek ingestion delete 14
+```
+
+```
+
 ```
 
 ### Substances
 
-Application comes with pre-bundled database of psychoactive substances built on top
-of [PsychonautWiki](https://psychonautwiki.org), such information are easily queryable through CLI and are foundation
+Application comes with a pre-bundled database of psychoactive substances built on top
+of [PsychonautWiki](https://psychonautwiki.org), such information is easily queryable through CLI and is foundation
 for further analysis of user's ingestions to provide insight on harm-reduction and predicting subjective effects.
 
 #### Get Substance [Under Development]
 
-Application can preview information about compounds from initially provided dataset, however due to highly nested nature
+Application can preview information about compounds from initially provided dataset, however, due to the highly nested
+nature
 of information the clean and human-friendly interface is needed to be designed and developed and implementation of such
 to this application by its nature is questionable.
 
@@ -275,8 +253,8 @@ neuronek substance get caffeine
 
 ## Contributing
 
-Project do not expect any external contribution. If you want to contribute, please contact me directly
-via [keinsell@protonmail.com]() and we can discuss the project together and move code to
+The Project does not expect any external contribution. If you want to contribute, please contact me directly
+via [keinsell@protonmail.com,]() and we can discuss the project together and move code to
 organization out of my profile.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.

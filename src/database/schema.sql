@@ -8,23 +8,12 @@ CREATE TABLE `atlas_schema_revisions`
     `total`            integer  NOT NULL DEFAULT 0,
     `executed_at`      datetime NOT NULL,
     `execution_time`   integer  NOT NULL,
-    `error`            text NULL,
-    `error_stmt`       text NULL,
+    `error`            text     NULL,
+    `error_stmt`       text     NULL,
     `hash`             text     NOT NULL,
-    `partial_hashes`   json NULL,
+    `partial_hashes`   json     NULL,
     `operator_version` text     NOT NULL,
     PRIMARY KEY (`version`)
-);
--- Create "ingestion" table
-CREATE TABLE `ingestion`
-(
-    `id`                      integer       NOT NULL PRIMARY KEY AUTOINCREMENT,
-    `substance_name`          varchar       NOT NULL,
-    `route_of_administration` varchar       NOT NULL,
-    `dosage`                  float         NOT NULL,
-    `ingested_at`             datetime_text NOT NULL,
-    `updated_at`              datetime_text NOT NULL,
-    `created_at`              datetime_text NOT NULL
 );
 -- Create "seaql_migrations" table
 CREATE TABLE `seaql_migrations`
@@ -40,10 +29,10 @@ CREATE TABLE `substance`
     `name`               text    NOT NULL,
     `common_names`       text    NOT NULL,
     `pubchem_cid`        integer NOT NULL,
-    `psychonautwiki_url` text NULL,
+    `psychonautwiki_url` text    NULL,
     `psychoactive_class` text    NOT NULL,
-    `chemical_class`     text NULL,
-    `description`        text NULL,
+    `chemical_class`     text    NULL,
+    `description`        text    NULL,
     PRIMARY KEY (`id`)
 );
 -- Create index "substance_id_key" to table: "substance"
@@ -90,25 +79,54 @@ CREATE TABLE `substance_route_of_administration_dosage`
 );
 -- Create index "route_of_administration_dosage_intensivity_routeOfAdministrationId_key" to table: "substance_route_of_administration_dosage"
 CREATE UNIQUE INDEX `route_of_administration_dosage_intensivity_routeOfAdministrationId_key` ON `substance_route_of_administration_dosage` (`intensity`, `routeOfAdministrationId`);
--- Create "ingestion_phase" table with PhaseClassification alignment
-CREATE TABLE `ingestion_phase` (
-                                   `id`                text        NOT NULL PRIMARY KEY,
-                                   `ingestion_id`      integer     NOT NULL,
-                                   `classification`    text        NOT NULL CHECK(`classification` IN ('Onset', 'Comeup', 'Peak', 'Comedown', 'Afterglow', 'Unknown')),
-                                   `description`       text        NULL,
-                                   `start_time`        datetime_text NOT NULL,
-                                   `end_time`          datetime_text NOT NULL,
-                                   `duration_lower`    text        NULL,
-                                   `duration_upper`    text        NULL,
-                                   `intensity`         text        NULL,
-                                   `notes`             text        NULL,
-                                   `created_at`        datetime_text NOT NULL,
-                                   `updated_at`        datetime_text NOT NULL,
-                                   CONSTRAINT `ingestion_phase_ingestion_id_fkey` FOREIGN KEY (`ingestion_id`) REFERENCES `ingestion` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-                                   CONSTRAINT `ingestion_phase_start_before_end` CHECK (`start_time` <= `end_time`)
+-- Create "ingestion" table
+CREATE TABLE `ingestion`
+(
+    `id`                      integer       NOT NULL PRIMARY KEY AUTOINCREMENT,
+    `substance_name`          varchar       NOT NULL,
+    `route_of_administration` varchar       NOT NULL,
+    `dosage`                  float         NOT NULL,
+    `dosage_classification`   text          NULL,
+    `ingested_at`             datetime_text NOT NULL,
+    `updated_at`              datetime_text NOT NULL,
+    `created_at`              datetime_text NOT NULL,
+    CHECK (`dosage_classification` IN
+           ('Thereshold', 'Light', 'Common', 'Strong', 'Heavy'))
 );
-
--- Create indexes for performance
+-- Create "ingestion_phase" table
+CREATE TABLE ingestion_phase
+(
+    id                   TEXT    NOT NULL,
+    ingestion_id         INTEGER NOT NULL,
+    classification       TEXT    NOT NULL,
+    start_date_min       datetime_text    NOT NULL,
+    start_date_max       datetime_text    NOT NULL,
+    end_date_min         datetime_text    NOT NULL,
+    end_date_max         datetime_text    NOT NULL,
+    common_dosage_weight INTEGER NOT NULL,
+    duration_min         INTEGER NOT NULL,
+    duration_max         INTEGER NOT NULL,
+    notes                TEXT,
+    created_at           TEXT    NOT NULL,
+    updated_at           TEXT    NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT ingestion_phase_ingestion_id_fkey
+        FOREIGN KEY (ingestion_id) REFERENCES ingestion (id)
+            ON UPDATE CASCADE
+            ON DELETE CASCADE,
+    -- Keep classification values constrained:
+    CHECK (classification IN ('Onset', 'Comeup', 'Peak', 'Comedown', 'Afterglow', 'Unknown')),
+    -- Verify ordering of date intervals:
+    CHECK (
+        start_date_min <= start_date_max
+            AND end_date_min <= end_date_max
+            AND start_date_max <= end_date_max
+            AND start_date_min <= end_date_min
+        )
+);
+-- Create index "ingestion_phase_id_key" to table: "ingestion_phase"
 CREATE UNIQUE INDEX `ingestion_phase_id_key` ON `ingestion_phase` (`id`);
+-- Create index "ingestion_phase_ingestion_id_idx" to table: "ingestion_phase"
 CREATE INDEX `ingestion_phase_ingestion_id_idx` ON `ingestion_phase` (`ingestion_id`);
+-- Create index "ingestion_phase_classification_idx" to table: "ingestion_phase"
 CREATE INDEX `ingestion_phase_classification_idx` ON `ingestion_phase` (`classification`);
