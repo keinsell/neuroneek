@@ -27,7 +27,7 @@ impl std::default::Default for ListIngestion
 }
 
 
-#[async_trait]
+#[async_trait::async_trait]
 impl crate::core::QueryHandler<Vec<Ingestion>> for ListIngestion
 {
     async fn query(&self) -> miette::Result<Vec<Ingestion>>

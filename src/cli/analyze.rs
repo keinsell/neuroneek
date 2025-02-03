@@ -222,7 +222,7 @@ impl CommandHandler for AnalyzeIngestion
 
         let substance = substance.ok_or_else(|| miette::miette!("Substance not found"))?;
 
-        let analysis = IngestionAnalysis::analyze(ingestion, substance)
+        let analysis = IngestionAnalysis::analyze(ingestion, &substance)
             .await?;
         let view_model: AnalyzerReportViewModel = analysis.into();
         println!("{}", view_model.format(ctx.stdout_format));

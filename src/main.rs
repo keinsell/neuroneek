@@ -46,7 +46,7 @@ async fn main() -> Result<()>
 
     if no_args_provided && is_interactive_terminal
     {
-        return tui::run().await.map_err(|e| miette::miette!(e.to_string()));
+        return tui::tui().await.map_err(|e| miette::miette!(e.to_string()));
     }
 
     let cli = Cli::parse();

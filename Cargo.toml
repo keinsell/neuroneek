@@ -31,7 +31,7 @@ panic = "abort"
 async-std = { version = "1.12.0", features = ["attributes", "async-global-executor", "async-process"] }
 assert_cmd = "2.0.16"
 atty = "0.2.14"
-chrono = { version = "0.4.39", features = ["std", "serde", "iana-time-zone", "rkyv"] }
+chrono = { version = "0.4", features = ["serde"] }
 chrono-english = "0.1.7"
 clap = { version = "4.5.23", features = ["derive", "wrap_help", "suggestions", "std", "cargo"] }
 clap-verbosity-flag = "3.0.1"
@@ -62,7 +62,7 @@ sea-orm-migration = { version = "1.1.0", features = [
 serde_json = "1.0.134"
 owo-colors = "4.1.0"
 chrono-humanize = "0.2.3"
-ratatui = { version = "0.26.1", features = ["all-widgets"] }
+ratatui = "0.26.1"
 crossterm = "0.27.0"
 async-trait = "0.1.85"
 indicatif = "0.17.9"
@@ -86,6 +86,7 @@ confy = "0.6.1"
 rlg = "0.0.6"
 colog = "1.3.0"
 pretty_env_logger = "0.5.0"
+textplots = "0.8.6"
 
 [features]
 default = ["tui"]

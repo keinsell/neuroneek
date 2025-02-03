@@ -134,7 +134,7 @@ impl CommandHandler for LogIngestion
         if substance.is_some() {
             let ingestion: crate::ingestion::model::Ingestion = ingestion.into();
             let substance = substance.unwrap();
-            let analysis = IngestionAnalysis::analyze(ingestion, substance).await;
+            let analysis = IngestionAnalysis::analyze(ingestion, &substance).await;
             if analysis.is_ok() {
                 save_ingestion_analysis(analysis.unwrap()).await?;
             }

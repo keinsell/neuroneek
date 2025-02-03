@@ -2,7 +2,7 @@ use crate::utils::AppContext;
 
 pub mod config;
 pub(crate) mod error_handling;
-mod foundation;
+pub mod foundation;
 pub(crate) mod logging;
 
 pub use foundation::QueryHandler;

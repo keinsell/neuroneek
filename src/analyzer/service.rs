@@ -19,13 +19,12 @@ use crate::utils::DATABASE_CONNECTION;
 
 impl IngestionAnalysis
 {
-    pub async fn analyze(ingestion: Ingestion, substance: Substance) -> miette::Result<Self>
+    pub async fn analyze(ingestion: Ingestion, substance: &Substance) -> miette::Result<Self>
     {
         let roa = substance
             .routes_of_administration
             .get(&ingestion.route)
-            .ok_or_else(|| miette!("Failed to find route of administration for substance"))?
-            .clone();
+            .ok_or_else(|| miette!("Failed to find route of administration for substance"))?;
 
         let mut phases = Vec::new();
         let mut total_start_time: Option<IngestionDate> = None;
@@ -96,7 +95,7 @@ impl IngestionAnalysis
 
         Ok(Self {
             ingestion: Some(Box::new(ingestion)),
-            substance: Some(Box::new(substance)),
+            substance: Some(Box::new(substance.clone())),
             dosage_classification,
             current_phase,
             ingestion_start: total_range.start,
