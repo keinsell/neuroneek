@@ -1,10 +1,11 @@
-use serde::{Deserialize, Serialize};
+use crate::cli::Cli;
+use directories::ProjectDirs;
+use lazy_static::lazy_static;
+use serde::Deserialize;
+use serde::Serialize;
 use std::env;
 use std::env::temp_dir;
 use std::path::PathBuf;
-use directories::ProjectDirs;
-use lazy_static::lazy_static;
-use crate::cli::Cli;
 
 pub const NAME: &str = env!("CARGO_PKG_NAME");
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -31,17 +32,23 @@ lazy_static! {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Config {
+pub struct Config
+{
     pub sqlite_path: PathBuf,
     pub version: Option<u32>,
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        let default_db = if cfg!(test) || cfg!(debug_assertions) {
-            temp_dir().join("neuronek.sqlite")
-        } else {
+impl Default for Config
+{
+    fn default() -> Self
+    {
+        let default_db = if cfg!(test) || cfg!(debug_assertions)
+        {
             DATA_DIR.join("journal.db")
+        }
+        else
+        {
+            temp_dir().join("neuronek.sqlite")
         };
         Config {
             sqlite_path: default_db,
@@ -50,10 +57,9 @@ impl Default for Config {
     }
 }
 
-impl Config {
-    pub fn load() -> Self {
-        confy::load(NAME, None).unwrap_or_default()
-    }
+impl Config
+{
+    pub fn load() -> Self { confy::load(NAME, None).unwrap_or_default() }
 }
 
 lazy_static! {
