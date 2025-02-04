@@ -1,19 +1,18 @@
 mod components;
 
 use crate::analyzer::model::{IngestionAnalysis, IngestionPhase};
+use crate::core::foundation::QueryHandler;
 use crate::ingestion::model::Ingestion;
 use crate::substance::route_of_administration::phase::{PhaseClassification, PHASE_ORDER};
 use crate::substance::DurationRange;
-use chrono::{DateTime, Duration, Local, Timelike, Utc};
+use chrono::Local;
 use ratatui::backend::Backend;
-use ratatui::layout::{Constraint, Direction, Layout, Rect, Alignment};
-use ratatui::style::{Color, Modifier, Style};
+use ratatui::layout::{Alignment, Constraint, Direction, Layout, Rect};
+use ratatui::style::{Color, Style};
 use ratatui::text::{Line, Span, Text};
-use ratatui::widgets::{Block, Borders, Paragraph, List, ListItem};
+use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
 use std::io;
-use std::time::Duration as StdDuration;
-use crate::core::QueryHandler;
 use crossterm::{
     event::{self, Event, KeyCode},
     execute,
@@ -21,7 +20,9 @@ use crossterm::{
 };
 use ratatui::Frame;
 use crate::tui::components::intensity_plot::IntensityPlot;
+// Removed unused components (e.g. visual_stats)
 
+/// IngestionTui contains analyzed ingestion data and is responsible for drawing the dashboard.
 pub struct IngestionTui {
     ingestions: Vec<IngestionAnalysis>,
 }
@@ -31,82 +32,70 @@ impl IngestionTui {
         Self { ingestions }
     }
 
+    // The ui function builds a simplified dashboard layout.
+    // It now only displays the dashboard title at the top,
+    // the intensity timeline in the main content area,
+    // and the footer at the bottom.
     fn ui(&self, frame: &mut Frame) {
         let size = frame.size();
+        if size.width < 50 || size.height < 20 {
+            let warning = Paragraph::new("Terminal too small!")
+                .alignment(Alignment::Center)
+                .block(Block::default().borders(Borders::ALL));
+            frame.render_widget(warning, size);
+            return;
+        }
 
-        // Create main vertical layout
-        let main_chunks = Layout::default()
+        // Main vertical layout: Title, Main Content, Footer.
+        let main_area = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(3),  // Title
-                Constraint::Min(0),     // Main content
-                Constraint::Length(3),  // Footer
+                Constraint::Length(3),    // Title
+                Constraint::Min(5),       // Main content
+                Constraint::Length(3),    // Footer
             ])
+            .margin(1)
             .split(size);
 
-        // Render title
-        let title = Paragraph::new(Text::styled(
-            "🧬 Neuronek - Active Ingestions Monitor",
-            Style::default()
-                .fg(Color::Cyan)
-                .add_modifier(Modifier::BOLD)
-        ))
-        .block(Block::default()
-            .borders(Borders::ALL)
-            .border_style(Style::default().fg(Color::Cyan)));
-        frame.render_widget(title, main_chunks[0]);
-
-        // Split main content into left and right sections
-        let content_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([
-                Constraint::Percentage(50), // Left side - Ingestion list
-                Constraint::Percentage(50), // Right side - Charts
-            ])
-            .split(main_chunks[1]);
-
-        // Split right section into upper and lower parts
-        let right_chunks = Layout::default()
-            .direction(Direction::Vertical)
-            .constraints([
-                Constraint::Percentage(50), // Upper chart
-                Constraint::Percentage(50), // Lower chart (intensity plot)
-            ])
-            .split(content_chunks[1]);
-
-        // Render ingestion list (left)
-        let ingestion_list = List::new(vec![
-            ListItem::new("Ingestion List Placeholder")
-        ])
-        .block(Block::default()
-            .title("Active Ingestions")
-            .borders(Borders::ALL));
-        frame.render_widget(ingestion_list, content_chunks[0]);
-
-        // Render upper right placeholder
-        let placeholder_upper = Paragraph::new("Upper Chart Placeholder")
+        // Title section
+        let title = Paragraph::new("Ingestion Dashboard")
             .alignment(Alignment::Center)
-            .block(Block::default()
-                .title("Statistics")
-                .borders(Borders::ALL));
-        frame.render_widget(placeholder_upper, right_chunks[0]);
+            .block(Block::default().borders(Borders::ALL));
+        frame.render_widget(title, main_area[0]);
 
-        // Render intensity plot (lower right)
-        let mut plot = IntensityPlot::new(&self.ingestions);
-        frame.render_widget(plot.render(), right_chunks[1]);
+        // Main content area: use entire width for the Intensity Timeline.
+        let content_area = main_area[1];  // no horizontal splitting
 
-        // Render footer
+        if self.ingestions.is_empty() {
+            let placeholder = Paragraph::new("No intensity data available")
+                .alignment(Alignment::Center)
+                .block(Block::default().borders(Borders::ALL).title("Intensity Timeline"))
+                .style(Style::default().fg(Color::Red));
+            frame.render_widget(placeholder, content_area);
+        } else {
+            let mut plot = IntensityPlot::new(&self.ingestions);
+            let plot_widget = plot.render()
+                .block(Block::default()
+                    .title("Intensity Timeline")
+                    .title_alignment(Alignment::Center)
+                    .borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Magenta)));
+            frame.render_widget(plot_widget, content_area);
+        }
+
+        // Footer section
         let footer = Paragraph::new(Text::from(vec![
             Line::from(vec![
                 Span::styled("q", Style::default().fg(Color::Yellow)),
-                Span::raw(" to quit")
-            ])
+                Span::raw(" to quit"),
+            ]),
         ]))
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL));
-        frame.render_widget(footer, main_chunks[2]);
+        frame.render_widget(footer, main_area[2]);
     }
 
+    // run() sets up raw mode, enters the alternate screen, and runs the render loop.
     pub fn run(&mut self) -> std::io::Result<()> {
         enable_raw_mode()?;
         let mut stdout = io::stdout();
@@ -119,14 +108,13 @@ impl IngestionTui {
         disable_raw_mode()?;
         execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
         terminal.show_cursor()?;
-
         result
     }
 
+    // render_loop() re-draws the UI and reads key events.
     fn render_loop(&mut self, terminal: &mut Terminal<ratatui::backend::CrosstermBackend<io::Stdout>>) -> std::io::Result<()> {
         loop {
             terminal.draw(|frame| self.ui(frame))?;
-
             if let Event::Key(key) = event::read()? {
                 if matches!(key.code, KeyCode::Char('q') | KeyCode::Esc) {
                     break;
@@ -138,6 +126,7 @@ impl IngestionTui {
 }
 
 pub async fn tui() -> std::io::Result<()> {
+    // Query ingestions (or use fallback empty vector)
     let ingestions = match crate::ingestion::query::ListIngestion::default().query().await {
         Ok(ingestions) => {
             let mut analyzed_ingestions = Vec::new();
@@ -145,9 +134,7 @@ pub async fn tui() -> std::io::Result<()> {
                 match crate::substance::repository::get_substance(&ingestion.substance, &crate::utils::DATABASE_CONNECTION).await {
                     Ok(Some(substance)) => {
                         match crate::analyzer::model::IngestionAnalysis::analyze(ingestion, &substance).await {
-                            Ok(analysis) => {
-                                analyzed_ingestions.push(analysis);
-                            }
+                            Ok(analysis) => analyzed_ingestions.push(analysis),
                             Err(e) => eprintln!("Failed to analyze ingestion: {}", e),
                         }
                     }
@@ -166,4 +153,3 @@ pub async fn tui() -> std::io::Result<()> {
     let mut tui = IngestionTui::new(ingestions);
     tui.run()
 }
-

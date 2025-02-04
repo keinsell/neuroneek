@@ -6,6 +6,7 @@ use ratatui::{
     text::{Line, Span},
     widgets::{Axis, Block, Borders, Chart, Dataset, canvas::{Canvas, Line as CanvasLine, Points}},
     symbols,
+    prelude::Alignment,
 };
 use chrono::{Local, Duration};
 
@@ -22,6 +23,21 @@ impl<'a> IntensityPlot<'a> {
     fn generate_time_labels(&self) -> Vec<String> {
         let now = Local::now();
         let mut labels = Vec::new();
+        
+        // Helper: converts minutes into a short time format (e.g. 45m, 1h, 1h 15m)
+        fn format_duration(mins: i64) -> String {
+            if mins < 60 {
+                format!("{}m", mins)
+            } else {
+                let h = mins / 60;
+                let m = mins % 60;
+                if m == 0 {
+                    format!("{}h", h)
+                } else {
+                    format!("{}h {}m", h, m)
+                }
+            }
+        }
         
         // Find the current time point
         if let Some(current_point) = self.ingestions.iter()
@@ -41,46 +57,37 @@ impl<'a> IntensityPlot<'a> {
             // Generate 5 labels including "now"
             let step = self.max_duration / 4.0;
             
-            // Add labels before "now"
+            // Add labels before "now" using formatted duration
             if current_point > step {
-                labels.push(format!("-{}m", current_point.round() as i64));
+                labels.push(format!("-{}", format_duration(current_point.round() as i64)));
             }
             if current_point > 0.0 {
                 labels.push("now".to_string());
             }
             
-            // Add future time points
+            // Add future time points with formatted values
             let remaining = self.max_duration - current_point;
             if remaining > 0.0 {
                 let future_steps = (remaining / step).min(3.0) as i32;
                 for i in 1..=future_steps {
                     let mins = (step * i as f64).round() as i64;
-                    labels.push(format!("+{}m", mins));
+                    labels.push(format!("+{}", format_duration(mins)));
                 }
             }
         } else {
-            // If no current point, just show regular intervals
+            // If no current point, just show regular intervals with formatted times
             let step = self.max_duration / 4.0;
             for i in 0..=4 {
                 let mins = (step * i as f64).round() as i64;
-                labels.push(format!("{}m", mins));
+                labels.push(format!("{}", format_duration(mins)));
             }
         }
         
         labels
     }
 
-    /// Creates a new intensity plot for multiple ingestions
     pub fn new(ingestions: &'a [IngestionAnalysis]) -> Self {
         let mut phase_data = Vec::new();
-        let colors = [
-            Color::Red,
-            Color::Green,
-            Color::Yellow,
-            Color::Blue,
-            Color::Magenta,
-            Color::Cyan,
-        ];
 
         for analysis in ingestions.iter() {
             if analysis.substance.is_some() {
@@ -102,7 +109,6 @@ impl<'a> IntensityPlot<'a> {
         }
     }
 
-    /// Renders the intensity plot as a Chart widget
     pub fn render(&'a mut self) -> Chart<'a> {
         let mut datasets = Vec::new();
         
@@ -152,25 +158,27 @@ impl<'a> IntensityPlot<'a> {
                 .style(Style::default().fg(Color::White))
                 .graph_type(ratatui::widgets::GraphType::Line)
                 .data(&self.time_marker_data));
-        }            // Update time labels
-            self.time_labels = self.generate_time_labels();
+        }
+        // Update time labels using improved formatting
+        self.time_labels = self.generate_time_labels();
 
-            Chart::new(datasets)
-                .block(Block::default()
-                    .title("Active Ingestions Intensity")
-                    .borders(Borders::ALL))
-                .x_axis(Axis::default()
-                    .title("Time")
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds([0.0, self.max_duration.max(60.0)])
-                    .labels(self.time_labels.iter().map(|s| Span::raw(s)).collect()))
-                .y_axis(Axis::default()
-                    .title("Intensity (%)")
-                    .style(Style::default().fg(Color::Gray))
-                    .bounds([0.0, 100.0]))
+        Chart::new(datasets)
+            .block(Block::default()
+                .title(" Intensity Timeline \nLegend: Onset/Afterglow=dotted, Comeup/Comedown=dashed, Peak=solid ")
+                .title_alignment(Alignment::Center)
+                .borders(Borders::ALL)
+                .border_style(Style::default().fg(Color::Magenta)))
+            .x_axis(Axis::default()
+                .title("Time")
+                .style(Style::default().fg(Color::Gray))
+                .bounds([0.0, self.max_duration.max(60.0)])
+                .labels(self.time_labels.iter().map(|s| Span::raw(s)).collect()))
+            .y_axis(Axis::default()
+                .title("Intensity (%)")
+                .style(Style::default().fg(Color::Gray))
+                .bounds([0.0, 100.0]))
     }
 
-    /// Collects and interpolates phase data points for plotting
     fn collect_phase_data(analysis: &IngestionAnalysis) -> Vec<(f64, f64)> {
         let mut phase_data = Vec::new();
         let mut last_duration = 0.0;
@@ -235,7 +243,6 @@ impl<'a> IntensityPlot<'a> {
         phase_data
     }
 
-    /// Gets the maximum duration across all ingestions in minutes
     fn calculate_max_duration(ingestions: &[IngestionAnalysis]) -> f64 {
         ingestions.iter()
             .filter_map(|analysis| {
@@ -248,4 +255,4 @@ impl<'a> IntensityPlot<'a> {
             .max_by(|a: &f64, b: &f64| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal))
             .unwrap_or(60.0)
     }
-} 
+}

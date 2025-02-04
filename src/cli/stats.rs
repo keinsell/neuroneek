@@ -151,24 +151,24 @@ pub struct GetStatistics
 }
 
 #[derive(Parser, Debug, Tabled, Serialize)]
-struct PeriodStatistics
+pub struct PeriodStatistics
 {
     #[tabled(rename = "Substance Name")]
-    substance_name: String,
+    pub substance_name: String,
     #[tabled(rename = "AVG (per day)")]
     #[tabled(display_with = "Dosage::to_string")]
-    daily_dosage: Dosage,
+    pub daily_dosage: Dosage,
     #[tabled(rename = "SUM")]
     #[tabled(display_with = "Dosage::to_string")]
-    sum_dosage: Dosage,
+    pub sum_dosage: Dosage,
     #[tabled(rename = "MIN")]
     #[tabled(display_with = "Dosage::to_string")]
-    min_dosage: Dosage,
+    pub min_dosage: Dosage,
     #[tabled(rename = "MAX")]
     #[tabled(display_with = "Dosage::to_string")]
-    max_dosage: Dosage,
+    pub max_dosage: Dosage,
     #[tabled(rename = "COUNT")]
-    count: i32,
+    pub count: i32,
 }
 
 #[async_trait]

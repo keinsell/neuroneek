@@ -14,7 +14,7 @@ use crate::utils::AppContext;
 use analyze::AnalyzeIngestion;
 mod analyze;
 mod ingestion;
-mod stats;
+pub mod stats;
 pub mod substance;
 pub mod formatter;
 
