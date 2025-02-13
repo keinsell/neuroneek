@@ -1,33 +1,33 @@
 use crate::database::entities;
 use crate::database::entities::substance;
-use crate::substance::RoutesOfAdministration;
-use crate::substance::Substance;
 use crate::substance::error::SubstanceError;
-use crate::substance::route_of_administration::RouteOfAdministration;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::dosage::DosageClassification;
 use crate::substance::route_of_administration::dosage::DosageRange;
 use crate::substance::route_of_administration::phase::DurationRange;
 use crate::substance::route_of_administration::phase::PhaseClassification;
+use crate::substance::route_of_administration::RouteOfAdministration;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::substance::RoutesOfAdministration;
+use crate::substance::Substance;
 use cached::proc_macro::io_cached;
-use futures::StreamExt;
 use futures::stream::FuturesUnordered;
+use futures::StreamExt;
 use iso8601_duration::Duration;
-use miette::IntoDiagnostic;
 use miette::miette;
+use miette::IntoDiagnostic;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::ModelTrait;
 use sea_orm::QueryFilter;
 use std::str::FromStr;
 
-#[io_cached(
-    disk = true,
-    sync_to_disk_on_cache_change = false,
-    map_error = r##"|e| SubstanceError::DiskError"##,
-    time = 2592000000
-)]
+// #[io_cached(
+//     disk = true,
+//     sync_to_disk_on_cache_change = false,
+//     map_error = r##"|e| SubstanceError::DiskError"##,
+//     time = 2592000000
+// )]
 async fn enrich_substance_name_query(name: &str) -> Result<String, SubstanceError>
 {
     Ok(pubchem::Compound::with_name(name)
@@ -35,6 +35,7 @@ async fn enrich_substance_name_query(name: &str) -> Result<String, SubstanceErro
         .into_diagnostic()
         .unwrap_or(name.to_string()))
 }
+
 
 pub async fn get_substance(
     name: &str,

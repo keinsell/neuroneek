@@ -352,13 +352,80 @@ impl CommandHandler for DeleteIngestion
     }
 }
 
+#[derive(Parser, Debug)]
+#[command(version, about = "Get a single ingestion by ID")]
+pub struct GetIngestion
+{
+    /// ID of the ingestion to retrieve
+    #[arg(index = 1, value_name = "INGESTION_ID")]
+    pub ingestion_id: i32,
+}
+
+#[async_trait]
+impl CommandHandler for GetIngestion
+{
+    async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<()>
+    {
+        let ingestion = Ingestion::find_by_id(self.ingestion_id)
+            .one(ctx.database_connection)
+            .await
+            .into_diagnostic()?
+            .ok_or_else(|| miette::miette!("Ingestion with ID {} not found", self.ingestion_id))?;
+
+        let analysis_query = AnalyzeIngestion::builder()
+            .substance(ingestion.substance_name.clone())
+            .date(Local.from_utc_datetime(&ingestion.ingested_at))
+            .dosage(Dosage::from_base_units(ingestion.dosage as f64))
+            .roa(
+                ingestion
+                    .route_of_administration
+                    .parse()
+                    .unwrap_or(RouteOfAdministrationClassification::Oral),
+            )
+            .ingestion_id(Some(ingestion.id))
+            .build();
+
+        match analysis_query.query().await
+        {
+            | Ok(analysis) =>
+            {
+                println!(
+                    "{}",
+                    IngestionViewModel::from(analysis).format(ctx.stdout_format)
+                );
+            }
+            | Err(e) =>
+            {
+                event!(
+                    name: "ingestion_analysis_failed",
+                    Level::WARN,
+                    error = ?e,
+                    ingestion_id = ingestion.id
+                );
+                println!(
+                    "{}",
+                    IngestionViewModel::from(ingestion).format(ctx.stdout_format)
+                );
+            }
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Subcommand)]
 pub enum IngestionCommands
 {
+    /// Create a new ingestion record
     Log(LogIngestion),
+    /// List all ingestions
     List(ListIngestion),
+    /// Delete an ingestion
     Delete(DeleteIngestion),
+    /// Update an existing ingestion
     Update(UpdateIngestion),
+    /// Show a single ingestion by ID
+    Show(GetIngestion),
 }
 
 #[derive(Debug, Parser)]
@@ -379,6 +446,7 @@ impl CommandHandler for IngestionCommand
             | IngestionCommands::List(list_ingestions) => list_ingestions.handle(ctx).await,
             | IngestionCommands::Delete(delete_ingestion) => delete_ingestion.handle(ctx).await,
             | IngestionCommands::Update(update_ingestion) => update_ingestion.handle(ctx).await,
+            | IngestionCommands::Show(get_ingestion) => get_ingestion.handle(ctx).await,
         }
     }
 }
@@ -437,6 +505,7 @@ impl Formatter for IngestionViewModel
 
         if !self.phases.is_empty()
         {
+            md.push_str(&format!("---\n"));
             md.push_str(&format!("## Ingestion's Phases\n\n"));
 
             for phase in &self.phases
@@ -450,8 +519,6 @@ impl Formatter for IngestionViewModel
                     | "Afterglow" => "○",
                     | _ => "•",
                 };
-                md.push_str(&format!("### {} {}\n", phase_icon, phase.classification));
-
                 let duration_mins = phase
                     .duration
                     .trim_end_matches(" minutes")
@@ -466,9 +533,14 @@ impl Formatter for IngestionViewModel
                     format!("{}m", duration_mins)
                 };
 
-                md.push_str(&format!("- **Duration**: {}\n", duration_formatted));
-                md.push_str(&format!("- **Start**: {}\n", phase.start_time));
-                md.push_str(&format!("- **End**: {}\n", phase.end_time));
+                md.push_str(&format!(
+                    "{} **{}** ({}) : {} - {}\n",
+                    phase_icon,
+                    phase.classification,
+                    duration_formatted,
+                    phase.start_time,
+                    phase.end_time
+                ));
             }
         }
 

@@ -1,4 +1,3 @@
-use crate::DATABASE_CONNECTION;
 use crate::core::QueryHandler;
 use crate::database::entities::ingestion;
 use crate::database::entities::ingestion::Entity as IngestionEntity;
@@ -6,20 +5,21 @@ use crate::database::entities::ingestion_phase;
 use crate::ingestion::model::Ingestion;
 use crate::ingestion::model::IngestionPhase;
 use crate::substance::repository::get_substance;
-use crate::substance::route_of_administration::RouteOfAdministration;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::dosage::DosageClassification;
 use crate::substance::route_of_administration::phase::PhaseClassification;
+use crate::substance::route_of_administration::RouteOfAdministration;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::utils::AppContext;
+use crate::DATABASE_CONNECTION;
 use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Duration as TimeDelta;
 use chrono::Local;
 use chrono::TimeZone;
-use clap::Parser;
 use clap::arg;
 use clap::command;
+use clap::Parser;
 use derive_more::FromStr;
 use miette::IntoDiagnostic;
 use sea_orm::ActiveModelTrait;
@@ -151,7 +151,7 @@ impl QueryHandler<Ingestion> for AnalyzeIngestion
             .map_err(|e| miette::miette!("Failed to get substance: {}", e))?;
 
         let mut ingestion = Ingestion {
-            id: None,
+            id: self.ingestion_id,
             substance_name: substance_name.clone(),
             dosage,
             route,

@@ -70,6 +70,43 @@ neuronek ingestion log -s caffeine -d 80mg
 ╰────┴───────────┴──────┴─────────┴────────────────╯
 ```
 
+#### View Ingestion
+
+```
+neuronek ingestion view <INGESTION_ID>
+```
+
+```
+Ingestion #48
+Substance: caffeine
+Route of Administration: Oral
+Dosage: 80.0 mg (Common)
+Ingested: 2025-02-13 12:01:12 (now)
+
+Ingestion's Phases
+
+─ Onset
+- Duration: 5m
+- Start: 2025-02-13 12:01:12
+- End: 2025-02-13 12:11:12
+△ Comeup
+- Duration: 10m
+- Start: 2025-02-13 12:11:12
+- End: 2025-02-13 12:41:12
+◆ Peak
+- Duration: 45m
+- Start: 2025-02-13 12:41:12
+- End: 2025-02-13 14:11:12
+▽ Comedown
+- Duration: 01h 00m
+- Start: 2025-02-13 14:11:12
+- End: 2025-02-13 16:11:12
+○ Afterglow
+- Duration: 04h 00m
+- Start: 2025-02-13 16:11:12
+- End: 2025-02-14 04:11:12  
+```
+
 #### List Ingestions
 
 ```bash
