@@ -82,8 +82,8 @@ impl FromStr for RouteOfAdministrationClassification
 }
 
 #[derive(Debug, Clone)]
-pub struct RouteOfAdministration
-{
+pub struct RouteOfAdministration {
+    #[allow(dead_code)]  // This field is part of the public API
     pub classification: RouteOfAdministrationClassification,
     pub dosages: Dosages,
     pub phases: Phases,

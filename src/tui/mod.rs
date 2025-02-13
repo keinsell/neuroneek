@@ -1,3 +1,4 @@
+#![allow(dead_code)]  // TUI module is work in progress
 use std::io::{stdout, Stdout};
 use std::time::{Duration, Instant};
 

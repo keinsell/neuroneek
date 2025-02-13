@@ -56,17 +56,14 @@ impl From<Model> for Ingestion
     }
 }
 
-type PhaseDuration = Range<Duration>;
-type PhaseSchedule = HashMap<PhaseClassification, IngestionPhase>;
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IngestionPhase
 {
-    pub(crate) id: Option<String>,
-    pub(crate) class: PhaseClassification,
-    pub(crate) start_time: Range<DateTime<Local>>,
-    pub(crate) end_time: Range<DateTime<Local>>,
-    pub(crate) duration: PhaseDuration,
+    pub id: Option<String>,
+    pub class: PhaseClassification,
+    pub start_time: Range<DateTime<Local>>,
+    pub end_time: Range<DateTime<Local>>,
+    pub duration: Range<Duration>,
 }
 impl From<crate::database::entities::ingestion_phase::Model> for IngestionPhase
 {

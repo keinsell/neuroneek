@@ -17,7 +17,7 @@ pub fn render(frame: &mut Frame, app: &App) {
             Constraint::Min(0),     // Body
             Constraint::Length(3),  // Footer
         ])
-        .split(frame.size());
+        .split(frame.area());
 
     // Create the body layout with sidebar
     let body_layout = Layout::default()
@@ -35,10 +35,10 @@ pub fn render(frame: &mut Frame, app: &App) {
 }
 
 fn render_header(frame: &mut Frame, app: &App, area: Rect) {
-    let titles: Vec<_> = vec!["Home", "Substances", "Stats", "Settings"]
+    let titles = ["Home", "Substances", "Stats", "Settings"]
         .iter()
         .map(|t| Line::from(Span::styled(*t, Style::default().fg(Color::White))))
-        .collect();
+        .collect::<Vec<_>>();
 
     let tabs = Tabs::new(titles)
         .block(Block::default().borders(Borders::ALL).title("Neuronek"))
@@ -67,4 +67,4 @@ fn render_footer(frame: &mut Frame, _app: &App, area: Rect) {
     let footer = Paragraph::new("Press 'q' to quit | Use 1-4 to switch tabs")
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(footer, area);
-} 
+}

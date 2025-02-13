@@ -1,6 +1,6 @@
-use crate::cli::OutputFormat;
 use crate::cli::formatter::Formatter;
 use crate::cli::formatter::FormatterVector;
+use crate::cli::OutputFormat;
 use crate::core::CommandHandler;
 use crate::core::QueryHandler;
 use crate::database::entities::ingestion;
@@ -11,24 +11,28 @@ use crate::database::entities::ingestion_phase::Entity as IngestionPhase;
 use crate::ingestion::command::LogIngestion;
 use crate::ingestion::query::AnalyzeIngestion;
 use crate::substance::repository::get_substance;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::substance::route_of_administration::dosage::Dosage;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::utils::parse_date_string;
 use crate::utils::AppContext;
 use crate::utils::DATABASE_CONNECTION;
-use crate::utils::parse_date_string;
 use async_std::task;
 use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Duration;
 use chrono::Local;
 use chrono::TimeZone;
+use chrono_humanize::Accuracy;
 use chrono_humanize::HumanTime;
+use chrono_humanize::Humanize;
+use chrono_humanize::Tense;
 use clap::Parser;
 use clap::Subcommand;
 use log::info;
-use miette::IntoDiagnostic;
 use miette::miette;
+use miette::IntoDiagnostic;
 use owo_colors::style;
+use owo_colors::OwoColorize;
 use sea_orm::ActiveModelTrait;
 use sea_orm::ActiveValue;
 use sea_orm::ColumnTrait;
@@ -44,10 +48,24 @@ use std::fmt::Debug;
 use std::fmt::Display;
 use std::str::FromStr;
 use tabled::Tabled;
-use tracing::Level;
+use termimad::rgb;
+use termimad::MadSkin;
+use textplots::Chart;
+use textplots::Plot;
+use textplots::Shape;
 use tracing::event;
+use tracing::Level;
 use typed_builder::TypedBuilder;
 use uuid::Uuid;
+
+#[derive(Debug, Serialize, TypedBuilder)]
+pub struct IngestionPhaseViewModel
+{
+    pub classification: String,
+    pub start_time: String,
+    pub end_time: String,
+    pub duration: String,
+}
 
 #[async_trait]
 impl CommandHandler for LogIngestion
@@ -93,6 +111,8 @@ impl CommandHandler for LogIngestion
         {
             | Ok(analysis) =>
             {
+                let mut analysis = analysis;
+                analysis.id = Some(ingestion.id);
                 println!(
                     "{}",
                     IngestionViewModel::from(analysis.clone()).format(context.stdout_format)
@@ -189,8 +209,7 @@ pub struct UpdateIngestion
     pub dosage: Option<Dosage>,
 
     /// New ingestion date (optional, e.g., "today 10:00")
-    #[arg(short = 't', long = "date", value_name = "INGESTION_DATE", value_parser=parse_date_string
-    )]
+    #[arg(short = 't', long = "date", value_name = "INGESTION_DATE", value_parser=parse_date_string)]
     pub ingestion_date: Option<DateTime<Local>>,
 
     /// New route of administration (optional, defaults to "oral")
@@ -333,7 +352,6 @@ impl CommandHandler for DeleteIngestion
     }
 }
 
-
 #[derive(Debug, Subcommand)]
 pub enum IngestionCommands
 {
@@ -367,11 +385,7 @@ impl CommandHandler for IngestionCommand
 
 fn display_date(date: &DateTime<Local>) -> String { HumanTime::from(*date).to_string() }
 
-
-// TODO: IngestionView should be presenting a single ingestion with analysis
-// TODO: Add dosage classification
-// TODO: Add phase information
-#[derive(Debug, Serialize, Deserialize, Tabled, TypedBuilder)]
+#[derive(Debug, Serialize, Tabled, TypedBuilder)]
 pub struct IngestionViewModel
 {
     #[tabled(rename = "ID")]
@@ -387,11 +401,80 @@ pub struct IngestionViewModel
     pub ingested_at: DateTime<Local>,
     #[tabled(rename = "Dosage Classification")]
     pub dosage_classification: String,
+    #[tabled(skip)]
+    pub phases: Vec<IngestionPhaseViewModel>,
 }
 
+impl Formatter for IngestionViewModel
+{
+    fn pretty(&self) -> String
+    {
+        let mut skin = MadSkin::default_dark();
+        skin.set_fg(rgb(205, 214, 244));
+        skin.bold.set_fg(rgb(166, 227, 161));
+        skin.italic.set_fg(rgb(250, 179, 135));
+        skin.headers[0].set_fg(rgb(198, 160, 246));
+        skin.headers[1].set_fg(rgb(245, 224, 220));
+        skin.headers[2].set_fg(rgb(242, 205, 205));
+        skin.paragraph.set_fg(rgb(198, 208, 245));
 
-impl Formatter for IngestionViewModel {}
+        let mut md = String::new();
 
+        md.push_str(&format!("# Ingestion #{}\n", self.id));
+        md.push_str(&format!("**Substance**: {}\n", self.substance_name));
+        md.push_str(&format!("**Route of Administration**: {}\n", self.route));
+        md.push_str(&format!(
+            "**Dosage**: {} ({})\n",
+            self.dosage, self.dosage_classification
+        ));
+
+        let time_since = HumanTime::from(self.ingested_at);
+        md.push_str(&format!(
+            "**Ingested**: {} ({})\n\n",
+            self.ingested_at.format("%Y-%m-%d %H:%M:%S"),
+            time_since.to_string()
+        ));
+
+        if !self.phases.is_empty()
+        {
+            md.push_str(&format!("## Ingestion's Phases\n\n"));
+
+            for phase in &self.phases
+            {
+                let phase_icon = match phase.classification.as_str()
+                {
+                    | "Onset" => "─",
+                    | "Comeup" => "△",
+                    | "Peak" => "◆",
+                    | "Comedown" => "▽",
+                    | "Afterglow" => "○",
+                    | _ => "•",
+                };
+                md.push_str(&format!("### {} {}\n", phase_icon, phase.classification));
+
+                let duration_mins = phase
+                    .duration
+                    .trim_end_matches(" minutes")
+                    .parse::<i64>()
+                    .unwrap_or(0);
+                let duration_formatted = if duration_mins >= 60
+                {
+                    format!("{:02}h {:02}m", duration_mins / 60, duration_mins % 60)
+                }
+                else
+                {
+                    format!("{}m", duration_mins)
+                };
+
+                md.push_str(&format!("- **Duration**: {}\n", duration_formatted));
+                md.push_str(&format!("- **Start**: {}\n", phase.start_time));
+                md.push_str(&format!("- **End**: {}\n", phase.end_time));
+            }
+        }
+
+        skin.text(&md, None).to_string()
+    }
+}
 
 impl From<Model> for IngestionViewModel
 {
@@ -413,10 +496,10 @@ impl From<Model> for IngestionViewModel
                     .dosage_classification
                     .map_or("n/a".to_string(), |c| c.to_string()),
             )
+            .phases(vec![])
             .build()
     }
 }
-
 
 impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
 {
@@ -424,6 +507,25 @@ impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
     {
         let dosage = model.dosage;
         let route_enum = model.route;
+
+        let phases = model
+            .phases
+            .into_iter()
+            .map(|phase| {
+                IngestionPhaseViewModel::builder()
+                    .classification(phase.class.to_string())
+                    .start_time(
+                        phase
+                            .start_time
+                            .start
+                            .format("%Y-%m-%d %H:%M:%S")
+                            .to_string(),
+                    )
+                    .end_time(phase.end_time.start.format("%Y-%m-%d %H:%M:%S").to_string())
+                    .duration(format!("{} minutes", phase.duration.start.num_minutes()))
+                    .build()
+            })
+            .collect();
 
         Self::builder()
             .id(model.id.unwrap_or(0))
@@ -436,6 +538,7 @@ impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
                     .dosage_classification
                     .map_or("n/a".to_string(), |c| c.to_string()),
             )
+            .phases(phases)
             .build()
     }
 }
