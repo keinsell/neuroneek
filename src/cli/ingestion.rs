@@ -21,6 +21,7 @@ use async_trait::async_trait;
 use chrono::DateTime;
 use chrono::Duration;
 use chrono::Local;
+use chrono::NaiveDateTime;
 use chrono::TimeZone;
 use chrono_humanize::Accuracy;
 use chrono_humanize::HumanTime;
@@ -57,15 +58,6 @@ use tracing::event;
 use tracing::Level;
 use typed_builder::TypedBuilder;
 use uuid::Uuid;
-
-#[derive(Debug, Serialize, TypedBuilder)]
-pub struct IngestionPhaseViewModel
-{
-    pub classification: String,
-    pub start_time: String,
-    pub end_time: String,
-    pub duration: String,
-}
 
 #[async_trait]
 impl CommandHandler for LogIngestion
@@ -352,13 +344,80 @@ impl CommandHandler for DeleteIngestion
     }
 }
 
+#[derive(Parser, Debug)]
+#[command(version, about = "Get a single ingestion by ID")]
+pub struct GetIngestion
+{
+    /// ID of the ingestion to retrieve
+    #[arg(index = 1, value_name = "INGESTION_ID")]
+    pub ingestion_id: i32,
+}
+
+#[async_trait]
+impl CommandHandler for GetIngestion
+{
+    async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<()>
+    {
+        let ingestion = Ingestion::find_by_id(self.ingestion_id)
+            .one(ctx.database_connection)
+            .await
+            .into_diagnostic()?
+            .ok_or_else(|| miette::miette!("Ingestion with ID {} not found", self.ingestion_id))?;
+
+        let analysis_query = AnalyzeIngestion::builder()
+            .substance(ingestion.substance_name.clone())
+            .date(Local.from_utc_datetime(&ingestion.ingested_at))
+            .dosage(Dosage::from_base_units(ingestion.dosage as f64))
+            .roa(
+                ingestion
+                    .route_of_administration
+                    .parse()
+                    .unwrap_or(RouteOfAdministrationClassification::Oral),
+            )
+            .ingestion_id(Some(ingestion.id))
+            .build();
+
+        match analysis_query.query().await
+        {
+            | Ok(analysis) =>
+            {
+                println!(
+                    "{}",
+                    IngestionViewModel::from(analysis).format(ctx.stdout_format)
+                );
+            }
+            | Err(e) =>
+            {
+                event!(
+                    name: "ingestion_analysis_failed",
+                    Level::WARN,
+                    error = ?e,
+                    ingestion_id = ingestion.id
+                );
+                println!(
+                    "{}",
+                    IngestionViewModel::from(ingestion).format(ctx.stdout_format)
+                );
+            }
+        }
+
+        Ok(())
+    }
+}
+
 #[derive(Debug, Subcommand)]
 pub enum IngestionCommands
 {
+    /// Create a new ingestion record
     Log(LogIngestion),
+    /// List all ingestions
     List(ListIngestion),
+    /// Delete an ingestion
     Delete(DeleteIngestion),
+    /// Update an existing ingestion
     Update(UpdateIngestion),
+    /// Show a single ingestion by ID
+    Show(GetIngestion),
 }
 
 #[derive(Debug, Parser)]
@@ -379,6 +438,7 @@ impl CommandHandler for IngestionCommand
             | IngestionCommands::List(list_ingestions) => list_ingestions.handle(ctx).await,
             | IngestionCommands::Delete(delete_ingestion) => delete_ingestion.handle(ctx).await,
             | IngestionCommands::Update(update_ingestion) => update_ingestion.handle(ctx).await,
+            | IngestionCommands::Show(get_ingestion) => get_ingestion.handle(ctx).await,
         }
     }
 }
@@ -403,6 +463,17 @@ pub struct IngestionViewModel
     pub dosage_classification: String,
     #[tabled(skip)]
     pub phases: Vec<IngestionPhaseViewModel>,
+    #[tabled(skip)]
+    pub active_phase: Option<IngestionPhaseViewModel>,
+}
+
+#[derive(Debug, Serialize, TypedBuilder, Clone)]
+pub struct IngestionPhaseViewModel
+{
+    pub classification: String,
+    pub start_time: chrono::DateTime<Local>,
+    pub end_time: chrono::DateTime<Local>,
+    pub duration: chrono::Duration,
 }
 
 impl Formatter for IngestionViewModel
@@ -435,9 +506,31 @@ impl Formatter for IngestionViewModel
             time_since.to_string()
         ));
 
+        if let Some(active_phase) = &self.active_phase
+        {
+            md.push_str("---\n");
+            md.push_str("## Current Phase\n\n");
+
+            let now = Local::now();
+            let time_elapsed = now.signed_duration_since(active_phase.start_time);
+            let time_remaining = active_phase.end_time.signed_duration_since(now);
+
+            md.push_str(&format!("**{}**\n", active_phase.classification));
+            md.push_str(&format!(
+                "Time elapsed: {}\n",
+                HumanTime::from(time_elapsed)
+            ));
+            md.push_str(&format!(
+                "Time remaining: {}\n",
+                HumanTime::from(time_remaining)
+            ));
+            md.push_str("\n");
+        }
+
         if !self.phases.is_empty()
         {
-            md.push_str(&format!("## Ingestion's Phases\n\n"));
+            md.push_str("---\n");
+            md.push_str("## Ingestion's Phases\n\n");
 
             for phase in &self.phases
             {
@@ -450,13 +543,7 @@ impl Formatter for IngestionViewModel
                     | "Afterglow" => "○",
                     | _ => "•",
                 };
-                md.push_str(&format!("### {} {}\n", phase_icon, phase.classification));
-
-                let duration_mins = phase
-                    .duration
-                    .trim_end_matches(" minutes")
-                    .parse::<i64>()
-                    .unwrap_or(0);
+                let duration_mins = phase.duration.num_minutes();
                 let duration_formatted = if duration_mins >= 60
                 {
                     format!("{:02}h {:02}m", duration_mins / 60, duration_mins % 60)
@@ -466,9 +553,14 @@ impl Formatter for IngestionViewModel
                     format!("{}m", duration_mins)
                 };
 
-                md.push_str(&format!("- **Duration**: {}\n", duration_formatted));
-                md.push_str(&format!("- **Start**: {}\n", phase.start_time));
-                md.push_str(&format!("- **End**: {}\n", phase.end_time));
+                md.push_str(&format!(
+                    "{} **{}** ({}): {} - {}\n",
+                    phase_icon,
+                    phase.classification,
+                    duration_formatted,
+                    phase.start_time.format("%Y-%m-%d %H:%M:%S"),
+                    phase.end_time.format("%Y-%m-%d %H:%M:%S")
+                ));
             }
         }
 
@@ -497,6 +589,7 @@ impl From<Model> for IngestionViewModel
                     .map_or("n/a".to_string(), |c| c.to_string()),
             )
             .phases(vec![])
+            .active_phase(None) // no phases available from Model conversion
             .build()
     }
 }
@@ -515,17 +608,27 @@ impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
                 IngestionPhaseViewModel::builder()
                     .classification(phase.class.to_string())
                     .start_time(
-                        phase
-                            .start_time
-                            .start
-                            .format("%Y-%m-%d %H:%M:%S")
-                            .to_string(),
+                        Local
+                            .from_local_datetime(&phase.start_time.start.naive_utc())
+                            .unwrap(),
                     )
-                    .end_time(phase.end_time.start.format("%Y-%m-%d %H:%M:%S").to_string())
-                    .duration(format!("{} minutes", phase.duration.start.num_minutes()))
+                    .end_time(
+                        Local
+                            .from_local_datetime(&phase.end_time.start.naive_utc())
+                            .unwrap(),
+                    )
+                    .duration(phase.duration.start)
                     .build()
             })
-            .collect();
+            .collect::<Vec<_>>();
+
+        let active_phase = phases
+            .iter()
+            .find(|phase| {
+                let now = Local::now();
+                now >= phase.start_time && now <= phase.end_time
+            })
+            .cloned();
 
         Self::builder()
             .id(model.id.unwrap_or(0))
@@ -539,6 +642,7 @@ impl From<crate::ingestion::model::Ingestion> for IngestionViewModel
                     .map_or("n/a".to_string(), |c| c.to_string()),
             )
             .phases(phases)
+            .active_phase(active_phase)
             .build()
     }
 }

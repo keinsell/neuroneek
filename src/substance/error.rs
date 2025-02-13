@@ -5,8 +5,6 @@ use thiserror::Error;
 
 pub enum SubstanceError
 {
-    #[error("error with disk cache")]
-    DiskError,
     #[error("substance not found")]
     NotFound,
 }
