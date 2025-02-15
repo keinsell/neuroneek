@@ -491,24 +491,33 @@ impl Formatter for IngestionViewModel
 
         let mut md = String::new();
 
-        md.push_str(&format!("# Ingestion #{}\n", self.id));
+        md.push_str(&format!("# Ingestion #{}\n\n", self.id));
+        md.push_str("## Substance Information\n\n");
         md.push_str(&format!("**Substance**: {}\n", self.substance_name));
-        md.push_str(&format!("**Route of Administration**: {}\n", self.route));
+        md.push_str(&format!("**Route**: {}\n", self.route));
         md.push_str(&format!(
-            "**Dosage**: {} ({})\n",
-            self.dosage, self.dosage_classification
+            "**Dosage**: {} _{}_\n\n",
+            self.dosage,
+            if self.dosage_classification != "n/a"
+            {
+                format!("({})", self.dosage_classification)
+            }
+            else
+            {
+                String::new()
+            }
         ));
 
+        md.push_str("## Timing\n\n");
         let time_since = HumanTime::from(self.ingested_at);
         md.push_str(&format!(
-            "**Ingested**: {} ({})\n\n",
+            "**Ingested**: {} _{}_\n\n",
             self.ingested_at.format("%Y-%m-%d %H:%M:%S"),
             time_since.to_string()
         ));
 
         if let Some(active_phase) = &self.active_phase
         {
-            md.push_str("---\n");
             md.push_str("## Current Phase\n\n");
 
             let now = Local::now();
@@ -517,20 +526,18 @@ impl Formatter for IngestionViewModel
 
             md.push_str(&format!("**{}**\n", active_phase.classification));
             md.push_str(&format!(
-                "Time elapsed: {}\n",
+                "- Time elapsed: _{}_\n",
                 HumanTime::from(time_elapsed)
             ));
             md.push_str(&format!(
-                "Time remaining: {}\n",
+                "- Time remaining: _{}_\n\n",
                 HumanTime::from(time_remaining)
             ));
-            md.push_str("\n");
         }
 
         if !self.phases.is_empty()
         {
-            md.push_str("---\n");
-            md.push_str("## Ingestion's Phases\n\n");
+            md.push_str("## Timeline\n\n");
 
             for phase in &self.phases
             {
@@ -543,6 +550,7 @@ impl Formatter for IngestionViewModel
                     | "Afterglow" => "○",
                     | _ => "•",
                 };
+
                 let duration_mins = phase.duration.num_minutes();
                 let duration_formatted = if duration_mins >= 60
                 {
@@ -554,12 +562,12 @@ impl Formatter for IngestionViewModel
                 };
 
                 md.push_str(&format!(
-                    "{} **{}** ({}): {} - {}\n",
+                    "{} **{}** _{}_\n- {} → {}\n\n",
                     phase_icon,
                     phase.classification,
                     duration_formatted,
-                    phase.start_time.format("%Y-%m-%d %H:%M:%S"),
-                    phase.end_time.format("%Y-%m-%d %H:%M:%S")
+                    phase.start_time.format("%H:%M"),
+                    phase.end_time.format("%H:%M")
                 ));
             }
         }
@@ -589,7 +597,7 @@ impl From<Model> for IngestionViewModel
                     .map_or("n/a".to_string(), |c| c.to_string()),
             )
             .phases(vec![])
-            .active_phase(None) // no phases available from Model conversion
+            .active_phase(None)
             .build()
     }
 }

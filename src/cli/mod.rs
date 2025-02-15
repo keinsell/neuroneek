@@ -11,6 +11,7 @@ use clap::CommandFactory;
 use clap::Parser;
 use clap::Subcommand;
 use ingestion::IngestionCommand;
+use journal::ViewJournal;
 use miette::IntoDiagnostic;
 use sea_orm::prelude::*;
 use sea_orm::ColumnTrait;
@@ -27,6 +28,7 @@ use crate::core::CommandHandler;
 use crate::utils::AppContext;
 pub mod formatter;
 mod ingestion;
+mod journal;
 pub mod substance;
 
 fn is_interactive() -> bool { atty::is(Stream::Stdout) }
@@ -71,6 +73,7 @@ impl CommandHandler for ApplicationCommands
         {
             | ApplicationCommands::Ingestion(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Substance(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Journal(cmd) => cmd.handle(ctx).await,
         }
     }
 }
@@ -83,6 +86,8 @@ pub enum ApplicationCommands
     Ingestion(IngestionCommand),
     /// Query substance.rs information
     Substance(SubstanceCommand),
+    /// View today's ingestion journal
+    Journal(ViewJournal),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor
