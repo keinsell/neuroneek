@@ -1,0 +1,49 @@
+{
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.edits.suggestRelatedFilesFromGitHistory": true,
+    "github.copilot.chat.edits.suggestRelatedFilesForTests": true,
+    "github.copilot.chat.setupTests.enabled": true,
+    "github.copilot.chat.generateTests.codeLens": true,
+    "github.copilot.chat.enableUserPreferences": true,
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": ".github/copilot-instructions.md"
+        },
+        {
+            "file": ".github/copilot/code-generation.md"
+        },
+        {
+            "file": ".github/copilot/*.md",
+        }
+    ],
+    "chat.promptFiles": {
+        ".github/prompts": true,
+    },
+    "chat.agent.enabled": true,
+    "workbench.tips.enabled": true,
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.search.semanticTextResults": true,
+    "github.copilot.chat.startDebugging.enabled": true,
+    "github.copilot.chat.edits.codesearch.enabled": true,
+    "github.copilot.chat.copilotDebugCommand.enabled": true,
+    "github.copilot.workspace.implementPlanAfterGeneration": true,
+    "github.copilot.chat.editor.temporalContext.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
+    "websearch.useSearchResultsDirectly": true,
+    "websearch.preferredEngine": "tavily",
+    "github.copilot.chat.followUps": "never",
+    "workbench.commandPalette.experimental.suggestCommands": true,
+    "extensions.experimental.affinity": {
+        "pub.name": 1
+    },
+    "extensions.experimental.issueQuickAccess": true,
+    "editor.experimentalEditContextEnabled": true,
+    "workbench.commandPalette.experimental.askChatLocation": "chatView",
+    "workbench.commandPalette.experimental.enableNaturalLanguageSearch": true,
+    "rust-analyzer.diagnostics.experimental.enable": true,
+    "github.copilot.chat.useProjectTemplates": true,
+    "marscode.codeCompletionPro": {
+        "enableCodeCompletionPro": false
+    },
+    "marscode.enableInlineCommand": true,
+}
