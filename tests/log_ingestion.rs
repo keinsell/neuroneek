@@ -8,8 +8,8 @@ fn test_log_ingestion() -> Result<(), Box<dyn std::error::Error>>
     cmd.env("RUST_TEST", "1")  // Set test environment variable
         .arg("ingestion")
         .arg("log")
-        .arg("caffeine")
-        .arg("100mg");
+        .arg("-s caffeine")
+        .arg("-d 100mg");
     cmd.assert().success();
     Ok(())
 }

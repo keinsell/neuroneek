@@ -38,11 +38,12 @@ providing insights into the long-term effects of different substances on physica
 pub struct LogIngestion
 {
     /// Name of substance.rs that is being ingested, e.g. "Paracetamol"
-    #[arg(value_name = "SUBSTANCE", required = true)]
+    #[arg(short = 's', long = "substance", required = true)]
     pub substance_name: String,
     /// Dosage of given substance.rs provided as string with unit (e.g., 10 mg)
     #[arg(
-        value_name = "DOSAGE",
+        short = 'd',
+        long = "dosage",
         required = true,
         value_parser = Dosage::from_str
     )]

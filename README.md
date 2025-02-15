@@ -59,7 +59,7 @@ scriptable interface which allows for storage and retrieval of structured data.
 #### Log Ingestion
 
 ```bash
-neuronek ingestion log caffeine 80mg
+neuronek ingestion log -s caffeine -d 80mg
 ```
 
 ```
