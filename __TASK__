@@ -1,45 +1,105 @@
 # Implementation of Collective Ingestion Insight
 
 ## Overview
-Feature to display active substance ingestions with their current phases and amounts, providing a clear overview of all substances currently affecting the user. Objective is to show user how many of a "subjective" dosage he is feeling right now, with pseudo-adjustment for amount that is coming down or is afterglow to those who are coming in.
+Feature to display active substance ingestions with their current phases and amounts, providing a clear overview of all substances currently affecting the user. Objective is to show user how much of a "subjective" dosage he is feeling right now, with pseudo-adjustment for amount that is coming down or is afterglow to those who are coming in.
 
 ## Current System Analysis
 - ✓ System already tracks individual ingestions with phases (Onset, Comeup, Peak, Comedown, Afterglow)
 - ✓ Each ingestion has substance name, dosage, and timing information
 - ✓ Phases are tracked with start/end times and durations
-- ✓ Active phase detection is already implemented
+- ✓ Active phase detection is implemented
+- ✓ Basic subjective dosage calculation based on phase coefficients
 
-## Requirements
+## Enhanced Subjective Effects Model Research
 
-### Functional Requirements
-1. Group active ingestions by substance ✓
-   - Multiple ingestions of the same substance shown together ✓
-   - Show total active amount per substance ✓
+### Phase Impact Factors
+Current simple multiplication factors:
+- Onset: 0.2 (20% of full effect)
+- Comeup: 0.6 (60% of full effect)
+- Peak: 1.0 (100% of full effect)
+- Comedown: 0.4 (40% of full effect)
+- Afterglow: 0.1 (10% of full effect)
 
-2. Display Phase Information ✓
-   - Show current phase for each active ingestion ✓
-   - Include time remaining in current phase ✓
-   - Use phase indicators (↑ comeup, → peak, ↓ comedown) ✓
+### Proposed Enhancements
 
-3. Amount Tracking ✓
-   - Display individual ingestion amounts ✓
-   - Show combined amount for multiple ingestions of same substance ✓
-   - Calculate subjective dosage based on phase ✓
+1. Dynamic Phase Progression
+- Instead of fixed coefficients, implement curve-based progression
+- Calculate position within phase (0-100%)
+- Use different curves for different phases:
+  * Onset: Linear progression (0.0 -> 0.2)
+  * Comeup: Exponential curve (0.2 -> 1.0)
+  * Peak: Plateau with slight decline
+  * Comedown: Logarithmic decay
+  * Afterglow: Linear decline to zero
 
-### Implementation Status
-- ✓ Added new 'moment' command to CLI
-- ✓ Implemented active ingestion grouping by substance
-- ✓ Added phase-based subjective dosage calculation
-- ✓ Enhanced output formatting with termimad
-- ✓ Added JSON output support for scripting
+2. Multiple Ingestion Interaction
+- Consider timing between ingestions
+- Implement tolerance factors for repeated doses
+- Account for cross-tolerance between similar substances
+- Calculate combined subjective effect using:
+  * Primary effects (current phase)
+  * Residual effects (previous doses)
+  * Tolerance adjustment
 
-### Example Output
+3. Substance-Specific Factors
+- Different substances may have different progression curves
+- Consider onset speed variations
+- Account for different duration profiles
+- Implement substance-specific tolerance patterns
+
+### Implementation Priorities
+
+1. Phase Position Calculation
+```rust
+// Pseudo-code for dynamic phase coefficient
+fn calculate_phase_coefficient(phase: Phase, progress_percent: f64) -> f64 {
+    match phase {
+        Phase::Onset => progress_percent * 0.2,
+        Phase::Comeup => 0.2 + (progress_percent * 0.8),
+        Phase::Peak => 1.0 - (progress_percent * 0.1),
+        Phase::Comedown => 0.4 * (1.0 - progress_percent),
+        Phase::Afterglow => 0.1 * (1.0 - progress_percent),
+    }
+}
 ```
-# Current Active Substances
 
-## caffeine
-- ↓ 80.0 mg Comedown (1h 30m remaining)
-- ↑ 80.0 mg Comeup (45m remaining)
+2. Combined Effect Calculation
 
-Total: 160.0 mg (Subjective: 80.0 mg)
+```
+// Pseudo-code for multiple ingestion combination
+fn calculate_combined_effect(ingestions: Vec<Ingestion>) -> f64 {
+    let mut total_effect = 0.0;
+    let mut tolerance_factor = 1.0;
+    
+    for ingestion in ingestions.sort_by_time() {
+        let phase_effect = calculate_phase_coefficient(
+            ingestion.current_phase,
+            ingestion.phase_progress
+        );
+        
+        total_effect += ingestion.dosage * phase_effect * tolerance_factor;
+        tolerance_factor *= 0.8; // Simplified tolerance accumulation
+    }
+    
+    total_effect
+}
+```
+
+Visual Representation
+Consider adding ASCII charts showing:
+
+Current position in effect curve
+Combined effect over time
+Predicted effect trajectory
+
+```
+Effect Level (mg)
+    ^
+100 |    ****
+ 80 |   *    ****
+ 60 |  *         **
+ 40 | *             **
+ 20 |*                 **
+  0 +--------------------->
+    0h   1h   2h   3h   Time
 ```
