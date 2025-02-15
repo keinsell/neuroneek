@@ -1,8 +1,8 @@
 use crate::database::entities::ingestion::Model;
-use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::dosage::DosageClassification;
 use crate::substance::route_of_administration::phase::PhaseClassification;
+use crate::substance::route_of_administration::RouteOfAdministrationClassification;
 use chrono::DateTime;
 use chrono::Duration;
 use chrono::Local;

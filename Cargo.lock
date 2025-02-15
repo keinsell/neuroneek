@@ -2580,7 +2580,7 @@ dependencies = [
 
 [[package]]
 name = "neuronek"
-version = "0.0.1-alpha.3"
+version = "0.0.1-alpha.4"
 dependencies = [
  "assert_cmd",
  "async-std",

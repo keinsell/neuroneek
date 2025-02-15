@@ -1,5 +1,6 @@
 use crate::cli::OutputFormat;
-use crate::core::config::{Config, CONFIG};
+use crate::core::config::Config;
+use crate::core::config::CONFIG;
 use crate::database::Migrator;
 use async_std::task::block_on;
 use atty::Stream;

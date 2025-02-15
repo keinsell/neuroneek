@@ -48,6 +48,7 @@ use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::str::FromStr;
+use tabled::Table;
 use tabled::Tabled;
 use termimad::rgb;
 use termimad::MadSkin;
@@ -417,7 +418,7 @@ pub enum IngestionCommands
     /// Update an existing ingestion
     Update(UpdateIngestion),
     /// Show a single ingestion by ID
-    Show(GetIngestion),
+    View(GetIngestion),
 }
 
 #[derive(Debug, Parser)]
@@ -438,7 +439,7 @@ impl CommandHandler for IngestionCommand
             | IngestionCommands::List(list_ingestions) => list_ingestions.handle(ctx).await,
             | IngestionCommands::Delete(delete_ingestion) => delete_ingestion.handle(ctx).await,
             | IngestionCommands::Update(update_ingestion) => update_ingestion.handle(ctx).await,
-            | IngestionCommands::Show(get_ingestion) => get_ingestion.handle(ctx).await,
+            | IngestionCommands::View(get_ingestion) => get_ingestion.handle(ctx).await,
         }
     }
 }
@@ -476,6 +477,20 @@ pub struct IngestionPhaseViewModel
     pub duration: chrono::Duration,
 }
 
+#[derive(Debug, Tabled)]
+struct TimelineEntry
+{
+    #[tabled(rename = "Phase")]
+    phase: String,
+    #[tabled(rename = "Average Duration")]
+    duration: String,
+    #[tabled(rename = "Start Time")]
+    start: String,
+    #[tabled(rename = "End Time")]
+    end: String,
+}
+
+
 impl Formatter for IngestionViewModel
 {
     fn pretty(&self) -> String
@@ -492,11 +507,10 @@ impl Formatter for IngestionViewModel
         let mut md = String::new();
 
         md.push_str(&format!("# Ingestion #{}\n\n", self.id));
-        md.push_str("## Substance Information\n\n");
         md.push_str(&format!("**Substance**: {}\n", self.substance_name));
         md.push_str(&format!("**Route**: {}\n", self.route));
         md.push_str(&format!(
-            "**Dosage**: {} _{}_\n\n",
+            "**Dosage**: {} _{}_\n",
             self.dosage,
             if self.dosage_classification != "n/a"
             {
@@ -508,8 +522,8 @@ impl Formatter for IngestionViewModel
             }
         ));
 
-        md.push_str("## Timing\n\n");
         let time_since = HumanTime::from(self.ingested_at);
+
         md.push_str(&format!(
             "**Ingested**: {} _{}_\n\n",
             self.ingested_at.format("%Y-%m-%d %H:%M:%S"),
@@ -537,39 +551,46 @@ impl Formatter for IngestionViewModel
 
         if !self.phases.is_empty()
         {
-            md.push_str("## Timeline\n\n");
+            let timeline_entries: Vec<TimelineEntry> = self
+                .phases
+                .iter()
+                .map(|phase| {
+                    let duration_mins = phase.duration.num_minutes();
+                    let duration_formatted = if duration_mins >= 60
+                    {
+                        format!("{}h", duration_mins / 60)
+                    }
+                    else
+                    {
+                        format!("{}m", duration_mins)
+                    };
 
-            for phase in &self.phases
-            {
-                let phase_icon = match phase.classification.as_str()
-                {
-                    | "Onset" => "─",
-                    | "Comeup" => "△",
-                    | "Peak" => "◆",
-                    | "Comedown" => "▽",
-                    | "Afterglow" => "○",
-                    | _ => "•",
-                };
+                    let symbol = match phase.classification.as_str()
+                    {
+                        | "Onset" => "▲",
+                        | "Comeup" => "△",
+                        | "Peak" => "◆",
+                        | "Comedown" => "▽",
+                        | "Afterglow" => "○",
+                        | _ => "•",
+                    };
 
-                let duration_mins = phase.duration.num_minutes();
-                let duration_formatted = if duration_mins >= 60
-                {
-                    format!("{:02}h {:02}m", duration_mins / 60, duration_mins % 60)
-                }
-                else
-                {
-                    format!("{}m", duration_mins)
-                };
+                    TimelineEntry {
+                        phase: format!("{} {}", symbol, phase.classification),
+                        duration: duration_formatted,
+                        start: phase.start_time.format("%H:%M").to_string(),
+                        end: phase.end_time.format("%H:%M").to_string(),
+                    }
+                })
+                .collect();
 
-                md.push_str(&format!(
-                    "{} **{}** _{}_\n- {} → {}\n\n",
-                    phase_icon,
-                    phase.classification,
-                    duration_formatted,
-                    phase.start_time.format("%H:%M"),
-                    phase.end_time.format("%H:%M")
-                ));
-            }
+            let table = Table::new(timeline_entries)
+                .with(tabled::settings::Style::modern())
+                .to_string();
+
+            md.push_str("```\n");
+            md.push_str(&table);
+            md.push_str("\n```\n\n");
         }
 
         skin.text(&md, None).to_string()

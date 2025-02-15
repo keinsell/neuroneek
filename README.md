@@ -34,7 +34,7 @@ supported package managers or build it from source.
 #### Installation from source (Advanced)
 
 Application can be installed with `cargo` and providing url to this repository,
-this may be the most conformable way for users which are looking for the latest version of application.
+this may be the most conformable way for users which are looking for the latest version of application, proceed only if you have development experience as application might require manual fixes from your side by this release channel.
 
 ```
 cargo install --git https://github.com/keinsell/neuronek
@@ -59,7 +59,7 @@ scriptable interface which allows for storage and retrieval of structured data.
 #### Log Ingestion
 
 ```bash
-neuronek ingestion log -s caffeine -d 80mg
+neuronek ingestion log caffeine 80mg
 ```
 
 ```
@@ -70,41 +70,41 @@ neuronek ingestion log -s caffeine -d 80mg
 ╰────┴───────────┴──────┴─────────┴────────────────╯
 ```
 
-#### View Ingestion
+#### View Ingestion (Experimental)
+
+View Ingestion is a ongoing experiment (availabile from `0.0.1-alpha.4`) to find human-friendly way to display information about ingestion, currently it's a skeleton that do not provide much value (yet more than listing ingestions). Ongoing discussion about model is available under [#521](https://github.com/keinsell/neuronek/issues/521).
 
 ```
 neuronek ingestion view <INGESTION_ID>
 ```
 
 ```
-Ingestion #48
+Ingestion #296
+
 Substance: caffeine
-Route of Administration: Oral
-Dosage: 80.0 mg (Common)
-Ingested: 2025-02-13 12:01:12 (now)
+Route: Oral
+Dosage: 80.0 mg _(Common)_
+Ingested: 2025-02-15 22:55:39 _now_
 
-Ingestion's Phases
+Current Phase
 
-─ Onset
-- Duration: 5m
-- Start: 2025-02-13 12:01:12
-- End: 2025-02-13 12:11:12
-△ Comeup
-- Duration: 10m
-- Start: 2025-02-13 12:11:12
-- End: 2025-02-13 12:41:12
-◆ Peak
-- Duration: 45m
-- Start: 2025-02-13 12:41:12
-- End: 2025-02-13 14:11:12
-▽ Comedown
-- Duration: 01h 00m
-- Start: 2025-02-13 14:11:12
-- End: 2025-02-13 16:11:12
-○ Afterglow
-- Duration: 04h 00m
-- Start: 2025-02-13 16:11:12
-- End: 2025-02-14 04:11:12  
+Peak
+- Time elapsed: _in 20 minutes_
+- Time remaining: _in an hour_
+
+┌─────────────┬──────────────────┬────────────┬──────────┐
+│ Phase       │ Average Duration │ Start Time │ End Time │
+├─────────────┼──────────────────┼────────────┼──────────┤
+│ ▲ Onset     │ 5m               │ 21:55      │ 22:05    │
+├─────────────┼──────────────────┼────────────┼──────────┤
+│ △ Comeup    │ 10m              │ 22:05      │ 22:35    │
+├─────────────┼──────────────────┼────────────┼──────────┤
+│ ◆ Peak      │ 45m              │ 22:35      │ 00:05    │
+├─────────────┼──────────────────┼────────────┼──────────┤
+│ ▽ Comedown  │ 1h               │ 00:05      │ 02:05    │
+├─────────────┼──────────────────┼────────────┼──────────┤
+│ ○ Afterglow │ 4h               │ 02:05      │ 14:05    │
+└─────────────┴──────────────────┴────────────┴──────────┘
 ```
 
 #### List Ingestions

@@ -1,5 +1,5 @@
-pub mod migrator;
 pub mod entities;
+pub mod migrator;
 
-pub use migrator::Migrator;
 pub use entities::prelude::*;
+pub use migrator::Migrator;

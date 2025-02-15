@@ -5,9 +5,9 @@ use self::core::error_handling::setup_diagnostics;
 use self::core::logging::setup_logger;
 
 use crate::cli::Cli;
+use crate::utils::migrate_database;
 use crate::utils::AppContext;
 use crate::utils::DATABASE_CONNECTION;
-use crate::utils::migrate_database;
 
 use atty::Stream;
 use clap::Parser;

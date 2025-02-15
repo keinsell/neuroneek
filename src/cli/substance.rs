@@ -1,6 +1,6 @@
 use crate::core::CommandHandler;
-use crate::substance::SubstanceTable;
 use crate::substance::error::SubstanceError;
+use crate::substance::SubstanceTable;
 use crate::utils::AppContext;
 use async_trait::async_trait;
 use clap::Args;

@@ -16,7 +16,7 @@ fn test_show_ingestion() -> Result<(), Box<dyn std::error::Error>>
     let mut cmd = Command::cargo_bin("neuronek")?;
     cmd.env("RUST_TEST", "1")
         .arg("ingestion")
-        .arg("show")
+        .arg("view")
         .arg("1");
     cmd.assert()
         .success()
@@ -31,7 +31,7 @@ fn test_show_nonexistent_ingestion() -> Result<(), Box<dyn std::error::Error>>
     let mut cmd = Command::cargo_bin("neuronek")?;
     cmd.env("RUST_TEST", "1")
         .arg("ingestion")
-        .arg("show")
+        .arg("view")
         .arg("999999");
     cmd.assert()
         .failure()

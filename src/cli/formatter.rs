@@ -43,7 +43,7 @@ impl<T: Formatter> FormatterVector<T>
                 .with(tabled::settings::Style::modern())
                 .to_string(),
             | OutputFormat::Json => serde_json::to_string_pretty(&self.0)
-                .unwrap_or_else(|_| "Error serializing to JSON".to_string())
+                .unwrap_or_else(|_| "Error serializing to JSON".to_string()),
         }
     }
 }

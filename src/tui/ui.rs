@@ -1,21 +1,28 @@
-use ratatui::{
-    layout::{Constraint, Direction, Layout, Rect},
-    style::{Color, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, Paragraph, Tabs},
-    Frame,
-};
+use ratatui::layout::Constraint;
+use ratatui::layout::Direction;
+use ratatui::layout::Layout;
+use ratatui::layout::Rect;
+use ratatui::style::Color;
+use ratatui::style::Style;
+use ratatui::text::Line;
+use ratatui::text::Span;
+use ratatui::widgets::Block;
+use ratatui::widgets::Borders;
+use ratatui::widgets::Paragraph;
+use ratatui::widgets::Tabs;
+use ratatui::Frame;
 
 use super::app::App;
 
-pub fn render(frame: &mut Frame, app: &App) {
+pub fn render(frame: &mut Frame, app: &App)
+{
     // Create the main layout
     let main_layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),  // Header
-            Constraint::Min(0),     // Body
-            Constraint::Length(3),  // Footer
+            Constraint::Length(3), // Header
+            Constraint::Min(0),    // Body
+            Constraint::Length(3), // Footer
         ])
         .split(frame.area());
 
@@ -34,7 +41,8 @@ pub fn render(frame: &mut Frame, app: &App) {
     render_footer(frame, app, main_layout[2]);
 }
 
-fn render_header(frame: &mut Frame, app: &App, area: Rect) {
+fn render_header(frame: &mut Frame, app: &App, area: Rect)
+{
     let titles = ["Home", "Substances", "Stats", "Settings"]
         .iter()
         .map(|t| Line::from(Span::styled(*t, Style::default().fg(Color::White))))
@@ -49,21 +57,20 @@ fn render_header(frame: &mut Frame, app: &App, area: Rect) {
     frame.render_widget(tabs, area);
 }
 
-fn render_sidebar(frame: &mut Frame, _app: &App, area: Rect) {
-    let sidebar = Block::default()
-        .title("Navigation")
-        .borders(Borders::ALL);
+fn render_sidebar(frame: &mut Frame, _app: &App, area: Rect)
+{
+    let sidebar = Block::default().title("Navigation").borders(Borders::ALL);
     frame.render_widget(sidebar, area);
 }
 
-fn render_main(frame: &mut Frame, _app: &App, area: Rect) {
-    let main = Block::default()
-        .title("Content")
-        .borders(Borders::ALL);
+fn render_main(frame: &mut Frame, _app: &App, area: Rect)
+{
+    let main = Block::default().title("Content").borders(Borders::ALL);
     frame.render_widget(main, area);
 }
 
-fn render_footer(frame: &mut Frame, _app: &App, area: Rect) {
+fn render_footer(frame: &mut Frame, _app: &App, area: Rect)
+{
     let footer = Paragraph::new("Press 'q' to quit | Use 1-4 to switch tabs")
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(footer, area);
