@@ -1,7 +1,31 @@
 # Implementation of Collective Ingestion Insight
 
 ## Overview
-Feature to display active substance ingestions with their current phases and amounts, providing a clear overview of all substances currently affecting the user. Objective is to show user how much of a "subjective" dosage he is feeling right now, with pseudo-adjustment for amount that is coming down or is afterglow to those who are coming in.
+Feature to display active substance ingestions with their current phases and amounts. The objective is to compute the combined subjective dosage by adjusting phase progression and tolerance.
+
+## Actionable Sub-tasks (Ordered from Least Invasive to Most Complex)
+
+1. Fixed Phase Coefficient Setup  
+   - Confirm and document current fixed-value coefficients for each phase.
+
+2. Dynamic Phase Coefficient Calculation  
+   - Refactor to calculate phase coefficients using curve-based progression.
+     * Onset: Linear progression.
+     * Comeup: Exponential growth.
+     * Peak: Plateau with slight decline.
+     * Comedown: Logarithmic decay.
+     * Afterglow: Linear decline.
+
+3. Ingestion Effect Combination  
+   - Modify the ingestion aggregation logic:
+     * Calculate the effect for each ingestion using the dynamic coefficient.
+     * Combine effects using a basic summation.
+
+4. Visual Representation Enhancements  
+   - Augment the output with ASCII charts for:
+     * Current effect curve position.
+     * Combined effect trajectory over time.
+     * Predicted future dosage trends.
 
 ## Current System Analysis
 - ✓ System already tracks individual ingestions with phases (Onset, Comeup, Peak, Comedown, Afterglow)
@@ -47,11 +71,10 @@ Current simple multiplication factors:
 - Account for different duration profiles
 - Implement substance-specific tolerance patterns
 
-### Implementation Priorities
+## Implementation Priorities and Pseudo-code Reference
 
-1. Phase Position Calculation
 ```rust
-// Pseudo-code for dynamic phase coefficient
+// Pseudo-code for dynamic phase coefficient calculation
 fn calculate_phase_coefficient(phase: Phase, progress_percent: f64) -> f64 {
     match phase {
         Phase::Onset => progress_percent * 0.2,
@@ -61,12 +84,8 @@ fn calculate_phase_coefficient(phase: Phase, progress_percent: f64) -> f64 {
         Phase::Afterglow => 0.1 * (1.0 - progress_percent),
     }
 }
-```
 
-2. Combined Effect Calculation
-
-```
-// Pseudo-code for multiple ingestion combination
+// Pseudo-code for multiple ingestion combination with tolerance adjustment
 fn calculate_combined_effect(ingestions: Vec<Ingestion>) -> f64 {
     let mut total_effect = 0.0;
     let mut tolerance_factor = 1.0;
@@ -78,20 +97,15 @@ fn calculate_combined_effect(ingestions: Vec<Ingestion>) -> f64 {
         );
         
         total_effect += ingestion.dosage * phase_effect * tolerance_factor;
-        tolerance_factor *= 0.8; // Simplified tolerance accumulation
+        tolerance_factor *= 0.8; // Apply diminishing tolerance
     }
     
     total_effect
 }
 ```
 
-Visual Representation
-Consider adding ASCII charts showing:
-
-Current position in effect curve
-Combined effect over time
-Predicted effect trajectory
-
+Visual Representation Example:
+// ASCII chart for predicted effect trajectory
 ```
 Effect Level (mg)
     ^
@@ -102,4 +116,3 @@ Effect Level (mg)
  20 |*                 **
   0 +--------------------->
     0h   1h   2h   3h   Time
-```
