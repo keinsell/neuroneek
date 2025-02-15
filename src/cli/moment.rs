@@ -126,9 +126,9 @@ impl CommandHandler for MomentCommand {
 					
 					md.push_str(&format!("## {}\n\n", substance));
 					
-					// Find the strongest active phase for display
-					let mut strongest_phase = None;
-					let mut strongest_effect = 0.0;
+					// Track active phases and their effects
+					let mut active_phases = Vec::new();
+					let mut max_remaining = Duration::zero();
 					
 					for ingestion in &ingestions {
 						if let Some(current_phase) = ingestion.phases.iter()
@@ -140,7 +140,6 @@ impl CommandHandler for MomentCommand {
 								current_phase.end_time.end
 							);
 							
-							let effect = calculate_phase_coefficient(&current_phase.class, progress);
 							let subjective_dosage = calculate_subjective_dosage(
 								&ingestion.dosage,
 								&current_phase.class,
@@ -151,27 +150,37 @@ impl CommandHandler for MomentCommand {
 								total_subjective.as_base_units() + subjective_dosage.as_base_units()
 							);
 							
-							if effect > strongest_effect {
-								strongest_effect = effect;
-								strongest_phase = Some((current_phase, ingestion.dosage, progress));
+							let time_remaining = current_phase.end_time.end - now;
+							if time_remaining > max_remaining {
+								max_remaining = time_remaining;
 							}
+							
+							active_phases.push((current_phase.class.clone(), progress, ingestion.dosage));
 						}
 					}
 					
-					// Display the strongest active phase
-					if let Some((phase, dosage, progress)) = strongest_phase {
-						let time_remaining = phase.end_time.end - now;
-						md.push_str(&format!("Primary Phase: {} {} _{} ({} remaining)_\n",
-							get_phase_indicator(&phase.class, progress),
-							dosage,
-							phase.class,
-							format_duration(time_remaining)));
+					// Show combined phase information
+					if !active_phases.is_empty() {
+						// Sort phases by their effect strength
+						active_phases.sort_by(|a, b| {
+							let effect_a = calculate_phase_coefficient(&a.0, a.1);
+							let effect_b = calculate_phase_coefficient(&b.0, b.1);
+							effect_b.partial_cmp(&effect_a).unwrap()
+						});
+						
+						// Show the dominant phase
+						let (phase, progress, _) = &active_phases[0];
+						md.push_str(&format!("{} {} _{} ({} remaining)_\n",
+							get_phase_indicator(phase, *progress),
+							total_actual,
+							phase,
+							format_duration(max_remaining)));
 					}
 					
 					if total_actual.as_base_units() > 0.0 {
 						let effect_percentage = (total_subjective.as_base_units() / total_actual.as_base_units() * 100.0).round();
-						md.push_str(&format!("\n**Combined Effect**: {} of {} ({:.0}%)\n\n",
-							total_subjective, total_actual, effect_percentage));
+						md.push_str(&format!("**Current Effect**: {} ({:.0}%)\n\n",
+							total_subjective, effect_percentage));
 					}
 				}
 
