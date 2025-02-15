@@ -1,5 +1,6 @@
 use crate::cli::formatter::Formatter;
 use crate::cli::formatter::FormatterVector;
+use crate::cli::formatter::TabledFormatter;
 use crate::cli::OutputFormat;
 use crate::core::CommandHandler;
 use crate::core::QueryHandler;
@@ -48,7 +49,7 @@ use std::collections::BTreeMap;
 use std::fmt::Debug;
 use std::fmt::Display;
 use std::str::FromStr;
-use tabled::Tabled;
+use tabled::{Tabled, Table};
 use termimad::rgb;
 use termimad::MadSkin;
 use textplots::Chart;
@@ -476,10 +477,21 @@ pub struct IngestionPhaseViewModel
     pub duration: chrono::Duration,
 }
 
-impl Formatter for IngestionViewModel
-{
-    fn pretty(&self) -> String
-    {
+impl TabledFormatter for IngestionViewModel {
+    fn as_table(&self) -> String {
+        Table::new(vec![self]).to_string()
+    }
+}
+
+impl Formatter for IngestionViewModel {
+    fn format(&self, format: OutputFormat) -> String {
+        match format {
+            OutputFormat::Pretty => self.pretty(),
+            OutputFormat::Json => self.json(),
+        }
+    }
+
+    fn pretty(&self) -> String {
         let mut skin = MadSkin::default_dark();
         skin.set_fg(rgb(205, 214, 244));
         skin.bold.set_fg(rgb(166, 227, 161));
@@ -575,6 +587,7 @@ impl Formatter for IngestionViewModel
         skin.text(&md, None).to_string()
     }
 }
+
 
 impl From<Model> for IngestionViewModel
 {
