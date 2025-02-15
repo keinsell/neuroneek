@@ -1,30 +1,45 @@
 # Implementation of Collective Ingestion Insight
 
 ## Overview
-Feature to display active substance ingestions with their current phases and amounts, providing a clear overview of all substances currently affecting the user. Ojective is to show user how many of a "subjective" dosage he is feeling right now, with pseudo-adjustement for amount that is coming down or is afterglow to those who are comming in.
+Feature to display active substance ingestions with their current phases and amounts, providing a clear overview of all substances currently affecting the user. Objective is to show user how many of a "subjective" dosage he is feeling right now, with pseudo-adjustment for amount that is coming down or is afterglow to those who are coming in.
 
 ## Current System Analysis
-- System already tracks individual ingestions with phases (Onset, Comeup, Peak, Comedown, Afterglow)
-- Each ingestion has substance name, dosage, and timing information
-- Phases are tracked with start/end times and durations
-- Active phase detection is already implemented
+- ✓ System already tracks individual ingestions with phases (Onset, Comeup, Peak, Comedown, Afterglow)
+- ✓ Each ingestion has substance name, dosage, and timing information
+- ✓ Phases are tracked with start/end times and durations
+- ✓ Active phase detection is already implemented
 
 ## Requirements
 
 ### Functional Requirements
-1. Group active ingestions by substance
-   - Multiple ingestions of the same substance should be shown together
-   - Show total active amount per substance
+1. Group active ingestions by substance ✓
+   - Multiple ingestions of the same substance shown together ✓
+   - Show total active amount per substance ✓
 
-2. Display Phase Information
-   - Show current phase for each active ingestion
-   - Include time remaining in current phase
-   - Use phase indicators (↑ comeup, → peak, ↓ comedown)
+2. Display Phase Information ✓
+   - Show current phase for each active ingestion ✓
+   - Include time remaining in current phase ✓
+   - Use phase indicators (↑ comeup, → peak, ↓ comedown) ✓
 
-3. Amount Tracking
-   - Display individual ingestion amounts
-   - Show combined amount for multiple ingestions of same substance
+3. Amount Tracking ✓
+   - Display individual ingestion amounts ✓
+   - Show combined amount for multiple ingestions of same substance ✓
+   - Calculate subjective dosage based on phase ✓
 
-### Example Output Format
+### Implementation Status
+- ✓ Added new 'moment' command to CLI
+- ✓ Implemented active ingestion grouping by substance
+- ✓ Added phase-based subjective dosage calculation
+- ✓ Enhanced output formatting with termimad
+- ✓ Added JSON output support for scripting
 
-Prepare feature to show how much of a substance is at which stage from ingesitons that are active, ex morning coffee is coming down (80mg caffeine) and evening coffee is on comeup (80mg caffeine)
+### Example Output
+```
+# Current Active Substances
+
+## caffeine
+- ↓ 80.0 mg Comedown (1h 30m remaining)
+- ↑ 80.0 mg Comeup (45m remaining)
+
+Total: 160.0 mg (Subjective: 80.0 mg)
+```

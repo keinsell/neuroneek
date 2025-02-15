@@ -23,6 +23,8 @@ use substance::SubstanceCommand;
 use textplots::Chart;
 use textplots::Plot;
 use textplots::Shape;
+mod moment;
+use moment::MomentCommand;
 
 use crate::core::CommandHandler;
 use crate::utils::AppContext;
@@ -74,6 +76,7 @@ impl CommandHandler for ApplicationCommands
             | ApplicationCommands::Ingestion(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Substance(cmd) => cmd.handle(ctx).await,
             | ApplicationCommands::Journal(cmd) => cmd.handle(ctx).await,
+            | ApplicationCommands::Moment(cmd) => cmd.handle(ctx).await,
         }
     }
 }
@@ -84,10 +87,12 @@ pub enum ApplicationCommands
 {
     /// Manage ingestion entries
     Ingestion(IngestionCommand),
-    /// Query substance.rs information
+    /// Query substance information
     Substance(SubstanceCommand),
     /// View today's ingestion journal
     Journal(ViewJournal),
+    /// Show currently active substances and their effects
+    Moment(MomentCommand),
 }
 
 /// 🧬 Intelligent dosage tracker application with purpose to monitor
