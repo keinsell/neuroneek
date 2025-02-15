@@ -53,27 +53,6 @@ fn format_duration(duration: Duration) -> String {
 	}
 }
 
-fn get_phase_indicator(phase: &PhaseClassification, progress: f64) -> String {
-	let base_indicator = match phase {
-		PhaseClassification::Onset => "⟳",
-		PhaseClassification::Comeup => "↑",
-		PhaseClassification::Peak => "→",
-		PhaseClassification::Comedown => "↓",
-		PhaseClassification::Afterglow => "∿",
-		PhaseClassification::Unknown => "?",
-	};
-	
-	let progress_length = 10;
-	let filled = (progress * progress_length as f64).round() as usize;
-	let progress_bar = format!(
-		"[{}{}]",
-		"=".repeat(filled),
-		"-".repeat(progress_length - filled)
-	);
-	
-	format!("{} {}", base_indicator, progress_bar)
-}
-
 #[async_trait::async_trait]
 impl CommandHandler for MomentCommand {
 	async fn handle<'a>(&self, ctx: AppContext<'a>) -> miette::Result<()> {
@@ -124,11 +103,13 @@ impl CommandHandler for MomentCommand {
 							Dosage::from_base_units(acc.as_base_units() + i.dosage.as_base_units())
 						});
 					
-					md.push_str(&format!("## {}\n\n", substance));
+					md.push_str(&format!("## {}\n", substance));
 					
-					// Track active phases and their effects
-					let mut active_phases = Vec::new();
-					let mut max_remaining = Duration::zero();
+					// Calculate trend and dominant phase
+					let mut trend = 0.0;
+					let mut active_count = 0;
+					let mut dominant_phase = None;
+					let mut max_effect = 0.0;
 					
 					for ingestion in &ingestions {
 						if let Some(current_phase) = ingestion.phases.iter()
@@ -140,6 +121,7 @@ impl CommandHandler for MomentCommand {
 								current_phase.end_time.end
 							);
 							
+							let effect = calculate_phase_coefficient(&current_phase.class, progress);
 							let subjective_dosage = calculate_subjective_dosage(
 								&ingestion.dosage,
 								&current_phase.class,
@@ -150,37 +132,69 @@ impl CommandHandler for MomentCommand {
 								total_subjective.as_base_units() + subjective_dosage.as_base_units()
 							);
 							
-							let time_remaining = current_phase.end_time.end - now;
-							if time_remaining > max_remaining {
-								max_remaining = time_remaining;
+							if effect > max_effect {
+								max_effect = effect;
+								dominant_phase = Some((current_phase, progress));
 							}
 							
-							active_phases.push((current_phase.class.clone(), progress, ingestion.dosage));
+							trend += match current_phase.class {
+								PhaseClassification::Onset | PhaseClassification::Comeup => 1.0,
+								PhaseClassification::Peak => 0.0,
+								PhaseClassification::Comedown | PhaseClassification::Afterglow => -1.0,
+								PhaseClassification::Unknown => 0.0,
+							};
+							active_count += 1;
 						}
 					}
 					
-					// Show combined phase information
-					if !active_phases.is_empty() {
-						// Sort phases by their effect strength
-						active_phases.sort_by(|a, b| {
-							let effect_a = calculate_phase_coefficient(&a.0, a.1);
-							let effect_b = calculate_phase_coefficient(&b.0, b.1);
-							effect_b.partial_cmp(&effect_a).unwrap()
-						});
-						
-						// Show the dominant phase
-						let (phase, progress, _) = &active_phases[0];
-						md.push_str(&format!("{} {} _{} ({} remaining)_\n",
-							get_phase_indicator(phase, *progress),
-							total_actual,
-							phase,
-							format_duration(max_remaining)));
-					}
-					
 					if total_actual.as_base_units() > 0.0 {
-						let effect_percentage = (total_subjective.as_base_units() / total_actual.as_base_units() * 100.0).round();
-						md.push_str(&format!("**Current Effect**: {} ({:.0}%)\n\n",
-							total_subjective, effect_percentage));
+						// Show phase information if available
+						if let Some((phase, progress)) = dominant_phase {
+							let time_remaining = phase.end_time.end - now;
+							let indicator = match phase.class {
+								PhaseClassification::Onset => "⟳",
+								PhaseClassification::Comeup => "↑",
+								PhaseClassification::Peak => "→",
+								PhaseClassification::Comedown => "↓",
+								PhaseClassification::Afterglow => "∿",
+								PhaseClassification::Unknown => "?",
+							};
+							
+							let bar_length = 10;
+							let filled = (progress * bar_length as f64).round() as usize;
+							let progress_bar = format!(
+								"[{}{}]",
+								"=".repeat(filled),
+								"-".repeat(bar_length - filled)
+							);
+							
+							md.push_str(&format!("{} {} _{} ({} remaining)_\n",
+								indicator,
+								progress_bar,
+								phase.class,
+								format_duration(time_remaining)));
+						}
+						
+						// Determine trend indicator
+						let trend_indicator = if active_count > 0 {
+							let avg_trend = trend / active_count as f64;
+							if avg_trend > 0.3 {
+								"↑"
+							} else if avg_trend < -0.3 {
+								"↓"
+							} else {
+								"→"
+							}
+						} else {
+							"·"
+						};
+						
+						// Show dosage information
+						md.push_str(&format!("**Ingested**: {}\n", total_actual));
+						md.push_str(&format!("**Feeling**: {} {} ({:.0}%)\n\n",
+							trend_indicator,
+							total_subjective,
+							(total_subjective.as_base_units() / total_actual.as_base_units() * 100.0).round()));
 					}
 				}
 
