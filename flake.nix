@@ -48,11 +48,10 @@
         commonArgs = {
           src = craneLib.cleanCargoSource (craneLib.path ./.);
           buildInputs = buildInputs;
-          nativeBuildInputs = with pkgs; [ pkg-config ];
+          nativeBuildInputs = with pkgs; [pkg-config];
         };
 
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs;
@@ -68,6 +67,8 @@
           shellHook = ''
             export RUST_BACKTRACE=1
             echo "Using Rust nightly: $(rustc --version)"
+            root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
+            export PATH=$PATH:$root/target/debug:$root/target/release
           '';
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
