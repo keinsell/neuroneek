@@ -2,6 +2,7 @@ use crate::cli::formatter::Formatter;
 use crate::cli::OutputFormat;
 use crate::core::foundation::QueryHandler;
 use crate::core::CommandHandler;
+use crate::ingestion::model::IngestionPhase;
 use crate::database::entities::ingestion::Entity as Ingestion;
 use crate::database::entities::ingestion::Model as IngestionModel;
 use crate::ingestion::query::AnalyzeIngestion;
@@ -46,18 +47,19 @@ struct EnhancedIngestion
     is_active: bool,
     current_phase: Option<String>,
     time_remaining: Option<Duration>,
+    phases: Vec<IngestionPhase>,
 }
 
 /// Journal view is a list separated by hour of the day
 /// with each hour containing a list of ingestions for that hour.
 #[derive(Serialize, Debug)]
-pub struct JournalViewModel
+struct Model
 {
     entries: HashMap<u32, Vec<EnhancedIngestion>>,
     current_time: DateTime<Local>,
 }
 
-impl Tabled for JournalViewModel
+impl Tabled for Model
 {
     const LENGTH: usize = 2;
 
@@ -72,7 +74,7 @@ impl Tabled for JournalViewModel
     fn headers() -> Vec<Cow<'static, str>> { vec![Cow::Borrowed("Field"), Cow::Borrowed("Value")] }
 }
 
-impl JournalViewModel
+impl Model
 {
     pub async fn new(ingestions: Vec<IngestionModel>) -> Result<Self>
     {
@@ -115,6 +117,7 @@ impl JournalViewModel
                     is_active: current_phase.is_some(),
                     current_phase: current_phase.as_ref().map(|(phase, _)| phase.clone()),
                     time_remaining: current_phase.map(|(_, remaining)| remaining),
+                    phases: analysis.phases,
                 }
             }
             else
@@ -124,6 +127,7 @@ impl JournalViewModel
                     is_active: false,
                     current_phase: None,
                     time_remaining: None,
+                    phases: vec![],
                 }
             };
 
@@ -137,7 +141,7 @@ impl JournalViewModel
     }
 }
 
-impl Formatter for JournalViewModel
+impl Formatter for Model
 {
     fn format(&self, format: OutputFormat) -> String
     {
@@ -232,6 +236,22 @@ impl Formatter for JournalViewModel
                         phase_info,
                         time_info
                     ));
+
+                    // Add phase timeline if phases exist
+                    if !ingestion.phases.is_empty() {
+                        md.push_str("\n```\nPhase Timeline:\n");
+                        for phase in &ingestion.phases {
+                            md.push_str(&format!(
+                                "{}: {} - {}\n",
+                                phase.class,
+                                phase.start_time.start.format("%H:%M"),
+                                phase.end_time.end.format("%H:%M")
+                            ));
+                        }
+                        md.push_str("```\n");
+                    }
+                    
+                    md.push_str("\n");
                 }
             }
         }
@@ -265,7 +285,7 @@ impl CommandHandler for ViewJournal
             .await
             .into_diagnostic()?;
 
-        let view_model = JournalViewModel::new(ingestions).await?;
+        let view_model = Model::new(ingestions).await?;
         println!("{}", view_model.format(ctx.stdout_format));
 
         Ok(())
