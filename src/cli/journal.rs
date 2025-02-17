@@ -236,22 +236,6 @@ impl Formatter for Model
                         phase_info,
                         time_info
                     ));
-
-                    // Add phase timeline if phases exist
-                    if !ingestion.phases.is_empty() {
-                        md.push_str("\n```\nPhase Timeline:\n");
-                        for phase in &ingestion.phases {
-                            md.push_str(&format!(
-                                "{}: {} - {}\n",
-                                phase.class,
-                                phase.start_time.start.format("%H:%M"),
-                                phase.end_time.end.format("%H:%M")
-                            ));
-                        }
-                        md.push_str("```\n");
-                    }
-                    
-                    md.push_str("\n");
                 }
             }
         }
