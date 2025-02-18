@@ -20,8 +20,6 @@ use clap::Parser;
 use humantime::format_duration;
 use miette::IntoDiagnostic;
 use miette::Result;
-use plotters::prelude::*;
-use plotters::style::register_font;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
@@ -32,7 +30,6 @@ use std::collections::HashMap;
 use tabled::Tabled;
 use termimad::MadSkin;
 use termimad::rgb;
-
 
 #[derive(Parser, Debug)]
 pub struct ViewJournal
@@ -253,89 +250,82 @@ impl Model
 {
     fn generate_plot(&self) -> String
     {
-        let width = 48; // Two characters per hour
-        let height = 6;
         let now = Local::now();
         let start_of_day = now.date().and_hms_opt(0, 0, 0).unwrap();
+        let end_of_day = now.date().and_hms_opt(23, 59, 59).unwrap();
 
-        let mut plot_data: Vec<f64> = vec![0.0; width];
+        // Collect data points for the plot
+        let mut data_points: Vec<(f64, f64)> = Vec::new();
 
-        // Aggregate phase intensities for each "pixel"
-        for (&hour, ingestions) in &self.entries
+        // Create 48 time points throughout the day (one every 30 minutes)
+        for i in 0..48
         {
-            for ingestion in ingestions
+            let time = start_of_day + chrono::Duration::minutes(i * 30);
+            let mut intensity = 0.0;
+
+            // Calculate intensity at this time point
+            for ingestions in self.entries.values()
             {
-                for phase in &ingestion.phases
+                for ingestion in ingestions
                 {
-                    let phase_start = phase.start_time.start;
-                    let phase_end = phase.end_time.end;
-
-                    // Calculate the start and end "pixels" for the phase
-                    let start_pixel = ((phase_start - start_of_day).num_minutes() as f64
-                        / (24.0 * 60.0)
-                        * width as f64)
-                        .round() as usize;
-                    let end_pixel = ((phase_end - start_of_day).num_minutes() as f64
-                        / (24.0 * 60.0)
-                        * width as f64)
-                        .round() as usize;
-
-                    // Apply intensity to the plot data
-                    for i in start_pixel.min(width - 1)..end_pixel.min(width - 1)
+                    for phase in &ingestion.phases
                     {
-                        plot_data[i] += 1.0; // Simple intensity: just increment
+                        if time >= phase.start_time.start && time <= phase.end_time.end
+                        {
+                            intensity += 1.0;
+                        }
                     }
                 }
             }
-        }
 
-        // Normalize intensity values to fit within the plot height
-        let max_intensity = plot_data.iter().cloned().fold(0.0, f64::max);
-        if max_intensity > 0.0
-        {
-            for i in 0..width
-            {
-                plot_data[i] = plot_data[i] / max_intensity * (height - 1) as f64;
-            }
+            // Convert time to hours since start of day (as f64)
+            let hours = (time - start_of_day).num_minutes() as f64 / 60.0;
+            data_points.push((hours, intensity));
         }
 
         // Create the plot
-        let mut plot = String::new();
-        plot.push_str("```text\n");
+        let mut output = String::new();
+        output.push_str("```text\n");
 
-        for row in (0..height).rev()
+        if !data_points.is_empty()
         {
-            for col in 0..width
+            let points: Vec<(f64, f64)> = data_points;
+            let max_intensity = points.iter().map(|(_, y)| *y).fold(0.0, f64::max);
+            let height = 10;
+            let width = 48;
+
+            // Draw y-axis scale
+            if max_intensity > 0.0
             {
-                if plot_data[col] as usize >= row
+                output.push_str(&format!("{:>3.0} ┐\n", max_intensity));
+                for row in (0..height).rev()
                 {
-                    plot.push_str("██"); // Use a block character for filled
+                    let y_value = row as f64 * max_intensity / height as f64;
+                    let row_points: Vec<bool> = points
+                        .iter()
+                        .map(|(_, intensity)| *intensity >= y_value)
+                        .collect();
+
+                    output.push_str(&format!("{:>3.0} │", y_value));
+                    for &has_point in &row_points
+                    {
+                        output.push_str(if has_point { "█" } else { " " });
+                    }
+                    output.push('\n');
                 }
-                else
-                {
-                    plot.push_str("  "); // Use two spaces for empty
-                }
+                output.push_str("    └");
+                output.push_str(&"─".repeat(width));
+                output.push('\n');
+                output.push_str("     0   4   8   12  16  20  24\n");
             }
-            plot.push_str("\n");
+        }
+        else
+        {
+            output.push_str("No data available for plotting\n");
         }
 
-        // Add the time labels
-        plot.push_str("00");
-        for i in 2..24
-        {
-            if i % 2 == 0
-            {
-                plot.push_str(&format!("{:02}", i));
-            }
-            else
-            {
-                plot.push_str("  ");
-            }
-        }
-        plot.push_str("24\n");
-
-        plot.push_str("```\n");
-        plot
+        output.push_str("```\n");
+        output
     }
 }
 
