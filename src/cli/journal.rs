@@ -52,13 +52,13 @@ struct EnhancedIngestion
 /// Journal view is a list separated by hour of the day
 /// with each hour containing a list of ingestions for that hour.
 #[derive(Serialize, Debug)]
-struct Model
+struct JournalModel
 {
     entries: HashMap<u32, Vec<EnhancedIngestion>>,
     current_time: DateTime<Local>,
 }
 
-impl Tabled for Model
+impl Tabled for JournalModel
 {
     const LENGTH: usize = 2;
 
@@ -73,7 +73,7 @@ impl Tabled for Model
     fn headers() -> Vec<Cow<'static, str>> { vec![Cow::Borrowed("Field"), Cow::Borrowed("Value")] }
 }
 
-impl Model
+impl JournalModel
 {
     pub async fn new(ingestions: Vec<IngestionModel>) -> Result<Self>
     {
@@ -140,7 +140,7 @@ impl Model
     }
 }
 
-impl Formatter for Model
+impl Formatter for JournalModel
 {
     fn format(&self, format: OutputFormat) -> String
     {
@@ -164,7 +164,7 @@ impl Formatter for Model
         let mut md = String::new();
         md.push_str(&format!("# {}\n\n", self.current_time.format("%Y-%m-%d")));
 
-        md.push_str(&self.generate_plot());
+        md.push_str(&PhaseVisualization::generate_plot(self));
         md.push_str("\n\n");
 
         let mut hours: Vec<_> = self.entries.keys().collect();
@@ -246,9 +246,24 @@ impl Formatter for Model
     }
 }
 
-impl Model
+#[derive(Debug, Serialize)]
+struct PhaseVisualization
 {
-    fn generate_plot(&self) -> String
+    phases: Vec<PhaseBand>,
+    now: f64,
+}
+
+#[derive(Debug, Serialize)]
+struct PhaseBand
+{
+    name: String,
+    start: DateTime<Local>,
+    end: DateTime<Local>,
+}
+
+impl PhaseVisualization
+{
+    fn generate_plot(model: &JournalModel) -> String
     {
         let now = Local::now();
         let start_of_day = now.date().and_hms_opt(0, 0, 0).unwrap();
@@ -264,7 +279,7 @@ impl Model
             let mut intensity = 0.0;
 
             // Calculate intensity at this time point
-            for ingestions in self.entries.values()
+            for ingestions in model.entries.values()
             {
                 for ingestion in ingestions
                 {
@@ -354,7 +369,7 @@ impl CommandHandler for ViewJournal
             .await
             .into_diagnostic()?;
 
-        let view_model = Model::new(ingestions).await?;
+        let view_model = JournalModel::new(ingestions).await?;
         println!("{}", view_model.format(ctx.stdout_format));
 
         Ok(())
