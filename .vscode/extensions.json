@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "giga-ai.giga-ai"
+        "giga-ai.giga-ai",
+        "rust-lang.rust-analyzer"
     ]
 }

@@ -1,13 +1,13 @@
-use crate::cli::formatter::Formatter;
 use crate::cli::OutputFormat;
-use crate::core::foundation::QueryHandler;
+use crate::cli::formatter::Formatter;
 use crate::core::CommandHandler;
-use crate::ingestion::model::IngestionPhase;
+use crate::core::foundation::QueryHandler;
 use crate::database::entities::ingestion::Entity as Ingestion;
 use crate::database::entities::ingestion::Model as IngestionModel;
+use crate::ingestion::model::IngestionPhase;
 use crate::ingestion::query::AnalyzeIngestion;
-use crate::substance::route_of_administration::dosage::Dosage;
 use crate::substance::route_of_administration::RouteOfAdministrationClassification;
+use crate::substance::route_of_administration::dosage::Dosage;
 use crate::utils::AppContext;
 use async_trait::async_trait;
 use chrono::DateTime;
@@ -20,6 +20,7 @@ use clap::Parser;
 use humantime::format_duration;
 use miette::IntoDiagnostic;
 use miette::Result;
+use plotters::prelude::*;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
@@ -28,8 +29,8 @@ use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use tabled::Tabled;
-use termimad::rgb;
 use termimad::MadSkin;
+use termimad::rgb;
 
 
 #[derive(Parser, Debug)]
@@ -164,6 +165,33 @@ impl Formatter for Model
 
         let mut md = String::new();
         md.push_str(&format!("# {}\n\n", self.current_time.format("%Y-%m-%d")));
+
+        let mut hour_counts: Vec<(u32, usize)> = self
+            .entries
+            .iter()
+            .map(|(&hour, ingestions)| (hour, ingestions.len()))
+            .collect();
+
+        hour_counts.sort_by_key(|&(hour, _)| hour);
+
+        let max_count = hour_counts
+            .iter()
+            .map(|(_, count)| *count)
+            .max()
+            .unwrap_or(0) as f64;
+
+        md.push_str("```text\n");
+        for hour in 0..24
+        {
+            let count = hour_counts
+                .iter()
+                .find_map(|&(h, c)| if h == hour { Some(c) } else { None })
+                .unwrap_or(0);
+            let bar_length = (count as f64 / max_count * 20.0) as usize;
+            let bar: String = "*".repeat(bar_length);
+            md.push_str(&format!("{:02}:00 | {}\n", hour, bar));
+        }
+        md.push_str("```\n\n");
 
         let mut hours: Vec<_> = self.entries.keys().collect();
         hours.sort();
