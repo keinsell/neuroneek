@@ -21,6 +21,7 @@ use humantime::format_duration;
 use miette::IntoDiagnostic;
 use miette::Result;
 use plotters::prelude::*;
+use plotters::style::register_font;
 use sea_orm::ColumnTrait;
 use sea_orm::EntityTrait;
 use sea_orm::QueryFilter;
@@ -166,32 +167,8 @@ impl Formatter for Model
         let mut md = String::new();
         md.push_str(&format!("# {}\n\n", self.current_time.format("%Y-%m-%d")));
 
-        let mut hour_counts: Vec<(u32, usize)> = self
-            .entries
-            .iter()
-            .map(|(&hour, ingestions)| (hour, ingestions.len()))
-            .collect();
-
-        hour_counts.sort_by_key(|&(hour, _)| hour);
-
-        let max_count = hour_counts
-            .iter()
-            .map(|(_, count)| *count)
-            .max()
-            .unwrap_or(0) as f64;
-
-        md.push_str("```text\n");
-        for hour in 0..24
-        {
-            let count = hour_counts
-                .iter()
-                .find_map(|&(h, c)| if h == hour { Some(c) } else { None })
-                .unwrap_or(0);
-            let bar_length = (count as f64 / max_count * 20.0) as usize;
-            let bar: String = "*".repeat(bar_length);
-            md.push_str(&format!("{:02}:00 | {}\n", hour, bar));
-        }
-        md.push_str("```\n\n");
+        md.push_str(&self.generate_plot());
+        md.push_str("\n\n");
 
         let mut hours: Vec<_> = self.entries.keys().collect();
         hours.sort();
@@ -269,6 +246,96 @@ impl Formatter for Model
         }
 
         skin.text(&md, None).to_string()
+    }
+}
+
+impl Model
+{
+    fn generate_plot(&self) -> String
+    {
+        let width = 48; // Two characters per hour
+        let height = 6;
+        let now = Local::now();
+        let start_of_day = now.date().and_hms_opt(0, 0, 0).unwrap();
+
+        let mut plot_data: Vec<f64> = vec![0.0; width];
+
+        // Aggregate phase intensities for each "pixel"
+        for (&hour, ingestions) in &self.entries
+        {
+            for ingestion in ingestions
+            {
+                for phase in &ingestion.phases
+                {
+                    let phase_start = phase.start_time.start;
+                    let phase_end = phase.end_time.end;
+
+                    // Calculate the start and end "pixels" for the phase
+                    let start_pixel = ((phase_start - start_of_day).num_minutes() as f64
+                        / (24.0 * 60.0)
+                        * width as f64)
+                        .round() as usize;
+                    let end_pixel = ((phase_end - start_of_day).num_minutes() as f64
+                        / (24.0 * 60.0)
+                        * width as f64)
+                        .round() as usize;
+
+                    // Apply intensity to the plot data
+                    for i in start_pixel.min(width - 1)..end_pixel.min(width - 1)
+                    {
+                        plot_data[i] += 1.0; // Simple intensity: just increment
+                    }
+                }
+            }
+        }
+
+        // Normalize intensity values to fit within the plot height
+        let max_intensity = plot_data.iter().cloned().fold(0.0, f64::max);
+        if max_intensity > 0.0
+        {
+            for i in 0..width
+            {
+                plot_data[i] = plot_data[i] / max_intensity * (height - 1) as f64;
+            }
+        }
+
+        // Create the plot
+        let mut plot = String::new();
+        plot.push_str("```text\n");
+
+        for row in (0..height).rev()
+        {
+            for col in 0..width
+            {
+                if plot_data[col] as usize >= row
+                {
+                    plot.push_str("██"); // Use a block character for filled
+                }
+                else
+                {
+                    plot.push_str("  "); // Use two spaces for empty
+                }
+            }
+            plot.push_str("\n");
+        }
+
+        // Add the time labels
+        plot.push_str("00");
+        for i in 2..24
+        {
+            if i % 2 == 0
+            {
+                plot.push_str(&format!("{:02}", i));
+            }
+            else
+            {
+                plot.push_str("  ");
+            }
+        }
+        plot.push_str("24\n");
+
+        plot.push_str("```\n");
+        plot
     }
 }
 
